@@ -31,9 +31,12 @@ Coming Soon!
 
 These modules are primarily intended as a vehicle for me to learn how to create modules for VCV Rack.   
 
-After watching a cool video from KlirrFaktor, I set out to build a scale based quantiser as there did not seem to be one around and this was a great opportuntity to learn how to build mmodules. I did not spot Jeremy Wentworth's module in development, but wasn't going to let redundancy get in the way of good idea. I thought I'd at least add something (scale degree-based gates), that may or may not be usedful for someone.  
+After watching a cool video from KlirrFaktor, I set out to build a scale based quantiser as there did not seem to be one around and this was a great opportuntity to learn how to build modules. I did not spot jeremywen's module in development, but wasn't going to let redundancy get in the way of good idea. I thought I'd at least add something (scale degree-based gates) that may or may not be usedful for someone.  
+
+ScaleQuantiser: Input/Output from Rack, Lights system, UI design and how to align SVG with UI elements defined in the code (screenshots, transparency and object proxies). 
+Arpeggiator: Working with clocks (in progress)
 
 ### Credits and Thanks
 
-* Jeremy Wentworth for the core quantisation code.  
-* The KlirrFaktor for his great video on building a sequencer: https://www.youtube.com/watch?v=RFyC4II1kRw which used a quantiser with a fixed scale  
+* jeremywen for the neat quantisation code, saved me a great deal of time
+* The KlirrFaktor for his great video on building a sequencer: https://www.youtube.com/watch?v=RFyC4II1kRw   

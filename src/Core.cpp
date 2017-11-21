@@ -9,7 +9,6 @@ float Quantizer::getPitchFromVolts(float inVolts, float inRoot, float inScale, i
 	// get the root note and scale
 	int currRoot = round(rescalef(fabs(inRoot), 0, 10, 0, Quantizer::NUM_NOTES));
 	int currScale = round(rescalef(fabs(inScale), 0, 10, 0, Quantizer::NUM_SCALES));
-	int currDegree = 0;	
 
 	int *curScaleArr;
 	int notesInScale = 0;
@@ -42,8 +41,8 @@ float Quantizer::getPitchFromVolts(float inVolts, float inRoot, float inScale, i
 	for (int i = 0; i < notesInScale; i++) {
 
 		float fOctave = (float)octave;
-		int iDegree = curScaleArr[i];
-		float fVoltsAboveOctave = iDegree / 12.0;
+		int degree = curScaleArr[i]; // 0 - 11!
+		float fVoltsAboveOctave = degree / 12.0;
 		float fScaleNoteInVolts = fOctave + fVoltsAboveOctave;
 		float distAway = fabs(inVolts - fScaleNoteInVolts);
 
@@ -52,7 +51,7 @@ float Quantizer::getPitchFromVolts(float inVolts, float inRoot, float inScale, i
 			<< " index: " << i 
 			<< " root: " << currRoot
 			<< " octave: " << fOctave
-			<< " degree: " << iDegree
+			<< " degree: " << degree
 			<< " V above O: " << fVoltsAboveOctave
 			<< " note in V: " << fScaleNoteInVolts
 			<< " distance: " << distAway
@@ -61,8 +60,7 @@ float Quantizer::getPitchFromVolts(float inVolts, float inRoot, float inScale, i
 
 		// Assume that the list of notes is ordered, so there is an single inflection point at the minimum value 
 		if (distAway > closestDist){
-			noteFound = i - 1; // We break here because the previous note was closer, all subsequent notes are father away
-			currDegree = iDegree;
+			noteFound = i - 1; // We break here because the previous note was closer, all subsequent notes are farther away
 			break;
 		} else {
 			// Let's remember this
@@ -71,20 +69,20 @@ float Quantizer::getPitchFromVolts(float inVolts, float inRoot, float inScale, i
 		}
 	}
 
+
+
 	int currNote = (currRoot + curScaleArr[noteFound]) % 12;
 	if (debug && stepX % poll == 0) {
 		// Dump the note and degree, mod the size in case where we have wrapped round
 
-		std::cout << "Found note in scale: " << noteFound 
-		<< " Scale degree: " << curScaleArr[noteFound] << " " << degreeNames[curScaleArr[noteFound]] 
-		<< " Note: " << currNote << " " << noteNames[currNote] 
-		<< std::endl;
+		std::cout << "Found index in scale: " << noteFound << ", currNote: "  << currNote <<  " (Name: " << noteNames[currNote] << ")" << std::endl;
+		std::cout << "This is scale note: "  << curScaleArr[noteFound] << " (Name: " << degreeNames[curScaleArr[noteFound]] << ")" << std::endl;
 	}
 
 	*outRoot = currRoot;
 	*outScale = currScale;
 	*outNote = currNote;
-	*outDegree = currDegree;
+	*outDegree = curScaleArr[noteFound];
 	
 	return closestVal;
  

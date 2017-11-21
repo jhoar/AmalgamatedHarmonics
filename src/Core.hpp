@@ -136,7 +136,19 @@ struct Quantizer {
 	int poll = 50000;
 	int stepX = 0;
 
+	/*
+	* Convert a V/OCT voltage to a quantized pitch, key and scale, and calculate various information about the quantised note.
+	*/
+	
 	float getPitchFromVolts(float inVolts, float inRoot, float inScale, int *outRoot, int *outScale, int *outNote, int *outDegree);
+	
+	
+	/* From the numerical key on a keyboard (0 = C, 11 = B), spacing in px between white keys and a starting x and Y coordinate for the C key (in px)
+	* calculate the actual X and Y coordinate for a key, and the scale note to which that key belongs (see Midi note mapping)
+	* http://www.grantmuller.com/MidiReference/doc/midiReference/ScaleReference.html */
 	void calculateKey(int inKey, float spacing, float xOff, float yOff, float *x, float *y, int *scale); 
+	
+	
+	
 };
 
