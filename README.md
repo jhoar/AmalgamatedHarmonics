@@ -22,6 +22,11 @@ Scared by the anarchy of unconstrained tone? Want to come back to that familiar 
 * OUT: Quantised note
 * Top row of outputs: Gates triggered from the scale degree of the note quantised
 
+## Arpeggiator
+
+Coming Soon!
+
+
 ### Notes
 
 These modules are primarily intended as a vehicle for me to learn how to create modules for VCV Rack.   
@@ -30,5 +35,5 @@ After watching a cool video from KlirrFaktor, I set out to build a scale based q
 
 ### Credits and Thanks
 
-* Jeremy Wentworth for the core quantisation code. I broke the code down a bit to understand was was going on and fixed a few things which seemed to be broken (at least as far as I could work out). 
+* Jeremy Wentworth for the core quantisation code.  
 * The KlirrFaktor for his great video on building a sequencer: https://www.youtube.com/watch?v=RFyC4II1kRw which used a quantiser with a fixed scale  
