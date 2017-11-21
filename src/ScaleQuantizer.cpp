@@ -130,9 +130,7 @@ ScaleQuantizerWidget::ScaleQuantizerWidget() {
 
 	for (int i = 0; i < 12; i++) {
 		addChild(createLight<SmallLight<GreenLight>>(Vec(xOffset + i * 18.0, 280.0), module, ScaleQuantizer::SCALE_LIGHT + i));
-	}
- 
-	for (int i = 0; i < 12; i++) {
+
 		quant.calculateKey(i, xSpace, xOffset, 230.0, &xPos, &yPos, &scale);
 		addChild(createLight<SmallLight<GreenLight>>(Vec(xPos, yPos), module, ScaleQuantizer::KEY_LIGHT + scale));
 

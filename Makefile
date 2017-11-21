@@ -17,7 +17,7 @@ include ../../plugin.mk
 
 
 # Convenience target for including files in the distributable release
-DIST_NAME = Jannakar
+DIST_NAME = AmalgamatedHarmonics
 .PHONY: dist
 dist: all
 ifndef VERSION
