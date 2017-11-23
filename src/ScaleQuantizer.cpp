@@ -16,6 +16,7 @@ struct ScaleQuantizer : Module {
 	};
 	enum OutputIds {
 		OUT_OUTPUT,
+		TRIG_OUTPUT,
 		GATE_OUTPUT,
 		NUM_OUTPUTS = GATE_OUTPUT + 12
 	};
@@ -35,11 +36,13 @@ struct ScaleQuantizer : Module {
 	bool firstStep = true;
 	int lastScale = 0;
 	int lastRoot = 0;
+	float lastPitch = 0.0;
 	
 	int currScale = 0;
 	int currRoot = 0;
 	int currNote = 0;
 	int currDegree = 0;
+	int currPitch = 0.0;
 
 };
 
@@ -51,6 +54,7 @@ void ScaleQuantizer::step() {
 	
 	lastScale = currScale;
 	lastRoot = currRoot;
+	lastPitch = currPitch;
 
 	// Get the input pitch
 	float volts = inputs[IN_INPUT].value;
@@ -58,10 +62,10 @@ void ScaleQuantizer::step() {
 	float scale = inputs[SCALE_INPUT].value;
 
 	// Calculate output pitch from raw voltage
-	float pitch = q.getPitchFromVolts(volts, root, scale, &currRoot, &currScale, &currNote, &currDegree);
+	currPitch = q.getPitchFromVolts(volts, root, scale, &currRoot, &currScale, &currNote, &currDegree);
 
 	// Set the value
-	outputs[OUT_OUTPUT].value = pitch;
+	outputs[OUT_OUTPUT].value = currPitch;
 
 	// update tone lights
 	for (int i = 0; i < Quantizer::NUM_NOTES; i++) {
@@ -91,6 +95,12 @@ void ScaleQuantizer::step() {
 		lights[KEY_LIGHT + currRoot].value = 1.0;
 	} 
 
+	if (lastPitch != currPitch || firstStep) {
+		outputs[TRIG_OUTPUT].value = 10.0;
+	} else {
+		outputs[TRIG_OUTPUT].value = 0.0;		
+	}
+
 	firstStep = false;
 
 }
@@ -116,11 +126,11 @@ ScaleQuantizerWidget::ScaleQuantizerWidget() {
 	addChild(createScrew<ScrewSilver>(Vec(15, 365)));
 	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
-	addInput(createInput<PJ301MPort>(Vec(18, 329), module, ScaleQuantizer::IN_INPUT));
-	addInput(createInput<PJ301MPort>(Vec(78, 329), module, ScaleQuantizer::KEY_INPUT));
-	addInput(createInput<PJ301MPort>(Vec(138, 329), module, ScaleQuantizer::SCALE_INPUT));
-
-	addOutput(createOutput<PJ301MPort>(Vec(198, 329), module, ScaleQuantizer::OUT_OUTPUT));
+	addInput(createInput<PJ301MPort>(Vec(11, 329), module, ScaleQuantizer::IN_INPUT));
+	addInput(createInput<PJ301MPort>(Vec(61, 329), module, ScaleQuantizer::KEY_INPUT));
+	addInput(createInput<PJ301MPort>(Vec(111, 329), module, ScaleQuantizer::SCALE_INPUT));
+	addOutput(createOutput<PJ301MPort>(Vec(158, 329), module, ScaleQuantizer::TRIG_OUTPUT));
+	addOutput(createOutput<PJ301MPort>(Vec(205, 329), module, ScaleQuantizer::OUT_OUTPUT));
 
 	float xOffset = 18.0;
 	float xSpace = 21.0;
@@ -141,6 +151,7 @@ ScaleQuantizerWidget::ScaleQuantizerWidget() {
 		addChild(createLight<SmallLight<GreenLight>>(Vec(xPos, yPos), module, ScaleQuantizer::DEGREE_LIGHT + scale));
 
 		quant.calculateKey(i, 30.0, xOffset, 85.0, &xPos, &yPos, &scale);
+
 		addOutput(createOutput<PJ301MPort>(Vec(xPos, yPos), module, ScaleQuantizer::GATE_OUTPUT + scale));
 	}
 

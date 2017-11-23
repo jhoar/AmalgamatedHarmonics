@@ -19,6 +19,7 @@ Scared by the anarchy of unconstrained tone? Want to come back to that familiar 
 	* Minor Pentatonic
 	* Harmonic Minor
 	* Blues
+* TRIG: Gate fired quantized pitch changes
 * OUT: Quantised note (V/OCT)
 * Top row of outputs: Gates triggered from the scale degree of the note quantised
 
