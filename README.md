@@ -30,7 +30,7 @@ Need some more predictable variety in your patches? Why not try the Arpeggiator 
 * CLOCK: Input clock for the sequenced notes
 * GATE: Output gate fired for each sequenced note. This could be slaved to the source for the TRIG input, or maybe not...
 * OUT: Output sequenced note (V/OCT)
-* STEPS: Input nUmber of steps in the sequence (max 16)
+* STEPS: Input number of steps in the sequence (max 16)
 * DIST: Number of semi-tones for each step (max 10)
 * TRIG: Input gate to trigger the sequence
 * EOS: Output gate fired when the sequence ends
