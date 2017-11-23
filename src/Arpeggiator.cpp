@@ -1,105 +1,160 @@
 #include "AH.hpp"
 #include "Core.hpp"
+#include "components.hpp"
+#include "dsp/digital.hpp"
 
 #include <iostream>
+
+struct AHKnob : SVGKnob {
+	AHKnob() {
+		setSVG(SVG::load(assetPlugin(plugin,"res/ComponentLibrary/AHKnob.svg")));
+		minAngle = -0.83*M_PI;
+		maxAngle = 0.83*M_PI;
+	}
+};
 
 struct Arpeggiator : Module {
 
 	enum ParamIds {
+		DIR_PARAM,
 		NUM_PARAMS
 	};
 	enum InputIds {
 		IN_INPUT,
-		KEY_INPUT,
-		SCALE_INPUT,
+		CLOCK_INPUT,
+		STEP_INPUT,
+		DIST_INPUT,
+		TRIG_INPUT,
 		NUM_INPUTS
 	};
 	enum OutputIds {
 		OUT_OUTPUT,
 		GATE_OUTPUT,
-		NUM_OUTPUTS = GATE_OUTPUT + 12
+		EOS_OUTPUT,
+		NUM_OUTPUTS
 	};
 	enum LightIds {
-		NOTE_LIGHT,
-		KEY_LIGHT = NOTE_LIGHT + 12,
-		SCALE_LIGHT = KEY_LIGHT + 12,
-		DEGREE_LIGHT = SCALE_LIGHT + 12,
-		NUM_LIGHTS = DEGREE_LIGHT + 12
+		NUM_LIGHTS
 	};
+	
+	int PATT_UP[17] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16}; 
+	int PATT_DN[17] = {0,-1,-2,-3,-4,-5,-6,-7,-8,-9,-10,-11,-12,-13,-14,-15,-16}; 
 
 	Arpeggiator() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
 	void step() override;
-	void setQuantizer(Quantizer &quant);
 	
-	Quantizer q;
-	bool firstStep = true;
-	int lastScale = 0;
-	int lastRoot = 0;
+	bool isRunning = false;
+	int MAX_STEPS = 16;
 	
-	int currScale = 0;
-	int currRoot = 0;
-	int currNote = 0;
-	int currDegree = 0;
+	SchmittTrigger clockTrigger; // for clock
+	SchmittTrigger trigTrigger;  // for step trigger
+	PulseGenerator gatePulse;
+	PulseGenerator eosPulse;
+		
+	float pitches[16];
+	int currStep;
+	int stepsRemaining;
+	float outVolts;
 
 };
 
-void Arpeggiator::setQuantizer(Quantizer &quantizer) {
-	q = quantizer;
-}
-
 void Arpeggiator::step() {
+
+	bool isClocked = false;
+	bool isTriggered = false;
+	bool runSeq = false;
+	bool isFinished = false;
 	
-	lastScale = currScale;
-	lastRoot = currRoot;
+	// Clock running sequence
+	if (inputs[CLOCK_INPUT].active) {
+		// External clock
+		if (clockTrigger.process(inputs[CLOCK_INPUT].value)) {
+			isClocked = true;
+		} 
+	}
 
+	// Trigger a new sequence
+	if (inputs[TRIG_INPUT].active) {
+		// External clock
+		if (trigTrigger.process(inputs[TRIG_INPUT].value)) {
+			isTriggered = true;
+		} 
+	}
+	
 	// Get the input pitch
-	float volts = inputs[IN_INPUT].value;
-	float root =  inputs[KEY_INPUT].value;
-	float scale = inputs[SCALE_INPUT].value;
+	float inVolts = inputs[IN_INPUT].value;
+	int dir = params[DIR_PARAM].value;
+	
+	// If triggered 
+	if (isTriggered) {
+	
+		int nStep = inputs[STEP_INPUT].value;
+		nStep = clampi(nStep, 0, MAX_STEPS);
 
-	// Calculate output pitch from raw voltage
-	float pitch = q.getPitchFromVolts(volts, root, scale, &currRoot, &currScale, &currNote, &currDegree);
+		int nDist = inputs[DIST_INPUT].value;
+		nDist = clampi(nDist, 0, 10);
+
+		float semiTone = 1.0 / 12.0;
+
+		// std::cout << "Steps: " << nStep << " Dist:" << nDist << std::endl;
+
+		// Calculate the subsequent pitches, need direction, number of steps and step size
+		int *direction;
+		switch (dir){
+			case 1:			direction = PATT_UP; break;
+			case 0:			direction = PATT_DN; break;
+			default: 		direction = PATT_UP;
+		}
+		
+		// Include current pitch
+		// std::cout << "V=" << inVolts << " ";
+		for (int s = 0; s < nStep; s++) {
+			float v = semiTone * nDist * direction[s];
+			pitches[s] = clampf(inVolts + v, -10.0, 10.0);
+			// std::cout << s << "=" <<  pitches[s] << " ";
+		}
+		//  std::cout << std::endl;
+		
+		isRunning = true;
+		currStep = 0;
+		stepsRemaining = nStep;
+		runSeq = true;
+
+	} else {
+		// If running a sequence and is clockec, step sequence and emit gate
+		if (isRunning && isClocked) {
+			runSeq = true;
+		} else {
+			// Do nothing
+		}
+	}
+
+
+	
+	if (runSeq) {	
+		outVolts = pitches[currStep];
+		currStep++;
+		stepsRemaining--;
+		gatePulse.trigger(1e-3);
+		if (stepsRemaining == 0) {
+			isRunning = false;
+			isFinished = true;
+			eosPulse.trigger(1e-3);
+		}
+	}
+
+	bool gPulse = gatePulse.process(1.0 / engineGetSampleRate());
+	bool ePulse = eosPulse.process(1.0 / engineGetSampleRate());
 
 	// Set the value
-	outputs[OUT_OUTPUT].value = pitch;
-
-	// update tone lights
-	for (int i = 0; i < Quantizer::NUM_NOTES; i++) {
-		lights[NOTE_LIGHT + i].value = 0.0;
-	}
-	lights[NOTE_LIGHT + currNote].value = 1.0;
-
-	// update degree lights
-	for (int i = 0; i < Quantizer::NUM_NOTES; i++) {
-		lights[DEGREE_LIGHT + i].value = 0.0;
-		outputs[GATE_OUTPUT + i].value = 0.0;
-	}
-	lights[DEGREE_LIGHT + currDegree].value = 1.0;
-	outputs[GATE_OUTPUT + currDegree].value = 10.0;
-
-	if (lastScale != currScale || firstStep) {
-		for (int i = 0; i < Quantizer::NUM_NOTES; i++) {
-			lights[SCALE_LIGHT + i].value = 0.0;
-		}
-		lights[SCALE_LIGHT + currScale].value = 1.0;
-	} 
-
-	if (lastRoot != currRoot || firstStep) {
-		for (int i = 0; i < Quantizer::NUM_NOTES; i++) {
-			lights[KEY_LIGHT + i].value = 0.0;
-		}
-		lights[KEY_LIGHT + currRoot].value = 1.0;
-	} 
-
-	firstStep = false;
+	outputs[OUT_OUTPUT].value = outVolts;
+	outputs[GATE_OUTPUT].value = gPulse ? 10.0 : 0.0;
+	outputs[EOS_OUTPUT].value = ePulse ? 10.0 : 0.0;
 
 }
 
 ArpeggiatorWidget::ArpeggiatorWidget() {
 	Arpeggiator *module = new Arpeggiator();
-	
-	Quantizer quant = Quantizer();
-	module->setQuantizer(quant);
 	
 	setModule(module);
 	box.size = Vec(240, 380);
@@ -117,33 +172,15 @@ ArpeggiatorWidget::ArpeggiatorWidget() {
 	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
 	addInput(createInput<PJ301MPort>(Vec(18, 329), module, Arpeggiator::IN_INPUT));
-	addInput(createInput<PJ301MPort>(Vec(78, 329), module, Arpeggiator::KEY_INPUT));
-	addInput(createInput<PJ301MPort>(Vec(138, 329), module, Arpeggiator::SCALE_INPUT));
-
+	addInput(createInput<PJ301MPort>(Vec(78, 329), module, Arpeggiator::CLOCK_INPUT));
+	addOutput(createOutput<PJ301MPort>(Vec(138, 329), module, Arpeggiator::GATE_OUTPUT));
 	addOutput(createOutput<PJ301MPort>(Vec(198, 329), module, Arpeggiator::OUT_OUTPUT));
 
-	float xOffset = 18.0;
-	float xSpace = 21.0;
-	float xPos = 0.0;
-	float yPos = 0.0;
-	int scale = 0;
-
-	for (int i = 0; i < 12; i++) {
-		addChild(createLight<SmallLight<GreenLight>>(Vec(xOffset + i * 18.0, 280.0), module, Arpeggiator::SCALE_LIGHT + i));
-	}
- 
-	for (int i = 0; i < 12; i++) {
-		quant.calculateKey(i, xSpace, xOffset, 230.0, &xPos, &yPos, &scale);
-		addChild(createLight<SmallLight<GreenLight>>(Vec(xPos, yPos), module, Arpeggiator::KEY_LIGHT + scale));
-
-		quant.calculateKey(i, xSpace, xOffset + 72.0, 165.0, &xPos, &yPos, &scale);
-		addChild(createLight<SmallLight<GreenLight>>(Vec(xPos, yPos), module, Arpeggiator::NOTE_LIGHT + scale));
-
-		quant.calculateKey(i, 30.0, xOffset + 9.5, 110.0, &xPos, &yPos, &scale);
-		addChild(createLight<SmallLight<GreenLight>>(Vec(xPos, yPos), module, Arpeggiator::DEGREE_LIGHT + scale));
-
-		quant.calculateKey(i, 30.0, xOffset, 85.0, &xPos, &yPos, &scale);
-		addOutput(createOutput<PJ301MPort>(Vec(xPos, yPos), module, Arpeggiator::GATE_OUTPUT + scale));
-	}
+	addInput(createInput<PJ301MPort>(Vec(18, 269), module, Arpeggiator::STEP_INPUT));
+	addInput(createInput<PJ301MPort>(Vec(78, 269), module, Arpeggiator::DIST_INPUT));
+	addInput(createInput<PJ301MPort>(Vec(138, 269), module, Arpeggiator::TRIG_INPUT));
+	addOutput(createOutput<PJ301MPort>(Vec(198, 269), module, Arpeggiator::EOS_OUTPUT));
+	
+	addParam(createParam<BefacoSwitch>(Vec(120, 50), module, Arpeggiator::DIR_PARAM, 0, 1, 0));
 
 }

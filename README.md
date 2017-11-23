@@ -19,13 +19,23 @@ Scared by the anarchy of unconstrained tone? Want to come back to that familiar 
 	* Minor Pentatonic
 	* Harmonic Minor
 	* Blues
-* OUT: Quantised note
+* OUT: Quantised note (V/OCT)
 * Top row of outputs: Gates triggered from the scale degree of the note quantised
 
 ## Arpeggiator
 
-Coming Soon!
+Need some more predictable variety in your patches? Why not try the Arpeggiator from Amalgamated Harmonics? Guaranteed 17.5% more music per hour.
 
+* V/OCT: Input signal
+* CLOCK: Input clock for the sequenced notes
+* GATE: Output gate fired for each sequenced note. This could be slaved to the source for the TRIG input, or maybe not...
+* OUT: Output sequenced note (V/OCT)
+* STEPS: Input nUmber of steps in the sequence (max 16)
+* DIST: Number of semi-tones for each step (max 10)
+* TRIG: Input gate to trigger the sequence
+* EOS: Output gate fired when the sequence ends
+
+Bit of a work-in-progress this one. It just runs up or down the scale at the moment, this will be fixed with something much more interesting. There's also some oddness on the first cycle to be fixed.
 
 ### Notes
 
@@ -38,5 +48,6 @@ Arpeggiator: Working with clocks (in progress)
 
 ### Credits and Thanks
 
+* SVG widgets adapted from the VCV Rack standard library provide by Grayscale
 * jeremywen for the neat quantisation code, saved me a great deal of time
 * The KlirrFaktor for his great video on building a sequencer: https://www.youtube.com/watch?v=RFyC4II1kRw   
