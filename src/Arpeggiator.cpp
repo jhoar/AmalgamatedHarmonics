@@ -20,16 +20,17 @@ struct Arpeggiator : Module {
 		NUM_PARAMS
 	};
 	enum InputIds {
-		IN_INPUT,
 		CLOCK_INPUT,
 		STEP_INPUT,
 		DIST_INPUT,
 		TRIG_INPUT,
-		NUM_INPUTS
+		PITCH_INPUT,
+		NUM_INPUTS = PITCH_INPUT + 5
 	};
 	enum OutputIds {
 		OUT_OUTPUT,
 		GATE_OUTPUT,
+		EOC_OUTPUT,
 		EOS_OUTPUT,
 		NUM_OUTPUTS
 	};
@@ -45,15 +46,19 @@ struct Arpeggiator : Module {
 	
 	bool isRunning = false;
 	int MAX_STEPS = 16;
-	
+	int NUM_PITCHES = 5;
+		
 	SchmittTrigger clockTrigger; // for clock
 	SchmittTrigger trigTrigger;  // for step trigger
 	PulseGenerator gatePulse;
 	PulseGenerator eosPulse;
+	PulseGenerator eocPulse;
 		
-	float pitches[16];
+	float inputPitches[5];
+	float pitches[16 * 5];
 	int currStep;
 	int stepsRemaining;
+	int cycleRemaining;
 	float outVolts;
 
 };
@@ -63,7 +68,8 @@ void Arpeggiator::step() {
 	bool isClocked = false;
 	bool isTriggered = false;
 	bool runSeq = false;
-	bool isFinished = false;
+	int activePitches = 0;
+	
 	
 	// Clock running sequence
 	if (inputs[CLOCK_INPUT].active) {
@@ -72,7 +78,7 @@ void Arpeggiator::step() {
 			isClocked = true;
 		} 
 	}
-
+	
 	// Trigger a new sequence
 	if (inputs[TRIG_INPUT].active) {
 		// External clock
@@ -82,11 +88,17 @@ void Arpeggiator::step() {
 	}
 	
 	// Get the input pitch
-	float inVolts = inputs[IN_INPUT].value;
+	for (int p = 0; p < NUM_PITCHES; p++) {
+		if (inputs[PITCH_INPUT + p].active) {
+			inputPitches[activePitches] = inputs[PITCH_INPUT + p].value;
+			activePitches++;
+		} 
+	}
+	
 	int dir = params[DIR_PARAM].value;
 	
 	// If triggered 
-	if (isTriggered) {
+	if (isTriggered && activePitches) {
 	
 		int nStep = inputs[STEP_INPUT].value;
 		nStep = clampi(nStep, 0, MAX_STEPS);
@@ -96,7 +108,7 @@ void Arpeggiator::step() {
 
 		float semiTone = 1.0 / 12.0;
 
-		// std::cout << "Steps: " << nStep << " Dist:" << nDist << std::endl;
+		// std::cout << "Steps: " << nStep << " Dist:" << nDist << " ActivePitches " << activePitches << std::endl;
 
 		// Calculate the subsequent pitches, need direction, number of steps and step size
 		int *direction;
@@ -107,49 +119,58 @@ void Arpeggiator::step() {
 		}
 		
 		// Include current pitch
-		// std::cout << "V=" << inVolts << " ";
 		for (int s = 0; s < nStep; s++) {
-			float v = semiTone * nDist * direction[s];
-			pitches[s] = clampf(inVolts + v, -10.0, 10.0);
-			// std::cout << s << "=" <<  pitches[s] << " ";
+			for (int p = 0; p < activePitches; p++) {
+				int seqNote = s * activePitches + p;
+				float v = semiTone * nDist * direction[s];
+				pitches[seqNote] = clampf(inputPitches[p] + v, -10.0, 10.0);
+				// std::cout << seqNote << "=" <<  pitches[seqNote] << " ";
+			}
 		}
-		//  std::cout << std::endl;
+		// std::cout << std::endl;
 		
 		isRunning = true;
 		currStep = 0;
-		stepsRemaining = nStep;
+		stepsRemaining = nStep * activePitches;
+		cycleRemaining = activePitches;
 		runSeq = true;
 
 	} else {
-		// If running a sequence and is clockec, step sequence and emit gate
+		// If running a sequence and is clocked, step sequence and emit gate
 		if (isRunning && isClocked) {
 			runSeq = true;
 		} else {
 			// Do nothing
 		}
 	}
-
-
 	
 	if (runSeq) {	
 		outVolts = pitches[currStep];
 		currStep++;
 		stepsRemaining--;
+		cycleRemaining--;
 		gatePulse.trigger(1e-3);
+		if (cycleRemaining == 0) {
+			cycleRemaining = activePitches;
+			eocPulse.trigger(1e-3);
+		}
 		if (stepsRemaining == 0) {
 			isRunning = false;
-			isFinished = true;
 			eosPulse.trigger(1e-3);
 		}
-	}
+	} 
+	
+	float delta = 1.0 / engineGetSampleRate();
 
-	bool gPulse = gatePulse.process(1.0 / engineGetSampleRate());
-	bool ePulse = eosPulse.process(1.0 / engineGetSampleRate());
+	bool gPulse = gatePulse.process(delta);
+	bool sPulse = eosPulse.process(delta);
+	bool cPulse = eocPulse.process(delta);
 
 	// Set the value
 	outputs[OUT_OUTPUT].value = outVolts;
 	outputs[GATE_OUTPUT].value = gPulse ? 10.0 : 0.0;
-	outputs[EOS_OUTPUT].value = ePulse ? 10.0 : 0.0;
+	outputs[EOS_OUTPUT].value = sPulse ? 10.0 : 0.0;
+	outputs[EOC_OUTPUT].value = cPulse ? 10.0 : 0.0;
 
 }
 
@@ -171,16 +192,36 @@ ArpeggiatorWidget::ArpeggiatorWidget() {
 	addChild(createScrew<ScrewSilver>(Vec(15, 365)));
 	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
-	addInput(createInput<PJ301MPort>(Vec(18, 329), module, Arpeggiator::IN_INPUT));
-	addInput(createInput<PJ301MPort>(Vec(78, 329), module, Arpeggiator::CLOCK_INPUT));
-	addOutput(createOutput<PJ301MPort>(Vec(138, 329), module, Arpeggiator::GATE_OUTPUT));
-	addOutput(createOutput<PJ301MPort>(Vec(198, 329), module, Arpeggiator::OUT_OUTPUT));
+	addOutput(createOutput<PJ301MPort>(Vec(11.5, 49), module, Arpeggiator::OUT_OUTPUT));
+	addOutput(createOutput<PJ301MPort>(Vec(59.5, 49), module, Arpeggiator::GATE_OUTPUT));
+	addOutput(createOutput<PJ301MPort>(Vec(155.5, 49), module, Arpeggiator::EOC_OUTPUT));
+	addOutput(createOutput<PJ301MPort>(Vec(203.5, 49), module, Arpeggiator::EOS_OUTPUT));
 
-	addInput(createInput<PJ301MPort>(Vec(18, 269), module, Arpeggiator::STEP_INPUT));
-	addInput(createInput<PJ301MPort>(Vec(78, 269), module, Arpeggiator::DIST_INPUT));
-	addInput(createInput<PJ301MPort>(Vec(138, 269), module, Arpeggiator::TRIG_INPUT));
-	addOutput(createOutput<PJ301MPort>(Vec(198, 269), module, Arpeggiator::EOS_OUTPUT));
+	addInput(createInput<PJ301MPort>(Vec(11.5, 329),  module, Arpeggiator::PITCH_INPUT));
+	addInput(createInput<PJ301MPort>(Vec(59.5, 329),  module, Arpeggiator::PITCH_INPUT + 1));
+	addInput(createInput<PJ301MPort>(Vec(107.5, 329), module, Arpeggiator::PITCH_INPUT + 2));
+	addInput(createInput<PJ301MPort>(Vec(155.5, 329), module, Arpeggiator::PITCH_INPUT + 3));
+	addInput(createInput<PJ301MPort>(Vec(203.5, 329), module, Arpeggiator::PITCH_INPUT + 4));
 	
-	addParam(createParam<BefacoSwitch>(Vec(120, 50), module, Arpeggiator::DIR_PARAM, 0, 1, 0));
+	addInput(createInput<PJ301MPort>(Vec(11.5, 269), module, Arpeggiator::STEP_INPUT));
+	addInput(createInput<PJ301MPort>(Vec(59.5, 269), module, Arpeggiator::DIST_INPUT));
+	addParam(createParam<BefacoSwitch>(Vec(106, 266), module, Arpeggiator::DIR_PARAM, 0, 1, 0));
+	addInput(createInput<PJ301MPort>(Vec(155.5, 269), module, Arpeggiator::TRIG_INPUT));
+	addInput(createInput<PJ301MPort>(Vec(203.5, 269), module, Arpeggiator::CLOCK_INPUT));
+	
 
 }
+
+struct Sequence {
+	virtual void build(float basePitch, int nSteps, int dist);
+	virtual float step();
+};
+
+struct UpSequence : Sequence {
+	void build(float basePitch, int nSteps, int dist) {
+		return;
+	}
+	float step() {
+		return 0.0;
+	}
+};
