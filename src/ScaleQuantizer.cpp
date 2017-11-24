@@ -126,11 +126,11 @@ ScaleQuantizerWidget::ScaleQuantizerWidget() {
 	addChild(createScrew<ScrewSilver>(Vec(15, 365)));
 	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
-	addInput(createInput<PJ301MPort>(Vec(11, 329), module, ScaleQuantizer::IN_INPUT));
-	addInput(createInput<PJ301MPort>(Vec(61, 329), module, ScaleQuantizer::KEY_INPUT));
-	addInput(createInput<PJ301MPort>(Vec(111, 329), module, ScaleQuantizer::SCALE_INPUT));
-	addOutput(createOutput<PJ301MPort>(Vec(158, 329), module, ScaleQuantizer::TRIG_OUTPUT));
-	addOutput(createOutput<PJ301MPort>(Vec(205, 329), module, ScaleQuantizer::OUT_OUTPUT));
+	addInput(createInput<PJ301MPort>(Vec(11.5, 329), module, ScaleQuantizer::IN_INPUT));
+	addInput(createInput<PJ301MPort>(Vec(59.5, 329), module, ScaleQuantizer::KEY_INPUT));
+	addInput(createInput<PJ301MPort>(Vec(107.5, 329), module, ScaleQuantizer::SCALE_INPUT));
+	addOutput(createOutput<PJ301MPort>(Vec(155.5, 329), module, ScaleQuantizer::TRIG_OUTPUT));
+	addOutput(createOutput<PJ301MPort>(Vec(203.5, 329), module, ScaleQuantizer::OUT_OUTPUT));
 
 	float xOffset = 18.0;
 	float xSpace = 21.0;
