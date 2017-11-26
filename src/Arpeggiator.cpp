@@ -15,8 +15,12 @@ struct AHKnob : SVGKnob {
 
 struct Arpeggiator : Module {
 
+	const static int MAX_STEPS = 16;
+	const static int NUM_PITCHES = 6;
+
 	enum ParamIds {
-		DIR_PARAM,
+		PDIR_PARAM,
+		SDIR_PARAM,
 		LOCK_PARAM,
 		NUM_PARAMS
 	};
@@ -26,7 +30,7 @@ struct Arpeggiator : Module {
 		DIST_INPUT,
 		TRIG_INPUT,
 		PITCH_INPUT,
-		NUM_INPUTS = PITCH_INPUT + 5
+		NUM_INPUTS = PITCH_INPUT + NUM_PITCHES
 	};
 	enum OutputIds {
 		OUT_OUTPUT,
@@ -46,8 +50,6 @@ struct Arpeggiator : Module {
 	Arpeggiator() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
 	void step() override;
 	
-	int MAX_STEPS = 16;
-	int NUM_PITCHES = 5;
 		
 	SchmittTrigger clockTrigger; // for clock
 	SchmittTrigger trigTrigger;  // for step trigger
@@ -56,25 +58,30 @@ struct Arpeggiator : Module {
 	PulseGenerator gatePulse;
 	PulseGenerator eosPulse;
 	PulseGenerator eocPulse;
-		
+
+	float pitches[NUM_PITCHES];
+	float inputPitches[NUM_PITCHES];
+
+	int *pDirection;
+	int *sDirection;
+	int nStep;
+	int nDist;
 	bool locked = false;
-	float pitches[5];
-	float outVolts;	
+
+	float outVolts;
 	bool isRunning = false;
-	float inputPitches[5];
-	bool debug = false;;
-	int cycleLength = 0;
+	bool wasTriggered = false;
 	bool newCycle = false;
+
+	int cycleLength = 0;
 	int stepI = 0;
 	int cycleI = 0;
 	int stepsRemaining;
 	int cycleRemaining;
-	int *direction;
-	int nStep;
-	int nDist;
+
+	bool debug = true;
 	int stepX = 0;
 	int poll = 5000;
-	bool wasTriggered = false;
 
 };
 
@@ -101,21 +108,25 @@ ArpeggiatorWidget::ArpeggiatorWidget() {
 	addOutput(createOutput<PJ301MPort>(Vec(155.5, 49), module, Arpeggiator::EOC_OUTPUT));
 	addOutput(createOutput<PJ301MPort>(Vec(203.5, 49), module, Arpeggiator::EOS_OUTPUT));
 
-	addInput(createInput<PJ301MPort>(Vec(11.5, 329),  module, Arpeggiator::PITCH_INPUT));
-	addInput(createInput<PJ301MPort>(Vec(59.5, 329),  module, Arpeggiator::PITCH_INPUT + 1));
-	addInput(createInput<PJ301MPort>(Vec(107.5, 329), module, Arpeggiator::PITCH_INPUT + 2));
-	addInput(createInput<PJ301MPort>(Vec(155.5, 329), module, Arpeggiator::PITCH_INPUT + 3));
-	addInput(createInput<PJ301MPort>(Vec(203.5, 329), module, Arpeggiator::PITCH_INPUT + 4));
+	float xStart = 5.0;
+	float boxWidth = 35.0;
+	float gap = 10.0;
+	float connDelta = 5.0;
 	
-	addInput(createInput<PJ301MPort>(Vec(11.5, 269), module, Arpeggiator::STEP_INPUT));
-	addInput(createInput<PJ301MPort>(Vec(59.5, 269), module, Arpeggiator::DIST_INPUT));
-	addParam(createParam<BefacoSwitch>(Vec(106, 266), module, Arpeggiator::DIR_PARAM, 0, 1, 0));
-	addInput(createInput<PJ301MPort>(Vec(155.5, 269), module, Arpeggiator::TRIG_INPUT));
-	addInput(createInput<PJ301MPort>(Vec(203.5, 269), module, Arpeggiator::CLOCK_INPUT));
+	for (int i = 0; i < Arpeggiator::NUM_PITCHES; i++) {
+		float xPos = xStart + ((float)i * boxWidth + gap);
+		addInput(createInput<PJ301MPort>(Vec(xPos + connDelta, 329),  module, Arpeggiator::PITCH_INPUT + i));
+	}
 	
-    addParam(createParam<LEDButton>(Vec(60, 101-1), module, Arpeggiator::LOCK_PARAM, 0.0, 1.0, 0.0));
-    addChild(createLight<MediumLight<GreenLight>>(Vec(64.4, 104.4), module, Arpeggiator::LOCK_LIGHT));
+	addInput(createInput<PJ301MPort>(Vec(15.0  + connDelta, 269), module, Arpeggiator::STEP_INPUT));
+	addInput(createInput<PJ301MPort>(Vec(50.0 + connDelta, 269), module, Arpeggiator::DIST_INPUT));
+	addParam(createParam<BefacoSwitch>(Vec(85 + 3.5, 265.5), module, Arpeggiator::PDIR_PARAM, 0, 1, 0));
+    addParam(createParam<LEDButton>(Vec(128, 272), module, Arpeggiator::LOCK_PARAM, 0.0, 1.0, 0.0));
+    addChild(createLight<MediumLight<GreenLight>>(Vec(128 + 4.4, 272 + 4.4), module, Arpeggiator::LOCK_LIGHT));
+	addInput(createInput<PJ301MPort>(Vec(155 + connDelta, 269), module, Arpeggiator::TRIG_INPUT));
+	addInput(createInput<PJ301MPort>(Vec(190 + connDelta, 269), module, Arpeggiator::CLOCK_INPUT));
 	
+	addParam(createParam<BefacoSwitch>(Vec(107, 46), module, Arpeggiator::SDIR_PARAM, 0, 1, 0));
 
 }
 
@@ -145,7 +156,7 @@ void Arpeggiator::step() {
 
 	if (lockTrigger.process(params[LOCK_PARAM].value)) {
 		locked = !locked;
-		std::cout << "Toggling lock: " << locked << std::endl;
+		if (debug) { std::cout << "Toggling lock: " << locked << std::endl; }
 	}
     lights[LOCK_LIGHT].value = locked ? 1.0 : 0.0;
 
@@ -173,7 +184,8 @@ void Arpeggiator::step() {
 		} 
 	}
 	
-	int dir = params[DIR_PARAM].value;
+	int pDir = params[PDIR_PARAM].value;
+	int sDir = params[SDIR_PARAM].value;
 		
 	// Check if we have been triggered 
 	if (isTriggered) {
@@ -188,10 +200,10 @@ void Arpeggiator::step() {
 		
 		// Read the pattern
 		// Calculate the subsequent pitches, need direction, number of steps and step size
-		switch (dir) {
-			case 1:			direction = PATT_UP; break;
-			case 0:			direction = PATT_DN; break;
-			default: 		direction = PATT_UP;
+		switch (sDir) {
+			case 1:			sDirection = PATT_UP; break;
+			case 0:			sDirection = PATT_DN; break;
+			default: 		sDirection = PATT_UP;
 		}
 		
 		// Set the cycle
@@ -205,8 +217,8 @@ void Arpeggiator::step() {
 		// Set flag to advance sequence
 		advance = true;
 
-		if (false) {
-			std::cout << "Triggered Steps: " << nStep << " Dist: " << nDist << " Pattern: " << dir << std::endl;
+		if (debug) {
+			std::cout << "Triggered Steps: " << nStep << " Dist: " << nDist << " pitchScan: " << pDir << " Pattern: " << sDir << std::endl;
 			std::cout << "Advance from Trigger" << std::endl;
 		}
 		
@@ -220,7 +232,7 @@ void Arpeggiator::step() {
 	
 	bool getPitches = false;
 	
-	if (isTriggered) {
+	if (isTriggered && !locked) {
 		if (debug) {
 			std::cout << "Read pitches from trigger: " << isTriggered << std::endl;
 		}
@@ -279,22 +291,22 @@ void Arpeggiator::step() {
 			
 			for (int i = 0; i < cycleLength; i++) {
 				
-				float V;
+				int target;
 				// Read the pitches according to direction
-				if (dir) { // Up
-					V = inputPitches[i];
-				} else { // Down 
-					V = inputPitches[cycleLength - i - 1];
+				if (pDir) { // Up
+					target = i;
+				} else { // Down
+					target = cycleLength - i - 1;
 				}	
-				
-				float dV = semiTone * nDist * direction[stepI];
-				pitches[i] = clampf(V + dV, -10.0, 10.0);
+
+				float dV = semiTone * nDist * sDirection[stepI];
+				pitches[i] = clampf(inputPitches[target] + dV, -10.0, 10.0);
 				
 				if (debug) {
 					std::cout << i << " stepI: " << 
 						" dV:" << dV <<
-						" in: " << inputPitches[i] <<
-						" out: " << pitches[i] << std::endl;
+						" in: " << inputPitches[target] <<
+						" out: " << pitches[target] << std::endl;
 				}				
 			}
 			
