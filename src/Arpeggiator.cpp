@@ -43,9 +43,6 @@ struct Arpeggiator : Module {
 		NUM_LIGHTS
 	};
 	
-	int PATT_UP[17] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16}; 
-	int PATT_DN[17] = {0,-1,-2,-3,-4,-5,-6,-7,-8,-9,-10,-11,-12,-13,-14,-15,-16}; 
-
 	Arpeggiator() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
 	void step() override;
 	
@@ -66,7 +63,6 @@ struct Arpeggiator : Module {
 	
 	int inputSDir;
 	int sDir = 0;
-	int *sDirection; // FIXME eventually remove this
 
 	int inputStep = 0;
 	int nStep = 0;
@@ -86,6 +82,7 @@ struct Arpeggiator : Module {
 	int cycleI = 0;
 	int stepsRemaining;
 	int cycleRemaining;
+	int currDist = 0;
 
 	bool debug = false;
 	int stepX = 0;
@@ -148,6 +145,7 @@ void Arpeggiator::step() {
 		newCycle = true;
 		stepI = 0;
 		cycleI = 0;
+		currDist = 0;
 	
 		// Set flag to advance sequence
 		advance = true;
@@ -157,15 +155,15 @@ void Arpeggiator::step() {
 			std::cout << "Advance from Trigger" << std::endl;
 		}
 	
-		// Need this to stop clock gates from immediately advancing sequence. Probably should be a pulse
+		// Need this to stop clock gates from immediately advancing sequence, and for resetting the stepcount. 
+		// Probably should be a pulse
 		wasTriggered = true;
 		
 	} 
-	
-	// Set the pitches
-	// if there is a new cycle and the pitches are unlocked or we have been triggered
+
 	bool readCycleSettings = false;
 	
+	// if there is a new cycle and the pitches are unlocked, or we have been triggered	
 	if (isTriggered && !locked) {
 		if (debug) {
 			std::cout << "Read pitches from trigger: " << isTriggered << std::endl;
@@ -173,13 +171,14 @@ void Arpeggiator::step() {
 		readCycleSettings = true;
 	}
 	
-	if (isClocked && isRunning && newCycle && !locked) {
+	if (isClocked && newCycle && !locked) {
 		if (debug) {
 			std::cout << "Read pitches from clock: " << isClocked << isRunning << newCycle << !locked << std::endl;
 		}
 		readCycleSettings = true;		
 	}
 
+	// Capture the settings
 	if (readCycleSettings) {
 		
 		// Freeze sequence params
@@ -187,16 +186,7 @@ void Arpeggiator::step() {
 		nDist = inputDist;
 		pDir = inputPDir;
 		sDir = inputSDir;
-	
-		// Deal with RND setting // FIXME this will change as random will work differently
-		if (sDir == 1) {
-			if (rand() % 2 == 0) {
-				sDir = 0;
-			} else {
-				sDir = 2;
-			}
-		}
-			
+					
 		cycleLength = 0;
 		
 		// Read out voltages
@@ -219,11 +209,13 @@ void Arpeggiator::step() {
 		
 	} 
 	
+	// Slightly hacky but of code to catch case when there are no steps, or we have been triggered after being set to 0 steps
 	if (nStep == 0) {
 		return; // No steps, abort
 	} else {
 		// If we had reachd the end of the sequence or just transitioned from 0 step length, reset the counter
-		if (stepsRemaining == 0) { 
+		if (stepsRemaining == 0 || wasTriggered) { 
+			if (debug) { std::cout << "Hard reset stepsRemaining" << std::endl; }
 			stepsRemaining = nStep;
 		}
 	}
@@ -235,6 +227,7 @@ void Arpeggiator::step() {
 		advance = true;
 	}
 
+	// Advance the sequence
 	if (advance) {
 
 		if (debug) { std::cout << "Advance S: " << stepI <<
@@ -243,38 +236,54 @@ void Arpeggiator::step() {
 			" cRemain: " << cycleRemaining << std::endl;
 		}
 	
+		// Starting a new cycle
 		if (newCycle) {
 
 			if (debug) { std::cout << "New Cycle: " << newCycle << std::endl; }
 		
-			// Read the pattern
-			// Calculate the subsequent pitches, need direction, number of steps and step size
-			switch (sDir) {
-				case 0:			sDirection = PATT_DN; break;
-				case 1:			// This might happen on reset, if there is not valid input
-				case 2:			sDirection = PATT_UP; break;
-				default: 		sDirection = PATT_UP;
-			}
-
-			for (int i = 0; i < cycleLength; i++) {
-				
-				int target;
-				// Read the pitches according to direction, but we should do this for the sequence?
-				switch (pDir) {
-					case 0: target = cycleLength - i - 1; break; 	// DOWN
-					case 2: target = i; break;						// UP
-					default: target = i; break; // For random case, read randomly from array, so order does not matter
+			// Deal with RND setting, when sDir == 1, force it up or down
+			if (sDir == 1) {
+				if (rand() % 2 == 0) {
+					sDir = 0;
+				} else {
+					sDir = 2;
 				}
-
-				float dV = semiTone * nDist * sDirection[stepI];
-				pitches[i] = clampf(inputPitches[target] + dV, -10.0, 10.0);
+			}
+			
+			// Only starting moving after the first cycle
+			if (stepI) {	
+				switch (sDir) {
+					case 0:			currDist--; break;
+					case 2:			currDist++; break;
+					default: 		; 
+				}
+			}
+			
+			if (!locked) {// Pitches are locked, and so is the order. This keeps randomly generated arps fixed when locked
+				for (int i = 0; i < cycleLength; i++) {
 				
-				if (debug) {
-					std::cout << i << " stepI: " << 
-						" dV:" << dV <<
-						" in: " << inputPitches[target] <<
-						" out: " << pitches[target] << std::endl;
-				}				
+					int target;
+								
+					// Read the pitches according to direction, but we should do this for the sequence?
+					switch (pDir) {
+						case 0: target = cycleLength - i - 1; break; 		// DOWN
+						case 1: target = rand() % cycleLength; break;		// RANDOM
+						case 2: target = i; break;							// UP
+						default: target = i; break; // For random case, read randomly from array, so order does not matter
+					}
+
+					// How many semi-tones do we need to shift
+					float dV = semiTone * nDist * currDist;
+					pitches[i] = clampf(inputPitches[target] + dV, -10.0, 10.0);
+				
+					if (debug) {
+						std::cout << i << " stepI: " << stepI <<
+							" dV:" << dV <<
+							" target: " << target <<
+							" in: " << inputPitches[target] <<
+							" out: " << pitches[target] << std::endl;
+					}				
+				}
 			}
 			
 			if (debug) {
@@ -285,29 +294,38 @@ void Arpeggiator::step() {
 				std::cout << std::endl;
 			}
 			
+			// Done, reset flag
 			newCycle = false;
 			
 		}
 		
-		if (pDir == 1) {
-			outVolts = pitches[rand() % cycleLength];
-		} else {
-			outVolts = pitches[cycleI];
-		}
+		// Finally set the out voltage
+		outVolts = pitches[cycleI];
 		
 		if (debug) { std::cout << "V = " << outVolts << std::endl; }
 		
+		// Update counters
 		cycleI++;
 		cycleRemaining--;
 		
+		// Pulse the output gate
 		gatePulse.trigger(5e-3);
 		
+		// Reached the end of the cycle
 		if (cycleRemaining == 0) {
+
+			// Completed 1 step
 			stepI++;
 			stepsRemaining--;
+			
+			/// Reset the cycle counters
 			cycleRemaining = cycleLength;
 			cycleI = 0;
+			
+			// Need to start a new cycle
 			newCycle = true;
+			
+			// Pulse the EOC gate
 			eocPulse.trigger(5e-3);
 			if (debug) { 
 				std::cout << "Cycle Finished S: " << stepI <<
@@ -318,6 +336,7 @@ void Arpeggiator::step() {
 			}
 		}
 		
+		// Reached the end of the sequence
 		if (stepsRemaining == 0) {
 			if (debug) { 
 				std::cout << "Sequence Finished S: " << stepI <<
@@ -326,12 +345,17 @@ void Arpeggiator::step() {
 				" cRemain: " << cycleRemaining << 
 				" flag:" << isRunning << std::endl;
 			}
+			// Update the flag
 			isRunning = false;
+			
+			// Pulse the EOS gate
 			eosPulse.trigger(5e-3);
 		}
 		
 	}	
 	
+	
+	// Set the outputs
 	float delta = 1.0 / engineGetSampleRate();
 
 	bool sPulse = eosPulse.process(delta);

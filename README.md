@@ -23,37 +23,42 @@ Scared by the anarchy of unconstrained tone? Want to come back to that familiar 
 * OUT: Quantised note (1V/OCT)
 * Top row of outputs: Gates triggered according to the scale degree of the note quantised
 
-This is largely done, will probably do some internal plumbing to use PulseGenerators in the future.
 ## Arpeggiator
 
 Need some more predictable variety in your patches? Why not try the Arpeggiator from Amalgamated Harmonics? Guaranteed 17.5% more music per hour.
 
 How it is (supposed to) work is the following:
 
-* The Arpeggiator plays a Sequence, composed on 1 or more Cycles, each Cycle consisting of up to 6 notes.
-* At the bottom there are 6 inputs which represent up to 6 pitches (1V/OCT) which will played during a Cycle. The DIR switch controls whether the pitch are read left-to-right (up position) or right-to-down (down). Empty inputs are ignored.
-* A Cycle will repeated a number of times according to the STEPS input.
-* Each subsequent Cycle after the first will be shifted by the number of semi-tones controlled by the DIST input. The shift is either up or down depending on the setting of the Seq DIR switch. This should be replaced with a wider selection of patterns
-* A Sequence is triggered from a gate on the TRIG input.
-* The Sequence is... err... sequenced from the CLOCK input, so the CLOCK source should be running faster the TRIG source.
+* The Arpeggiator plays a sequence, composed on 1 or more arpeggios, each arpeggio consisting of up to 6 notes.
+* At the bottom there are 6 inputs which represent up to 6 pitches (1V/OCT) which will played in an arpeggios. 
+* The ARP switch controls whether the pitch are played left-to-right (L-R), right-to-left (R-L) or a random selection of the pitches and selected (RND). In the RND position pitches can be repeated. Empty inputs are ignored.
+* A arpeggio will repeated a number of times according to the STEPS input.
+* Each subsequent arpeggio after the first will be shifted by the number of semi-tones controlled by the DIST input. The shift is either up or down depending on the setting of the SEQ switch; ASC shifts the arpeggio up, DSC shifts the arpeggio down and RND shifts the arpeggio up or down 50/50; in this position it is a random walk
+* A sequence is triggered from a gate on the TRIG input.
+* The sequence is... err... sequenced from the CLOCK input, so the CLOCK source should be running faster the TRIG source.
 * The output pitch is on the OUT output (1V/OCT), with a gate fired on the GATE. 
-* When a cycle completes, a gate if fired on the EOC output, and similarly when the whole sequence completes there is gate on the EOS output
-* The LOCK button locks the pitches to the value in the current cycle, both within the running sequence and after, rather like turning the probability knob on the Turing Machine to the far right. When unlocked the pitches will be scanned at the start of every cycle.
+* When an arpeggio completes, a gate is fired on the EOC output, and similarly when the whole sequence completes there is gate on the EOS output
+* The LOCK button locks the pitches, SEQ and ARP settings to the value in the current arpeggio, both within the running sequence and after. When unlocked the pitches will be scanned at the start of every cycle. 
+
+A small display shows the active STEPS and DIST in the currently active sequence, with the values being read from the inputs shown in square brackets. The active values of the SEQ and ARP parameters are alos shown
+
+In summary:
 
 * P1 - P6: Input pitches; these will be scanned left to right and form the notes to be played in each cycle. Empty inputs are ignored
 * STEPS: Number of repetitions of a cycle (max 16)
 * DIST: Number of semi-tones used for shifting pitches between cycles (max 10)
-* DIR: Scan the pitches left-to-right (up) or right-to-left (down)  
-* CLOCK: Input clock for the sequenced notes
+* ARP: Scan the pitches left-to-right (L-R) or right-to-left (R-L), or a random selection of pitches  (RND)
+* SEQ: Shifts the arpeggio up (ASC), down (DSC) or randonly up or down (RND)
+* CLOCK: Input clock for the arpeggio
 * TRIG: Input gate to trigger the sequence
-* LOCK: Lock the pitches
+* LOCK: Lock the pitches, SEQ and ARP setting, including the randomised notes
 
 * OUT: Output sequenced note (1V/OCT)
 * GATE: Output gate fired for each sequenced note. 
 * EOC: Output gate fired when a cycle ends
 * EOS: Output gate fired when the whole series of cycles is finished
 
-Almost something usable. The gaping void in the middle of the panel is where the selection mechanism for patterns will go. I should stop procrastinating and do it.
+This is complete for the time being. There are a few new ideas which might materialise in the future.
 
 ### Notes
 
