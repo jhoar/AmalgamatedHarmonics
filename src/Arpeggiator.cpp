@@ -62,10 +62,10 @@ struct Arpeggiator : Module {
 	float inputPitches[NUM_PITCHES];
 
 	int inputPDir;
-	int pDir;
+	int pDir = 0;
 	
 	int inputSDir;
-	int sDir;
+	int sDir = 0;
 	int *sDirection; // FIXME eventually remove this
 
 	int inputStep;
@@ -136,42 +136,12 @@ void Arpeggiator::step() {
 	// Read sequence config every step for UI
 	inputPDir = params[PDIR_PARAM].value;
 	inputSDir = params[SDIR_PARAM].value;
-	inputStep = clampi(inputs[STEP_INPUT].value, 0, MAX_STEPS); // FIXME Should remap -10 to 10 rather than clamps
-	inputDist = clampi(inputs[DIST_INPUT].value, 0, MAX_DIST);  // FIXME Should remap -10 to 10 rather than clamps
+	
+	inputStep = round(rescalef(inputs[STEP_INPUT].value, -10, 10, 0, MAX_STEPS));		
+	inputDist = round(rescalef(inputs[DIST_INPUT].value, -10, 10, 0, MAX_DIST));		
 	
 	// Check if we have been triggered 
 	if (isTriggered) {
-		
-		// Freeze sequence params
-		nStep = inputStep;
-		nDist = inputDist;
-		pDir = inputPDir;
-		sDir = inputSDir;
-		
-		if (sDir == 1) {
-			if (rand() % 2 == 0) {
-				sDir = 0;
-			} else {
-				sDir = 2;
-			}
-		}
-		
-		if (pDir == 1) {
-			if (rand() % 2 == 0) {
-				pDir = 0;
-			} else {
-				pDir = 2;
-			}
-		}
-		
-		// Read the pattern
-		// Calculate the subsequent pitches, need direction, number of steps and step size
-		switch (sDir) {
-			case 0:			sDirection = PATT_DN; break;
-			case 1:			// Should never happen
-			case 2:			sDirection = PATT_UP; break;
-			default: 		sDirection = PATT_UP;
-		}
 		
 		// Set the cycle
 		isRunning = true;
@@ -195,24 +165,46 @@ void Arpeggiator::step() {
 	
 	// Set the pitches
 	// if there is a new cycle and the pitches are unlocked or we have been triggered
-	
-	bool getPitches = false;
+	bool getSetting = false;
 	
 	if (isTriggered && !locked) {
 		if (debug) {
 			std::cout << "Read pitches from trigger: " << isTriggered << std::endl;
 		}
-		getPitches = true;
+		getSetting = true;
 	}
 	
 	if (isClocked && isRunning && newCycle && !locked) {
 		if (debug) {
 			std::cout << "Read pitches from clock: " << isClocked << isRunning << newCycle << !locked << std::endl;
 		}
-		getPitches = true;		
+		getSetting = true;		
 	}
 
-	if (getPitches) {
+	if (getSetting) {
+		
+		// Freeze sequence params
+		nStep = inputStep;
+		nDist = inputDist;
+		pDir = inputPDir;
+		sDir = inputSDir;
+	
+		// Deal with RND setting // FIXME this will change as random will work differently
+		if (sDir == 1) {
+			if (rand() % 2 == 0) {
+				sDir = 0;
+			} else {
+				sDir = 2;
+			}
+		}
+	
+		if (pDir == 1) {
+			if (rand() % 2 == 0) {
+				pDir = 0;
+			} else {
+				pDir = 2;
+			}
+		}
 		
 		cycleLength = 0;
 		
@@ -254,7 +246,16 @@ void Arpeggiator::step() {
 		if (newCycle) {
 
 			if (debug) { std::cout << "New Cycle: " << newCycle << std::endl; }
-			
+		
+			// Read the pattern
+			// Calculate the subsequent pitches, need direction, number of steps and step size
+			switch (sDir) {
+				case 0:			sDirection = PATT_DN; break;
+				case 1:			// This might happen on reset, if there is not valid input
+				case 2:			sDirection = PATT_UP; break;
+				default: 		sDirection = PATT_UP;
+			}
+
 			for (int i = 0; i < cycleLength; i++) {
 				
 				int target;
