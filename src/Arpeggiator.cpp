@@ -68,11 +68,11 @@ struct Arpeggiator : Module {
 	int sDir = 0;
 	int *sDirection; // FIXME eventually remove this
 
-	int inputStep;
-	int nStep;
+	int inputStep = 0;
+	int nStep = 0;
 	
-	int inputDist;
-	int nDist;
+	int inputDist = 0;
+	int nDist = 0;
 	
 	bool locked = false;
 
@@ -87,7 +87,7 @@ struct Arpeggiator : Module {
 	int stepsRemaining;
 	int cycleRemaining;
 
-	bool debug = false;
+	bool debug = true;
 	int stepX = 0;
 	int poll = 5000;
 
@@ -148,16 +148,16 @@ void Arpeggiator::step() {
 		newCycle = true;
 		stepI = 0;
 		cycleI = 0;
-		stepsRemaining = nStep;
-		
+		stepsRemaining = nStep; // FIXME This is wrong for the first cycle
+	
 		// Set flag to advance sequence
 		advance = true;
-		
+	
 		if (debug) {
 			std::cout << "Triggered Steps: " << nStep << " Dist: " << nDist << " pitchScan: " << pDir << " Pattern: " << sDir << std::endl;
 			std::cout << "Advance from Trigger" << std::endl;
 		}
-		
+	
 		// Need this to stop clock gates from immediately advancing sequence. Probably should be a pulse
 		wasTriggered = true;
 		
@@ -197,15 +197,7 @@ void Arpeggiator::step() {
 				sDir = 2;
 			}
 		}
-	
-		if (pDir == 1) {
-			if (rand() % 2 == 0) {
-				pDir = 0;
-			} else {
-				pDir = 2;
-			}
-		}
-		
+			
 		cycleLength = 0;
 		
 		// Read out voltages
@@ -263,7 +255,7 @@ void Arpeggiator::step() {
 				switch (pDir) {
 					case 0: target = cycleLength - i - 1; break; 	// DOWN
 					case 2: target = i; break;						// UP
-					default: target = i; break; // Fall though but this should never happen as pDir is forced to be up or down above
+					default: target = i; break; // For random case, read randomly from array, so order does not matter
 				}
 
 				float dV = semiTone * nDist * sDirection[stepI];
@@ -289,7 +281,12 @@ void Arpeggiator::step() {
 			
 		}
 		
-		outVolts = pitches[cycleI];
+		if (pDir == 1) {
+			outVolts = pitches[rand() % cycleLength];
+		} else {
+			outVolts = pitches[cycleI];
+		}
+		
 		if (debug) { std::cout << "V = " << outVolts << std::endl; }
 		
 		cycleI++;
@@ -361,6 +358,7 @@ struct ArpeggiatorDisplay : TransparentWidget {
 
 		nvgFillColor(vg, nvgRGBA(212, 175, 55, 0xff));
 		char text[128];
+
 		snprintf(text, sizeof(text), "STEP: %d [%d]", module->nStep, module->inputStep);
 		nvgText(vg, pos.x + 10, pos.y + 20, text, NULL);
 		snprintf(text, sizeof(text), "DIST: %d [%d]", module->nDist, module->inputDist);
@@ -373,11 +371,13 @@ struct ArpeggiatorDisplay : TransparentWidget {
 		}
 		nvgText(vg, pos.x + 10, pos.y + 60, text, NULL);
 		
-		if (module->pDir == 0) {
-			snprintf(text, sizeof(text), "ARP: R-L");			
-		} else {
-			snprintf(text, sizeof(text), "ARP: L-R");			
+		switch(module->pDir) {
+			case 0: snprintf(text, sizeof(text), "ARP: R-L"); break;
+			case 1: snprintf(text, sizeof(text), "ARP: RND"); break;
+			case 2: snprintf(text, sizeof(text), "ARP: L-R"); break;
+			default: snprintf(text, sizeof(text), "ARP: ERR"); break;
 		}
+		
 		nvgText(vg, pos.x + 10, pos.y + 80, text, NULL);
 		
 	}
@@ -437,18 +437,5 @@ ArpeggiatorWidget::ArpeggiatorWidget() {
 
 }
 
-struct Sequence {
-	virtual void build(float basePitch, int nSteps, int dist);
-	virtual float step();
-};
-
-struct UpSequence : Sequence {
-	void build(float basePitch, int nSteps, int dist) {
-		return;
-	}
-	float step() {
-		return 0.0;
-	}
-};
 
 
