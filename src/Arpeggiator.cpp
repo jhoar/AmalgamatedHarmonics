@@ -87,7 +87,7 @@ struct Arpeggiator : Module {
 	int stepsRemaining;
 	int cycleRemaining;
 
-	bool debug = true;
+	bool debug = false;
 	int stepX = 0;
 	int poll = 5000;
 
@@ -148,7 +148,6 @@ void Arpeggiator::step() {
 		newCycle = true;
 		stepI = 0;
 		cycleI = 0;
-		stepsRemaining = nStep; // FIXME This is wrong for the first cycle
 	
 		// Set flag to advance sequence
 		advance = true;
@@ -165,23 +164,23 @@ void Arpeggiator::step() {
 	
 	// Set the pitches
 	// if there is a new cycle and the pitches are unlocked or we have been triggered
-	bool getSetting = false;
+	bool readCycleSettings = false;
 	
 	if (isTriggered && !locked) {
 		if (debug) {
 			std::cout << "Read pitches from trigger: " << isTriggered << std::endl;
 		}
-		getSetting = true;
+		readCycleSettings = true;
 	}
 	
 	if (isClocked && isRunning && newCycle && !locked) {
 		if (debug) {
 			std::cout << "Read pitches from clock: " << isClocked << isRunning << newCycle << !locked << std::endl;
 		}
-		getSetting = true;		
+		readCycleSettings = true;		
 	}
 
-	if (getSetting) {
+	if (readCycleSettings) {
 		
 		// Freeze sequence params
 		nStep = inputStep;
@@ -219,7 +218,16 @@ void Arpeggiator::step() {
 		}
 		
 	} 
-			
+	
+	if (nStep == 0) {
+		return; // No steps, abort
+	} else {
+		// If we had reachd the end of the sequence or just transitioned from 0 step length, reset the counter
+		if (stepsRemaining == 0) { 
+			stepsRemaining = nStep;
+		}
+	}
+	
 	// Are we running a sequence and are clocked
 	if (isRunning && isClocked) {
 		// Set flag to advance sequence
