@@ -5,17 +5,16 @@
 
 #include <iostream>
 
-struct AHKnob : SVGKnob {
-	AHKnob() {
-		setSVG(SVG::load(assetPlugin(plugin,"res/ComponentLibrary/AHKnob.svg")));
-		minAngle = -0.83*M_PI;
-		maxAngle = 0.83*M_PI;
+struct AHButton : SVGSwitch, MomentarySwitch {
+	AHButton() {
+		addFrame(SVG::load(assetPlugin(plugin,"res/ComponentLibrary/AHButton.svg")));
 	}
 };
 
 struct Arpeggiator : Module {
 
 	const static int MAX_STEPS = 16;
+	const static int MAX_DIST = 12; //Octave
 	const static int NUM_PITCHES = 6;
 
 	enum ParamIds {
@@ -62,10 +61,19 @@ struct Arpeggiator : Module {
 	float pitches[NUM_PITCHES];
 	float inputPitches[NUM_PITCHES];
 
-	int *pDirection;
-	int *sDirection;
+	int inputPDir;
+	int pDir;
+	
+	int inputSDir;
+	int sDir;
+	int *sDirection; // FIXME eventually remove this
+
+	int inputStep;
 	int nStep;
+	
+	int inputDist;
 	int nDist;
+	
 	bool locked = false;
 
 	float outVolts;
@@ -79,69 +87,10 @@ struct Arpeggiator : Module {
 	int stepsRemaining;
 	int cycleRemaining;
 
-	bool debug = true;
+	bool debug = false;
 	int stepX = 0;
 	int poll = 5000;
 
-};
-
-ArpeggiatorWidget::ArpeggiatorWidget() {
-	Arpeggiator *module = new Arpeggiator();
-	
-	setModule(module);
-	box.size = Vec(240, 380);
-
-	{
-		SVGPanel *panel = new SVGPanel();
-		panel->box.size = box.size;
-		panel->setBackground(SVG::load(assetPlugin(plugin, "res/Arpeggiator.svg")));
-		addChild(panel);
-	}
-
-	addChild(createScrew<ScrewSilver>(Vec(15, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(15, 365)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 365)));
-
-	addOutput(createOutput<PJ301MPort>(Vec(11.5, 49), module, Arpeggiator::OUT_OUTPUT));
-	addOutput(createOutput<PJ301MPort>(Vec(59.5, 49), module, Arpeggiator::GATE_OUTPUT));
-	addOutput(createOutput<PJ301MPort>(Vec(155.5, 49), module, Arpeggiator::EOC_OUTPUT));
-	addOutput(createOutput<PJ301MPort>(Vec(203.5, 49), module, Arpeggiator::EOS_OUTPUT));
-
-	float xStart = 5.0;
-	float boxWidth = 35.0;
-	float gap = 10.0;
-	float connDelta = 5.0;
-	
-	for (int i = 0; i < Arpeggiator::NUM_PITCHES; i++) {
-		float xPos = xStart + ((float)i * boxWidth + gap);
-		addInput(createInput<PJ301MPort>(Vec(xPos + connDelta, 329),  module, Arpeggiator::PITCH_INPUT + i));
-	}
-	
-	addInput(createInput<PJ301MPort>(Vec(15.0  + connDelta, 269), module, Arpeggiator::STEP_INPUT));
-	addInput(createInput<PJ301MPort>(Vec(50.0 + connDelta, 269), module, Arpeggiator::DIST_INPUT));
-	addParam(createParam<BefacoSwitch>(Vec(85 + 3.5, 265.5), module, Arpeggiator::PDIR_PARAM, 0, 1, 0));
-    addParam(createParam<LEDButton>(Vec(128, 272), module, Arpeggiator::LOCK_PARAM, 0.0, 1.0, 0.0));
-    addChild(createLight<MediumLight<GreenLight>>(Vec(128 + 4.4, 272 + 4.4), module, Arpeggiator::LOCK_LIGHT));
-	addInput(createInput<PJ301MPort>(Vec(155 + connDelta, 269), module, Arpeggiator::TRIG_INPUT));
-	addInput(createInput<PJ301MPort>(Vec(190 + connDelta, 269), module, Arpeggiator::CLOCK_INPUT));
-	
-	addParam(createParam<BefacoSwitch>(Vec(107, 46), module, Arpeggiator::SDIR_PARAM, 0, 1, 0));
-
-}
-
-struct Sequence {
-	virtual void build(float basePitch, int nSteps, int dist);
-	virtual float step();
-};
-
-struct UpSequence : Sequence {
-	void build(float basePitch, int nSteps, int dist) {
-		return;
-	}
-	float step() {
-		return 0.0;
-	}
 };
 
 void Arpeggiator::step() {
@@ -184,25 +133,43 @@ void Arpeggiator::step() {
 		} 
 	}
 	
-	int pDir = params[PDIR_PARAM].value;
-	int sDir = params[SDIR_PARAM].value;
-		
+	// Read sequence config every step for UI
+	inputPDir = params[PDIR_PARAM].value;
+	inputSDir = params[SDIR_PARAM].value;
+	inputStep = clampi(inputs[STEP_INPUT].value, 0, MAX_STEPS); // FIXME Should remap -10 to 10 rather than clamps
+	inputDist = clampi(inputs[DIST_INPUT].value, 0, MAX_DIST);  // FIXME Should remap -10 to 10 rather than clamps
+	
 	// Check if we have been triggered 
 	if (isTriggered) {
 		
-		// start a new sequence
-		// Read distance and steps, which will be constant for this sequence
-		nStep = inputs[STEP_INPUT].value;
-		nStep = clampi(nStep, 0, MAX_STEPS);
+		// Freeze sequence params
+		nStep = inputStep;
+		nDist = inputDist;
+		pDir = inputPDir;
+		sDir = inputSDir;
 		
-		nDist = inputs[DIST_INPUT].value;
-		nDist = clampi(nDist, 0, 10);
+		if (sDir == 1) {
+			if (rand() % 2 == 0) {
+				sDir = 0;
+			} else {
+				sDir = 2;
+			}
+		}
+		
+		if (pDir == 1) {
+			if (rand() % 2 == 0) {
+				pDir = 0;
+			} else {
+				pDir = 2;
+			}
+		}
 		
 		// Read the pattern
 		// Calculate the subsequent pitches, need direction, number of steps and step size
 		switch (sDir) {
-			case 1:			sDirection = PATT_UP; break;
 			case 0:			sDirection = PATT_DN; break;
+			case 1:			// Should never happen
+			case 2:			sDirection = PATT_UP; break;
 			default: 		sDirection = PATT_UP;
 		}
 		
@@ -212,11 +179,10 @@ void Arpeggiator::step() {
 		stepI = 0;
 		cycleI = 0;
 		stepsRemaining = nStep;
-		// Oops, how to do reset cycleRemaining
 		
 		// Set flag to advance sequence
 		advance = true;
-
+		
 		if (debug) {
 			std::cout << "Triggered Steps: " << nStep << " Dist: " << nDist << " pitchScan: " << pDir << " Pattern: " << sDir << std::endl;
 			std::cout << "Advance from Trigger" << std::endl;
@@ -292,12 +258,12 @@ void Arpeggiator::step() {
 			for (int i = 0; i < cycleLength; i++) {
 				
 				int target;
-				// Read the pitches according to direction
-				if (pDir) { // Up
-					target = i;
-				} else { // Down
-					target = cycleLength - i - 1;
-				}	
+				// Read the pitches according to direction, but we should do this for the sequence?
+				switch (pDir) {
+					case 0: target = cycleLength - i - 1; break; 	// DOWN
+					case 2: target = i; break;						// UP
+					default: target = i; break; // Fall though but this should never happen as pDir is forced to be up or down above
+				}
 
 				float dV = semiTone * nDist * sDirection[stepI];
 				pitches[i] = clampf(inputPitches[target] + dV, -10.0, 10.0);
@@ -368,14 +334,120 @@ void Arpeggiator::step() {
 
 	// Set the value
 	outputs[OUT_OUTPUT].value = outVolts;
-	// if (true) {
-	// 	std::cout << "OUT: " << outVolts << " " << gPulse<< std::endl;
-	// }
 	outputs[GATE_OUTPUT].value = gPulse ? 10.0 : 0.0;
 	outputs[EOS_OUTPUT].value = sPulse ? 10.0 : 0.0;
 	outputs[EOC_OUTPUT].value = cPulse ? 10.0 : 0.0;
-	
-	
+		
 }
+
+struct ArpeggiatorDisplay : TransparentWidget {
 	
+	Arpeggiator *module;
+	int frame = 0;
+	std::shared_ptr<Font> font;
+
+	ArpeggiatorDisplay() {
+		font = Font::load(assetPlugin(plugin, "res/Roboto-Light.ttf"));
+	}
+
+	void draw(NVGcontext *vg) override {
+	
+		Vec pos = Vec(0, 20);
+
+		nvgFontSize(vg, 20);
+		nvgFontFaceId(vg, font->handle);
+		nvgTextLetterSpacing(vg, -1);
+
+		nvgFillColor(vg, nvgRGBA(212, 175, 55, 0xff));
+		char text[128];
+		snprintf(text, sizeof(text), "STEP: %d [%d]", module->nStep, module->inputStep);
+		nvgText(vg, pos.x + 10, pos.y + 20, text, NULL);
+		snprintf(text, sizeof(text), "DIST: %d [%d]", module->nDist, module->inputDist);
+		nvgText(vg, pos.x + 10, pos.y + 40, text, NULL);
+		
+		if (module->sDir == 0) {
+			snprintf(text, sizeof(text), "SEQ: DSC");			
+		} else {
+			snprintf(text, sizeof(text), "SEQ: ASC");			
+		}
+		nvgText(vg, pos.x + 10, pos.y + 60, text, NULL);
+		
+		if (module->pDir == 0) {
+			snprintf(text, sizeof(text), "ARP: R-L");			
+		} else {
+			snprintf(text, sizeof(text), "ARP: L-R");			
+		}
+		nvgText(vg, pos.x + 10, pos.y + 80, text, NULL);
+		
+	}
+	
+};
+
+ArpeggiatorWidget::ArpeggiatorWidget() {
+	Arpeggiator *module = new Arpeggiator();
+	
+	setModule(module);
+	box.size = Vec(240, 380);
+
+	{
+		SVGPanel *panel = new SVGPanel();
+		panel->box.size = box.size;
+		panel->setBackground(SVG::load(assetPlugin(plugin, "res/Arpeggiator.svg")));
+		addChild(panel);
+	}
+
+	addChild(createScrew<ScrewSilver>(Vec(15, 0)));
+	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 0)));
+	addChild(createScrew<ScrewSilver>(Vec(15, 365)));
+	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 365)));
+
+	{
+		ArpeggiatorDisplay *display = new ArpeggiatorDisplay();
+		display->module = module;
+		display->box.pos = Vec(20, 95);
+		display->box.size = Vec(100, 140);
+		addChild(display);
+	}
+
+	addOutput(createOutput<PJ301MPort>(Vec(6.5 + 5.0, 33.0 + 16.0),  module, Arpeggiator::OUT_OUTPUT));
+	addOutput(createOutput<PJ301MPort>(Vec(54.5 + 5.0, 33.0 + 16.0),  module, Arpeggiator::GATE_OUTPUT));
+    addParam(createParam<AHButton>(Vec(102.5 + 8.0, 33.0 + 19.0), module, Arpeggiator::LOCK_PARAM, 0.0, 1.0, 0.0));
+    addChild(createLight<MediumLight<GreenLight>>(Vec(102.5 + 12.4, 33.0 + 23.4), module, Arpeggiator::LOCK_LIGHT));
+	addOutput(createOutput<PJ301MPort>(Vec(150.5 + 5.0, 33.0 + 16.0), module, Arpeggiator::EOC_OUTPUT));
+	addOutput(createOutput<PJ301MPort>(Vec(198.5 + 5.0, 33.0 + 16.0), module, Arpeggiator::EOS_OUTPUT));
+
+	float xStart = 5.0;
+	float boxWidth = 35.0;
+	float gap = 10.0;
+	float connDelta = 5.0;
+	
+	for (int i = 0; i < Arpeggiator::NUM_PITCHES; i++) {
+		float xPos = xStart + ((float)i * boxWidth + gap);
+		addInput(createInput<PJ301MPort>(Vec(xPos + connDelta, 329),  module, Arpeggiator::PITCH_INPUT + i));
+	}
+	
+	addInput(createInput<PJ301MPort>(Vec(15.0  + connDelta, 269), module, Arpeggiator::STEP_INPUT));
+	addInput(createInput<PJ301MPort>(Vec(50.0 + connDelta, 269), module, Arpeggiator::DIST_INPUT));
+	addInput(createInput<PJ301MPort>(Vec(155 + connDelta, 269), module, Arpeggiator::TRIG_INPUT));
+	addInput(createInput<PJ301MPort>(Vec(190 + connDelta, 269), module, Arpeggiator::CLOCK_INPUT));
+	
+	addParam(createParam<BefacoSwitch>(Vec(175.0 + 3.5, 95 + 17), module, Arpeggiator::SDIR_PARAM, 0, 2, 0));
+	addParam(createParam<BefacoSwitch>(Vec(175.0 + 3.5, 170 + 17), module, Arpeggiator::PDIR_PARAM, 0, 2, 0));
+
+}
+
+struct Sequence {
+	virtual void build(float basePitch, int nSteps, int dist);
+	virtual float step();
+};
+
+struct UpSequence : Sequence {
+	void build(float basePitch, int nSteps, int dist) {
+		return;
+	}
+	float step() {
+		return 0.0;
+	}
+};
+
 

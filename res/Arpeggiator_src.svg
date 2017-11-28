@@ -967,16 +967,16 @@
      borderopacity="1.0"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.9368421"
-     inkscape:cx="86.661625"
-     inkscape:cy="251.95652"
+     inkscape:zoom="1.6921053"
+     inkscape:cx="285.47434"
+     inkscape:cy="190"
      inkscape:current-layer="layer2"
      showgrid="false"
      units="mm"
      inkscape:window-width="1440"
      inkscape:window-height="856"
-     inkscape:window-x="90"
-     inkscape:window-y="11"
+     inkscape:window-x="777"
+     inkscape:window-y="390"
      inkscape:window-maximized="0"
      showguides="false"
      inkscape:guide-bbox="true"
@@ -992,8 +992,8 @@
      inkscape:bbox-nodes="true"
      inkscape:snap-page="true"
      objecttolerance="1"
-     inkscape:measure-start="282.488,114.059"
-     inkscape:measure-end="107.893,97.1605">
+     inkscape:measure-start="197.292,291.166"
+     inkscape:measure-end="194.893,281.145">
     <sodipodi:guide
        orientation="0,1"
        position="179.13712,29.544252"
@@ -1337,7 +1337,7 @@
        x="150.48825"
        y="-432.38678"
        ry="4.2187495"
-       transform="matrix(1,0,0,-1,-30.020006,-0.48001478)" />
+       transform="matrix(0.97322123,0,0,-0.97911468,-26.001488,8.5606721)" />
     <rect
        transform="scale(1,-1)"
        ry="4.2187495"
@@ -1372,12 +1372,12 @@
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none"
        x="60.923138"
-       y="398.47763"
+       y="396.38675"
        id="text5449"><tspan
          sodipodi:role="line"
          id="tspan5447"
          x="60.923138"
-         y="398.47763"
+         y="396.38675"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">P2</tspan></text>
     <rect
        style="fill:#000000;fill-opacity:1;stroke-width:0.78504759"
@@ -1392,35 +1392,35 @@
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:39.76836014px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none;stroke-width:0.99420899"
        x="26.782131"
-       y="396.17004"
+       y="394.09128"
        id="text2688"
        transform="scale(0.99420903,1.0058247)"><tspan
          sodipodi:role="line"
          id="tspan2686"
          x="26.782131"
-         y="396.17004"
+         y="394.09128"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.60489655px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1;stroke-width:0.99420899">P1</tspan></text>
     <text
        id="text2696"
-       y="398.47763"
-       x="131.2547"
+       y="396.38675"
+       x="130.7747"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none"
        xml:space="preserve"><tspan
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1"
-         y="398.47763"
-         x="131.2547"
+         y="396.38675"
+         x="130.7747"
          id="tspan2694"
          sodipodi:role="line">P4</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none"
        x="165.87367"
-       y="398.42047"
+       y="396.32947"
        id="text2704"><tspan
          sodipodi:role="line"
          id="tspan2702"
          x="165.87367"
-         y="398.42047"
+         y="396.32947"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">P5</tspan></text>
     <text
        id="text7961"
@@ -1481,12 +1481,12 @@
     <text
        transform="scale(0.99420903,1.0058247)"
        id="text1119"
-       y="117.79149"
+       y="117.63902"
        x="14.209181"
        style="font-style:normal;font-weight:normal;font-size:39.76836014px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.99420899"
        xml:space="preserve"><tspan
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.60489655px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke-width:0.99420899"
-         y="117.79149"
+         y="117.63902"
          x="14.209181"
          id="tspan1117"
          sodipodi:role="line">OUT</tspan></text>
@@ -1501,12 +1501,12 @@
        transform="scale(1,-1)" />
     <text
        id="text1110"
-       y="118.47762"
+       y="118.32426"
        x="59.462196"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
        xml:space="preserve"><tspan
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1"
-         y="118.47762"
+         y="118.32426"
          x="59.462196"
          id="tspan1108"
          sodipodi:role="line">GATE</tspan></text>
@@ -1521,12 +1521,12 @@
        transform="scale(1,-1)" />
     <text
        id="text1116"
-       y="118.47762"
+       y="118.32426"
        x="206.36586"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
        xml:space="preserve"><tspan
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1"
-         y="118.47762"
+         y="118.32426"
          x="206.36586"
          id="tspan1114"
          sodipodi:role="line">EOS</tspan></text>
@@ -1541,12 +1541,12 @@
        transform="scale(1,-1)" />
     <text
        id="text3931"
-       y="398.42047"
+       y="396.32947"
        x="95.889282"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none"
        xml:space="preserve"><tspan
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1"
-         y="398.42047"
+         y="396.32947"
          x="95.889282"
          id="tspan3929"
          sodipodi:role="line">P3</tspan></text>
@@ -1556,11 +1556,11 @@
        width="35"
        height="45"
        x="189.98825"
-       y="-371.90677"
+       y="-371.88678"
        ry="4.2187495"
        transform="scale(1,-1)" />
     <rect
-       transform="matrix(1,0,0,-1,4.979994,-60.480015)"
+       transform="matrix(0.97358875,0,0,-0.97911468,8.9432919,-51.939398)"
        ry="4.2187495"
        y="-432.38678"
        x="150.48825"
@@ -1574,24 +1574,24 @@
        width="35"
        height="45"
        x="49.988243"
-       y="-371.90677"
+       y="-371.88678"
        ry="4.2187495"
        transform="scale(1,-1)" />
     <text
        id="text10544"
-       y="337.99762"
+       y="337.82428"
        x="56.300743"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none"
        xml:space="preserve"><tspan
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1"
-         y="337.99762"
+         y="337.82428"
          x="56.300743"
          id="tspan10542"
          sodipodi:role="line">DIST</tspan></text>
     <rect
        transform="scale(1,-1)"
        ry="4.2187495"
-       y="-371.90677"
+       y="-371.88678"
        x="14.988245"
        height="45"
        width="35"
@@ -1600,62 +1600,51 @@
     <text
        transform="scale(0.99420903,1.0058247)"
        id="text10550"
-       y="336.04028"
+       y="335.86792"
        x="20.529488"
        style="font-style:normal;font-weight:normal;font-size:39.76836014px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none;stroke-width:0.99420899"
        xml:space="preserve"><tspan
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.60489655px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1;stroke-width:0.99420899"
-         y="336.04028"
+         y="335.86792"
          x="20.529488"
          id="tspan10548"
          sodipodi:role="line">STEP</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none"
-       x="162.09064"
-       y="337.99762"
+       x="161.61716"
+       y="337.82428"
        id="text10554"><tspan
          sodipodi:role="line"
          id="tspan10552"
-         x="162.09064"
-         y="337.99762"
+         x="161.61716"
+         y="337.82428"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">TRIG</tspan></text>
     <text
        id="text10558"
-       y="337.99762"
+       y="337.82428"
        x="197.84242"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none"
        xml:space="preserve"><tspan
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1"
-         y="337.99762"
+         y="337.82428"
          x="197.84242"
          id="tspan10556"
          sodipodi:role="line">CLK</tspan></text>
     <rect
        transform="scale(1,-1)"
        ry="4.2187495"
-       y="-372.38678"
+       y="-371.88678"
        x="84.988243"
        height="45"
        width="35"
        id="rect11947"
        style="fill:#000000;fill-opacity:1;stroke-width:0.78504759" />
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none"
-       x="94.076782"
-       y="337.99762"
-       id="text11951"><tspan
-         sodipodi:role="line"
-         id="tspan11949"
-         x="94.076782"
-         y="337.99762"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">DIR</tspan></text>
     <rect
        transform="scale(1,-1)"
        ry="4.2187495"
        y="-152.38676"
-       x="149.98825"
+       x="150.48825"
        height="45"
        width="35"
        id="rect18928"
@@ -1663,13 +1652,13 @@
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
-       x="157.86586"
-       y="118.47762"
+       x="158.36586"
+       y="118.32426"
        id="text18932"><tspan
          sodipodi:role="line"
          id="tspan18930"
-         x="157.86586"
-         y="118.47762"
+         x="158.36586"
+         y="118.32426"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1">EOC</tspan></text>
     <text
        xml:space="preserve"
@@ -1692,12 +1681,12 @@
        transform="scale(1,-1)" />
     <text
        id="text1127"
-       y="398.42047"
+       y="396.32425"
        x="200.87888"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none"
        xml:space="preserve"><tspan
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1"
-         y="398.42047"
+         y="396.32425"
          x="200.87888"
          id="tspan1125"
          sodipodi:role="line">P6</tspan></text>
@@ -1709,28 +1698,141 @@
        x="150.48825"
        y="-432.38678"
        ry="4.2187495"
-       transform="matrix(1,0,0,-1,-30.020006,-60.480015)" />
+       transform="matrix(0.97359181,0,0,-0.97888701,-26.057222,-51.840903)" />
+    <rect
+       style="fill:#000000;fill-opacity:1;stroke-width:0.78504759"
+       id="rect1131"
+       width="35"
+       height="45"
+       x="102.48824"
+       y="-152.38676"
+       ry="4.2187495"
+       transform="scale(1,-1)" />
     <text
-       id="text1133"
-       y="337.99762"
-       x="124.73127"
+       id="text1135"
+       y="118.32426"
+       x="106.75127"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none"
        xml:space="preserve"><tspan
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1"
-         y="337.99762"
-         x="124.73127"
-         id="tspan1131"
+         y="118.32426"
+         x="106.75127"
+         id="tspan1133"
          sodipodi:role="line">LOCK</tspan></text>
+    <rect
+       style="fill:#2f270a;fill-opacity:1;stroke:#767676;stroke-width:0.93347001;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4707"
+       width="99.066528"
+       height="139.06653"
+       x="20.454979"
+       y="-308.92001"
+       ry="0"
+       transform="scale(1,-1)" />
+    <rect
+       transform="scale(1,-1)"
+       ry="6.0937495"
+       y="-234.38675"
+       x="174.98825"
+       height="65"
+       width="35"
+       id="rect6161"
+       style="fill:#000000;fill-opacity:1;stroke-width:0.94350976" />
     <text
-       id="text1131"
-       y="160.42047"
-       x="101.68095"
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none"
+       x="182.72523"
+       y="180.32426"
+       id="text6165"><tspan
+         sodipodi:role="line"
+         id="tspan6163"
+         x="182.72523"
+         y="180.32426"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">ASC</tspan></text>
+    <text
+       id="text6175"
+       y="230.32426"
+       x="182.20961"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none"
        xml:space="preserve"><tspan
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1"
-         y="160.42047"
-         x="101.68095"
-         id="tspan1129"
-         sodipodi:role="line">Seq DIR</tspan></text>
+         y="230.32426"
+         x="182.20961"
+         id="tspan6173"
+         sodipodi:role="line">DSC</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none"
+       x="213.90924"
+       y="205.44144"
+       id="text6179"><tspan
+         sodipodi:role="line"
+         id="tspan6177"
+         x="213.90924"
+         y="205.44144"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">RND</tspan></text>
+    <text
+       id="text6183"
+       y="205.44144"
+       x="144.65491"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1"
+         y="205.44144"
+         x="144.65491"
+         id="tspan6181"
+         sodipodi:role="line">SEQ</tspan></text>
+    <rect
+       style="fill:#000000;fill-opacity:1;stroke-width:0.94350976"
+       id="rect1141"
+       width="35"
+       height="65"
+       x="174.98825"
+       y="-309.38678"
+       ry="6.0937495"
+       transform="scale(1,-1)" />
+    <text
+       id="text1145"
+       y="255.32428"
+       x="182.5143"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1"
+         y="255.32428"
+         x="182.5143"
+         id="tspan1143"
+         sodipodi:role="line">L—R</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none"
+       x="182.32419"
+       y="305.32428"
+       id="text1149"><tspan
+         sodipodi:role="line"
+         id="tspan1147"
+         x="182.32419"
+         y="305.32428"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">R—L</tspan></text>
+    <text
+       id="text1153"
+       y="280.44147"
+       x="213.90924"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1"
+         y="280.44147"
+         x="213.90924"
+         id="tspan1151"
+         sodipodi:role="line">RND</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none"
+       x="144.65491"
+       y="280.44147"
+       id="text1157"><tspan
+         sodipodi:role="line"
+         id="tspan1155"
+         x="144.65491"
+         y="280.44147"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">ARP</tspan></text>
   </g>
 </svg>
