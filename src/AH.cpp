@@ -17,6 +17,7 @@ void init(rack::Plugin *p) {
 	// and module name
 	p->addModel(createModel<ScaleQuantizerWidget>("Amalgamated Harmonics", "ScaleQuantizer", "Scale Quantizer", QUANTIZER_TAG));
 	p->addModel(createModel<ArpeggiatorWidget>("Amalgamated Harmonics", "Arpeggiator", "Arpeggiator", QUANTIZER_TAG));
+        p->addModel(createModel<ScaleQuantizer2Widget>("Amalgamated Harmonics", "ScaleQuantizer2", "Scale Quantizer MkII", QUANTIZER_TAG));
 
 	// Any other plugin initialization may go here.
 	// As an alternative, consider lazy-loading assets and lookup tables when your module is created to reduce startup times of Rack.

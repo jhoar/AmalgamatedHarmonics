@@ -140,6 +140,8 @@ struct Quantizer {
 	* Convert a V/OCT voltage to a quantized pitch, key and scale, and calculate various information about the quantised note.
 	*/
 	
+	float getPitchFromVolts(float inVolts, int inRoot, int inScale, int *outNote, int *outDegree);
+
 	float getPitchFromVolts(float inVolts, float inRoot, float inScale, int *outRoot, int *outScale, int *outNote, int *outDegree);
 	
 	
