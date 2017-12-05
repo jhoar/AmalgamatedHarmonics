@@ -954,9 +954,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:zoom="7.0195076"
-     inkscape:cx="219.2535"
-     inkscape:cy="341.8818"
+     inkscape:zoom="1.6853183"
+     inkscape:cx="120.85121"
+     inkscape:cy="189.23485"
      inkscape:current-layer="layer2"
      showgrid="false"
      units="mm"
@@ -1300,7 +1300,7 @@
      style="display:inline"
      transform="translate(0.01175524,-74.386765)">
     <rect
-       style="fill:#000000;fill-opacity:1;stroke-width:16.2095356"
+       style="opacity:0.93999999;fill:#000000;fill-opacity:1;stroke-width:16.2095356"
        id="rect7953"
        width="240"
        height="380"
@@ -1315,9 +1315,9 @@
        height="45"
        width="35"
        id="rect3073"
-       style="fill:#000000;fill-opacity:1;stroke-width:0.78504759" />
+       style="fill:#000000;fill-opacity:0;stroke-width:0.78504759" />
     <rect
-       style="fill:#000000;fill-opacity:1;stroke-width:0.78504759"
+       style="fill:#000000;fill-opacity:0;stroke-width:0.78504759"
        id="rect3075"
        width="35"
        height="45"
@@ -1333,7 +1333,7 @@
        height="45"
        width="35"
        id="rect3077"
-       style="fill:#000000;fill-opacity:1;stroke-width:0.78504759" />
+       style="fill:#000000;fill-opacity:0;stroke-width:0.78504759" />
     <g
        style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:condensed;font-size:24px;line-height:125%;font-family:Miso;-inkscape-font-specification:'Miso Bold Condensed';letter-spacing:-0.06px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
        id="text4395"
@@ -1367,7 +1367,7 @@
          y="398.47763"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">KEY</tspan></text>
     <rect
-       style="fill:#000000;fill-opacity:1;stroke-width:0.78504759"
+       style="fill:#000000;fill-opacity:0;stroke-width:0.78504759"
        id="rect2684"
        width="35"
        height="45"
@@ -1903,7 +1903,7 @@
            style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:18.66666603px;font-family:'Cooper Black';-inkscape-font-specification:'Cooper Black, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">H</tspan></text>
     </g>
     <rect
-       style="fill:#000000;fill-opacity:1;stroke-width:0.78504759"
+       style="fill:#000000;fill-opacity:0;stroke-width:0.78504759"
        id="rect1228"
        width="35"
        height="45"
@@ -1944,5 +1944,77 @@
          x="195.7058"
          y="93.902763"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:9.33333302px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">Mk.II</tspan></text>
+    <rect
+       style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.94099998;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect1236"
+       width="2.363919"
+       height="24.821152"
+       x="17.039246"
+       y="148.4863" />
+    <rect
+       y="148.4863"
+       x="46.239246"
+       height="24.821152"
+       width="2.363919"
+       id="rect1374"
+       style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.94099998;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <rect
+       style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.94099998;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect1376"
+       width="2.363919"
+       height="24.821152"
+       x="74.839241"
+       y="148.4863" />
+    <rect
+       y="148.4863"
+       x="104.13924"
+       height="24.821152"
+       width="2.363919"
+       id="rect1378"
+       style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.94099998;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <rect
+       style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.94099998;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect1380"
+       width="2.363919"
+       height="24.821152"
+       x="133.33926"
+       y="148.4863" />
+    <rect
+       y="148.4863"
+       x="162.03925"
+       height="24.821152"
+       width="2.363919"
+       id="rect1382"
+       style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.94099998;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <rect
+       style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.94099998;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect1384"
+       width="2.363919"
+       height="24.821152"
+       x="190.83925"
+       y="148.4863" />
+    <rect
+       y="148.4863"
+       x="219.93924"
+       height="24.821152"
+       width="2.363919"
+       id="rect1386"
+       style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.94099998;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <rect
+       style="opacity:1;fill:#d4af37;fill-opacity:1;stroke:none;stroke-width:0.71479321;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect1388"
+       width="28.95801"
+       height="2.7279999"
+       x="33.117325"
+       y="-415.98093"
+       transform="scale(1,-1)" />
+    <rect
+       transform="scale(1,-1)"
+       y="-415.98093"
+       x="177.11731"
+       height="2.7279999"
+       width="28.95801"
+       id="rect1390"
+       style="opacity:1;fill:#d4af37;fill-opacity:1;stroke:none;stroke-width:0.71479321;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
   </g>
 </svg>
