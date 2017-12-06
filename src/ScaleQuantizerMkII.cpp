@@ -61,14 +61,14 @@ void ScaleQuantizer2::step() {
 
 	if (inputs[KEY_INPUT].active) {
 		float fRoot = inputs[KEY_INPUT].value;
-		currRoot = round(rescalef(fRoot, -10.0, 10.0, 0, Quantizer::NUM_NOTES - 1));
+		currRoot = round(rescalef(fabs(fRoot), 0.0, 10.0, 0, Quantizer::NUM_NOTES - 1));
 	} else {
 		currRoot = params[KEY_PARAM].value;
 	}
 	
 	if (inputs[SCALE_INPUT].active) {
 		float fScale = inputs[SCALE_INPUT].value;
-		currScale = round(rescalef(fScale, -10.0, 10.0, 0, Quantizer::NUM_SCALES - 1));
+		currScale = round(rescalef(fabs(fScale), 0.0, 10.0, 0, Quantizer::NUM_SCALES - 1));
 	} else {
 		currScale = params[SCALE_PARAM].value;
 	}

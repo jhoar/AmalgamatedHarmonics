@@ -7,11 +7,11 @@ float Quantizer::getPitchFromVolts(float inVolts, float inRoot, float inScale, i
 	stepX++;
 		
 	// get the root note and scale
-	int currRoot = round(rescalef(inRoot, -10.0, 10.0, 0, Quantizer::NUM_NOTES - 1));
-	int currScale = round(rescalef(inScale, -10.0, 10.0, 0, Quantizer::NUM_SCALES - 1));
+	int currRoot = round(rescalef(fabs(inRoot), 0.0, 10.0, 0, Quantizer::NUM_NOTES - 1));
+	int currScale = round(rescalef(fabs(inScale), 0.0, 10.0, 0, Quantizer::NUM_SCALES - 1));
 		
 	if (debug && stepX % poll == 0) {
-		std::cout << "Root float: " << inRoot << " Scale float: " << inScale << std::endl;
+		std::cout << "Root in: " << inRoot << "Root out: " << currRoot<< " Scale in: " << inScale << " Scale out: " << currScale << std::endl;
 	}	
 		
 	int *curScaleArr;
