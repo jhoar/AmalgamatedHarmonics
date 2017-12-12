@@ -2,8 +2,8 @@ Welcome to the Amalgamated Harmonics; your one-stop shop for barely usable modul
 
 We offer two modules 
 
-* [Scale Quantizer] (https://github.com/jhoar/AmalgamatedHarmonics/wiki/Scale-Quantizer)
-* [Arpeggiator] (https://github.com/jhoar/AmalgamatedHarmonics/wiki/Arpeggiator)
+* [Scale Quantizer](https://github.com/jhoar/AmalgamatedHarmonics/wiki/Scale-Quantizer)
+* [Arpeggiator](https://github.com/jhoar/AmalgamatedHarmonics/wiki/Arpeggiator)
 
 More modules are on their way.
 
