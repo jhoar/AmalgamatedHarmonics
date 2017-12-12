@@ -10,8 +10,8 @@ void init(rack::Plugin *p) {
 #ifdef VERSION
 	p->version = TOSTRING(VERSION);
 #endif
-	p->website = "https://github.com/jhoar/AmalgamatedHarmonics";
-	p->manual = "https://github.com/jhoar/AmalgamatedHarmonics";
+	p->website = "https://github.com/jhoar/AmalgamatedHarmonics/wiki";
+	p->manual = "https://github.com/jhoar/AmalgamatedHarmonics/wiki";
 
 	// For each module, specify the ModuleWidget subclass, manufacturer slug (for saving in patches), manufacturer human-readable name, module slug, 
 	// and module name
