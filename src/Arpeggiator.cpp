@@ -46,11 +46,11 @@ struct Arpeggiator : Module {
 	Arpeggiator() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
 	void step() override;
 	
-		
 	SchmittTrigger clockTrigger; // for clock
 	SchmittTrigger trigTrigger;  // for step trigger
     SchmittTrigger lockTrigger;
 	
+	PulseGenerator triggerPulse;
 	PulseGenerator gatePulse;
 	PulseGenerator eosPulse;
 	PulseGenerator eocPulse;
@@ -74,8 +74,6 @@ struct Arpeggiator : Module {
 
 	float outVolts;
 	bool isRunning = false;
-	bool wasTriggered = false;
-	bool newCycle = false;
 
 	int cycleLength = 0;
 	int stepI = 0;
@@ -84,290 +82,287 @@ struct Arpeggiator : Module {
 	int cycleRemaining;
 	int currDist = 0;
 
-	bool debug = false;
 	int stepX = 0;
 	int poll = 5000;
-
+	
+	inline bool debug() {
+		return false;
+	}
+	
 };
 
 void Arpeggiator::step() {
 	
-	bool isClocked = false;
-	bool isTriggered = false;
-	bool advance = false;
-	float semiTone = 1.0 / 12.0;
 	stepX++;
+	// Wait a few steps for the inputs to flow through Rack
+	if (stepX < 10) { 
+		return;
+	}
 	
-	// std::cout << "Step: " << stepX << std::endl;
-
-	if (lockTrigger.process(params[LOCK_PARAM].value)) {
-		locked = !locked;
-		if (debug) { std::cout << "Toggling lock: " << locked << std::endl; }
+	// Get the clock rate and semi-tone
+	float delta = 1.0 / engineGetSampleRate();	
+	float semiTone = 1.0 / 12.0;
+	
+	// Get inputs from Rack
+	float clockInput 	= inputs[CLOCK_INPUT].value;
+	float trigInput   	= inputs[TRIG_INPUT].value;
+	
+	float iPDir			= params[PDIR_PARAM].value;
+	float iSDir			= params[SDIR_PARAM].value;
+	
+	float iStep			= inputs[STEP_INPUT].value;
+	float iDist			= inputs[DIST_INPUT].value;
+	
+	bool pitchStatus[6];
+	float pitchValue[6];
+	
+	for (int p = 0; p < NUM_PITCHES; p++) {
+		int index = PITCH_INPUT + p;
+		pitchStatus[p] 	= inputs[index].active;
+		pitchValue[p] 	= inputs[index].value;
 	}
-    lights[LOCK_LIGHT].value = locked ? 1.0 : 0.0;
-
-	// Clock running sequence
-	if (inputs[CLOCK_INPUT].active) {
-		// External clock
-		if (clockTrigger.process(inputs[CLOCK_INPUT].value)) {
-			isClocked = true;
-		} 
+	
+	
+	// Process inputs
+	// Where am I reducing this trigger
+	bool clockStatus	= clockTrigger.process(clockInput);
+	bool triggerStatus	= trigTrigger.process(trigInput);
+		
+	inputStep 	= round(rescalef(iStep, -10, 10, 0, MAX_STEPS));
+	inputDist 	= round(rescalef(iDist, -10, 10, 0, MAX_DIST));\
+	inputPDir 	= iPDir;
+	inputSDir	= iSDir;
+	
+	int cycleLength = 0;
+	for (int p = 0; p < NUM_PITCHES; p++) {
+		if (pitchStatus[p]) {
+			inputPitches[cycleLength] = pitchValue[p];			
+			cycleLength++;
+		}
 	}
+	
+	
+	// If there are still steps left after the end of a cycle, start a new cycle
+	bool newCycle = false;
+	bool newSequence = false;
+	
+	// Has the trigger input been fired
+	if (triggerStatus) {
+		newSequence = true;
+		newCycle = true;		
+		triggerPulse.trigger(5e-5);
+		if (debug()) { std::cout << stepX << " Triggered" << std::endl; }
+	}
+	
+	bool triggerHigh = triggerPulse.process(delta);
+	if (debug()) { 
+		if (triggerHigh) {
+			std::cout << stepX << " Trigger is high" << std::endl;
+		}
+	}
+	
 	
 	// OK so the problem here might be that the clock gate is still high right after the trigger gate fired on the previous step
 	// So we need to wait a while for the clock gate to go low
-	// Eat the clock gate for precisely one step after a gate
-	if (wasTriggered) {
-		isClocked = false;
-		wasTriggered = false;
+	// Has the clock input been fired
+	bool isClocked = false;
+	if (clockStatus && !triggerHigh) {
+		if (debug()) { std::cout << stepX << " Clocked" << std::endl; }
+		isClocked = true;
 	}
 	
-	// Trigger a new sequence
-	if (inputs[TRIG_INPUT].active) {
-		// External clock
-		if (trigTrigger.process(inputs[TRIG_INPUT].value)) {
-			isTriggered = true;
-		} 
-	}
-	
-	// Read sequence config every step for UI
-	inputPDir = params[PDIR_PARAM].value;
-	inputSDir = params[SDIR_PARAM].value;
-	
-	inputStep = round(rescalef(inputs[STEP_INPUT].value, -10, 10, 0, MAX_STEPS));		
-	inputDist = round(rescalef(inputs[DIST_INPUT].value, -10, 10, 0, MAX_DIST));		
-	
-	// Check if we have been triggered 
-	if (isTriggered) {
 		
-		// Set the cycle
-		isRunning = true;
-		newCycle = true;
-		stepI = 0;
-		cycleI = 0;
-		currDist = 0;
-	
-		// Set flag to advance sequence
-		advance = true;
-	
-		if (debug) {
-			std::cout << "Triggered Steps: " << nStep << " Dist: " << nDist << " pitchScan: " << pDir << " Pattern: " << sDir << std::endl;
-			std::cout << "Advance from Trigger" << std::endl;
-		}
-	
-		// Need this to stop clock gates from immediately advancing sequence, and for resetting the stepcount. 
-		// Probably should be a pulse
-		wasTriggered = true;
-		
-	} 
+	// Reached the end of the cycle
+	if (isRunning && isClocked && cycleRemaining == 0) {
 
-	bool readCycleSettings = false;
-	
-	// if there is a new cycle and the pitches are unlocked, or we have been triggered	
-	if (isTriggered && !locked) {
-		if (debug) {
-			std::cout << "Read pitches from trigger: " << isTriggered << std::endl;
+		// Completed 1 step
+		stepI++;
+		stepsRemaining--;
+				
+		// Pulse the EOC gate
+		eocPulse.trigger(5e-4);
+		if (debug()) { std::cout << stepX << " Finished Cycle S: " << stepI <<
+			" C: " << cycleI <<
+			" sRemain: " << stepsRemaining <<
+			" cRemain: " << cycleRemaining << std::endl;
 		}
-		readCycleSettings = true;
-	}
-	
-	if (isClocked && newCycle && !locked) {
-		if (debug) {
-			std::cout << "Read pitches from clock: " << isClocked << isRunning << newCycle << !locked << std::endl;
-		}
-		readCycleSettings = true;		
-	}
-
-	// Capture the settings
-	if (readCycleSettings) {
 		
-		// Freeze sequence params
+		// Reached the end of the sequence
+		if (isRunning && stepsRemaining == 0) {
+		
+			// Update the flag
+			isRunning = false;
+		
+			// Pulse the EOS gate
+			
+			eosPulse.trigger(5e-4);
+			if (debug()) { std::cout << stepX << " Finished sequence S: " << stepI <<
+				" C: " << cycleI <<
+				" sRemain: " << stepsRemaining <<
+				" cRemain: " << cycleRemaining << 
+				" flag:" << isRunning << std::endl;
+			}
+
+		} else {
+			newCycle = true;
+			if (debug()) { std::cout << stepX << " Flagging new cycle" << std::endl; }
+		}
+		
+	}
+	
+	
+	// Capture the settings for this cycle
+	if (newCycle) {
+
+		if (debug()) { std::cout << stepX << " Freeze inputs" << std::endl; }
+		
+		// Update params
 		nStep = inputStep;
 		nDist = inputDist;
 		pDir = inputPDir;
 		sDir = inputSDir;
-					
-		cycleLength = 0;
+	
+	}
+	
+	
+	// If we have no steps to play, play nothing
+	if (nStep == 0) {
+		return; // No steps, abort
+	} 
+	
+	
+	// If we have been triggered, start a new sequence
+	if (newSequence) {
 		
-		// Read out voltages
-		for (int p = 0; p < NUM_PITCHES; p++) {
-			int index = PITCH_INPUT + p;
-			if (inputs[index].active) {
-				inputPitches[cycleLength] = inputs[index].value;
-				cycleLength++;
-			} 
-		}
-				
-		cycleRemaining = cycleLength;
-		if (debug) {
-			std::cout << "Defining cycle: seqLen: " << nStep * cycleLength << " cycLength: " << cycleLength;
+		if (debug()) { std::cout << stepX << " New Sequence" << std::endl;	}
+		
+		// We're running now
+		isRunning = true;
+		
+		// At the beginning of the sequence (i.e. dist = 0)
+		currDist = 0;
+		
+		// At the first step of the sequence
+		stepsRemaining = nStep;	
+		stepI = 0;
+	
+		// At the beginning of the sequence (i.e. dist = 0)
+		currDist = 0;
+		
+	} 
+	
+	
+	// Starting a new cycle
+	if (newCycle) {
+		
+		if (debug()) {
+			std::cout << stepX << " Defining cycle: nStep: " << nStep << 
+				" nDist: " << nDist << 
+				" pDir: " << pDir << 
+				" sDir: " << sDir << 
+				" cycLength: " << cycleLength << 
+				" seqLen: " << nStep * cycleLength;
 			for (int i = 0; i < cycleLength; i++) {
 				 std::cout << " P" << i << " V: " << inputPitches[i];
 			}
 			std::cout << std::endl;
 		}
 		
-	} 
+		/// Reset the cycle counters
+		cycleRemaining = cycleLength;
+		cycleI = 0;
+		
+		if (debug()) { std::cout << stepX << " New cycle" << std::endl; }
 	
-	// Slightly hacky but of code to catch case when there are no steps, or we have been triggered after being set to 0 steps
-	if (nStep == 0) {
-		return; // No steps, abort
-	} else {
-		// If we had reachd the end of the sequence or just transitioned from 0 step length, reset the counter
-		if (stepsRemaining == 0 || wasTriggered) { 
-			if (debug) { std::cout << "Hard reset stepsRemaining" << std::endl; }
-			stepsRemaining = nStep;
+		// Deal with RND setting, when sDir == 1, force it up or down
+		if (sDir == 1) {
+			if (rand() % 2 == 0) {
+				sDir = 0;
+			} else {
+				sDir = 2;
+			}
 		}
+		
+		// Only starting moving after the first cycle
+		if (stepI) {	
+			switch (sDir) {
+				case 0:			currDist--; break;
+				case 2:			currDist++; break;
+				default: 		; 
+			}
+		}
+		
+		for (int i = 0; i < cycleLength; i++) {
+		
+			int target;
+						
+			// Read the pitches according to direction, but we should do this for the sequence?
+			switch (pDir) {
+				case 0: target = cycleLength - i - 1; break; 		// DOWN
+				case 1: target = rand() % cycleLength; break;		// RANDOM
+				case 2: target = i; break;							// UP
+				default: target = i; break; // For random case, read randomly from array, so order does not matter
+			}
+
+			// How many semi-tones do we need to shift
+			float dV = semiTone * nDist * currDist;
+			pitches[i] = clampf(inputPitches[target] + dV, -10.0, 10.0);
+		
+			if (debug()) {
+				std::cout << stepX << " Pitch: " << i << " stepI: " << stepI <<
+					" dV:" << dV <<
+					" target: " << target <<
+					" in: " << inputPitches[target] <<
+					" out: " << pitches[target] << std::endl;
+			}				
+		}
+		
+		if (debug()) {
+			std::cout << stepX << " Output pitches: ";
+			for (int i = 0; i < cycleLength; i++) {
+				 std::cout << " P" << i << " V: " << pitches[i];
+			}
+			std::cout << std::endl;
+		}
+		
 	}
 	
-	// Are we running a sequence and are clocked
-	if (isRunning && isClocked) {
-		// Set flag to advance sequence
-		if (debug) { std::cout << "Advance from Clock" << std::endl; }
-		advance = true;
-	}
-
 	// Advance the sequence
-	if (advance) {
+	// Are we starting a sequence or are running and have been clocked; if so advance the sequence
+//	if (newSequence || (isRunning && isClocked)) {
+	// Only advance from the clock
+	if (isRunning && isClocked) {
 
-		if (debug) { std::cout << "Advance S: " << stepI <<
+		if (debug()) { std::cout << stepX << " Advance Cycle S: " << stepI <<
 			" C: " << cycleI <<
 			" sRemain: " << stepsRemaining <<
 			" cRemain: " << cycleRemaining << std::endl;
-		}
-	
-		// Starting a new cycle
-		if (newCycle) {
-
-			if (debug) { std::cout << "New Cycle: " << newCycle << std::endl; }
-		
-			// Deal with RND setting, when sDir == 1, force it up or down
-			if (sDir == 1) {
-				if (rand() % 2 == 0) {
-					sDir = 0;
-				} else {
-					sDir = 2;
-				}
-			}
-			
-			// Only starting moving after the first cycle
-			if (stepI) {	
-				switch (sDir) {
-					case 0:			currDist--; break;
-					case 2:			currDist++; break;
-					default: 		; 
-				}
-			}
-			
-			if (!locked) {// Pitches are locked, and so is the order. This keeps randomly generated arps fixed when locked
-				for (int i = 0; i < cycleLength; i++) {
-				
-					int target;
-								
-					// Read the pitches according to direction, but we should do this for the sequence?
-					switch (pDir) {
-						case 0: target = cycleLength - i - 1; break; 		// DOWN
-						case 1: target = rand() % cycleLength; break;		// RANDOM
-						case 2: target = i; break;							// UP
-						default: target = i; break; // For random case, read randomly from array, so order does not matter
-					}
-
-					// How many semi-tones do we need to shift
-					float dV = semiTone * nDist * currDist;
-					pitches[i] = clampf(inputPitches[target] + dV, -10.0, 10.0);
-				
-					if (debug) {
-						std::cout << i << " stepI: " << stepI <<
-							" dV:" << dV <<
-							" target: " << target <<
-							" in: " << inputPitches[target] <<
-							" out: " << pitches[target] << std::endl;
-					}				
-				}
-			}
-			
-			if (debug) {
-				std::cout << "Output pitches: ";
-				for (int i = 0; i < cycleLength; i++) {
-					 std::cout << " P" << i << " V: " << pitches[i];
-				}
-				std::cout << std::endl;
-			}
-			
-			// Done, reset flag
-			newCycle = false;
-			
 		}
 		
 		// Finally set the out voltage
 		outVolts = pitches[cycleI];
 		
-		if (debug) { std::cout << "V = " << outVolts << std::endl; }
+		if (debug()) { std::cout << stepX << " Output V = " << outVolts << std::endl; }
 		
 		// Update counters
 		cycleI++;
 		cycleRemaining--;
 		
 		// Pulse the output gate
-		gatePulse.trigger(5e-3);
-		
-		// Reached the end of the cycle
-		if (cycleRemaining == 0) {
-
-			// Completed 1 step
-			stepI++;
-			stepsRemaining--;
-			
-			/// Reset the cycle counters
-			cycleRemaining = cycleLength;
-			cycleI = 0;
-			
-			// Need to start a new cycle
-			newCycle = true;
-			
-			// Pulse the EOC gate
-			eocPulse.trigger(5e-3);
-			if (debug) { 
-				std::cout << "Cycle Finished S: " << stepI <<
-				" C: " << cycleI <<
-				" sRemain: " << stepsRemaining <<
-				" cRemain: " << cycleRemaining << 
-				" flag:" << newCycle <<	std::endl;
-			}
-		}
-		
-		// Reached the end of the sequence
-		if (stepsRemaining == 0) {
-			if (debug) { 
-				std::cout << "Sequence Finished S: " << stepI <<
-				" C: " << cycleI <<
-				" sRemain: " << stepsRemaining <<
-				" cRemain: " << cycleRemaining << 
-				" flag:" << isRunning << std::endl;
-			}
-			// Update the flag
-			isRunning = false;
-			
-			// Pulse the EOS gate
-			eosPulse.trigger(5e-3);
-		}
+		gatePulse.trigger(5e-4);
 		
 	}	
 	
-	
-	// Set the outputs
-	float delta = 1.0 / engineGetSampleRate();
-
 	bool sPulse = eosPulse.process(delta);
 	bool cPulse = eocPulse.process(delta);
 	bool gPulse = gatePulse.process(delta);
-
+	
 	// Set the value
 	outputs[OUT_OUTPUT].value = outVolts;
 	outputs[GATE_OUTPUT].value = gPulse ? 10.0 : 0.0;
 	outputs[EOS_OUTPUT].value = sPulse ? 10.0 : 0.0;
 	outputs[EOC_OUTPUT].value = cPulse ? 10.0 : 0.0;
-		
+			
 }
 
 struct ArpeggiatorDisplay : TransparentWidget {
@@ -444,8 +439,6 @@ ArpeggiatorWidget::ArpeggiatorWidget() {
 
 	addOutput(createOutput<PJ301MPort>(Vec(6.5 + 5.0, 33.0 + 16.0),  module, Arpeggiator::OUT_OUTPUT));
 	addOutput(createOutput<PJ301MPort>(Vec(54.5 + 5.0, 33.0 + 16.0),  module, Arpeggiator::GATE_OUTPUT));
-    addParam(createParam<AHButton>(Vec(102.5 + 8.0, 33.0 + 19.0), module, Arpeggiator::LOCK_PARAM, 0.0, 1.0, 0.0));
-    addChild(createLight<MediumLight<GreenLight>>(Vec(102.5 + 12.4, 33.0 + 23.4), module, Arpeggiator::LOCK_LIGHT));
 	addOutput(createOutput<PJ301MPort>(Vec(150.5 + 5.0, 33.0 + 16.0), module, Arpeggiator::EOC_OUTPUT));
 	addOutput(createOutput<PJ301MPort>(Vec(198.5 + 5.0, 33.0 + 16.0), module, Arpeggiator::EOS_OUTPUT));
 
