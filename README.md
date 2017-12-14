@@ -7,7 +7,7 @@ We offer two modules
 
 More modules are on their way.
 
-The latest release is [0.5.4](https://github.com/jhoar/AmalgamatedHarmonics/releases/tag/v0.5.4)
+The latest release is [0.5.5](https://github.com/jhoar/AmalgamatedHarmonics/releases/tag/v0.5.5)
 
 ### Credits and Thanks
 
