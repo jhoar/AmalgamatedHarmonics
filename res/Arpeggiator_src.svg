@@ -968,8 +968,8 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.6921053"
-     inkscape:cx="285.47434"
-     inkscape:cy="190"
+     inkscape:cx="98.627416"
+     inkscape:cy="166.36081"
      inkscape:current-layer="layer2"
      showgrid="false"
      units="mm"
@@ -1587,7 +1587,7 @@
          y="337.82428"
          x="56.300743"
          id="tspan10542"
-         sodipodi:role="line">DIST</tspan></text>
+         sodipodi:role="line">STEP</tspan></text>
     <rect
        transform="scale(1,-1)"
        ry="4.2187495"
@@ -1597,18 +1597,6 @@
        width="35"
        id="rect10546"
        style="fill:#000000;fill-opacity:1;stroke-width:0.78504759" />
-    <text
-       transform="scale(0.99420903,1.0058247)"
-       id="text10550"
-       y="335.86792"
-       x="20.529488"
-       style="font-style:normal;font-weight:normal;font-size:39.76836014px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none;stroke-width:0.99420899"
-       xml:space="preserve"><tspan
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.60489655px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1;stroke-width:0.99420899"
-         y="335.86792"
-         x="20.529488"
-         id="tspan10548"
-         sodipodi:role="line">STEP</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none"
@@ -1724,7 +1712,7 @@
        id="rect4707"
        width="99.066528"
        height="139.06653"
-       x="20.454979"
+       x="10.454979"
        y="-308.92001"
        ry="0"
        transform="scale(1,-1)" />
@@ -1772,13 +1760,13 @@
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">RND</tspan></text>
     <text
        id="text6183"
-       y="205.44144"
-       x="144.65491"
+       y="180.32426"
+       x="215.12018"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none"
        xml:space="preserve"><tspan
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1"
-         y="205.44144"
-         x="144.65491"
+         y="180.32426"
+         x="215.12018"
          id="tspan6181"
          sodipodi:role="line">SEQ</tspan></text>
     <rect
@@ -1826,13 +1814,49 @@
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none"
-       x="144.65491"
-       y="280.44147"
+       x="215.02382"
+       y="255.32428"
        id="text1157"><tspan
          sodipodi:role="line"
          id="tspan1155"
-         x="144.65491"
-         y="280.44147"
+         x="215.02382"
+         y="255.32428"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">ARP</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none"
+       x="126.30727"
+       y="337.82428"
+       id="text1150"><tspan
+         sodipodi:role="line"
+         id="tspan1148"
+         x="126.30727"
+         y="337.82428"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">DIST</tspan></text>
+    <rect
+       style="opacity:1;fill:#d4af2c;fill-opacity:1;stroke:none;stroke-width:0.84479064;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect1152"
+       width="31.912909"
+       height="2.9548988"
+       x="33.083111"
+       y="353.92023" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none"
+       x="130.75127"
+       y="222.32425"
+       id="text1156"><tspan
+         sodipodi:role="line"
+         id="tspan1154"
+         x="130.75127"
+         y="222.32425"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">FIRE</tspan></text>
+    <rect
+       y="353.92023"
+       x="105.08311"
+       height="2.9548988"
+       width="31.912909"
+       id="rect2727"
+       style="opacity:1;fill:#d4af2c;fill-opacity:1;stroke:none;stroke-width:0.84479064;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
   </g>
 </svg>

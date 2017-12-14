@@ -11,6 +11,13 @@ struct AHButton : SVGSwitch, MomentarySwitch {
 	}
 };
 
+struct AHKnob : RoundKnob {
+	AHKnob() {
+		snap = true;
+		setSVG(SVG::load(assetPlugin(plugin,"res/ComponentLibrary/AHKnob.svg")));
+	}
+};
+
 struct Arpeggiator : Module {
 
 	const static int MAX_STEPS = 16;
@@ -18,9 +25,12 @@ struct Arpeggiator : Module {
 	const static int NUM_PITCHES = 6;
 
 	enum ParamIds {
+		STEP_PARAM,
+		DIST_PARAM,
 		PDIR_PARAM,
 		SDIR_PARAM,
 		LOCK_PARAM,
+		TRIGGER_PARAM,
 		NUM_PARAMS
 	};
 	enum InputIds {
@@ -48,7 +58,8 @@ struct Arpeggiator : Module {
 	
 	SchmittTrigger clockTrigger; // for clock
 	SchmittTrigger trigTrigger;  // for step trigger
-    SchmittTrigger lockTrigger;
+	SchmittTrigger lockTrigger;
+	SchmittTrigger buttonTrigger;
 	
 	PulseGenerator triggerPulse;
 	PulseGenerator gatePulse;
@@ -109,12 +120,30 @@ void Arpeggiator::step() {
 	float trigInput		= inputs[TRIG_INPUT].value;
 	float trigActive	= inputs[TRIG_INPUT].active;
 	float lockInput		= params[LOCK_PARAM].value;
+	float buttonInput	= params[TRIGGER_PARAM].value;
 	
 	float iPDir			= params[PDIR_PARAM].value;
 	float iSDir			= params[SDIR_PARAM].value;
 	
-	float iStep			= inputs[STEP_INPUT].value;
-	float iDist			= inputs[DIST_INPUT].value;
+	
+	float iStep;
+	if (inputs[STEP_INPUT].active) {
+		iStep = inputs[STEP_INPUT].value;
+		inputStep 	= round(rescalef(iStep, -10, 10, 0, MAX_STEPS));
+	} else {
+		iStep = params[STEP_PARAM].value;
+		inputStep = iStep;
+	}
+
+	float iDist;
+	if (inputs[DIST_INPUT].active) {
+		iDist = inputs[DIST_INPUT].value;
+		inputDist 	= round(rescalef(iDist, -10, 10, 0, MAX_DIST));
+	} else {
+		iDist = params[DIST_PARAM].value;
+		inputDist = iDist;
+	}
+	
 	
 	bool pitchStatus[6];
 	float pitchValue[6];
@@ -130,9 +159,8 @@ void Arpeggiator::step() {
 	bool clockStatus	= clockTrigger.process(clockInput);
 	bool triggerStatus	= trigTrigger.process(trigInput);
 	bool lockStatus		= lockTrigger.process(lockInput);
+	bool buttonStatus 	= buttonTrigger.process(buttonInput);
 		
-	inputStep 	= round(rescalef(iStep, -10, 10, 0, MAX_STEPS));
-	inputDist 	= round(rescalef(iDist, -10, 10, 0, MAX_DIST));
 	inputPDir 	= iPDir;
 	inputSDir	= iSDir;
 	
@@ -182,8 +210,8 @@ void Arpeggiator::step() {
 	}
 	
 	
-	// Has the trigger input been fired
-	if (triggerStatus) {
+	// Has the trigger input been fired, either on the input or button
+	if (triggerStatus || buttonStatus) {
 		newSequence = true;
 		newCycle = true;		
 		if (debug()) { std::cout << stepX << " Triggered" << std::endl; }
@@ -433,16 +461,16 @@ struct ArpeggiatorDisplay : TransparentWidget {
 		char text[128];
 
 		snprintf(text, sizeof(text), "STEP: %d [%d]", module->nStep, module->inputStep);
-		nvgText(vg, pos.x + 10, pos.y + 20, text, NULL);
+		nvgText(vg, pos.x + 10, pos.y + 5, text, NULL);
 		snprintf(text, sizeof(text), "DIST: %d [%d]", module->nDist, module->inputDist);
-		nvgText(vg, pos.x + 10, pos.y + 40, text, NULL);
+		nvgText(vg, pos.x + 10, pos.y + 25, text, NULL);
 		
 		if (module->sDir == 0) {
 			snprintf(text, sizeof(text), "SEQ: DSC");			
 		} else {
 			snprintf(text, sizeof(text), "SEQ: ASC");			
 		}
-		nvgText(vg, pos.x + 10, pos.y + 60, text, NULL);
+		nvgText(vg, pos.x + 10, pos.y + 45, text, NULL);
 		
 		switch(module->pDir) {
 			case 0: snprintf(text, sizeof(text), "ARP: R-L"); break;
@@ -451,7 +479,7 @@ struct ArpeggiatorDisplay : TransparentWidget {
 			default: snprintf(text, sizeof(text), "ARP: ERR"); break;
 		}
 		
-		nvgText(vg, pos.x + 10, pos.y + 80, text, NULL);
+		nvgText(vg, pos.x + 10, pos.y + 65, text, NULL);
 		
 	}
 	
@@ -478,30 +506,35 @@ ArpeggiatorWidget::ArpeggiatorWidget() {
 	{
 		ArpeggiatorDisplay *display = new ArpeggiatorDisplay();
 		display->module = module;
-		display->box.pos = Vec(20, 95);
+		display->box.pos = Vec(10, 95);
 		display->box.size = Vec(100, 140);
 		addChild(display);
 	}
-
-	addOutput(createOutput<PJ301MPort>(Vec(6.5 + 5.0, 33.0 + 16.0),  module, Arpeggiator::OUT_OUTPUT));
-	addOutput(createOutput<PJ301MPort>(Vec(54.5 + 5.0, 33.0 + 16.0),  module, Arpeggiator::GATE_OUTPUT));
-	addParam(createParam<AHButton>(Vec(102.5 + 8.0, 33.0 + 19.0), module, Arpeggiator::LOCK_PARAM, 0.0, 1.0, 0.0));
-	addChild(createLight<MediumLight<GreenLight>>(Vec(102.5 + 12.4, 33.0 + 23.4), module, Arpeggiator::LOCK_LIGHT));
-	addOutput(createOutput<PJ301MPort>(Vec(150.5 + 5.0, 33.0 + 16.0), module, Arpeggiator::EOC_OUTPUT));
-	addOutput(createOutput<PJ301MPort>(Vec(198.5 + 5.0, 33.0 + 16.0), module, Arpeggiator::EOS_OUTPUT));
 
 	float xStart = 5.0;
 	float boxWidth = 35.0;
 	float gap = 10.0;
 	float connDelta = 5.0;
+
+
+	addOutput(createOutput<PJ301MPort>(Vec(6.5 + connDelta, 33.0 + 16.0),  module, Arpeggiator::OUT_OUTPUT));
+	addOutput(createOutput<PJ301MPort>(Vec(54.5 + connDelta, 33.0 + 16.0),  module, Arpeggiator::GATE_OUTPUT));
+	addParam(createParam<AHButton>(Vec(102.5 + 8.0, 33.0 + 19.0), module, Arpeggiator::LOCK_PARAM, 0.0, 1.0, 0.0));
+	addChild(createLight<MediumLight<GreenLight>>(Vec(102.5 + 12.4, 33.0 + 23.4), module, Arpeggiator::LOCK_LIGHT));
+	addOutput(createOutput<PJ301MPort>(Vec(150.5 + connDelta, 33.0 + 16.0), module, Arpeggiator::EOC_OUTPUT));
+	addOutput(createOutput<PJ301MPort>(Vec(198.5 + connDelta, 33.0 + 16.0), module, Arpeggiator::EOS_OUTPUT));
+	addParam(createParam<BefacoPush>(Vec(127, 155), module, Arpeggiator::TRIGGER_PARAM, 0.0, 1.0, 0.0));
 	
+		
 	for (int i = 0; i < Arpeggiator::NUM_PITCHES; i++) {
 		float xPos = xStart + ((float)i * boxWidth + gap);
 		addInput(createInput<PJ301MPort>(Vec(xPos + connDelta, 329),  module, Arpeggiator::PITCH_INPUT + i));
 	}
 	
 	addInput(createInput<PJ301MPort>(Vec(15.0  + connDelta, 269), module, Arpeggiator::STEP_INPUT));
-	addInput(createInput<PJ301MPort>(Vec(50.0 + connDelta, 269), module, Arpeggiator::DIST_INPUT));
+    addParam(createParam<AHKnob>(Vec(55.0, 269), module, Arpeggiator::STEP_PARAM, 0.0, 16.0, 0.0)); 
+	addInput(createInput<PJ301MPort>(Vec(85.0 + connDelta, 269), module, Arpeggiator::DIST_INPUT));
+    addParam(createParam<AHKnob>(Vec(120.0 + connDelta, 269), module, Arpeggiator::DIST_PARAM, 0.0, 12.0, 0.0));
 	addInput(createInput<PJ301MPort>(Vec(155 + connDelta, 269), module, Arpeggiator::TRIG_INPUT));
 	addInput(createInput<PJ301MPort>(Vec(190 + connDelta, 269), module, Arpeggiator::CLOCK_INPUT));
 	
