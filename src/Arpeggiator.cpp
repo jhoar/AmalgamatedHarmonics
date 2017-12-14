@@ -106,6 +106,7 @@ void Arpeggiator::step() {
 	// Get inputs from Rack
 	float clockInput 	= inputs[CLOCK_INPUT].value;
 	float trigInput   	= inputs[TRIG_INPUT].value;
+	float trigStatus   	= inputs[TRIG_INPUT].active;
 	
 	float iPDir			= params[PDIR_PARAM].value;
 	float iSDir			= params[SDIR_PARAM].value;
@@ -129,7 +130,7 @@ void Arpeggiator::step() {
 	bool triggerStatus	= trigTrigger.process(trigInput);
 		
 	inputStep 	= round(rescalef(iStep, -10, 10, 0, MAX_STEPS));
-	inputDist 	= round(rescalef(iDist, -10, 10, 0, MAX_DIST));\
+	inputDist 	= round(rescalef(iDist, -10, 10, 0, MAX_DIST));
 	inputPDir 	= iPDir;
 	inputSDir	= iSDir;
 	
@@ -171,6 +172,16 @@ void Arpeggiator::step() {
 		isClocked = true;
 	}
 	
+	
+	if (isClocked && !trigStatus && !isRunning) {
+		if (debug()) { std::cout << stepX << " Would start without trig" << std::endl; }
+		newCycle = true;
+		isRunning = true;
+		stepsRemaining = -1;
+		stepI = 0;
+		currDist = 0;
+	}
+	
 		
 	// Reached the end of the cycle
 	if (isRunning && isClocked && cycleRemaining == 0) {
@@ -192,9 +203,8 @@ void Arpeggiator::step() {
 		
 			// Update the flag
 			isRunning = false;
-		
-			// Pulse the EOS gate
 			
+			// Pulse the EOS gate
 			eosPulse.trigger(5e-4);
 			if (debug()) { std::cout << stepX << " Finished sequence S: " << stepI <<
 				" C: " << cycleI <<
