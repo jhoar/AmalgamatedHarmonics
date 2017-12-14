@@ -74,6 +74,7 @@ struct Arpeggiator : Module {
 
 	float outVolts;
 	bool isRunning = false;
+	bool freeRunning = false;
 
 	int cycleLength = 0;
 	int stepI = 0;
@@ -86,7 +87,7 @@ struct Arpeggiator : Module {
 	int poll = 5000;
 	
 	inline bool debug() {
-		return true;
+		return false;
 	}
 	
 };
@@ -106,7 +107,7 @@ void Arpeggiator::step() {
 	// Get inputs from Rack
 	float clockInput	= inputs[CLOCK_INPUT].value;
 	float trigInput		= inputs[TRIG_INPUT].value;
-	float trigStatus	= inputs[TRIG_INPUT].active;
+	float trigActive	= inputs[TRIG_INPUT].active;
 	float lockInput		= params[LOCK_PARAM].value;
 	
 	float iPDir			= params[PDIR_PARAM].value;
@@ -126,7 +127,6 @@ void Arpeggiator::step() {
 	
 	
 	// Process inputs
-	// Where am I reducing this trigger
 	bool clockStatus	= clockTrigger.process(clockInput);
 	bool triggerStatus	= trigTrigger.process(trigInput);
 	bool lockStatus		= lockTrigger.process(lockInput);
@@ -151,8 +151,6 @@ void Arpeggiator::step() {
 	
 	// Has the trigger input been fired
 	if (triggerStatus) {
-		newSequence = true;
-		newCycle = true;		
 		triggerPulse.trigger(5e-5);
 		if (debug()) { std::cout << stepX << " Triggered" << std::endl; }
 	}
@@ -184,23 +182,42 @@ void Arpeggiator::step() {
 	}
 	
 	
-	if (isClocked && !trigStatus && !isRunning) {
-		if (debug()) { std::cout << stepX << " Would start without trig" << std::endl; }
-		newCycle = true;
-		isRunning = true;
-		stepsRemaining = -1;
-		stepI = 0;
-		currDist = 0;
+	// Has the trigger input been fired
+	if (triggerStatus) {
+		newSequence = true;
+		newCycle = true;		
+		if (debug()) { std::cout << stepX << " Triggered" << std::endl; }
 	}
 	
-		
+	
+	// So this is where the free-running could be triggered
+	if (isClocked && !isRunning) { // Must have a clock and not be already running
+		if (!trigActive) { // If nothing plugged into the TRIG input
+			if (debug()) { std::cout << stepX << " Free running sequence; starting" << std::endl; }
+			freeRunning = true; // We're free-running
+			newSequence = true;
+			newCycle = true;
+		} else {
+			if (debug()) { std::cout << stepX << " Triggered sequence; wait for trigger" << std::endl; }
+			freeRunning = false;
+		}
+	}
+	
+	
+	// Detect cable being plugged in when free-running, stop free-running
+	if (freeRunning && trigActive && isRunning) {
+		if (debug()) { std::cout << stepX << " TRIG input re-connected" << std::endl; }
+		freeRunning = false;
+	}
+	
+	
 	// Reached the end of the cycle
 	if (isRunning && isClocked && cycleRemaining == 0) {
-
+		
 		// Completed 1 step
 		stepI++;
 		stepsRemaining--;
-				
+		
 		// Pulse the EOC gate
 		eocPulse.trigger(5e-4);
 		if (debug()) { std::cout << stepX << " Finished Cycle S: " << stepI <<
@@ -212,7 +229,12 @@ void Arpeggiator::step() {
 		// Reached the end of the sequence
 		if (isRunning && stepsRemaining == 0) {
 		
-			// Update the flag
+			// Free running, so start new seqeuence & cycle
+			if (freeRunning) {
+				newCycle = true;
+				newSequence = true;
+			} 
+
 			isRunning = false;
 			
 			// Pulse the EOS gate
@@ -232,6 +254,10 @@ void Arpeggiator::step() {
 	}
 	
 	
+	
+	
+	
+	
 	// Capture the settings for this cycle
 	if (newCycle) {
 		
@@ -243,14 +269,13 @@ void Arpeggiator::step() {
 			pDir = inputPDir;
 			sDir = inputSDir;
 		}
+
+		// If we have no steps to play, play nothing
+		if (nStep == 0) {
+			return; // No steps, abort
+		} 
 	
 	}
-	
-	
-	// If we have no steps to play, play nothing
-	if (nStep == 0) {
-		return; // No steps, abort
-	} 
 	
 	
 	// If we have been triggered, start a new sequence
@@ -260,9 +285,6 @@ void Arpeggiator::step() {
 		
 		// We're running now
 		isRunning = true;
-		
-		// At the beginning of the sequence (i.e. dist = 0)
-		currDist = 0;
 		
 		// At the first step of the sequence
 		stepsRemaining = nStep;	
@@ -353,7 +375,6 @@ void Arpeggiator::step() {
 	
 	// Advance the sequence
 	// Are we starting a sequence or are running and have been clocked; if so advance the sequence
-//	if (newSequence || (isRunning && isClocked)) {
 	// Only advance from the clock
 	if (isRunning && isClocked) {
 
