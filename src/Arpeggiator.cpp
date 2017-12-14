@@ -86,7 +86,7 @@ struct Arpeggiator : Module {
 	int poll = 5000;
 	
 	inline bool debug() {
-		return false;
+		return true;
 	}
 	
 };
@@ -104,9 +104,10 @@ void Arpeggiator::step() {
 	float semiTone = 1.0 / 12.0;
 	
 	// Get inputs from Rack
-	float clockInput 	= inputs[CLOCK_INPUT].value;
-	float trigInput   	= inputs[TRIG_INPUT].value;
-	float trigStatus   	= inputs[TRIG_INPUT].active;
+	float clockInput	= inputs[CLOCK_INPUT].value;
+	float trigInput		= inputs[TRIG_INPUT].value;
+	float trigStatus	= inputs[TRIG_INPUT].active;
+	float lockInput		= params[LOCK_PARAM].value;
 	
 	float iPDir			= params[PDIR_PARAM].value;
 	float iSDir			= params[SDIR_PARAM].value;
@@ -128,6 +129,7 @@ void Arpeggiator::step() {
 	// Where am I reducing this trigger
 	bool clockStatus	= clockTrigger.process(clockInput);
 	bool triggerStatus	= trigTrigger.process(trigInput);
+	bool lockStatus		= lockTrigger.process(lockInput);
 		
 	inputStep 	= round(rescalef(iStep, -10, 10, 0, MAX_STEPS));
 	inputDist 	= round(rescalef(iDist, -10, 10, 0, MAX_DIST));
@@ -155,11 +157,20 @@ void Arpeggiator::step() {
 		if (debug()) { std::cout << stepX << " Triggered" << std::endl; }
 	}
 	
+	
+	// Update the trigger pulse and determine if it is still high
 	bool triggerHigh = triggerPulse.process(delta);
 	if (debug()) { 
 		if (triggerHigh) {
 			std::cout << stepX << " Trigger is high" << std::endl;
 		}
+	}
+	
+	
+	// Update lock
+	if (lockStatus) {
+		if (debug()) { std::cout << "Toggling lock: " << locked << std::endl; }
+		locked = !locked;
 	}
 	
 	
@@ -223,14 +234,15 @@ void Arpeggiator::step() {
 	
 	// Capture the settings for this cycle
 	if (newCycle) {
-
-		if (debug()) { std::cout << stepX << " Freeze inputs" << std::endl; }
 		
 		// Update params
-		nStep = inputStep;
-		nDist = inputDist;
-		pDir = inputPDir;
-		sDir = inputSDir;
+		if (!locked) {
+			if (debug()) { std::cout << stepX << " Read sequence inputs" << std::endl; }
+			nStep = inputStep;
+			nDist = inputDist;
+			pDir = inputPDir;
+			sDir = inputSDir;
+		}
 	
 	}
 	
@@ -302,29 +314,31 @@ void Arpeggiator::step() {
 			}
 		}
 		
-		for (int i = 0; i < cycleLength; i++) {
+		if (!locked) {// Pitches are locked, and so is the order. This keeps randomly generated arps fixed when locked
+			for (int i = 0; i < cycleLength; i++) {
 		
-			int target;
+				int target;
 						
-			// Read the pitches according to direction, but we should do this for the sequence?
-			switch (pDir) {
-				case 0: target = cycleLength - i - 1; break; 		// DOWN
-				case 1: target = rand() % cycleLength; break;		// RANDOM
-				case 2: target = i; break;							// UP
-				default: target = i; break; // For random case, read randomly from array, so order does not matter
-			}
+				// Read the pitches according to direction, but we should do this for the sequence?
+				switch (pDir) {
+					case 0: target = cycleLength - i - 1; break; 		// DOWN
+					case 1: target = rand() % cycleLength; break;		// RANDOM
+					case 2: target = i; break;							// UP
+					default: target = i; break; // For random case, read randomly from array, so order does not matter
+				}
 
-			// How many semi-tones do we need to shift
-			float dV = semiTone * nDist * currDist;
-			pitches[i] = clampf(inputPitches[target] + dV, -10.0, 10.0);
+				// How many semi-tones do we need to shift
+				float dV = semiTone * nDist * currDist;
+				pitches[i] = clampf(inputPitches[target] + dV, -10.0, 10.0);
 		
-			if (debug()) {
-				std::cout << stepX << " Pitch: " << i << " stepI: " << stepI <<
-					" dV:" << dV <<
-					" target: " << target <<
-					" in: " << inputPitches[target] <<
-					" out: " << pitches[target] << std::endl;
-			}				
+				if (debug()) {
+					std::cout << stepX << " Pitch: " << i << " stepI: " << stepI <<
+						" dV:" << dV <<
+						" target: " << target <<
+						" in: " << inputPitches[target] <<
+						" out: " << pitches[target] << std::endl;
+				}				
+			}
 		}
 		
 		if (debug()) {
@@ -368,6 +382,7 @@ void Arpeggiator::step() {
 	bool gPulse = gatePulse.process(delta);
 	
 	// Set the value
+	lights[LOCK_LIGHT].value = locked ? 1.0 : 0.0;
 	outputs[OUT_OUTPUT].value = outVolts;
 	outputs[GATE_OUTPUT].value = gPulse ? 10.0 : 0.0;
 	outputs[EOS_OUTPUT].value = sPulse ? 10.0 : 0.0;
@@ -449,6 +464,8 @@ ArpeggiatorWidget::ArpeggiatorWidget() {
 
 	addOutput(createOutput<PJ301MPort>(Vec(6.5 + 5.0, 33.0 + 16.0),  module, Arpeggiator::OUT_OUTPUT));
 	addOutput(createOutput<PJ301MPort>(Vec(54.5 + 5.0, 33.0 + 16.0),  module, Arpeggiator::GATE_OUTPUT));
+	addParam(createParam<AHButton>(Vec(102.5 + 8.0, 33.0 + 19.0), module, Arpeggiator::LOCK_PARAM, 0.0, 1.0, 0.0));
+	addChild(createLight<MediumLight<GreenLight>>(Vec(102.5 + 12.4, 33.0 + 23.4), module, Arpeggiator::LOCK_LIGHT));
 	addOutput(createOutput<PJ301MPort>(Vec(150.5 + 5.0, 33.0 + 16.0), module, Arpeggiator::EOC_OUTPUT));
 	addOutput(createOutput<PJ301MPort>(Vec(198.5 + 5.0, 33.0 + 16.0), module, Arpeggiator::EOS_OUTPUT));
 
