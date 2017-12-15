@@ -173,6 +173,12 @@ void Arpeggiator::step() {
 	}
 	
 	
+	// Check that we even have anything plugged in
+	if (cycleLength == 0) {
+		return; // No inputs, no music
+	}
+	
+	
 	// If there are still steps left after the end of a cycle, start a new cycle
 	bool newCycle = false;
 	bool newSequence = false;
