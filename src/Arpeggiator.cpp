@@ -68,6 +68,8 @@ struct Arpeggiator : Module {
 
 	float pitches[NUM_PITCHES];
 	float inputPitches[NUM_PITCHES];
+	bool pitchStatus[NUM_PITCHES];
+	float pitchValue[NUM_PITCHES];
 
 	int inputPDir;
 	int pDir = 0;
@@ -144,10 +146,7 @@ void Arpeggiator::step() {
 		inputDist = iDist;
 	}
 	
-	
-	bool pitchStatus[6];
-	float pitchValue[6];
-	
+		
 	for (int p = 0; p < NUM_PITCHES; p++) {
 		int index = PITCH_INPUT + p;
 		pitchStatus[p] 	= inputs[index].active;
@@ -166,8 +165,8 @@ void Arpeggiator::step() {
 	
 	int cycleLength = 0;
 	for (int p = 0; p < NUM_PITCHES; p++) {
-		if (pitchStatus[p]) {
-			inputPitches[cycleLength] = pitchValue[p];			
+		if (pitchStatus[p] && pitchValue[p] > -9.999) { //Plugged in or approx -10.0
+			inputPitches[cycleLength] = pitchValue[p];
 			cycleLength++;
 		}
 	}
@@ -487,6 +486,15 @@ struct ArpeggiatorDisplay : TransparentWidget {
 		
 		nvgText(vg, pos.x + 10, pos.y + 65, text, NULL);
 		
+		std::string inputs ("IN: ");
+		
+		for (int p = 0; p < Arpeggiator::NUM_PITCHES; p++) {
+			if (module->pitchStatus[p] && module->pitchValue[p] > -9.999) { //Plugged in or approx -10.0
+				inputs = inputs + std::to_string(p + 1);
+			}
+		}
+		nvgText(vg, pos.x + 10, pos.y + 85, inputs.c_str(), NULL);
+				
 	}
 	
 };
