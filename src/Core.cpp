@@ -220,12 +220,7 @@ void Quantizer::calculateKey(int inKey, float spacing, float xOff, float yOff, f
 float Quantizer::getVoltsFromPitch(int inNote, int inRoot) {
 	
 	float semiTone = 1.0 / 12.0;
-	if (inNote < 0) {
-		return -10.0;
-	}
 	return (inRoot + inNote) * semiTone;
-	
-	
 	
 }
 

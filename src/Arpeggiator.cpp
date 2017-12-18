@@ -165,7 +165,7 @@ void Arpeggiator::step() {
 	
 	int cycleLength = 0;
 	for (int p = 0; p < NUM_PITCHES; p++) {
-		if (pitchStatus[p] && pitchValue[p] > -9.999) { //Plugged in or approx -10.0
+		if (pitchStatus[p) { //Plugged in 
 			inputPitches[cycleLength] = pitchValue[p];
 			cycleLength++;
 		}
