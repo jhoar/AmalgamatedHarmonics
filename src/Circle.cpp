@@ -225,10 +225,9 @@ CircleWidget::CircleWidget() {
 		addChild(createLight<SmallLight<RedLight>>(Vec(xPos, yPos), module, Circle::BKEY_LIGHT + scale));
 	}
 
-	addChild(createLight<SmallLight<RedLight>>(Vec(100.0, 100.0), module, Circle::SCALE_LIGHT));
-
-	addOutput(createOutput<PJ301MPort>(Vec(15.0 + connDelta, 33.0 + 16.0),  module, Circle::KEY_OUTPUT));
-	addOutput(createOutput<PJ301MPort>(Vec(50.0 + connDelta, 33.0 + 16.0), module, Circle::SCALE_OUTPUT));
+	addOutput(createOutput<PJ301MPort>(Vec(6.5 + connDelta, 33.0 + 16.0),  module, Circle::KEY_OUTPUT));
+	addOutput(createOutput<PJ301MPort>(Vec(54.5 + connDelta, 33.0 + 16.0), module, Circle::SCALE_OUTPUT));
+	addChild(createLight<MediumLight<GreenLight>>(Vec(102.5 + 12.4, 33.0 + 23.4), module, Circle::SCALE_LIGHT));
 
 }
 
