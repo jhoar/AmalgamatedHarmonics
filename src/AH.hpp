@@ -22,9 +22,9 @@ struct ArpeggiatorWidget : ModuleWidget {
 	ArpeggiatorWidget();
 };
 
-//struct ProgressWidget : ModuleWidget {
-//	ProgressWidget();
-//};
+struct ProgressWidget : ModuleWidget {
+		ProgressWidget();
+};
 
 struct CircleWidget : ModuleWidget {
 	CircleWidget();

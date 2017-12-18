@@ -18,7 +18,7 @@ void init(rack::Plugin *p) {
 	p->addModel(createModel<ScaleQuantizerWidget>("Amalgamated Harmonics", "ScaleQuantizer", "Scale Quantizer", QUANTIZER_TAG));
 	p->addModel(createModel<ScaleQuantizer2Widget>("Amalgamated Harmonics", "ScaleQuantizer2", "Scale Quantizer MkII", QUANTIZER_TAG));
 	p->addModel(createModel<ArpeggiatorWidget>("Amalgamated Harmonics", "Arpeggiator", "Arpeggiator", SEQUENCER_TAG));
-//	p->addModel(createModel<ProgressWidget>("Amalgamated Harmonics", "Progress", "Progress", SEQUENCER_TAG));
+	p->addModel(createModel<ProgressWidget>("Amalgamated Harmonics", "Progress", "Progress", SEQUENCER_TAG));
 	p->addModel(createModel<CircleWidget>("Amalgamated Harmonics", "Circle", "Fifths and Fourths", SEQUENCER_TAG));
 
 	// Any other plugin initialization may go here.
