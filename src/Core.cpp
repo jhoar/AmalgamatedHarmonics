@@ -4,14 +4,12 @@
 
 float Quantizer::getPitchFromVolts(float inVolts, float inRoot, float inScale, int *outRoot, int *outScale, int *outNote, int *outDegree) {
 	
-	stepX++;
-		
 	// get the root note and scale
-	int currRoot = round(rescalef(fabs(inRoot), 0.0, 10.0, 0, Quantizer::NUM_NOTES - 1));
-	int currScale = round(rescalef(fabs(inScale), 0.0, 10.0, 0, Quantizer::NUM_SCALES - 1));
+	int currRoot = getKeyFromVolts(inRoot);
+	int currScale = getScaleFromVolts(inScale);
 		
 	if (debug && stepX % poll == 0) {
-		std::cout << "Root in: " << inRoot << "Root out: " << currRoot<< " Scale in: " << inScale << " Scale out: " << currScale << std::endl;
+		std::cout << stepX << " Root in: " << inRoot << " Root out: " << currRoot<< " Scale in: " << inScale << " Scale out: " << currScale << std::endl;
 	}	
 		
 	int *curScaleArr;
@@ -93,8 +91,6 @@ float Quantizer::getPitchFromVolts(float inVolts, float inRoot, float inScale, i
 }
 
 float Quantizer::getPitchFromVolts(float inVolts, int inRoot, int inScale, int *outNote, int *outDegree) {
-	
-	stepX++;
 	
 	int currScale = inScale;
 	int currRoot = inRoot;
@@ -219,4 +215,18 @@ void Quantizer::calculateKey(int inKey, float spacing, float xOff, float yOff, f
 		}
 	}
 }
+
+
+float Quantizer::getVoltsFromPitch(int inNote, int inRoot) {
+	
+	float semiTone = 1.0 / 12.0;
+	if (inNote < 0) {
+		return -10.0;
+	}
+	return (inRoot + inNote) * semiTone;
+	
+	
+	
+}
+
 

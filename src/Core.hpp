@@ -37,20 +37,36 @@ struct Quantizer {
 	int SCALE_BLUES          [7] = {0, 3, 5, 6, 7, 10, 12};				// 1,b3,4,b5,5,b7
 
 	enum Notes {
-		NOTE_C,
-		NOTE_D_FLAT,
+		NOTE_C = 0,
+		NOTE_D_FLAT, // C Sharp
 		NOTE_D,
-		NOTE_E_FLAT,
+		NOTE_E_FLAT, // D Sharp
 		NOTE_E,
 		NOTE_F,
-		NOTE_G_FLAT,
+		NOTE_G_FLAT, //F Sharp
 		NOTE_G,
-		NOTE_A_FLAT,
+		NOTE_A_FLAT, // G Sharp
 		NOTE_A,
-		NOTE_B_FLAT,
+		NOTE_B_FLAT, // A Sharp
 		NOTE_B,
 		NUM_NOTES
 	};
+
+	int CIRCLE_FIFTHS [12] = {
+		NOTE_C,
+		NOTE_G,
+		NOTE_D,
+		NOTE_A,
+		NOTE_E, 
+		NOTE_B,
+		NOTE_G_FLAT,
+		NOTE_D_FLAT,
+		NOTE_A_FLAT,
+		NOTE_E_FLAT,
+		NOTE_B_FLAT,
+		NOTE_F
+	};
+
 
 	std::string noteNames[12] = {
 		"C",
@@ -70,7 +86,7 @@ struct Quantizer {
 	Notes root = NOTE_C;
 
 	enum Scales {
-		CHROMATIC,
+		CHROMATIC = 0,
  		IONIAN,
 		DORIAN,
 		PHRYGIAN,
@@ -133,7 +149,7 @@ struct Quantizer {
 	};
 
 	bool debug = false;
-	int poll = 50000;
+	int poll = 5000;
 	int stepX = 0;
 
 	/*
@@ -144,6 +160,13 @@ struct Quantizer {
 
 	float getPitchFromVolts(float inVolts, float inRoot, float inScale, int *outRoot, int *outScale, int *outNote, int *outDegree);
 	
+	/*
+	 * Convert a root note (relative to C, C=0) and positive semi-tone offset from that root to a voltage (1V/OCT, 0V = C4 (or 3??))
+	 * IMPORTANT: If inNote is negative, this funciton will return -10V. This convention modules such as Arp to detect connected but invalid inputs
+	 * and modules using this function to use fix sized arrays to store variable length chords.
+	 * DO NOT TRY TO DO CLEVER THINGS WITH THIS FUNCTION
+	 */
+	float getVoltsFromPitch(int inNote, int inRoot);
 	
 	/* From the numerical key on a keyboard (0 = C, 11 = B), spacing in px between white keys and a starting x and Y coordinate for the C key (in px)
 	* calculate the actual X and Y coordinate for a key, and the scale note to which that key belongs (see Midi note mapping)
@@ -151,6 +174,39 @@ struct Quantizer {
 	void calculateKey(int inKey, float spacing, float xOff, float yOff, float *x, float *y, int *scale); 
 	
 	
+	float getVoltsFromScale(int scale) {
+		return rescalef(scale, 0, Quantizer::NUM_SCALES - 1, 0.0, 10.0);
+	}
 	
+	int getScaleFromVolts(float volts) {
+		return round(rescalef(fabs(volts), 0.0, 10.0, 0, Quantizer::NUM_SCALES - 1));
+	}
+
+	float getVoltsFromKey(int key) {
+		return rescalef(key, 0, Quantizer::NUM_NOTES - 1, 0.0, 10.0);
+	}
+	
+	int getKeyFromVolts(float volts) {
+		return round(rescalef(fabs(volts), 0.0, 10.0, 0, Quantizer::NUM_NOTES - 1));
+	}
+	
+};
+
+struct Chord {
+	
+	int CHORD_MAJOR		[6] = {0,4,7,-1,-1,-1};
+	int CHORD_MINOR		[6] = {0,3,7,-1,-1,-1};
+	
+	enum CHORDS {
+		MAJOR,
+		MINOR,
+		NUM_CHORDS
+	};
+	
+	std::string ChordNames [2] {
+		"Major",
+		"Minor"
+	};
+
 };
 
