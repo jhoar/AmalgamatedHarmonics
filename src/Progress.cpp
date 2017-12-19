@@ -22,10 +22,6 @@ struct Progress : Module {
 
 	const static int NUM_PITCHES = 6;
 	
-	int MAJOR[6] = {0,2,4,-1,-1,-1};
-	
-	
-
 	enum ParamIds {
 		KEY_PARAM,
 		NUM_PARAMS
@@ -55,16 +51,10 @@ struct Progress : Module {
 	
 	PulseGenerator stepPulse;
 	
-	float outVolts[NUM_PITCHES];
-	
+	int currScale = 0;
+	int currRoot = 0;
 	
 	int pIndex = 0;
-	int cIndex = 0;
-	int kIndex = 0;
-
-	int prg_stp    = 3;
-	int prg_key[6] = {Quantizer::NOTE_C, Quantizer::NOTE_C + 4, Quantizer::NOTE_C + 5, -1, -1, -1};
-	int prg_crd[6] = {Chord::MAJOR, Chord::MAJOR, Chord::MAJOR, -1, -1, -1};
 	
 	int stepX = 0;
 	int poll = 5000;
@@ -94,40 +84,41 @@ void Progress::step() {
 	// Get inputs from Rack
 	float stepInput		= inputs[STEP_INPUT].value;
 	
+	if (inputs[KEY_INPUT].active) {
+		float fRoot = inputs[KEY_INPUT].value;
+		currRoot = q.getKeyFromVolts(fRoot);
+	} else {
+		currRoot = params[KEY_PARAM].value;
+	}
 	
 	// Process inputs
 	bool stepStatus		= stepTrigger.process(stepInput);
-
 	
 	if (stepStatus) {
 		stepPulse.trigger(5e-5);
-		pIndex = (pIndex + 1) % 6;
-		if(pIndex == prg_stp) {
+		
+		pIndex++;
+		if (pIndex == Chord::NUM_CHORDS) {
 			pIndex = 0;
 		}
-		cIndex = prg_crd[pIndex];
-		kIndex = prg_key[pIndex];
 		
-		if (debug()) { std::cout << stepX << " New chord: pIndex: " << pIndex << " chord: " << q.noteNames[kIndex] << " " << chords.ChordNames[cIndex] << std::endl; }
+		std::cout << "Chord: " <<  chords.Chords[pIndex].name << std::endl;
+		
 	}
 	
+	pIndex = 1;
+	int *chordArray = chords.Chords[pIndex].def;
+	int offset = 24; // Repeated notes in chord in octave above
 	
-	int *chordArray;
-	switch (cIndex){
-		case Chord::MAJOR:		chordArray = chords.CHORD_MAJOR; break;
-		case Chord::MINOR:		chordArray = chords.CHORD_MINOR; break;
-		default: 				chordArray = chords.CHORD_MAJOR;
-	}
-		
 	for (int i = 0; i < NUM_PITCHES; i++) {
-		outVolts[i] = q.getVoltsFromPitch(chordArray[i],kIndex);
+		if (chordArray[i] > 0) {
+			outputs[PITCH_OUTPUT + i].value = q.getVoltsFromPitch(chordArray[i],currRoot);
+		} else {
+			outputs[PITCH_OUTPUT + i].value = q.getVoltsFromPitch(chordArray[i] + offset,currRoot);
+		}
 	}
 	
 	bool stepped = stepPulse.process(delta);	
-	
-	for (int i = 0; i < NUM_PITCHES; i++) {
-		outputs[PITCH_OUTPUT + i].value = outVolts[i];
-	}
 	lights[STEP_LIGHT].value = stepped ? 1.0 : 0.0;
 	
 }
@@ -145,13 +136,13 @@ struct ProgressDisplay : TransparentWidget {
 	void draw(NVGcontext *vg) override {
 	
 		Vec pos = Vec(0, 20);
-
+		
 		nvgFontSize(vg, 20);
 		nvgFontFaceId(vg, font->handle);
 		nvgTextLetterSpacing(vg, -1);
-
+		
 		nvgFillColor(vg, nvgRGBA(212, 175, 55, 0xff));
-
+		
 	}
 	
 };
@@ -193,17 +184,13 @@ ProgressWidget::ProgressWidget() {
 		
 	for (int i = 0; i < Progress::NUM_PITCHES; i++) {
 		float xPos = xStart + ((float)i * boxWidth + gap);
-		addOutput(createOutput<PJ301MPort>(Vec(xPos + connDelta, 33.0 + 16.0),  module, Progress::PITCH_OUTPUT + i));
+		addOutput(createOutput<PJ301MPort>(Vec(xPos + connDelta, 49.0),  module, Progress::PITCH_OUTPUT + i));
 	}
 	
-	addInput(createInput<PJ301MPort>(Vec(15.0  + connDelta, 329), module, Progress::STEP_INPUT));
-
-	float xOffset = 18.0;
-	float xSpace = 21.0;
-	float xPos = 0.0;
-	float yPos = 0.0;
-	int scale = 0;
- 
+	addInput(createInput<PJ301MPort>(Vec(20.0, 329), module, Progress::STEP_INPUT));
+	addInput(createInput<PJ301MPort>(Vec(55.0, 329), module, Progress::KEY_INPUT));
+	addParam(createParam<AHKnob>(Vec(90.0, 329), module, Progress::KEY_PARAM, 0.0, 11.0, 0.0)); // 12 notes
+	
 
 }
 
