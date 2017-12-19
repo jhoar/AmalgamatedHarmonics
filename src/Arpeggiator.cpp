@@ -165,7 +165,7 @@ void Arpeggiator::step() {
 	
 	int cycleLength = 0;
 	for (int p = 0; p < NUM_PITCHES; p++) {
-		if (pitchStatus[p) { //Plugged in 
+		if (pitchStatus[p]) { //Plugged in 
 			inputPitches[cycleLength] = pitchValue[p];
 			cycleLength++;
 		}
@@ -530,13 +530,12 @@ ArpeggiatorWidget::ArpeggiatorWidget() {
 	float gap = 10.0;
 	float connDelta = 5.0;
 
-
-	addOutput(createOutput<PJ301MPort>(Vec(6.5 + connDelta, 33.0 + 16.0),  module, Arpeggiator::OUT_OUTPUT));
-	addOutput(createOutput<PJ301MPort>(Vec(54.5 + connDelta, 33.0 + 16.0),  module, Arpeggiator::GATE_OUTPUT));
-	addParam(createParam<AHButton>(Vec(102.5 + 8.0, 33.0 + 19.0), module, Arpeggiator::LOCK_PARAM, 0.0, 1.0, 0.0));
-	addChild(createLight<MediumLight<GreenLight>>(Vec(102.5 + 12.4, 33.0 + 23.4), module, Arpeggiator::LOCK_LIGHT));
-	addOutput(createOutput<PJ301MPort>(Vec(150.5 + connDelta, 33.0 + 16.0), module, Arpeggiator::EOC_OUTPUT));
-	addOutput(createOutput<PJ301MPort>(Vec(198.5 + connDelta, 33.0 + 16.0), module, Arpeggiator::EOS_OUTPUT));
+	addOutput(createOutput<PJ301MPort>(Vec(6.5 + connDelta, 49.0),  module, Arpeggiator::OUT_OUTPUT));
+	addOutput(createOutput<PJ301MPort>(Vec(54.5 + connDelta, 49.0),  module, Arpeggiator::GATE_OUTPUT));
+	addParam(createParam<AHButton>(Vec(110.5, 49.0), module, Arpeggiator::LOCK_PARAM, 0.0, 1.0, 0.0));
+	addChild(createLight<MediumLight<GreenLight>>(Vec(114.9, 57.4), module, Arpeggiator::LOCK_LIGHT));
+	addOutput(createOutput<PJ301MPort>(Vec(150.5 + connDelta, 49.0), module, Arpeggiator::EOC_OUTPUT));
+	addOutput(createOutput<PJ301MPort>(Vec(198.5 + connDelta, 49.0), module, Arpeggiator::EOS_OUTPUT));
 	addParam(createParam<BefacoPush>(Vec(127, 155), module, Arpeggiator::TRIGGER_PARAM, 0.0, 1.0, 0.0));
 	
 		
@@ -545,15 +544,15 @@ ArpeggiatorWidget::ArpeggiatorWidget() {
 		addInput(createInput<PJ301MPort>(Vec(xPos + connDelta, 329),  module, Arpeggiator::PITCH_INPUT + i));
 	}
 	
-	addInput(createInput<PJ301MPort>(Vec(15.0  + connDelta, 269), module, Arpeggiator::STEP_INPUT));
+	addInput(createInput<PJ301MPort>(Vec(20.0, 269), module, Arpeggiator::STEP_INPUT));
     addParam(createParam<AHKnob>(Vec(55.0, 269), module, Arpeggiator::STEP_PARAM, 0.0, 16.0, 0.0)); 
-	addInput(createInput<PJ301MPort>(Vec(85.0 + connDelta, 269), module, Arpeggiator::DIST_INPUT));
-    addParam(createParam<AHKnob>(Vec(120.0 + connDelta, 269), module, Arpeggiator::DIST_PARAM, 0.0, 12.0, 0.0));
-	addInput(createInput<PJ301MPort>(Vec(155 + connDelta, 269), module, Arpeggiator::TRIG_INPUT));
-	addInput(createInput<PJ301MPort>(Vec(190 + connDelta, 269), module, Arpeggiator::CLOCK_INPUT));
+	addInput(createInput<PJ301MPort>(Vec(90.0, 269), module, Arpeggiator::DIST_INPUT));
+    addParam(createParam<AHKnob>(Vec(125.0, 269), module, Arpeggiator::DIST_PARAM, 0.0, 12.0, 0.0));
+	addInput(createInput<PJ301MPort>(Vec(160.0, 269), module, Arpeggiator::TRIG_INPUT));
+	addInput(createInput<PJ301MPort>(Vec(195.0, 269), module, Arpeggiator::CLOCK_INPUT));
 	
-	addParam(createParam<BefacoSwitch>(Vec(175.0 + 3.5, 95 + 17), module, Arpeggiator::SDIR_PARAM, 0, 2, 0));
-	addParam(createParam<BefacoSwitch>(Vec(175.0 + 3.5, 170 + 17), module, Arpeggiator::PDIR_PARAM, 0, 2, 0));
+	addParam(createParam<BefacoSwitch>(Vec(178.5, 112.0), module, Arpeggiator::SDIR_PARAM, 0, 2, 0));
+	addParam(createParam<BefacoSwitch>(Vec(178.5, 197.0), module, Arpeggiator::PDIR_PARAM, 0, 2, 0));
 
 }
 
