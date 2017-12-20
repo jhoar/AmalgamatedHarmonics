@@ -55,6 +55,7 @@ struct Progress : Module {
 	int currRoot = 0;
 	
 	int pIndex = 1;
+	int inversion = 0;
 	
 	int stepX = 0;
 	int poll = 5000;
@@ -103,12 +104,21 @@ void Progress::step() {
 			pIndex = 0;
 		}
 
-//		pIndex = 1; // FIXME Just use Major scale for now
-		std::cout << "Chord: " << q.noteNames[currRoot] << chords.Chords[pIndex].name <<  std::endl;
+		inversion = rand() % 3;
+
+		std::cout << "Chord: " << q.noteNames[currRoot] << chords.Chords[pIndex].quality << inversion << std::endl;
 		
 	}
 	
-	int *chordArray = chords.Chords[pIndex].def;
+	int *chordArray;
+	
+	switch(inversion) {
+		case 0:  chordArray = chords.Chords[pIndex].root; break;
+		case 1:  chordArray = chords.Chords[pIndex].first; break;
+		case 2:  chordArray = chords.Chords[pIndex].second; break;
+		default: chordArray = chords.Chords[pIndex].root;
+	}	
+		 
 	int offset = 36; // Repeated notes in chord in octave above
 	
 	for (int i = 0; i < NUM_PITCHES; i++) {
