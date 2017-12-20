@@ -206,7 +206,7 @@ CircleWidget::CircleWidget() {
 	addInput(createInput<PJ301MPort>(Vec(55.0, 329), module, Circle::ROTR_INPUT));
 	addInput(createInput<PJ301MPort>(Vec(90.0, 329), module, Circle::KEY_INPUT));
 	addParam(createParam<AHKnob>(Vec(125.0, 329), module, Circle::KEY_PARAM, 0.0, 11.0, 0.0)); 
-	addInput(createInput<PJ301MPort>(Vec(169.0, 329), module, Circle::SCALE_INPUT));
+	addInput(createInput<PJ301MPort>(Vec(160.0, 329), module, Circle::SCALE_INPUT));
 	addParam(createParam<AHKnob>(Vec(195.0, 329), module, Circle::SCALE_PARAM, 0.0, 1.0, 0.0)); 
 
 	float xOffset = 18.0;

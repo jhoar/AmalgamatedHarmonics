@@ -532,8 +532,8 @@ ArpeggiatorWidget::ArpeggiatorWidget() {
 
 	addOutput(createOutput<PJ301MPort>(Vec(6.5 + connDelta, 49.0),  module, Arpeggiator::OUT_OUTPUT));
 	addOutput(createOutput<PJ301MPort>(Vec(54.5 + connDelta, 49.0),  module, Arpeggiator::GATE_OUTPUT));
-	addParam(createParam<AHButton>(Vec(110.5, 49.0), module, Arpeggiator::LOCK_PARAM, 0.0, 1.0, 0.0));
-	addChild(createLight<MediumLight<GreenLight>>(Vec(114.9, 57.4), module, Arpeggiator::LOCK_LIGHT));
+	addParam(createParam<AHButton>(Vec(110.5, 52.0), module, Arpeggiator::LOCK_PARAM, 0.0, 1.0, 0.0));
+	addChild(createLight<MediumLight<GreenLight>>(Vec(114.9, 56.4), module, Arpeggiator::LOCK_LIGHT));
 	addOutput(createOutput<PJ301MPort>(Vec(150.5 + connDelta, 49.0), module, Arpeggiator::EOC_OUTPUT));
 	addOutput(createOutput<PJ301MPort>(Vec(198.5 + connDelta, 49.0), module, Arpeggiator::EOS_OUTPUT));
 	addParam(createParam<BefacoPush>(Vec(127, 155), module, Arpeggiator::TRIGGER_PARAM, 0.0, 1.0, 0.0));

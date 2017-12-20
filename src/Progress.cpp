@@ -54,7 +54,7 @@ struct Progress : Module {
 	int currScale = 0;
 	int currRoot = 0;
 	
-	int pIndex = 0;
+	int pIndex = 1;
 	
 	int stepX = 0;
 	int poll = 5000;
@@ -98,24 +98,29 @@ void Progress::step() {
 		stepPulse.trigger(5e-5);
 		
 		pIndex++;
+		
 		if (pIndex == Chord::NUM_CHORDS) {
 			pIndex = 0;
 		}
-		
-		std::cout << "Chord: " <<  chords.Chords[pIndex].name << std::endl;
+
+//		pIndex = 1; // FIXME Just use Major scale for now
+		std::cout << "Chord: " << q.noteNames[currRoot] << chords.Chords[pIndex].name <<  std::endl;
 		
 	}
 	
-	pIndex = 1;
 	int *chordArray = chords.Chords[pIndex].def;
-	int offset = 24; // Repeated notes in chord in octave above
+	int offset = 36; // Repeated notes in chord in octave above
 	
 	for (int i = 0; i < NUM_PITCHES; i++) {
-		if (chordArray[i] > 0) {
-			outputs[PITCH_OUTPUT + i].value = q.getVoltsFromPitch(chordArray[i],currRoot);
-		} else {
-			outputs[PITCH_OUTPUT + i].value = q.getVoltsFromPitch(chordArray[i] + offset,currRoot);
+		
+		int note = chordArray[i];
+
+		if (chordArray[i] < 0) {
+			note += offset;
 		}
+	
+		outputs[PITCH_OUTPUT + i].value = q.getVoltsFromPitch(note,currRoot);
+		
 	}
 	
 	bool stepped = stepPulse.process(delta);	
