@@ -54,11 +54,13 @@ struct Progress : Module {
 	int currScale = 0;
 	int currRoot = 0;
 	
-	int pIndex = 1;
+	int pIndex = 0;
 	int inversion = 0;
 	
 	int stepX = 0;
 	int poll = 5000;
+	
+	float pitches[6];
 	
 	inline bool debug() {
 		return true;
@@ -106,31 +108,35 @@ void Progress::step() {
 
 		inversion = rand() % 3;
 
-		std::cout << "Chord: " << q.noteNames[currRoot] << chords.Chords[pIndex].quality << inversion << std::endl;
+		std::cout << "Chord: " << q.noteNames[currRoot] << chords.Chords[pIndex].quality << " (" << inversion << ")" << std::endl;
+		
+		int *chordArray;
+	
+		switch(inversion) {
+			case 0:  chordArray = chords.Chords[pIndex].root; break;
+			case 1:  chordArray = chords.Chords[pIndex].first; break;
+			case 2:  chordArray = chords.Chords[pIndex].second; break;
+			default: chordArray = chords.Chords[pIndex].root;
+		}	
+		 
+		int offset = 24; // Repeated notes in chord
+	
+		for (int i = 0; i < NUM_PITCHES; i++) {
+		
+			int note = chordArray[i];
+
+			if (chordArray[i] < 0) {
+				note += offset;
+			}
+	
+			pitches[i] = q.getVoltsFromPitch(note,currRoot);
+		
+		}
 		
 	}
 	
-	int *chordArray;
-	
-	switch(inversion) {
-		case 0:  chordArray = chords.Chords[pIndex].root; break;
-		case 1:  chordArray = chords.Chords[pIndex].first; break;
-		case 2:  chordArray = chords.Chords[pIndex].second; break;
-		default: chordArray = chords.Chords[pIndex].root;
-	}	
-		 
-	int offset = 36; // Repeated notes in chord in octave above
-	
 	for (int i = 0; i < NUM_PITCHES; i++) {
-		
-		int note = chordArray[i];
-
-		if (chordArray[i] < 0) {
-			note += offset;
-		}
-	
-		outputs[PITCH_OUTPUT + i].value = q.getVoltsFromPitch(note,currRoot);
-		
+		outputs[PITCH_OUTPUT + i].value = pitches[i];
 	}
 	
 	bool stepped = stepPulse.process(delta);	

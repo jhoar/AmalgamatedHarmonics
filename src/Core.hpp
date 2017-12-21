@@ -23,18 +23,18 @@ struct Quantizer {
 	// http://www.grantmuller.com/MidiReference/doc/midiReference/ScaleReference.html
 	// Although their definition of the Blues scale is wrong
 	// Added the octave note to ensure that the last note is correctly processed
-	int SCALE_CHROMATIC      [13]= {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}; 	// All of the notes
-	int SCALE_IONIAN         [8] = {0, 2, 4, 5, 7, 9, 11, 12};			// 1,2,3,4,5,6,7
-	int SCALE_DORIAN         [8] = {0, 2, 3, 5, 7, 9, 10, 12};			// 1,2,b3,4,5,6,b7
-	int SCALE_PHRYGIAN       [8] = {0, 1, 3, 5, 7, 8, 10, 12};			// 1,b2,b3,4,5,b6,b7
-	int SCALE_LYDIAN         [8] = {0, 2, 4, 6, 7, 9, 10, 12};			// 1,2,3,#4,5,6,7
-	int SCALE_MIXOLYDIAN     [8] = {0, 2, 4, 5, 7, 9, 10, 12};			// 1,2,3,4,5,6,b7 
-	int SCALE_AEOLIAN        [8] = {0, 2, 3, 5, 7, 8, 10, 12};			// 1,2,b3,4,5,b6,b7
-	int SCALE_LOCRIAN        [8] = {0, 1, 3, 5, 6, 8, 10, 12};			// 1,b2,b3,4,b5,b6,b7
-	int SCALE_MAJOR_PENTA    [6] = {0, 2, 4, 7, 9, 12};					// 1,2,3,5,6
-	int SCALE_MINOR_PENTA    [6] = {0, 3, 5, 7, 10, 12};				// 1,b3,4,5,b7
-	int SCALE_HARMONIC_MINOR [8] = {0, 2, 3, 5, 7, 8, 11, 12};			// 1,2,b3,4,5,b6,7
-	int SCALE_BLUES          [7] = {0, 3, 5, 6, 7, 10, 12};				// 1,b3,4,b5,5,b7
+	int ASCALE_CHROMATIC      [13]= {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}; 	// All of the notes
+	int ASCALE_IONIAN         [8] = {0, 2, 4, 5, 7, 9, 11, 12};			// 1,2,3,4,5,6,7
+	int ASCALE_DORIAN         [8] = {0, 2, 3, 5, 7, 9, 10, 12};			// 1,2,b3,4,5,6,b7
+	int ASCALE_PHRYGIAN       [8] = {0, 1, 3, 5, 7, 8, 10, 12};			// 1,b2,b3,4,5,b6,b7
+	int ASCALE_LYDIAN         [8] = {0, 2, 4, 6, 7, 9, 10, 12};			// 1,2,3,#4,5,6,7
+	int ASCALE_MIXOLYDIAN     [8] = {0, 2, 4, 5, 7, 9, 10, 12};			// 1,2,3,4,5,6,b7 
+	int ASCALE_AEOLIAN        [8] = {0, 2, 3, 5, 7, 8, 10, 12};			// 1,2,b3,4,5,b6,b7
+	int ASCALE_LOCRIAN        [8] = {0, 1, 3, 5, 6, 8, 10, 12};			// 1,b2,b3,4,b5,b6,b7
+	int ASCALE_MAJOR_PENTA    [6] = {0, 2, 4, 7, 9, 12};					// 1,2,3,5,6
+	int ASCALE_MINOR_PENTA    [6] = {0, 3, 5, 7, 10, 12};				// 1,b3,4,5,b7
+	int ASCALE_HARMONIC_MINOR [8] = {0, 2, 3, 5, 7, 8, 11, 12};			// 1,2,b3,4,5,b6,7
+	int ASCALE_BLUES          [7] = {0, 3, 5, 6, 7, 10, 12};				// 1,b3,4,b5,5,b7
 
 	enum Notes {
 		NOTE_C = 0,
@@ -86,18 +86,18 @@ struct Quantizer {
 	Notes root = NOTE_C;
 
 	enum Scales {
-		CHROMATIC = 0,
- 		IONIAN,
-		DORIAN,
-		PHRYGIAN,
-		LYDIAN,
-		MIXOLYDIAN,
-		AEOLIAN,
-		LOCRIAN,
-		MAJOR_PENTA,
-		MINOR_PENTA,
-		HARMONIC_MINOR,
-		BLUES,
+		SCALE_CHROMATIC = 0,
+ 		SCALE_IONIAN,
+		SCALE_DORIAN,
+		SCALE_PHRYGIAN,
+		SCALE_LYDIAN,
+		SCALE_MIXOLYDIAN,
+		SCALE_AEOLIAN,
+		SCALE_LOCRIAN,
+		SCALE_MAJOR_PENTA,
+		SCALE_MINOR_PENTA,
+		SCALE_HARMONIC_MINOR,
+		SCALE_BLUES,
 		NUM_SCALES
 	};
 
@@ -117,19 +117,20 @@ struct Quantizer {
 	};
 
 	enum Degrees {
-		FIRST,
-		FLAT_SECOND,
-		SECOND,
-		FLAT_THIRD,
-		THIRD,
-		FOURTH,
-		FLAT_FIFTH,
-		FIFTH,
-		FLAT_SIXTH,
-		SIXTH,
-		FLAT_SEVENTH,
-		SEVENTH,
-		OCTAVE
+		DEGREE_FIRST,
+		DEGREE_FLAT_SECOND,
+		DEGREE_SECOND,
+		DEGREE_FLAT_THIRD,
+		DEGREE_THIRD,
+		DEGREE_FOURTH,
+		DEGREE_FLAT_FIFTH,
+		DEGREE_FIFTH,
+		DEGREE_FLAT_SIXTH,
+		DEGREE_SIXTH,
+		DEGREE_FLAT_SEVENTH,
+		DEGREE_SEVENTH,
+		DEGREE_OCTAVE,
+		NUM_DEGREES
 	};
 
 	std::string degreeNames[13] {
@@ -147,6 +148,29 @@ struct Quantizer {
 		"7",
 		"O"
 	};
+	
+	enum Modes {
+ 		MODE_IONIAN = 0,
+		MODE_DORIAN,
+		MODE_PHRYGIAN,
+		MODE_LYDIAN,
+		MODE_MIXOLYDIAN,
+		MODE_AEOLIAN,
+		MODE_LOCRIAN,
+		NUM_MODES
+	};
+	
+	std::string modeNames[7] {
+		"Ionian (Major)",
+		"Dorian",
+		"Phrygian",
+		"Lydian",
+		"Mixolydian",
+		"Aeolian (Natural Minor)",
+		"Locrian"
+	};
+
+
 
 	bool debug = false;
 	int poll = 5000;
@@ -177,6 +201,11 @@ struct Quantizer {
 	
 	int getScaleFromVolts(float volts) {
 		return round(rescalef(fabs(volts), 0.0, 10.0, 0, Quantizer::NUM_SCALES - 1));
+	}
+
+	float getVoltsFromMode(int mode) {
+		// Mode 0 = IONIAN, MODE 6 = LOCRIAN -> Scale 1 - 7
+		return rescalef(mode + 1, 0, Quantizer::NUM_SCALES - 1, 0.0, 10.0);
 	}
 
 	float getVoltsFromKey(int key) {

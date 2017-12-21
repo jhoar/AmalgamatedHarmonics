@@ -15,19 +15,19 @@ float Quantizer::getPitchFromVolts(float inVolts, float inRoot, float inScale, i
 	int *curScaleArr;
 	int notesInScale = 0;
 	switch (currScale){
-		case CHROMATIC:			curScaleArr = SCALE_CHROMATIC;		notesInScale=LENGTHOF(SCALE_CHROMATIC); break;
-		case IONIAN:			curScaleArr = SCALE_IONIAN;			notesInScale=LENGTHOF(SCALE_IONIAN); break;
-		case DORIAN:			curScaleArr = SCALE_DORIAN;			notesInScale=LENGTHOF(SCALE_DORIAN); break;
-		case PHRYGIAN:			curScaleArr = SCALE_PHRYGIAN;		notesInScale=LENGTHOF(SCALE_PHRYGIAN); break;
-		case LYDIAN:			curScaleArr = SCALE_LYDIAN;			notesInScale=LENGTHOF(SCALE_LYDIAN); break;
-		case MIXOLYDIAN:		curScaleArr = SCALE_MIXOLYDIAN;		notesInScale=LENGTHOF(SCALE_MIXOLYDIAN); break;
-		case AEOLIAN:			curScaleArr = SCALE_AEOLIAN;		notesInScale=LENGTHOF(SCALE_AEOLIAN); break;
-		case LOCRIAN:			curScaleArr = SCALE_LOCRIAN;		notesInScale=LENGTHOF(SCALE_LOCRIAN); break;
-		case MAJOR_PENTA:		curScaleArr = SCALE_MAJOR_PENTA;	notesInScale=LENGTHOF(SCALE_MAJOR_PENTA); break;
-		case MINOR_PENTA:		curScaleArr = SCALE_MINOR_PENTA;	notesInScale=LENGTHOF(SCALE_MINOR_PENTA); break;
-		case HARMONIC_MINOR:	curScaleArr = SCALE_HARMONIC_MINOR;	notesInScale=LENGTHOF(SCALE_HARMONIC_MINOR); break;
-		case BLUES:				curScaleArr = SCALE_BLUES;			notesInScale=LENGTHOF(SCALE_BLUES); break;
-		default: 				curScaleArr = SCALE_CHROMATIC;		notesInScale=LENGTHOF(SCALE_CHROMATIC);
+		case SCALE_CHROMATIC:		curScaleArr = ASCALE_CHROMATIC;			notesInScale=LENGTHOF(ASCALE_CHROMATIC); break;
+		case SCALE_IONIAN:			curScaleArr = ASCALE_IONIAN;			notesInScale=LENGTHOF(ASCALE_IONIAN); break;
+		case SCALE_DORIAN:			curScaleArr = ASCALE_DORIAN;			notesInScale=LENGTHOF(ASCALE_DORIAN); break;
+		case SCALE_PHRYGIAN:		curScaleArr = ASCALE_PHRYGIAN;			notesInScale=LENGTHOF(ASCALE_PHRYGIAN); break;
+		case SCALE_LYDIAN:			curScaleArr = ASCALE_LYDIAN;			notesInScale=LENGTHOF(ASCALE_LYDIAN); break;
+		case SCALE_MIXOLYDIAN:		curScaleArr = ASCALE_MIXOLYDIAN;		notesInScale=LENGTHOF(ASCALE_MIXOLYDIAN); break;
+		case SCALE_AEOLIAN:			curScaleArr = ASCALE_AEOLIAN;			notesInScale=LENGTHOF(ASCALE_AEOLIAN); break;
+		case SCALE_LOCRIAN:			curScaleArr = ASCALE_LOCRIAN;			notesInScale=LENGTHOF(ASCALE_LOCRIAN); break;
+		case SCALE_MAJOR_PENTA:		curScaleArr = ASCALE_MAJOR_PENTA;		notesInScale=LENGTHOF(ASCALE_MAJOR_PENTA); break;
+		case SCALE_MINOR_PENTA:		curScaleArr = ASCALE_MINOR_PENTA;		notesInScale=LENGTHOF(ASCALE_MINOR_PENTA); break;
+		case SCALE_HARMONIC_MINOR:	curScaleArr = ASCALE_HARMONIC_MINOR;	notesInScale=LENGTHOF(ASCALE_HARMONIC_MINOR); break;
+		case SCALE_BLUES:			curScaleArr = ASCALE_BLUES;				notesInScale=LENGTHOF(ASCALE_BLUES); break;
+		default: 					curScaleArr = ASCALE_CHROMATIC;			notesInScale=LENGTHOF(ASCALE_CHROMATIC);
 	}
 
 	// get the octave
@@ -102,19 +102,19 @@ float Quantizer::getPitchFromVolts(float inVolts, int inRoot, int inScale, int *
 	int *curScaleArr;
 	int notesInScale = 0;
 	switch (currScale){
-		case CHROMATIC:			curScaleArr = SCALE_CHROMATIC;		notesInScale=LENGTHOF(SCALE_CHROMATIC); break;
-		case IONIAN:			curScaleArr = SCALE_IONIAN;			notesInScale=LENGTHOF(SCALE_IONIAN); break;
-		case DORIAN:			curScaleArr = SCALE_DORIAN;			notesInScale=LENGTHOF(SCALE_DORIAN); break;
-		case PHRYGIAN:			curScaleArr = SCALE_PHRYGIAN;		notesInScale=LENGTHOF(SCALE_PHRYGIAN); break;
-		case LYDIAN:			curScaleArr = SCALE_LYDIAN;			notesInScale=LENGTHOF(SCALE_LYDIAN); break;
-		case MIXOLYDIAN:		curScaleArr = SCALE_MIXOLYDIAN;		notesInScale=LENGTHOF(SCALE_MIXOLYDIAN); break;
-		case AEOLIAN:			curScaleArr = SCALE_AEOLIAN;		notesInScale=LENGTHOF(SCALE_AEOLIAN); break;
-		case LOCRIAN:			curScaleArr = SCALE_LOCRIAN;		notesInScale=LENGTHOF(SCALE_LOCRIAN); break;
-		case MAJOR_PENTA:		curScaleArr = SCALE_MAJOR_PENTA;	notesInScale=LENGTHOF(SCALE_MAJOR_PENTA); break;
-		case MINOR_PENTA:		curScaleArr = SCALE_MINOR_PENTA;	notesInScale=LENGTHOF(SCALE_MINOR_PENTA); break;
-		case HARMONIC_MINOR:	curScaleArr = SCALE_HARMONIC_MINOR;	notesInScale=LENGTHOF(SCALE_HARMONIC_MINOR); break;
-		case BLUES:				curScaleArr = SCALE_BLUES;			notesInScale=LENGTHOF(SCALE_BLUES); break;
-		default: 				curScaleArr = SCALE_CHROMATIC;		notesInScale=LENGTHOF(SCALE_CHROMATIC);
+		case SCALE_CHROMATIC:			curScaleArr = ASCALE_CHROMATIC;			notesInScale=LENGTHOF(ASCALE_CHROMATIC); break;
+		case SCALE_IONIAN:			curScaleArr = ASCALE_IONIAN;			notesInScale=LENGTHOF(ASCALE_IONIAN); break;
+		case SCALE_DORIAN:			curScaleArr = ASCALE_DORIAN;			notesInScale=LENGTHOF(ASCALE_DORIAN); break;
+		case SCALE_PHRYGIAN:			curScaleArr = ASCALE_PHRYGIAN;			notesInScale=LENGTHOF(ASCALE_PHRYGIAN); break;
+		case SCALE_LYDIAN:			curScaleArr = ASCALE_LYDIAN;			notesInScale=LENGTHOF(ASCALE_LYDIAN); break;
+		case SCALE_MIXOLYDIAN:		curScaleArr = ASCALE_MIXOLYDIAN;		notesInScale=LENGTHOF(ASCALE_MIXOLYDIAN); break;
+		case SCALE_AEOLIAN:			curScaleArr = ASCALE_AEOLIAN;			notesInScale=LENGTHOF(ASCALE_AEOLIAN); break;
+		case SCALE_LOCRIAN:			curScaleArr = ASCALE_LOCRIAN;			notesInScale=LENGTHOF(ASCALE_LOCRIAN); break;
+		case SCALE_MAJOR_PENTA:		curScaleArr = ASCALE_MAJOR_PENTA;		notesInScale=LENGTHOF(ASCALE_MAJOR_PENTA); break;
+		case SCALE_MINOR_PENTA:		curScaleArr = ASCALE_MINOR_PENTA;		notesInScale=LENGTHOF(ASCALE_MINOR_PENTA); break;
+		case SCALE_HARMONIC_MINOR:	curScaleArr = ASCALE_HARMONIC_MINOR;	notesInScale=LENGTHOF(ASCALE_HARMONIC_MINOR); break;
+		case SCALE_BLUES:				curScaleArr = ASCALE_BLUES;				notesInScale=LENGTHOF(ASCALE_BLUES); break;
+		default: 				curScaleArr = ASCALE_CHROMATIC;			notesInScale=LENGTHOF(ASCALE_CHROMATIC);
 	}
 
 	// get the octave

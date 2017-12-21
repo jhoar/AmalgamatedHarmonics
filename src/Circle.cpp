@@ -22,31 +22,27 @@ struct Circle : Module {
 
 	const static int NUM_PITCHES = 6;
 	
-	int MAJOR[6] = {0,2,4,-1,-1,-1};
-	
-	
-
 	enum ParamIds {
 		KEY_PARAM,
-		SCALE_PARAM,
+		MODE_PARAM,
 		NUM_PARAMS
 	};
 	enum InputIds {
 		ROTL_INPUT,
 		ROTR_INPUT,
 		KEY_INPUT,
-		SCALE_INPUT,
+		MODE_INPUT,
 		NUM_INPUTS
 	};
 	enum OutputIds {
 		KEY_OUTPUT,
-		SCALE_OUTPUT,
+		MODE_OUTPUT,
 		NUM_OUTPUTS
 	};
 	enum LightIds {
-		SCALE_LIGHT,
-		BKEY_LIGHT,
-		CKEY_LIGHT = BKEY_LIGHT + 12,
+		MODE_LIGHT,
+		BKEY_LIGHT = MODE_LIGHT + 7,
+		CKEY_LIGHT = BKEY_LIGHT + 12, 
 		NUM_LIGHTS = CKEY_LIGHT + 12
 	};
 	
@@ -67,7 +63,7 @@ struct Circle : Module {
 	int baseKeyIndex = 0;
 	int curKeyIndex = 0;
 	
-	int curScale = 0;
+	int curMode = 0;
 		
 	int stepX = 0;
 	int poll = 5000;
@@ -81,7 +77,7 @@ struct Circle : Module {
 	
 };
 
-void Circle::setQuantizer(Quantizer &quantizer) {
+void Circle::setQuantizer(Quantizer &quantizer) { 
 	q = quantizer;
 }
 
@@ -101,24 +97,20 @@ void Circle::step() {
 		newKeyIndex = params[KEY_PARAM].value;
 	}
 
-	int newScale = 0;
-	if (inputs[SCALE_INPUT].active) {
-		float fScale = inputs[SCALE_INPUT].value;
-		newScale = round(rescalef(fabs(fScale), 0.0, 10.0, 0.0, 1.0)); // Will switch to a switch
+	int newMode = 0;
+	if (inputs[MODE_INPUT].active) {
+		float fMode = inputs[MODE_INPUT].value;
+		newMode = round(rescalef(fabs(fMode), 0.0, 10.0, 0.0, 6.0)); 
 	} else {
-		newScale = params[SCALE_PARAM].value;
+		newMode = params[MODE_PARAM].value;
 	}
 
-	if (newScale == 0) { // Map to scales in Core.cpp
-		curScale = Quantizer::IONIAN;
-	} else {
-		curScale = Quantizer::AEOLIAN;
-	}
+	// FIXME FOr now a direct mapping
+	curMode = newMode;
 		
 	// Process inputs
 	bool rotLStatus		= rotLTrigger.process(rotLInput);
 	bool rotRStatus		= rotRTrigger.process(rotRInput);
-		
 		
 	if (rotLStatus) {
 		if (debug()) { std::cout << stepX << " Rotate left: " << curKeyIndex; }
@@ -157,9 +149,9 @@ void Circle::step() {
 	int baseKey = q.CIRCLE_FIFTHS[baseKeyIndex];
 	
 	float keyVolts = q.getVoltsFromKey(curKey);
-	float scaleVolts = q.getVoltsFromScale(curScale);
+	float modeVolts = q.getVoltsFromMode(curMode);
 	
-	if (debug()) { std::cout << stepX << " Out: " << curKey << " " << curScale << std::endl;	}
+	if (debug()) { std::cout << stepX << " Out: " << curKey << " " << curMode << std::endl;	}
 			
 	for (int i = 0; i < Quantizer::NUM_NOTES; i++) {
 		lights[CKEY_LIGHT + i].value = 0.0;
@@ -168,14 +160,14 @@ void Circle::step() {
 
 	lights[CKEY_LIGHT + curKey].value = 1.0;
 	lights[BKEY_LIGHT + baseKey].value = 1.0;
-	if (curScale == 1) {
-		lights[SCALE_LIGHT].value = 1.0;		
-	} else {
-		lights[SCALE_LIGHT].value = 0.0;		
-	}
 	
+	for (int i = 0; i < Quantizer::NUM_MODES; i++) {
+		lights[MODE_LIGHT + i].value = 0.0;
+	}
+	lights[MODE_LIGHT + curMode].value = 1.0;
+		
 	outputs[KEY_OUTPUT].value = keyVolts;
-	outputs[SCALE_OUTPUT].value = scaleVolts;
+	outputs[MODE_OUTPUT].value = modeVolts;
 	
 }
 
@@ -206,8 +198,8 @@ CircleWidget::CircleWidget() {
 	addInput(createInput<PJ301MPort>(Vec(55.0, 329), module, Circle::ROTR_INPUT));
 	addInput(createInput<PJ301MPort>(Vec(90.0, 329), module, Circle::KEY_INPUT));
 	addParam(createParam<AHKnob>(Vec(125.0, 329), module, Circle::KEY_PARAM, 0.0, 11.0, 0.0)); 
-	addInput(createInput<PJ301MPort>(Vec(160.0, 329), module, Circle::SCALE_INPUT));
-	addParam(createParam<AHKnob>(Vec(195.0, 329), module, Circle::SCALE_PARAM, 0.0, 1.0, 0.0)); 
+	addInput(createInput<PJ301MPort>(Vec(160.0, 329), module, Circle::MODE_INPUT));
+	addParam(createParam<AHKnob>(Vec(195.0, 329), module, Circle::MODE_PARAM, 0.0, 6.0, 0.0)); 
 
 	float xOffset = 18.0;
 	float xSpace = 21.0;
@@ -222,10 +214,13 @@ CircleWidget::CircleWidget() {
 		quant.calculateKey(i, xSpace, xOffset + 72.0, 165.0, &xPos, &yPos, &scale);
 		addChild(createLight<SmallLight<RedLight>>(Vec(xPos, yPos), module, Circle::BKEY_LIGHT + scale));
 	}
+	
+	for (int i = 0; i < 7; i++) {
+		addChild(createLight<SmallLight<GreenLight>>(Vec(2 * xOffset + i * 18.0, 280.0), module, Circle::MODE_LIGHT + i));
+	}
 
 	addOutput(createOutput<PJ301MPort>(Vec(11.5, 49.0),  module, Circle::KEY_OUTPUT));
-	addOutput(createOutput<PJ301MPort>(Vec(59.5, 49.0), module, Circle::SCALE_OUTPUT));
-	addChild(createLight<MediumLight<GreenLight>>(Vec(114.9, 56.4), module, Circle::SCALE_LIGHT));
+	addOutput(createOutput<PJ301MPort>(Vec(59.5, 49.0), module, Circle::MODE_OUTPUT));
 
 }
 
