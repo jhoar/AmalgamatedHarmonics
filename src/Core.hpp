@@ -203,6 +203,12 @@ struct Quantizer {
 		return round(rescalef(fabs(volts), 0.0, 10.0, 0, Quantizer::NUM_SCALES - 1));
 	}
 
+	int getModeFromVolts(float volts) {
+		int mode = round(rescalef(fabs(volts), 0.0, 10.0, 0, Quantizer::NUM_SCALES - 1));
+		return clampi(mode, 0, 6);
+	}
+
+
 	float getVoltsFromMode(int mode) {
 		// Mode 0 = IONIAN, MODE 6 = LOCRIAN -> Scale 1 - 7
 		return rescalef(mode + 1, 0, Quantizer::NUM_SCALES - 1, 0.0, 10.0);

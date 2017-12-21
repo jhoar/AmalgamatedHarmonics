@@ -24,11 +24,13 @@ struct Progress : Module {
 	
 	enum ParamIds {
 		KEY_PARAM,
+		MODE_PARAM,
 		NUM_PARAMS
 	};
 	enum InputIds {
 		STEP_INPUT,
 		KEY_INPUT,
+		MODE_INPUT,
 		NUM_INPUTS
 	};
 	enum OutputIds {
@@ -51,8 +53,11 @@ struct Progress : Module {
 	
 	PulseGenerator stepPulse;
 	
-	int currScale = 0;
+	int currMode = 0;
+	bool haveMode = false;
+	
 	int currRoot = 0;
+	bool haveRoot = false;
 	
 	int pIndex = 0;
 	int inversion = 0;
@@ -88,12 +93,24 @@ void Progress::step() {
 	float stepInput		= inputs[STEP_INPUT].value;
 	
 	if (inputs[KEY_INPUT].active) {
+		haveRoot = true;
 		float fRoot = inputs[KEY_INPUT].value;
 		currRoot = q.getKeyFromVolts(fRoot);
 	} else {
+		haveRoot = false;
 		currRoot = params[KEY_PARAM].value;
 	}
-	
+
+	if (inputs[MODE_INPUT].active) {
+		haveMode = true;
+		float fMode = inputs[MODE_INPUT].value;
+		currMode = q.getScaleFromVolts(fMode);
+		
+	} else {
+		haveMode = false;
+		currMode = params[MODE_PARAM].value;
+	}
+
 	// Process inputs
 	bool stepStatus		= stepTrigger.process(stepInput);
 	
@@ -211,6 +228,8 @@ ProgressWidget::ProgressWidget() {
 	addInput(createInput<PJ301MPort>(Vec(20.0, 329), module, Progress::STEP_INPUT));
 	addInput(createInput<PJ301MPort>(Vec(55.0, 329), module, Progress::KEY_INPUT));
 	addParam(createParam<AHKnob>(Vec(90.0, 329), module, Progress::KEY_PARAM, 0.0, 11.0, 0.0)); // 12 notes
+	addInput(createInput<PJ301MPort>(Vec(125.0, 329), module, Progress::MODE_INPUT));
+	addParam(createParam<AHKnob>(Vec(160.0, 329), module, Progress::MODE_PARAM, 0.0, 6.0, 0.0)); // 12 notes
 	
 
 }

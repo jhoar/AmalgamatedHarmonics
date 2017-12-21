@@ -945,6 +945,19 @@
          d="m 0.683594,0.921875 h 22.679687 v 24.9375 H 0.683594 Z m 0,0"
          inkscape:connector-curvature="0" />
     </clipPath>
+    <filter
+       inkscape:collect="always"
+       style="color-interpolation-filters:sRGB"
+       id="filter3933"
+       x="-0.013714286"
+       width="1.0274286"
+       y="-0.010666667"
+       height="1.0213333">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="0.2"
+         id="feGaussianBlur3935" />
+    </filter>
   </defs>
   <sodipodi:namedview
      inkscape:document-units="mm"
@@ -955,15 +968,15 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="2.4447368"
-     inkscape:cx="152.72336"
-     inkscape:cy="190"
+     inkscape:cx="73.778256"
+     inkscape:cy="206.36168"
      inkscape:current-layer="layer2"
      showgrid="false"
      units="mm"
      inkscape:window-width="1703"
      inkscape:window-height="1142"
-     inkscape:window-x="146"
-     inkscape:window-y="10"
+     inkscape:window-x="551"
+     inkscape:window-y="5"
      inkscape:window-maximized="0"
      showguides="false"
      inkscape:guide-bbox="true"
@@ -1472,5 +1485,105 @@
          x="20.529488"
          id="tspan10858"
          sodipodi:role="line">STEP</tspan></text>
+    <rect
+       transform="scale(1,-1)"
+       ry="4.2187495"
+       y="-432.38666"
+       x="154.98825"
+       height="45"
+       width="35"
+       id="rect3073"
+       style="display:inline;fill:#000000;fill-opacity:1;stroke-width:0.78504759" />
+    <rect
+       style="display:inline;fill:#000000;fill-opacity:1;stroke-width:0.78504759;filter:url(#filter3933)"
+       id="rect3075"
+       width="35"
+       height="45"
+       x="150.48825"
+       y="-432.38678"
+       ry="4.2187495"
+       transform="matrix(0.97322123,0,0,-0.97911468,-26.001482,8.5605464)" />
+    <rect
+       transform="scale(1,-1)"
+       ry="4.2187495"
+       y="-432.38666"
+       x="49.988243"
+       height="45"
+       width="35"
+       id="rect3077"
+       style="display:inline;fill:#000000;fill-opacity:1;stroke-width:0.78504759" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;display:inline;fill:#000000;fill-opacity:1;stroke:none;"
+       x="60.923141"
+       y="396.38666"
+       id="text5449"><tspan
+         sodipodi:role="line"
+         id="tspan5447"
+         x="60.923141"
+         y="396.38666"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;">P2</tspan></text>
+    <text
+       id="text2696"
+       y="396.38666"
+       x="130.7747"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;display:inline;fill:#000000;fill-opacity:1;stroke:none;"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;"
+         y="396.38666"
+         x="130.7747"
+         id="tspan2694"
+         sodipodi:role="line">P4</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;display:inline;fill:#d4af37;fill-opacity:1;stroke:none"
+       x="157.66273"
+       y="396.32938"
+       id="text2704"><tspan
+         sodipodi:role="line"
+         id="tspan2702"
+         x="157.66273"
+         y="396.32938"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">MODE</tspan></text>
+    <rect
+       style="display:inline;fill:#000000;fill-opacity:1;stroke-width:0.78504759"
+       id="rect3927"
+       width="35"
+       height="45"
+       x="84.988251"
+       y="-432.38666"
+       ry="4.2187495"
+       transform="scale(1,-1)" />
+    <text
+       id="text3931"
+       y="396.32938"
+       x="89.029915"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;display:inline;fill:#d4af37;fill-opacity:1;stroke:none"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1"
+         y="396.32938"
+         x="89.029915"
+         id="tspan3929"
+         sodipodi:role="line">ROOT</tspan></text>
+    <rect
+       style="display:inline;fill:#000000;fill-opacity:1;stroke-width:0.78504759"
+       id="rect1123"
+       width="35"
+       height="45"
+       x="189.98825"
+       y="-432.38666"
+       ry="4.2187495"
+       transform="scale(1,-1)" />
+    <text
+       id="text1127"
+       y="396.32416"
+       x="200.87888"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;display:inline;fill:#000000;fill-opacity:1;stroke:none;"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;"
+         y="396.32416"
+         x="200.87888"
+         id="tspan1125"
+         sodipodi:role="line">P6</tspan></text>
   </g>
 </svg>
