@@ -108,6 +108,7 @@ struct Arpeggiator : Module {
 void Arpeggiator::step() {
 	
 	stepX++;
+	
 	// Wait a few steps for the inputs to flow through Rack
 	if (stepX < 10) { 
 		return;
@@ -127,7 +128,6 @@ void Arpeggiator::step() {
 	float iPDir			= params[PDIR_PARAM].value;
 	float iSDir			= params[SDIR_PARAM].value;
 	
-	
 	float iStep;
 	if (inputs[STEP_INPUT].active) {
 		iStep = inputs[STEP_INPUT].value;
@@ -145,7 +145,6 @@ void Arpeggiator::step() {
 		iDist = params[DIST_PARAM].value;
 		inputDist = iDist;
 	}
-	
 		
 	for (int p = 0; p < NUM_PITCHES; p++) {
 		int index = PITCH_INPUT + p;
@@ -285,9 +284,6 @@ void Arpeggiator::step() {
 		}
 		
 	}
-	
-	
-	
 	
 	
 	

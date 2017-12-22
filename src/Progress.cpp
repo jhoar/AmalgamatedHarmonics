@@ -31,6 +31,7 @@ struct Progress : Module {
 		STEP_INPUT,
 		KEY_INPUT,
 		MODE_INPUT,
+		PATT_INPUT,
 		NUM_INPUTS
 	};
 	enum OutputIds {
@@ -38,7 +39,6 @@ struct Progress : Module {
 		NUM_OUTPUTS = PITCH_OUTPUT + NUM_PITCHES
 	};
 	enum LightIds {
-		STEP_LIGHT,
 		NUM_LIGHTS
 	};
 	
@@ -50,8 +50,10 @@ struct Progress : Module {
 	Chord chords;
 	
 	SchmittTrigger stepTrigger; 
+	SchmittTrigger pattTrigger; 
 	
 	PulseGenerator stepPulse;
+	PulseGenerator pattPulse;
 	
 	int currMode = 0;
 	bool haveMode = false;
@@ -59,13 +61,32 @@ struct Progress : Module {
 	int currRoot = 0;
 	bool haveRoot = false;
 	
-	int pIndex = 0;
-	int inversion = 0;
+	int stepIndex = 0;
+	int offset = 24; // Repeated notes in chord and expressed in the chord definition as being transposed 2 octaves lower. When played this offset needs to be removed (or the notes removed, or the notes transposed to an octave higher)
 	
 	int stepX = 0;
 	int poll = 5000;
 	
 	float pitches[6];
+	
+	int currPattern = 0;
+	bool switchPatt = false;
+	bool firstStep = true;
+	
+	int pattRoot[2][8] = {
+		{Quantizer::NOTE_B,Quantizer::NOTE_G,Quantizer::NOTE_D,Quantizer::NOTE_A,Quantizer::NOTE_B,Quantizer::NOTE_G,Quantizer::NOTE_D,Quantizer::NOTE_A},
+		{Quantizer::NOTE_E,Quantizer::NOTE_A,Quantizer::NOTE_D,Quantizer::NOTE_C,Quantizer::NOTE_E,Quantizer::NOTE_A,Quantizer::NOTE_D,Quantizer::NOTE_F}
+	};
+	
+	int pattChr[2][8] = {
+		{71,1,1,1,71,1,1,1},
+		{71,1,1,1,71,1,1,1}
+	};
+	
+	int pattInv[2][8] = {
+		{0,0,0,0,0,1,2,0},
+		{0,0,0,0,0,0,0,0}
+	};
 	
 	inline bool debug() {
 		return true;
@@ -80,7 +101,7 @@ void Progress::setQuantizer(Quantizer &quantizer) {
 void Progress::step() {
 	
 	stepX++;
-
+	
 	// Wait a few steps for the inputs to flow through Rack
 	if (stepX < 10) { 
 		return;
@@ -91,6 +112,7 @@ void Progress::step() {
 	
 	// Get inputs from Rack
 	float stepInput		= inputs[STEP_INPUT].value;
+	float pattInput		= inputs[PATT_INPUT].value;
 	
 	if (inputs[KEY_INPUT].active) {
 		haveRoot = true;
@@ -111,33 +133,56 @@ void Progress::step() {
 		currMode = params[MODE_PARAM].value;
 	}
 
+	bool pattStatus = pattTrigger.process(pattInput);
+	if (pattStatus) {
+		if (debug()) { std::cout << stepX << " Triggered pattern switch" << std::endl; }
+		pattPulse.trigger(5e-5);
+		switchPatt = true; // Only switch patterns on a STEP
+	}
+
 	// Process inputs
-	bool stepStatus		= stepTrigger.process(stepInput);
-	
+	bool stepStatus = stepTrigger.process(stepInput);
 	if (stepStatus) {
+		if (debug()) { std::cout << stepX << " Advance progression" << std::endl; }		
 		stepPulse.trigger(5e-5);
+		stepIndex++;
 		
-		pIndex++;
-		
-		if (pIndex == Chord::NUM_CHORDS) {
-			pIndex = 0;
+		if (stepIndex == 8) {
+			if (debug()) { std::cout << stepX << " Loop progression" << std::endl; }
+			stepIndex = 0; // loop
 		}
-
-		inversion = rand() % 3;
-
-		std::cout << "Chord: " << q.noteNames[currRoot] << chords.Chords[pIndex].quality << " (" << inversion << ")" << std::endl;
+		
+		// If we have flag a pattern switch, do it now.
+		if (switchPatt) {
+			if (debug()) { std::cout << stepX << " Switching patterns, reset progression" << std::endl; }
+			currPattern++;
+			stepIndex = 0; // Start at beginning of progression
+			switchPatt = false;
+			
+			if (currPattern == 2) {
+				if (debug()) { std::cout << stepX << " Loop pattern" << std::endl; }
+				currPattern = 0; // loop
+			}
+		}
+	}
+	
+	if (firstStep || stepStatus) { // Set chords. Some this should go into an initialise function
+		
+		int currInv 	= pattInv[currPattern][stepIndex];
+		int currCrd 	= pattChr[currPattern][stepIndex];
+		int currRoot 	= pattRoot[currPattern][stepIndex];
 		
 		int *chordArray;
 	
-		switch(inversion) {
-			case 0:  chordArray = chords.Chords[pIndex].root; break;
-			case 1:  chordArray = chords.Chords[pIndex].first; break;
-			case 2:  chordArray = chords.Chords[pIndex].second; break;
-			default: chordArray = chords.Chords[pIndex].root;
+		switch(currInv) {
+			case 0:  chordArray = chords.Chords[currCrd].root; break;
+			case 1:  chordArray = chords.Chords[currCrd].first; break;
+			case 2:  chordArray = chords.Chords[currCrd].second; break;
+			default: chordArray = chords.Chords[currCrd].root;
 		}	
-		 
-		int offset = 24; // Repeated notes in chord
-	
+
+		if (debug()) { std::cout << stepX  << " Chord: " << q.noteNames[currRoot] << chords.Chords[currCrd].quality << " (" << currInv << ")" << std::endl; }
+		 	
 		for (int i = 0; i < NUM_PITCHES; i++) {
 		
 			int note = chordArray[i];
@@ -155,9 +200,10 @@ void Progress::step() {
 	for (int i = 0; i < NUM_PITCHES; i++) {
 		outputs[PITCH_OUTPUT + i].value = pitches[i];
 	}
-	
-	bool stepped = stepPulse.process(delta);	
-	lights[STEP_LIGHT].value = stepped ? 1.0 : 0.0;
+		
+	if (firstStep) {
+		firstStep = false;
+	}
 	
 }
 
@@ -230,6 +276,7 @@ ProgressWidget::ProgressWidget() {
 	addParam(createParam<AHKnob>(Vec(90.0, 329), module, Progress::KEY_PARAM, 0.0, 11.0, 0.0)); // 12 notes
 	addInput(createInput<PJ301MPort>(Vec(125.0, 329), module, Progress::MODE_INPUT));
 	addParam(createParam<AHKnob>(Vec(160.0, 329), module, Progress::MODE_PARAM, 0.0, 6.0, 0.0)); // 12 notes
+	addInput(createInput<PJ301MPort>(Vec(195.0, 329), module, Progress::PATT_INPUT));
 	
 
 }

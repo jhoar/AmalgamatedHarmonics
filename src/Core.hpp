@@ -31,10 +31,10 @@ struct Quantizer {
 	int ASCALE_MIXOLYDIAN     [8] = {0, 2, 4, 5, 7, 9, 10, 12};			// 1,2,3,4,5,6,b7 
 	int ASCALE_AEOLIAN        [8] = {0, 2, 3, 5, 7, 8, 10, 12};			// 1,2,b3,4,5,b6,b7
 	int ASCALE_LOCRIAN        [8] = {0, 1, 3, 5, 6, 8, 10, 12};			// 1,b2,b3,4,b5,b6,b7
-	int ASCALE_MAJOR_PENTA    [6] = {0, 2, 4, 7, 9, 12};					// 1,2,3,5,6
+	int ASCALE_MAJOR_PENTA    [6] = {0, 2, 4, 7, 9, 12};				// 1,2,3,5,6
 	int ASCALE_MINOR_PENTA    [6] = {0, 3, 5, 7, 10, 12};				// 1,b3,4,5,b7
 	int ASCALE_HARMONIC_MINOR [8] = {0, 2, 3, 5, 7, 8, 11, 12};			// 1,2,b3,4,5,b6,7
-	int ASCALE_BLUES          [7] = {0, 3, 5, 6, 7, 10, 12};				// 1,b3,4,b5,5,b7
+	int ASCALE_BLUES          [7] = {0, 3, 5, 6, 7, 10, 12};			// 1,b3,4,b5,5,b7
 
 	enum Notes {
 		NOTE_C = 0,
@@ -66,8 +66,7 @@ struct Quantizer {
 		NOTE_B_FLAT,
 		NOTE_F
 	};
-
-
+	
 	std::string noteNames[12] = {
 		"C",
 		"Db",
@@ -82,8 +81,6 @@ struct Quantizer {
 		"Bb",
 		"B",
 	};
-
-	Notes root = NOTE_C;
 
 	enum Scales {
 		SCALE_CHROMATIC = 0,
@@ -117,23 +114,34 @@ struct Quantizer {
 	};
 
 	enum Degrees {
-		DEGREE_FIRST,
-		DEGREE_FLAT_SECOND,
-		DEGREE_SECOND,
-		DEGREE_FLAT_THIRD,
-		DEGREE_THIRD,
-		DEGREE_FOURTH,
-		DEGREE_FLAT_FIFTH,
-		DEGREE_FIFTH,
-		DEGREE_FLAT_SIXTH,
-		DEGREE_SIXTH,
-		DEGREE_FLAT_SEVENTH,
-		DEGREE_SEVENTH,
-		DEGREE_OCTAVE,
+		DEGREE_I,
+		DEGREE_II,
+		DEGREE_III,
+		DEGREE_IV,
+		DEGREE_V,
+		DEGREE_VI,
+		DEGREE_VII,
 		NUM_DEGREES
 	};
 
-	std::string degreeNames[13] {
+	std::string degreeNames[14] {
+		"I",
+		"i",
+		"II",
+		"ii",
+		"III",
+		"iii",
+		"IV",
+		"iv",
+		"V",
+		"v",
+		"VI",
+		"vi",
+		"VII",
+		"vii"
+	};
+
+	std::string intervalNames[13] {
 		"1",
 		"b2",
 		"2",
@@ -170,11 +178,25 @@ struct Quantizer {
 		"Locrian"
 	};
 
-
-
+	enum Tonics {
+ 		TONIC_I = 0,
+		TONIC_II,
+		TONIC_III,
+		TONIC_IV,
+		TONIC_V,
+		TONIC_VI,
+		TONIC_VII,
+		NUM_TONICS
+	};
+	
 	bool debug = false;
 	int poll = 5000;
 	int stepX = 0;
+	
+	/* From the numerical key on a keyboard (0 = C, 11 = B), spacing in px between white keys and a starting x and Y coordinate for the C key (in px)
+	* calculate the actual X and Y coordinate for a key, and the scale note to which that key belongs (see Midi note mapping)
+	* http://www.grantmuller.com/MidiReference/doc/midiReference/ScaleReference.html */
+	void calculateKey(int inKey, float spacing, float xOff, float yOff, float *x, float *y, int *scale); 
 
 	/*
 	* Convert a V/OCT voltage to a quantized pitch, key and scale, and calculate various information about the quantised note.
@@ -185,15 +207,12 @@ struct Quantizer {
 	float getPitchFromVolts(float inVolts, float inRoot, float inScale, int *outRoot, int *outScale, int *outNote, int *outDegree);
 	
 	/*
-	 * Convert a root note (relative to C, C=0) and positive semi-tone offset from that root to a voltage (1V/OCT, 0V = C4 (or 3??))
+ 	 * Convert a root note (relative to C, C=0) and positive semi-tone offset from that root to a voltage (1V/OCT, 0V = C4 (or 3??))
 	 */
-	float getVoltsFromPitch(int inNote, int inRoot);
-	
-	/* From the numerical key on a keyboard (0 = C, 11 = B), spacing in px between white keys and a starting x and Y coordinate for the C key (in px)
-	* calculate the actual X and Y coordinate for a key, and the scale note to which that key belongs (see Midi note mapping)
-	* http://www.grantmuller.com/MidiReference/doc/midiReference/ScaleReference.html */
-	void calculateKey(int inKey, float spacing, float xOff, float yOff, float *x, float *y, int *scale); 
-	
+	float getVoltsFromPitch(int inNote, int inRoot){	
+		float semiTone = 1.0 / 12.0;
+		return (inRoot + inNote) * semiTone;
+	}
 	
 	float getVoltsFromScale(int scale) {
 		return rescalef(scale, 0, Quantizer::NUM_SCALES - 1, 0.0, 10.0);
@@ -202,18 +221,17 @@ struct Quantizer {
 	int getScaleFromVolts(float volts) {
 		return round(rescalef(fabs(volts), 0.0, 10.0, 0, Quantizer::NUM_SCALES - 1));
 	}
-
+	
 	int getModeFromVolts(float volts) {
 		int mode = round(rescalef(fabs(volts), 0.0, 10.0, 0, Quantizer::NUM_SCALES - 1));
 		return clampi(mode, 0, 6);
 	}
-
-
+	
 	float getVoltsFromMode(int mode) {
 		// Mode 0 = IONIAN, MODE 6 = LOCRIAN -> Scale 1 - 7
 		return rescalef(mode + 1, 0, Quantizer::NUM_SCALES - 1, 0.0, 10.0);
 	}
-
+	
 	float getVoltsFromKey(int key) {
 		return rescalef(key, 0, Quantizer::NUM_NOTES - 1, 0.0, 10.0);
 	}
@@ -338,116 +356,5 @@ struct Chord {
 		{	97	,"madd4",{	0	,	3	,	5	,	7	,	-24	,	-21	},{	12	,	3	,	5	,	7	,	-24	,	-21	},{	12	,	15	,	5	,	7	,	-12	,	-21	}},
 		{	98	,"madd9",{	0	,	3	,	7	,	14	,	-24	,	-21	},{	12	,	3	,	7	,	14	,	-24	,	-21	},{	12	,	15	,	7	,	14	,	-12	,	-21	}},		
 	};
-		// "M				[6] = {0,4,7,-1,-1,-1};
-		// "Ms5			[6] = {0,4,8,-1,-1,-1};
-		// "Ms5add9		[6] = {0,4,8,14,-1,-1};
-		// "M13			[6] = {0,4,7,11,14,21};
-		// "M6			[6] = {0,4,7,21,-1,-1};
-		// "M6s11			[6] = {0,4,7,9,		18,-1};
-		// "M69			[6] = {0,4,7,9,14,-1};
-		// "M69s11		[6] = {0,4,7,9,14,18};
-		// "M7s11			[6] = {0,4,7,11,18,-1};
-		// "M7s5			[6] = {0,4,8,11,-1,-1};
-		// "M7s5sus4		[6] = {0,5,8,11,-1,-1};
-		// "M7s9s11		[6] = {0,4,7,11,15,18};
-		// "M7add13		[6] = {0,4,7,9,11,14};
-		// "M7b5			[6] = {0,4,6,11,-1,-1};
-		// "M7b6			[6] = {0,4,8,11,-1,-1};
-		// "M7b9			[6] = {0,4,7,11,13,-1};
-		// "M7sus4		[6] = {0,5,7,11,-1,-1};
-		// "M9			[6] = {0,4,7,11,14,-1};
-		// "M9s11			[6] = {0,4,7,11,14,18};
-		// "M9s5			[6] = {0,4,8,11,14,-1};
-		// "M9s5sus4		[6] = {0,5,8,11,14,-1};
-		// "M9b5			[6] = {0,4,6,11,14,-1};
-		// "M9sus4		[6] = {0,5,7,11,14,-1};
-		// "Madd9			[6] = {0,4,7,14,-1,-1};
-		// "Maj7			[6] = {0,4,7,11,-1,-1};
-		// "Mb5			[6] = {0,4,6,-1,-1,-1};
-		// "Mb6			[6] = {0,4,20,-1,-1,-1};
-		// "Msus2			[6] = {0,2,7,-1,-1,-1};
-		// "Msus4			[6] = {0,5,7,-1,-1,-1};
-		// "Maddb9		[6] = {0,4,7,13,-1,-1};
-		// "7				[6] = {0,4,7,10,-1,-1};
-		// "9				[6] = {0,4,7,10,14,-1};
-		// "11			[6] = {0,7,10,14,17,-1};
-		// "13			[6] = {0,4,7,10,14,21};
-		// "11b9			[6] = {0,7,10,13,17,-1};
-		// "13s9			[6] = {0,4,7,10,15,21};
-		// "13b5			[6] = {0,4,6,9,10,14};
-		// "13b9			[6] = {0,4,7,10,13,21};
-		// "13no5			[6] = {0,4,10,14,21,-1};
-		// "13sus4		[6] = {0,5,7,10,14,21};
-		// "69s11			[6] = {0,4,7,9,14,18};
-		// "7s11			[6] = {0,4,7,10,18,-1};
-		// "7s11b13		[6] = {0,4,7,10,18,20};
-		// "7s5			[6] = {0,4,8,10,-1,-1};
-		// "7s5s9			[6] = {0,4,8,10,15,-1};
-		// "7s5b9			[6] = {0,4,8,10,13,-1};
-		// "7s5b9s11		[6] = {0,4,8,10,13,18};
-		// "7s5sus4		[6] = {0,5,8,10,-1,-1};
-		// "7s9			[6] = {0,4,7,10,15,-1};
-		// "7s9s11		[6] = {0,4,7,10,15,18};
-		// "7s9b13		[6] = {0,4,7,10,15,20};
-		// "7add6			[6] = {0,4,7,10,21,-1};
-		// "7b13			[6] = {0,4,10,20,-1,-1};
-		// "7b5			[6] = {0,4,6,10,-1,-1};
-		// "7b6			[6] = {0,4,7,8,10,-1};
-		// "7b9			[6] = {0,4,7,10,13,-1};
-		// "7b9s11		[6] = {0,4,7,10,13,18};
-		// "7b9s9			[6] = {0,4,7,10,13,15};
-		// "7b9b13		[6] = {0,4,7,10,13,20};
-		// "7no5			[6] = {0,4,10,-1,-1,-1};
-		// "7sus4			[6] = {0,5,7,10,-1,-1};
-		// "7sus4b9		[6] = {0,5,7,10,13,-1};
-		// "7sus4b9b13	[6] = {0,5,7,10,13,20};
-		// "9s11			[6] = {0,4,7,10,14,18};
-		// "9s5			[6] = {0,4,8,10,14,-1};
-		// "9s5s11		[6] = {0,4,8,10,14,18};
-		// "9b13			[6] = {0,4,10,14,20,-1};
-		// "9b5			[6] = {0,4,6,10,14,-1};
-		// "9no5			[6] = {0,4,10,14,-1,-1};
-		// "9sus4			[6] = {0,5,7,10,14,-1};
-		// "m				[6] = {0,3,7,-1,-1,-1};
-		// "ms5			[6] = {0,3,8,-1,-1,-1};
-		// "m11			[6] = {0,3,7,10,14,17};
-		// "m11A5			[6] = {0,3,8,10,14,17};
-		// "m11b5			[6] = {0,3,10,14,17,18};
-		// "m6			[6] = {0,3,5,7,21,-1};
-		// "m69			[6] = {0,3,7,9,14,-1};
-		// "m7			[6] = {0,3,7,10,-1,-1};
-		// "m7s5			[6] = {0,3,8,10,-1,-1};
-		// "m7add11		[6] = {0,3,7,10,17,-1};
-		// "m7b5			[6] = {0,3,6,10,-1,-1};
-		// "m9			[6] = {0,3,7,10,14,-1};
-		// "s5			[6] = {0,3,8,10,14,-1};
-		// "m9b5			[6] = {0,3,10,14,18,-1};
-		// "mMaj7			[6] = {0,3,7,11,-1,-1};
-		// "mMaj7b6		[6] = {0,3,7,8,11,-1};
-		// "mM9			[6] = {0,3,7,11,14,-1};
-		// "mM9b6			[6] = {0,3,7,8,11,14};
-		// "mb6M7			[6] = {0,3,8,11,-1,-1};
-		// "mb6b9			[6] = {0,3,8,13,-1,-1};
-		// "o				[6] = {0,3,6,-1,-1,-1};
-		// "o7			[6] = {0,3,6,21,-1,-1};
-		// "o7M7			[6] = {0,3,6,9,11,-1};
-		// "oM7			[6] = {0,3,6,11,-1,-1};
-		// "sus24			[6] = {0,2,5,7,-1,-1};
-		// "plusadds9		[6] = {0,4,8,15,-1,-1};
-		// "madd4			[6] = {0,3,5,7,-1,-1};
-		// "madd9			[6] = {0,3,7,14,-1,-1};
-
-
-	//int 	CHORD_M13s11		[6] = {0,4,7,11,14,18,21
-	//int 	CHORD_13s11			[6] = {0,4,7,10,14,18,21
-	//int 	CHORD_13s9s11		[6] = {0,4,7,10,15,18,21
-	//int 	CHORD_13b9s11		[6] = {0,4,7,10,13,18,21
-	//int 	CHORD_7s9s11b13		[6] = {0,4,7,10,15,18,20
-	//int 	CHORD_7b9b13s11		[6] = {0,4,7,10,13,18,20
-	//int 	CHORD_9s11b13		[6] = {0,4,7,10,14,18,20
-	//int 	CHORD_m13			[6] = {0,3,7,10,14,10,21
-
 
 };
-
- 

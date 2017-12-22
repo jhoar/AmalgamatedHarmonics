@@ -78,7 +78,7 @@ float Quantizer::getPitchFromVolts(float inVolts, float inRoot, float inScale, i
 		// Dump the note and degree, mod the size in case where we have wrapped round
 
 		std::cout << "Found index in scale: " << noteFound << ", currNote: "  << currNote <<  " (Name: " << noteNames[currNote] << ")" << std::endl;
-		std::cout << "This is scale note: "  << curScaleArr[noteFound] << " (Name: " << degreeNames[curScaleArr[noteFound]] << ")" << std::endl;
+		std::cout << "This is scale note: "  << curScaleArr[noteFound] << " (Interval: " << intervalNames[curScaleArr[noteFound]] << ")" << std::endl;
 	}
 
 	*outRoot = currRoot;
@@ -165,7 +165,7 @@ float Quantizer::getPitchFromVolts(float inVolts, int inRoot, int inScale, int *
 		// Dump the note and degree, mod the size in case where we have wrapped round
 
 		std::cout << "Found index in scale: " << noteFound << ", currNote: "  << currNote <<  " (Name: " << noteNames[currNote] << ")" << std::endl;
-		std::cout << "This is scale note: "  << curScaleArr[noteFound] << " (Name: " << degreeNames[curScaleArr[noteFound]] << ")" << std::endl;
+		std::cout << "This is scale note: "  << curScaleArr[noteFound] << " (Interval: " << intervalNames[curScaleArr[noteFound]] << ")" << std::endl;
 	}
 
 	*outNote = currNote;
@@ -215,13 +215,3 @@ void Quantizer::calculateKey(int inKey, float spacing, float xOff, float yOff, f
 		}
 	}
 }
-
-
-float Quantizer::getVoltsFromPitch(int inNote, int inRoot) {
-	
-	float semiTone = 1.0 / 12.0;
-	return (inRoot + inNote) * semiTone;
-	
-}
-
-
