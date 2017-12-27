@@ -24,6 +24,7 @@ struct ArpeggiatorWidget : ModuleWidget {
 
 struct ProgressWidget : ModuleWidget {
 		ProgressWidget();
+		Menu *createContextMenu() override;
 };
 
 struct CircleWidget : ModuleWidget {
