@@ -6,7 +6,7 @@
 #include <iostream>
 
 // TODO
-// - Mode mode: chord calculation
+// - Mode mode: chord namer
 // UI
 
 struct AHButton : SVGSwitch, MomentarySwitch {
@@ -21,6 +21,14 @@ struct AHKnob : RoundKnob {
 		setSVG(SVG::load(assetPlugin(plugin,"res/ComponentLibrary/AHKnob.svg")));
 	}
 };
+
+struct AHKnobNoSnap : RoundKnob {
+	AHKnobNoSnap() {
+		snap = false;
+		setSVG(SVG::load(assetPlugin(plugin,"res/ComponentLibrary/AHKnob.svg")));
+	}
+};
+
 
 struct Progress : Module {
 
@@ -100,10 +108,8 @@ struct Progress : Module {
 	GateMode gateMode = TRIGGER;
 	PulseGenerator gatePulse;
 		
-	int inMode = 0;
-	int inRoot = 0;
 	bool modeMode = false;
-	bool prevMode = false;
+	bool prevModeMode = false;
 	
 	int offset = 24; // Repeated notes in chord and expressed in the chord definition as being transposed 2 octaves lower. When played this offset needs to be removed (or the notes removed, or the notes transposed to an octave higher)
 	
@@ -127,6 +133,11 @@ struct Progress : Module {
 	float currQualityInput[8];
 
 	float currInvInput[8];
+	
+	int currMode;
+	int currKey;
+	int prevMode = -1;
+	int prevKey = -1;
 	
 	int currRoot[8];
 	int currChord[8];
@@ -250,34 +261,43 @@ void Progress::step() {
 	// index is our current step
 	if (inputs[KEY_INPUT].active) {
 		float fRoot = inputs[KEY_INPUT].value;
-		inRoot = q.getKeyFromVolts(fRoot);
+		currKey = q.getKeyFromVolts(fRoot);
 		haveRoot = true;
-//		if (debug()) { std::cout << stepX << ": Key " << inRoot << std::endl; }
 	}
-	
 
 	if (inputs[MODE_INPUT].active) {
 		float fMode = inputs[MODE_INPUT].value;
-		inMode = q.getModeFromVolts(fMode);	
+		currMode = q.getModeFromVolts(fMode);	
 		haveMode = true;
-//		if (debug()) { std::cout << stepX << ": Mode " << inMode << std::endl; }
 	}
 	
 	 modeMode = haveRoot && haveMode;
+	
+	 if (modeMode && ((prevMode != currMode) || (prevKey != currKey))) { // Input changes so force re-read
+	 	for (int step = 0; step < 8; step++) {
+			prevTonicInput[step]    = -100.0;
+			prevQualityInput[step]  = -100.0;
+		}
+		
+		prevMode = currMode;
+		prevKey = currKey;
+		
+	 }
+	 
 	
 	// Read inputs
 	for (int step = 0; step < 8; step++) {
 		if (modeMode) {
 			currTonicInput[step]  = params[CHORD_PARAM + step].value;
 			currQualityInput[step] = params[ROOT_PARAM + step].value;
-			if (prevMode != modeMode) {
+			if (prevModeMode != modeMode) { // Switching mode, so reset history to ensure re-read on return
 				prevChrInput[step]  = -100.0;
 				prevRootInput[step]  = -100.0;
 			}
 		} else {
 			currChrInput[step]  = params[CHORD_PARAM + step].value;
 			currRootInput[step] = params[ROOT_PARAM + step].value;
-			if (prevMode != modeMode) {
+			if (prevModeMode != modeMode) { // Switching mode, so reset history to ensure re-read on return
 				prevTonicInput[step]  = -100.0;
 				prevQualityInput[step]  = -100.0;
 			}
@@ -285,9 +305,10 @@ void Progress::step() {
 		currInvInput[step]  = params[INV_PARAM + step].value;
 	}
 	
-	prevMode = modeMode;
+	// Remember mode
+	prevModeMode = modeMode;
 	
-	// Check for changes, try to minimize how mauch p
+	// Check for changes on all steps
 	for (int step = 0; step < 8; step++) {
 		
 		bool update = false;
@@ -297,9 +318,6 @@ void Progress::step() {
 			currTonicInput[step]   = params[ROOT_PARAM + step].value;
 			currQualityInput[step] = params[CHORD_PARAM + step].value;
 							
-			// prevTonicInput[step]   = currTonicInput[step];
-			// prevQualityInput[step] = currQualityInput[step];
-
 			if (prevTonicInput[step] != currTonicInput[step]) {
 				prevTonicInput[step] = currTonicInput[step];
 				update = true;
@@ -311,38 +329,37 @@ void Progress::step() {
 			}
 			
 			if (update) {
+				
 				// Get Tonic (I- VII)
 				currTonic[step] = round(rescalef(fabs(currTonicInput[step]), 0.0, 10.0, 0, Quantizer::NUM_TONICS - 1)); 
-				// Param range is 0 to 10, mapped to 0 to 11
 
-				if (debug()) { std::cout << stepX << " MODE: Mode: " << inMode << " inRoot: " << inRoot << ": Tonic: " << currTonic[step] << std::endl; }
+				if (debug()) { std::cout << stepX << " MODE: Mode: " << currMode << " (" <<  q.modeNames[currMode] 
+					<< ") currKey: " << currKey << " (" <<  q.noteNames[currKey] << ") Tonic: " << currTonic[step] << " (" << q.tonicNames[currTonic[step]] << ")" << std::endl; }
 
 				// From the input root, mode and tonic, we can get the root chord note and quality (Major,Minor,Diminshed)
-				chords.getRootFromMode(inMode,inRoot,currTonic[step],&currRoot[step],&currQuality[step]);
+				chords.getRootFromMode(currMode,currKey,currTonic[step],&currRoot[step],&currQuality[step]);
 
-				if (debug()) { std::cout << stepX << " MODE: Root: " << currRoot[step] << " Quality: " << currQuality[step] << std::endl; }
+				if (debug()) { std::cout << stepX << " MODE: Root: " << q.noteNames[currRoot[step]] << " Quality: " << chords.qualityNames[currQuality[step]] << std::endl; }
 
-				// So now we have the overall quality, we get quantise and determine the actual chord
-				int finalChord = 0;
+				// Now get the actual chord from the main list
 				switch(currQuality[step]) {
 					case Chord::MAJ: 
-						finalChord = round(rescalef(fabs(currQualityInput[step]), 0.0, 10.0, 1, 98)); // Param range is 0 to 10		
+						currChord[step] = round(rescalef(fabs(currQualityInput[step]), 0.0, 10.0, 1, 70)); 
 						break;
 					case Chord::MIN: 
-						finalChord = round(rescalef(fabs(currQualityInput[step]), 0.0, 10.0, 1, 98)); // Param range is 0 to 10		
+						currChord[step] = round(rescalef(fabs(currQualityInput[step]), 0.0, 10.0, 71, 90));
 						break;
 					case Chord::DIM: 
-						finalChord = round(rescalef(fabs(currQualityInput[step]), 0.0, 10.0, 1, 98)); // Param range is 0 to 10		
+						currChord[step] = round(rescalef(fabs(currQualityInput[step]), 0.0, 10.0, 91, 98));
 						break;		
 				}
 			
-				currChord[step] = chords.getChordFromQuality(currRoot[step],currQuality[step],finalChord);
 			}
 
-//			update = true;
-			
 		} else {
-		
+
+			// Chord Mode
+			
 			// If anything has changed, recalculate output for that step
 			if (prevRootInput[step] != currRootInput[step]) {
 				prevRootInput[step] = currRootInput[step];
@@ -358,12 +375,14 @@ void Progress::step() {
 
 		}
 		
+		// Inversions remain the same between Chord and Mode mode
 		if (prevInvInput[step] != currInvInput[step]) {
 			prevInvInput[step]  = currInvInput[step];		
 			currInv[step] = currInvInput[step];
 			update = true;
 		}
 
+		// So, after all that, we calculate the pitch output
 		if (update) {
 			
 			if (debug()) { std::cout << stepX << " UPDATE Step: " << step << " Input: Root: " << currRoot[step] << " Chord: " << currChord[step] << " Inversion: "
@@ -371,6 +390,7 @@ void Progress::step() {
 		
 			int *chordArray;
 	
+			// Get the array of pitches based on the inversion
 			switch(currInv[step]) {
 				case ROOT:  		chordArray = chords.Chords[currChord[step]].root; 	break;
 				case FIRST_INV:  	chordArray = chords.Chords[currChord[step]].first; 	break;
@@ -383,17 +403,20 @@ void Progress::step() {
 	 	
 			for (int j = 0; j < NUM_PITCHES; j++) {
 	
+				// Set the pitches for this step. If the chord has less than 6 notes, the empty slots are
+				// filled with repeated notes. These notes are identified by a  24 semi-tome negative
+				// offset. We correct for that offset now, pitching thaem back into the original octave.
+				// They could be pitched into the octave above (or below)
 				if (chordArray[j] < 0) {
 					pitches[step][j] = q.getVoltsFromPitch(chordArray[j] + offset,currRoot[step]);			
 				} else {
 					pitches[step][j] = q.getVoltsFromPitch(chordArray[j],currRoot[step]);			
-				}
-			
+				}	
 			}
-		}
-				
+		}	
 	}
 	
+	// Set the pitch output
 	for (int i = 0; i < NUM_PITCHES; i++) {
 		outputs[PITCH_OUTPUT + i].value = pitches[index][i];
 	}
@@ -454,8 +477,8 @@ ProgressWidget::ProgressWidget() {
 	}	
 
 	for (int i = 0; i < 8; i++) {
-		addParam(createParam<AHKnob>(Vec(portX[i]-2, 157), module, Progress::ROOT_PARAM + i, 0.0, 10.0, 0.0));
-		addParam(createParam<AHKnob>(Vec(portX[i]-2, 198), module, Progress::CHORD_PARAM + i, 0.0, 10.0, 0.0));
+		addParam(createParam<AHKnobNoSnap>(Vec(portX[i]-2, 157), module, Progress::ROOT_PARAM + i, 0.0, 10.0, 0.0));
+		addParam(createParam<AHKnobNoSnap>(Vec(portX[i]-2, 198), module, Progress::CHORD_PARAM + i, 0.0, 10.0, 0.0));
 		addParam(createParam<AHKnob>(Vec(portX[i]-2, 240), module, Progress::INV_PARAM + i, 0.0, 2.0, 0.0));
 		addParam(createParam<AHButton>(Vec(portX[i]+2, 278-1), module, Progress::GATE_PARAM + i, 0.0, 1.0, 0.0));
 		addChild(createLight<MediumLight<GreenLight>>(Vec(portX[i]+6.4, 281.4), module, Progress::GATE_LIGHTS + i));

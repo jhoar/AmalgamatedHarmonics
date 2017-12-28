@@ -220,13 +220,12 @@ void Quantizer::calculateKey(int inKey, float spacing, float xOff, float yOff, f
 
 void Chord::getRootFromMode(int inMode, int inRoot, int inTonic, int *currRoot, int *quality) {
 	
-	Quantizer q;
-	
 	*quality = ModeQuality[inMode][inTonic];
 
 	int positionRelativeToStartOfScale = tonicIndex[inMode + inTonic];
 	int positionStartOfScale = scaleIndex[inMode];
-		
+	
+	// FIXME should be mapped into the Circle of Fifths??	
 	*currRoot = inRoot + noteIndex[positionStartOfScale + positionRelativeToStartOfScale]; 
  	
  	if (*currRoot < 0) {
@@ -237,6 +236,8 @@ void Chord::getRootFromMode(int inMode, int inRoot, int inTonic, int *currRoot, 
  		*currRoot -= 12;
  	}
  
+	// Quantizer q;
+	//
 	// std::cout << "Mode: " << inMode
 	// 	<< " Root: " << q.noteNames[inRoot]
 	// 	<< " Tonic: " << q.tonicNames[inTonic]
@@ -249,25 +250,3 @@ void Chord::getRootFromMode(int inMode, int inRoot, int inTonic, int *currRoot, 
 	// 	<< " " << q.noteNames[*currRoot]
 	// 	<< std::endl;
  }
-
-
-int Chord::getChordFromQuality(int root, int quality, int finalChord) {
-	
-	int chord = 1;
-	
-	switch(quality) {
-		case Chord::MAJ: 
-			chord = 1;
-			break;
-		case Chord::MIN: 
-			chord = 71;
-			break;
-		case Chord::DIM: 
-			chord = 91;
-			break;		
-	}
-
-	return chord;
-
-
-}

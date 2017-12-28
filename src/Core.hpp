@@ -372,6 +372,12 @@ struct Chord {
 		DIM,
 		NUM_QUALITY
 	};
+
+	std::string qualityNames[3] {
+		"Maj",
+		"Min",
+		"Dim"
+	};
 	
 	int ModeQuality[7][7] {
 		{MAJ,MIN,MIN,MAJ,MAJ,MIN,DIM}, // Ionian
@@ -425,7 +431,5 @@ struct Chord {
 		Quantizer::NOTE_G_FLAT};	
 			
 	void getRootFromMode(int inMode, int inRoot, int inTonic, int *currRoot, int *quality);
-	
-	int getChordFromQuality(int root, int quality, int finalChord);
-	
+		
 };
