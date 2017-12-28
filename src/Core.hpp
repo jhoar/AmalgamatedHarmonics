@@ -187,8 +187,18 @@ struct Quantizer {
 		TONIC_VI,
 		TONIC_VII,
 		NUM_TONICS
-	};
+	};		
 	
+	std::string tonicNames[7] {
+		"I",
+		"II",
+		"III",
+		"IV",
+		"V",
+		"VI",
+		"VII"
+	};
+		
 	bool debug = false;
 	int poll = 5000;
 	int stepX = 0;
@@ -355,5 +365,67 @@ struct Chord {
 		{	97	,"madd4",{	0	,	3	,	5	,	7	,	-24	,	-21	},{	12	,	3	,	5	,	7	,	-24	,	-21	},{	12	,	15	,	5	,	7	,	-12	,	-21	}},
 		{	98	,"madd9",{	0	,	3	,	7	,	14	,	-24	,	-21	},{	12	,	3	,	7	,	14	,	-24	,	-21	},{	12	,	15	,	7	,	14	,	-12	,	-21	}},		
 	};
+	
+	enum Quality {
+		MAJ = 0,
+		MIN,
+		DIM,
+		NUM_QUALITY
+	};
+	
+	int ModeQuality[7][7] {
+		{MAJ,MIN,MIN,MAJ,MAJ,MIN,DIM}, // Ionian
+		{MIN,MIN,MAJ,MAJ,MIN,DIM,MAJ}, // Dorian
+		{MIN,MAJ,MAJ,MIN,DIM,MAJ,MIN}, // Phrygian
+		{MAJ,MAJ,MIN,DIM,MAJ,MIN,MIN}, // Lydian
+		{MAJ,MIN,DIM,MAJ,MIN,MIN,MAJ}, // Mixolydian
+		{MIN,DIM,MAJ,MIN,MIN,MAJ,MAJ}, // Aeolian
+		{DIM,MAJ,MIN,MIN,MAJ,MAJ,MIN}  // Locrian
+	};
 
+	int ModeOffset[7][7] {
+		{0,0,0,0,0,0,0},     // Ionian
+		{0,0,-1,-1,0,0,-1},  // Dorian
+		{0,-1,-1,0,0,-1,-1}, // Phrygian
+		{0,0,0,1,0,0,0},     // Lydian
+		{0,0,0,0,0,0,-1},    // Mixolydian
+		{0,0,-1,0,0,-1,-1},  // Aeolian
+		{0,-1,-1,0,-1,-1,-1} // Locrian
+	};
+
+	// NOTE_C = 0,
+	// NOTE_D_FLAT, // C Sharp
+	// NOTE_D,
+	// NOTE_E_FLAT, // D Sharp
+	// NOTE_E,
+	// NOTE_F,
+	// NOTE_G_FLAT, //F Sharp
+	// NOTE_G,
+	// NOTE_A_FLAT, // G Sharp
+	// NOTE_A,
+	// NOTE_B_FLAT, // A Sharp
+	// NOTE_B,
+
+	//0	1	2	3	4	5	6	7	8	9	10	11	12
+	int tonicIndex[13] {1, 3, 5, 0, 2, 4, 6, 1, 3, 5, 0, 2, 4};
+	int scaleIndex[7] {5, 3, 1, 6, 4, 2, 0};
+	int noteIndex[13] { 
+		Quantizer::NOTE_G_FLAT,
+		Quantizer::NOTE_D_FLAT,
+		Quantizer::NOTE_A_FLAT,
+		Quantizer::NOTE_E_FLAT,
+		Quantizer::NOTE_B_FLAT,
+		Quantizer::NOTE_F,
+		Quantizer::NOTE_C,
+		Quantizer::NOTE_G,
+		Quantizer::NOTE_D,
+		Quantizer::NOTE_A,
+		Quantizer::NOTE_E,		
+		Quantizer::NOTE_B,
+		Quantizer::NOTE_G_FLAT};	
+			
+	void getRootFromMode(int inMode, int inRoot, int inTonic, int *currRoot, int *quality);
+	
+	int getChordFromQuality(int root, int quality, int finalChord);
+	
 };

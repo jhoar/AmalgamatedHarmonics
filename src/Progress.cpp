@@ -5,6 +5,10 @@
 
 #include <iostream>
 
+// TODO
+// - Mode mode: chord calculation
+// UI
+
 struct AHButton : SVGSwitch, MomentarySwitch {
 	AHButton() {
 		addFrame(SVG::load(assetPlugin(plugin,"res/ComponentLibrary/AHButton.svg")));
@@ -22,11 +26,11 @@ struct Progress : Module {
 
 	const static int NUM_PITCHES = 6;
 	
-	enum SlotStatus {
+	enum Inversion {
 		ROOT,
 		FIRST_INV,
 		SECOND_INV,
-		NUM_STATUS
+		NUM_INV
 	};
 	
 	std::string status[5] {
@@ -41,8 +45,6 @@ struct Progress : Module {
 		RUN_PARAM,
 		RESET_PARAM,
 		STEPS_PARAM,
-		KEY_PARAM, // JH
-		MODE_PARAM, // JH
 		ROOT_PARAM,
 		CHORD_PARAM = ROOT_PARAM + 8,
 		INV_PARAM   = CHORD_PARAM + 8,  
@@ -99,34 +101,58 @@ struct Progress : Module {
 	PulseGenerator gatePulse;
 		
 	int inMode = 0;
-	bool haveMode = false;
-	
 	int inRoot = 0;
-	bool haveRoot = false;
+	bool modeMode = false;
+	bool prevMode = false;
 	
 	int offset = 24; // Repeated notes in chord and expressed in the chord definition as being transposed 2 octaves lower. When played this offset needs to be removed (or the notes removed, or the notes transposed to an octave higher)
 	
 	int stepX = 0;
-	int poll = 5000;
+	int poll = 50000;
 	
 	bool gate = true;		
 	
-	float prevChrInput[8] = {-100.0, -100.0, -100.0, -100.0, -100.0, -100.0, -100.0, -100.0};
-	float prevInvInput[8] = {-100.0, -100.0, -100.0, -100.0, -100.0, -100.0, -100.0, -100.0};
 	float prevRootInput[8] = {-100.0, -100.0, -100.0, -100.0, -100.0, -100.0, -100.0, -100.0};
+	float prevChrInput[8] = {-100.0, -100.0, -100.0, -100.0, -100.0, -100.0, -100.0, -100.0};
 
-	float currChrInput[8];
-	float currInvInput[8];
+	float prevTonicInput[8] = {-100.0, -100.0, -100.0, -100.0, -100.0, -100.0, -100.0, -100.0};
+	float prevQualityInput[8] = {-100.0, -100.0, -100.0, -100.0, -100.0, -100.0, -100.0, -100.0};
+
+	float prevInvInput[8] = {-100.0, -100.0, -100.0, -100.0, -100.0, -100.0, -100.0, -100.0};
+
 	float currRootInput[8];
+	float currChrInput[8];
+
+	float currTonicInput[8];
+	float currQualityInput[8];
+
+	float currInvInput[8];
 	
 	int currRoot[8];
 	int currChord[8];
 	int currInv[8];	
+
+	int currTonic[8];
+	int currQuality[8];
 	
 	float pitches[8][6];
 		
 	inline bool debug() {
-		return true;
+		// if (stepX % poll == 0) {
+		// 	return true;
+		// } else {
+		// 	return false;
+		// }
+		return false;
+
+	}
+	
+	void reset() override {
+		
+		for (int i = 0; i < 8; i++) {
+			gateState[i] = true;
+		}
+				
 	}
 	
 };
@@ -134,6 +160,18 @@ struct Progress : Module {
 
 
 void Progress::step() {
+	
+	// int outRoot;
+	// int outQ;
+	// std::cout << " TEST " << std::endl;
+	// for (int mode = 0; mode < Quantizer::NUM_MODES; mode++) {
+	// 	for (int root = 0; root < Quantizer::NUM_NOTES; root++) {
+	// 		for (int tonic = 0; tonic < Quantizer::NUM_TONICS; tonic++) {
+	// 			chords.getRootFromMode(mode,root,tonic,&outRoot,&outQ);
+	// 		}
+	// 	}
+	// }
+	
 	
 	stepX++;
 	
@@ -206,49 +244,118 @@ void Progress::step() {
 		lights[GATE_LIGHTS + i].value = gateState[i] ? 1.0 - stepLights[i] : stepLights[i];
 	}
 
+	bool haveRoot = false;
+	bool haveMode = false;
+
 	// index is our current step
 	if (inputs[KEY_INPUT].active) {
-		haveRoot = true;
 		float fRoot = inputs[KEY_INPUT].value;
 		inRoot = q.getKeyFromVolts(fRoot);
-	} else {
-		haveRoot = false;
-		inRoot = params[KEY_PARAM].value;
+		haveRoot = true;
+//		if (debug()) { std::cout << stepX << ": Key " << inRoot << std::endl; }
 	}
+	
 
 	if (inputs[MODE_INPUT].active) {
-		haveMode = true;
 		float fMode = inputs[MODE_INPUT].value;
-		inMode = q.getModeFromVolts(fMode);
-		
-	} else {
-		haveMode = false;
-		inMode = params[MODE_PARAM].value;
+		inMode = q.getModeFromVolts(fMode);	
+		haveMode = true;
+//		if (debug()) { std::cout << stepX << ": Mode " << inMode << std::endl; }
 	}
-
+	
+	 modeMode = haveRoot && haveMode;
+	
 	// Read inputs
 	for (int step = 0; step < 8; step++) {
-		currChrInput[step]  = params[CHORD_PARAM + step].value;;
-		currRootInput[step] = params[ROOT_PARAM + step].value;
+		if (modeMode) {
+			currTonicInput[step]  = params[CHORD_PARAM + step].value;
+			currQualityInput[step] = params[ROOT_PARAM + step].value;
+			if (prevMode != modeMode) {
+				prevChrInput[step]  = -100.0;
+				prevRootInput[step]  = -100.0;
+			}
+		} else {
+			currChrInput[step]  = params[CHORD_PARAM + step].value;
+			currRootInput[step] = params[ROOT_PARAM + step].value;
+			if (prevMode != modeMode) {
+				prevTonicInput[step]  = -100.0;
+				prevQualityInput[step]  = -100.0;
+			}
+		}
 		currInvInput[step]  = params[INV_PARAM + step].value;
 	}
+	
+	prevMode = modeMode;
 	
 	// Check for changes, try to minimize how mauch p
 	for (int step = 0; step < 8; step++) {
 		
 		bool update = false;
 		
-		// If anything has changed, recalculate output for that step
-		if (prevRootInput[step] != currRootInput[step]) {
-			prevRootInput[step] = currRootInput[step];
-			currRoot[step] = round(rescalef(fabs(currRootInput[step]), 0.0, 10.0, 0, Quantizer::NUM_NOTES - 1)); // Param range is 0 to 10, mapped to 0 to 11
-			update = true;
-		}
+		if (modeMode) {			
 		
-		if (prevChrInput[step] != currChrInput[step]) {
-			prevChrInput[step]  = currChrInput[step]; 
-			currChord[step] = round(rescalef(fabs(currChrInput[step]), 0.0, 10.0, 1, 98)); // Param range is 0 to 10		
-			update = true;
+			currTonicInput[step]   = params[ROOT_PARAM + step].value;
+			currQualityInput[step] = params[CHORD_PARAM + step].value;
+							
+			// prevTonicInput[step]   = currTonicInput[step];
+			// prevQualityInput[step] = currQualityInput[step];
+
+			if (prevTonicInput[step] != currTonicInput[step]) {
+				prevTonicInput[step] = currTonicInput[step];
+				update = true;
+			}
+		
+			if (prevQualityInput[step] != currQualityInput[step]) {
+				prevQualityInput[step]  = currQualityInput[step]; 
+				update = true;
+			}
+			
+			if (update) {
+				// Get Tonic (I- VII)
+				currTonic[step] = round(rescalef(fabs(currTonicInput[step]), 0.0, 10.0, 0, Quantizer::NUM_TONICS - 1)); 
+				// Param range is 0 to 10, mapped to 0 to 11
+
+				if (debug()) { std::cout << stepX << " MODE: Mode: " << inMode << " inRoot: " << inRoot << ": Tonic: " << currTonic[step] << std::endl; }
+
+				// From the input root, mode and tonic, we can get the root chord note and quality (Major,Minor,Diminshed)
+				chords.getRootFromMode(inMode,inRoot,currTonic[step],&currRoot[step],&currQuality[step]);
+
+				if (debug()) { std::cout << stepX << " MODE: Root: " << currRoot[step] << " Quality: " << currQuality[step] << std::endl; }
+
+				// So now we have the overall quality, we get quantise and determine the actual chord
+				int finalChord = 0;
+				switch(currQuality[step]) {
+					case Chord::MAJ: 
+						finalChord = round(rescalef(fabs(currQualityInput[step]), 0.0, 10.0, 1, 98)); // Param range is 0 to 10		
+						break;
+					case Chord::MIN: 
+						finalChord = round(rescalef(fabs(currQualityInput[step]), 0.0, 10.0, 1, 98)); // Param range is 0 to 10		
+						break;
+					case Chord::DIM: 
+						finalChord = round(rescalef(fabs(currQualityInput[step]), 0.0, 10.0, 1, 98)); // Param range is 0 to 10		
+						break;		
+				}
+			
+				currChord[step] = chords.getChordFromQuality(currRoot[step],currQuality[step],finalChord);
+			}
+
+//			update = true;
+			
+		} else {
+		
+			// If anything has changed, recalculate output for that step
+			if (prevRootInput[step] != currRootInput[step]) {
+				prevRootInput[step] = currRootInput[step];
+				currRoot[step] = round(rescalef(fabs(currRootInput[step]), 0.0, 10.0, 0, Quantizer::NUM_NOTES - 1)); // Param range is 0 to 10, mapped to 0 to 11
+				update = true;
+			}
+		
+			if (prevChrInput[step] != currChrInput[step]) {
+				prevChrInput[step]  = currChrInput[step]; 
+				currChord[step] = round(rescalef(fabs(currChrInput[step]), 0.0, 10.0, 1, 98)); // Param range is 0 to 10		
+				update = true;
+			}
+
 		}
 		
 		if (prevInvInput[step] != currInvInput[step]) {
@@ -259,19 +366,19 @@ void Progress::step() {
 
 		if (update) {
 			
-			if (debug()) { std::cout << stepX << ":" << index << " Input: Root: " << currRoot[index] << " Chord: " << currChord[index] << " Inversion: "
+			if (debug()) { std::cout << stepX << " UPDATE Step: " << step << " Input: Root: " << currRoot[step] << " Chord: " << currChord[step] << " Inversion: "
 		 		<< currInv[step] << std::endl; }
 		
 			int *chordArray;
 	
 			switch(currInv[step]) {
-				case ROOT:  		chordArray = chords.Chords[currChord[step]].root; 		break;
+				case ROOT:  		chordArray = chords.Chords[currChord[step]].root; 	break;
 				case FIRST_INV:  	chordArray = chords.Chords[currChord[step]].first; 	break;
-				case SECOND_INV:  	chordArray = chords.Chords[currChord[step]].second; 	break;
+				case SECOND_INV:  	chordArray = chords.Chords[currChord[step]].second;	break;
 				default: chordArray = chords.Chords[currChord[step]].root;
 			}
 			
-			if (debug()) { std::cout << stepX  << " Step: " << index << " Output: Chord: "
+			if (debug()) { std::cout << stepX  << " UPDATE Step: " << step << " Output: Chord: "
 					<< q.noteNames[currRoot[step]] << chords.Chords[currChord[step]].quality << " (" << status[currInv[step]] << ") " << std::endl; }
 	 	
 			for (int j = 0; j < NUM_PITCHES; j++) {
@@ -308,7 +415,7 @@ ProgressWidget::ProgressWidget() {
 	Progress *module = new Progress();
 		
 	setModule(module);
-	box.size = Vec(15*22, 380);
+	box.size = Vec(15*34, 380);
 
 	{
 		SVGPanel *panel = new SVGPanel();
@@ -330,21 +437,20 @@ ProgressWidget::ProgressWidget() {
 	addParam(createParam<AHKnob>(Vec(132, 56), module, Progress::STEPS_PARAM, 1.0, 8.0, 8.0));
 	addChild(createLight<MediumLight<GreenLight>>(Vec(179.4, 64.4), module, Progress::GATES_LIGHT));
 
-	static const float portX[8] = {20, 58, 96, 135, 173, 212, 250, 289};
+	static const float portX[13] = {20, 58, 96, 135, 173, 212, 250, 288, 326, 364, 402, 440, 478};
 	addInput(createInput<PJ301MPort>(Vec(portX[0]-1, 98), module, Progress::CLOCK_INPUT));
 	addInput(createInput<PJ301MPort>(Vec(portX[1]-1, 98), module, Progress::EXT_CLOCK_INPUT));
 	addInput(createInput<PJ301MPort>(Vec(portX[2]-1, 98), module, Progress::RESET_INPUT));
 	addInput(createInput<PJ301MPort>(Vec(portX[3]-1, 98), module, Progress::STEPS_INPUT));
-	addOutput(createOutput<PJ301MPort>(Vec(portX[4]-1, 98), module, Progress::GATES_OUTPUT));
-		
-	float xStart = 5.0;
-	float boxWidth = 35.0;
-	float gap = 10.0;
-	float connDelta = 5.0;
-	
+
+	addInput(createInput<PJ301MPort>(Vec(portX[4]-1, 98), module, Progress::KEY_INPUT));
+	addInput(createInput<PJ301MPort>(Vec(portX[5]-1, 98), module, Progress::MODE_INPUT));
+
+
+	addOutput(createOutput<PJ301MPort>(Vec(portX[6]-1, 98), module, Progress::GATES_OUTPUT));
+			
 	for (int i = 0; i < Progress::NUM_PITCHES; i++) {
-		float xPos = xStart + ((float)i * boxWidth + gap);
-		addOutput(createOutput<PJ301MPort>(Vec(xPos + connDelta, 19.0),  module, Progress::PITCH_OUTPUT + i));
+		addOutput(createOutput<PJ301MPort>(Vec(portX[i + 7], 98),  module, Progress::PITCH_OUTPUT + i));
 	}	
 
 	for (int i = 0; i < 8; i++) {
@@ -355,6 +461,9 @@ ProgressWidget::ProgressWidget() {
 		addChild(createLight<MediumLight<GreenLight>>(Vec(portX[i]+6.4, 281.4), module, Progress::GATE_LIGHTS + i));
 		addOutput(createOutput<PJ301MPort>(Vec(portX[i]-1, 307), module, Progress::GATE_OUTPUT + i));
 	}
+	
+	
+	
 }
 
 struct ProgressGateModeItem : MenuItem {

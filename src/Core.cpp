@@ -102,10 +102,10 @@ float Quantizer::getPitchFromVolts(float inVolts, int inRoot, int inScale, int *
 	int *curScaleArr;
 	int notesInScale = 0;
 	switch (currScale){
-		case SCALE_CHROMATIC:			curScaleArr = ASCALE_CHROMATIC;			notesInScale=LENGTHOF(ASCALE_CHROMATIC); break;
+		case SCALE_CHROMATIC:		curScaleArr = ASCALE_CHROMATIC;			notesInScale=LENGTHOF(ASCALE_CHROMATIC); break;
 		case SCALE_IONIAN:			curScaleArr = ASCALE_IONIAN;			notesInScale=LENGTHOF(ASCALE_IONIAN); break;
 		case SCALE_DORIAN:			curScaleArr = ASCALE_DORIAN;			notesInScale=LENGTHOF(ASCALE_DORIAN); break;
-		case SCALE_PHRYGIAN:			curScaleArr = ASCALE_PHRYGIAN;			notesInScale=LENGTHOF(ASCALE_PHRYGIAN); break;
+		case SCALE_PHRYGIAN:		curScaleArr = ASCALE_PHRYGIAN;			notesInScale=LENGTHOF(ASCALE_PHRYGIAN); break;
 		case SCALE_LYDIAN:			curScaleArr = ASCALE_LYDIAN;			notesInScale=LENGTHOF(ASCALE_LYDIAN); break;
 		case SCALE_MIXOLYDIAN:		curScaleArr = ASCALE_MIXOLYDIAN;		notesInScale=LENGTHOF(ASCALE_MIXOLYDIAN); break;
 		case SCALE_AEOLIAN:			curScaleArr = ASCALE_AEOLIAN;			notesInScale=LENGTHOF(ASCALE_AEOLIAN); break;
@@ -113,8 +113,8 @@ float Quantizer::getPitchFromVolts(float inVolts, int inRoot, int inScale, int *
 		case SCALE_MAJOR_PENTA:		curScaleArr = ASCALE_MAJOR_PENTA;		notesInScale=LENGTHOF(ASCALE_MAJOR_PENTA); break;
 		case SCALE_MINOR_PENTA:		curScaleArr = ASCALE_MINOR_PENTA;		notesInScale=LENGTHOF(ASCALE_MINOR_PENTA); break;
 		case SCALE_HARMONIC_MINOR:	curScaleArr = ASCALE_HARMONIC_MINOR;	notesInScale=LENGTHOF(ASCALE_HARMONIC_MINOR); break;
-		case SCALE_BLUES:				curScaleArr = ASCALE_BLUES;				notesInScale=LENGTHOF(ASCALE_BLUES); break;
-		default: 				curScaleArr = ASCALE_CHROMATIC;			notesInScale=LENGTHOF(ASCALE_CHROMATIC);
+		case SCALE_BLUES:			curScaleArr = ASCALE_BLUES;				notesInScale=LENGTHOF(ASCALE_BLUES); break;
+		default: 					curScaleArr = ASCALE_CHROMATIC;			notesInScale=LENGTHOF(ASCALE_CHROMATIC);
 	}
 
 	// get the octave
@@ -214,4 +214,60 @@ void Quantizer::calculateKey(int inKey, float spacing, float xOff, float yOff, f
 			return;
 		}
 	}
+}
+
+
+
+void Chord::getRootFromMode(int inMode, int inRoot, int inTonic, int *currRoot, int *quality) {
+	
+	Quantizer q;
+	
+	*quality = ModeQuality[inMode][inTonic];
+
+	int positionRelativeToStartOfScale = tonicIndex[inMode + inTonic];
+	int positionStartOfScale = scaleIndex[inMode];
+		
+	*currRoot = inRoot + noteIndex[positionStartOfScale + positionRelativeToStartOfScale]; 
+ 	
+ 	if (*currRoot < 0) {
+ 		*currRoot += 12;
+ 	}
+	
+ 	if (*currRoot > 11) {
+ 		*currRoot -= 12;
+ 	}
+ 
+	// std::cout << "Mode: " << inMode
+	// 	<< " Root: " << q.noteNames[inRoot]
+	// 	<< " Tonic: " << q.tonicNames[inTonic]
+	// 	<< " Scale Pos: " << positionStartOfScale
+	// 	<< " Rel Pos: " <<  positionRelativeToStartOfScale
+	// 	<< " Note Index: " << positionStartOfScale + positionRelativeToStartOfScale
+	// 	<< " Note: " << noteIndex[positionStartOfScale + positionRelativeToStartOfScale]
+	// 	<< " Offset: " << ModeOffset[inMode][inTonic]
+	// 	<< " Output: " << *currRoot
+	// 	<< " " << q.noteNames[*currRoot]
+	// 	<< std::endl;
+ }
+
+
+int Chord::getChordFromQuality(int root, int quality, int finalChord) {
+	
+	int chord = 1;
+	
+	switch(quality) {
+		case Chord::MAJ: 
+			chord = 1;
+			break;
+		case Chord::MIN: 
+			chord = 71;
+			break;
+		case Chord::DIM: 
+			chord = 91;
+			break;		
+	}
+
+	return chord;
+
+
 }
