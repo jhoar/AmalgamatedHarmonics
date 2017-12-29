@@ -111,7 +111,8 @@ struct Progress : Module {
 	bool modeMode = false;
 	bool prevModeMode = false;
 	
-	int offset = 24; // Repeated notes in chord and expressed in the chord definition as being transposed 2 octaves lower. When played this offset needs to be removed (or the notes removed, or the notes transposed to an octave higher)
+	int offset = 24; 	// Repeated notes in chord and expressed in the chord definition as being transposed 2 octaves lower. 
+						// When played this offset needs to be removed (or the notes removed, or the notes transposed to an octave higher)
 	
 	int stepX = 0;
 	int poll = 50000;
@@ -271,7 +272,7 @@ void Progress::step() {
 		haveMode = true;
 	}
 	
-	 modeMode = haveRoot && haveMode;
+	modeMode = haveRoot && haveMode;
 	
 	 if (modeMode && ((prevMode != currMode) || (prevKey != currKey))) { // Input changes so force re-read
 	 	for (int step = 0; step < 8; step++) {
@@ -282,8 +283,7 @@ void Progress::step() {
 		prevMode = currMode;
 		prevKey = currKey;
 		
-	 }
-	 
+	}
 	
 	// Read inputs
 	for (int step = 0; step < 8; step++) {
@@ -357,7 +357,7 @@ void Progress::step() {
 			}
 
 		} else {
-
+			
 			// Chord Mode
 			
 			// If anything has changed, recalculate output for that step
@@ -372,7 +372,7 @@ void Progress::step() {
 				currChord[step] = round(rescalef(fabs(currChrInput[step]), 0.0, 10.0, 1, 98)); // Param range is 0 to 10		
 				update = true;
 			}
-
+			
 		}
 		
 		// Inversions remain the same between Chord and Mode mode
@@ -381,7 +381,7 @@ void Progress::step() {
 			currInv[step] = currInvInput[step];
 			update = true;
 		}
-
+		
 		// So, after all that, we calculate the pitch output
 		if (update) {
 			
@@ -434,6 +434,61 @@ void Progress::step() {
 
 }
 
+struct ProgressDisplay : TransparentWidget {
+	
+	Progress *module;
+	int frame = 0;
+	std::shared_ptr<Font> font;
+	Chord chord;
+	Quantizer quant;
+
+	ProgressDisplay() {
+		font = Font::load(assetPlugin(plugin, "res/Roboto-Light.ttf"));
+	}
+
+	void draw(NVGcontext *vg) override {
+	
+		Vec pos = Vec(0, 20);
+
+		nvgFontSize(vg, 16);
+		nvgFontFaceId(vg, font->handle);
+		nvgTextLetterSpacing(vg, -1);
+
+		nvgFillColor(vg, nvgRGBA(212, 175, 55, 0xff));
+		char text[128];
+
+		if (module->modeMode) {
+			
+			// Print current root and mode
+			
+			snprintf(text, sizeof(text), "%s %s", quant.noteNames[module->currKey].c_str(), quant.modeNames[module->currMode].c_str());
+			nvgText(vg, pos.x + 10, pos.y + 5, text, NULL);
+			
+			for (int i = 0; i < 8; i++) {
+				snprintf(text, sizeof(text), "%d: %s %s %s [%s]", i + 1, quant.noteNames[module->currRoot[i]].c_str(), 
+					chord.Chords[module->currChord[i]].quality.c_str(), 
+					chord.inversionNames[module->currInv[i]].c_str(), 
+					quant.degreeNames[module->currTonic[i] * 3 + module->currQuality[i]].c_str()); // FIXME how to get lower case tonic
+					nvgText(vg, pos.x + 10, pos.y + 25 + i * 15, text, NULL);
+				
+			}
+			
+		} else {
+
+			for (int i = 0; i < 8; i++) {
+				snprintf(text, sizeof(text), "%d %s %s %s", i + 1, quant.noteNames[module->currRoot[i]].c_str(), chord.Chords[module->currChord[i]].quality.c_str(), 
+					chord.inversionNames[module->currInv[i]].c_str());
+				nvgText(vg, pos.x + 10, pos.y + 25 + i * 15, text, NULL);
+				
+			}
+			
+		}
+		
+	}
+	
+};
+
+
 ProgressWidget::ProgressWidget() {
 	Progress *module = new Progress();
 		
@@ -451,6 +506,15 @@ ProgressWidget::ProgressWidget() {
 	addChild(createScrew<ScrewSilver>(Vec(box.size.x-30, 0)));
 	addChild(createScrew<ScrewSilver>(Vec(15, 365)));
 	addChild(createScrew<ScrewSilver>(Vec(box.size.x-30, 365)));
+	
+	{
+		ProgressDisplay *display = new ProgressDisplay();
+		display->module = module;
+		display->box.pos = Vec(330, 120);
+		display->box.size = Vec(100, 240);
+		addChild(display);
+	}
+	
 
 	addParam(createParam<AHKnob>(Vec(18, 56), module, Progress::CLOCK_PARAM, -2.0, 6.0, 2.0));
 	addParam(createParam<AHButton>(Vec(60, 61-1), module, Progress::RUN_PARAM, 0.0, 1.0, 0.0));
@@ -469,9 +533,8 @@ ProgressWidget::ProgressWidget() {
 	addInput(createInput<PJ301MPort>(Vec(portX[4]-1, 98), module, Progress::KEY_INPUT));
 	addInput(createInput<PJ301MPort>(Vec(portX[5]-1, 98), module, Progress::MODE_INPUT));
 
-
 	addOutput(createOutput<PJ301MPort>(Vec(portX[6]-1, 98), module, Progress::GATES_OUTPUT));
-			
+	
 	for (int i = 0; i < Progress::NUM_PITCHES; i++) {
 		addOutput(createOutput<PJ301MPort>(Vec(portX[i + 7], 98),  module, Progress::PITCH_OUTPUT + i));
 	}	
@@ -484,8 +547,6 @@ ProgressWidget::ProgressWidget() {
 		addChild(createLight<MediumLight<GreenLight>>(Vec(portX[i]+6.4, 281.4), module, Progress::GATE_LIGHTS + i));
 		addOutput(createOutput<PJ301MPort>(Vec(portX[i]-1, 307), module, Progress::GATE_OUTPUT + i));
 	}
-	
-	
 	
 }
 

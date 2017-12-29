@@ -124,21 +124,28 @@ struct Quantizer {
 		NUM_DEGREES
 	};
 
-	std::string degreeNames[14] {
+	std::string degreeNames[21] {
 		"I",
 		"i",
+		"i°",
 		"II",
 		"ii",
+		"ii°",
 		"III",
 		"iii",
+		"iii°",
 		"IV",
 		"iv",
+		"iv°",
 		"V",
 		"v",
+		"v°",
 		"VI",
 		"vi",
+		"vi°",
 		"VII",
-		"vii"
+		"vii",
+		"vii°"
 	};
 
 	std::string intervalNames[13] {
@@ -364,6 +371,12 @@ struct Chord {
 		{	96	,"augadd#9",{	0	,	4	,	8	,	15	,	-24	,	-20	},{	12	,	4	,	8	,	15	,	-24	,	-20	},{	12	,	16	,	8	,	15	,	-12	,	-20	}},
 		{	97	,"madd4",{	0	,	3	,	5	,	7	,	-24	,	-21	},{	12	,	3	,	5	,	7	,	-24	,	-21	},{	12	,	15	,	5	,	7	,	-12	,	-21	}},
 		{	98	,"madd9",{	0	,	3	,	7	,	14	,	-24	,	-21	},{	12	,	3	,	7	,	14	,	-24	,	-21	},{	12	,	15	,	7	,	14	,	-12	,	-21	}},		
+	};
+	
+	std::string inversionNames[5] {
+		"Root",
+		"1st Inv",
+		"2nd Inv"
 	};
 	
 	enum Quality {
