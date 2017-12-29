@@ -1,6 +1,6 @@
 #include "AH.hpp"
 #include "Core.hpp"
-#include "components.hpp"
+#include "UI.hpp"
 #include "dsp/digital.hpp"
 
 #include <iostream>
@@ -9,44 +9,9 @@
 // - Mode mode: chord namer
 // UI
 
-struct AHButton : SVGSwitch, MomentarySwitch {
-	AHButton() {
-		addFrame(SVG::load(assetPlugin(plugin,"res/ComponentLibrary/AHButton.svg")));
-	}
-};
-
-struct AHKnob : RoundKnob {
-	AHKnob() {
-		snap = true;
-		setSVG(SVG::load(assetPlugin(plugin,"res/ComponentLibrary/AHKnob.svg")));
-	}
-};
-
-struct AHKnobNoSnap : RoundKnob {
-	AHKnobNoSnap() {
-		snap = false;
-		setSVG(SVG::load(assetPlugin(plugin,"res/ComponentLibrary/AHKnob.svg")));
-	}
-};
-
-
 struct Progress : Module {
 
 	const static int NUM_PITCHES = 6;
-	
-	enum Inversion {
-		ROOT,
-		FIRST_INV,
-		SECOND_INV,
-		NUM_INV
-	};
-	
-	std::string status[5] {
-		"Root",
-		"1st Inv",
-		"2nd Inv"
-	};
-	
 	
 	enum ParamIds {
 		CLOCK_PARAM,
@@ -85,9 +50,6 @@ struct Progress : Module {
 	Progress() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
 	void step() override;
 	
-	Quantizer q;
-	Chord chords;
-	
 	bool running = true;
 	SchmittTrigger clockTrigger; // for external clock
 	// For buttons
@@ -96,7 +58,7 @@ struct Progress : Module {
 	SchmittTrigger gateTriggers[8];
 	float phase = 0.0;
 	int index = 0;
-	bool gateState[8] = {};
+	bool gateState[8] = {true,true,true,true,true,true,true,true};
 	float resetLight = 0.0;
 	float stepLights[8] = {};
 
@@ -105,7 +67,7 @@ struct Progress : Module {
 		RETRIGGER,
 		CONTINUOUS,
 	};
-	GateMode gateMode = TRIGGER;
+	GateMode gateMode = CONTINUOUS;
 	PulseGenerator gatePulse;
 		
 	bool modeMode = false;
@@ -122,7 +84,7 @@ struct Progress : Module {
 	float prevRootInput[8] = {-100.0, -100.0, -100.0, -100.0, -100.0, -100.0, -100.0, -100.0};
 	float prevChrInput[8] = {-100.0, -100.0, -100.0, -100.0, -100.0, -100.0, -100.0, -100.0};
 
-	float prevTonicInput[8] = {-100.0, -100.0, -100.0, -100.0, -100.0, -100.0, -100.0, -100.0};
+	float prevDegreeInput[8] = {-100.0, -100.0, -100.0, -100.0, -100.0, -100.0, -100.0, -100.0};
 	float prevQualityInput[8] = {-100.0, -100.0, -100.0, -100.0, -100.0, -100.0, -100.0, -100.0};
 
 	float prevInvInput[8] = {-100.0, -100.0, -100.0, -100.0, -100.0, -100.0, -100.0, -100.0};
@@ -130,7 +92,7 @@ struct Progress : Module {
 	float currRootInput[8];
 	float currChrInput[8];
 
-	float currTonicInput[8];
+	float currDegreeInput[8];
 	float currQualityInput[8];
 
 	float currInvInput[8];
@@ -144,7 +106,7 @@ struct Progress : Module {
 	int currChord[8];
 	int currInv[8];	
 
-	int currTonic[8];
+	int currDegree[8];
 	int currQuality[8];
 	
 	float pitches[8][6];
@@ -178,8 +140,8 @@ void Progress::step() {
 	// std::cout << " TEST " << std::endl;
 	// for (int mode = 0; mode < Quantizer::NUM_MODES; mode++) {
 	// 	for (int root = 0; root < Quantizer::NUM_NOTES; root++) {
-	// 		for (int tonic = 0; tonic < Quantizer::NUM_TONICS; tonic++) {
-	// 			chords.getRootFromMode(mode,root,tonic,&outRoot,&outQ);
+	// 		for (int degree = 0; degree < Quantizer::NUM_TONICS; degree++) {
+	// 			chords.getRootFromMode(mode,root,degree,&outRoot,&outQ);
 	// 		}
 	// 	}
 	// }
@@ -262,13 +224,13 @@ void Progress::step() {
 	// index is our current step
 	if (inputs[KEY_INPUT].active) {
 		float fRoot = inputs[KEY_INPUT].value;
-		currKey = q.getKeyFromVolts(fRoot);
+		currKey = CoreUtil().getKeyFromVolts(fRoot);
 		haveRoot = true;
 	}
 
 	if (inputs[MODE_INPUT].active) {
 		float fMode = inputs[MODE_INPUT].value;
-		currMode = q.getModeFromVolts(fMode);	
+		currMode = CoreUtil().getModeFromVolts(fMode);	
 		haveMode = true;
 	}
 	
@@ -276,7 +238,7 @@ void Progress::step() {
 	
 	 if (modeMode && ((prevMode != currMode) || (prevKey != currKey))) { // Input changes so force re-read
 	 	for (int step = 0; step < 8; step++) {
-			prevTonicInput[step]    = -100.0;
+			prevDegreeInput[step]    = -100.0;
 			prevQualityInput[step]  = -100.0;
 		}
 		
@@ -288,7 +250,7 @@ void Progress::step() {
 	// Read inputs
 	for (int step = 0; step < 8; step++) {
 		if (modeMode) {
-			currTonicInput[step]  = params[CHORD_PARAM + step].value;
+			currDegreeInput[step]  = params[CHORD_PARAM + step].value;
 			currQualityInput[step] = params[ROOT_PARAM + step].value;
 			if (prevModeMode != modeMode) { // Switching mode, so reset history to ensure re-read on return
 				prevChrInput[step]  = -100.0;
@@ -298,7 +260,7 @@ void Progress::step() {
 			currChrInput[step]  = params[CHORD_PARAM + step].value;
 			currRootInput[step] = params[ROOT_PARAM + step].value;
 			if (prevModeMode != modeMode) { // Switching mode, so reset history to ensure re-read on return
-				prevTonicInput[step]  = -100.0;
+				prevDegreeInput[step]  = -100.0;
 				prevQualityInput[step]  = -100.0;
 			}
 		}
@@ -315,11 +277,11 @@ void Progress::step() {
 		
 		if (modeMode) {			
 		
-			currTonicInput[step]   = params[ROOT_PARAM + step].value;
+			currDegreeInput[step]   = params[ROOT_PARAM + step].value;
 			currQualityInput[step] = params[CHORD_PARAM + step].value;
 							
-			if (prevTonicInput[step] != currTonicInput[step]) {
-				prevTonicInput[step] = currTonicInput[step];
+			if (prevDegreeInput[step] != currDegreeInput[step]) {
+				prevDegreeInput[step] = currDegreeInput[step];
 				update = true;
 			}
 		
@@ -330,26 +292,30 @@ void Progress::step() {
 			
 			if (update) {
 				
-				// Get Tonic (I- VII)
-				currTonic[step] = round(rescalef(fabs(currTonicInput[step]), 0.0, 10.0, 0, Quantizer::NUM_TONICS - 1)); 
+				// Get Degree (I- VII)
+				currDegree[step] = round(rescalef(fabs(currDegreeInput[step]), 0.0, 10.0, 0, Core::NUM_DEGREES - 1)); 
 
-				if (debug()) { std::cout << stepX << " MODE: Mode: " << currMode << " (" <<  q.modeNames[currMode] 
-					<< ") currKey: " << currKey << " (" <<  q.noteNames[currKey] << ") Tonic: " << currTonic[step] << " (" << q.tonicNames[currTonic[step]] << ")" << std::endl; }
+				if (debug()) { std::cout << stepX << 
+					" MODE: Mode: " << currMode << " (" << CoreUtil().modeNames[currMode] << 
+					") currKey: " << currKey << " (" <<  CoreUtil().noteNames[currKey] << 
+					") Degree: " << currDegree[step] << " (" << CoreUtil().degreeNames[currDegree[step]] << ")" << std::endl; }
 
-				// From the input root, mode and tonic, we can get the root chord note and quality (Major,Minor,Diminshed)
-				chords.getRootFromMode(currMode,currKey,currTonic[step],&currRoot[step],&currQuality[step]);
+				// From the input root, mode and degree, we can get the root chord note and quality (Major,Minor,Diminshed)
+				CoreUtil().getRootFromMode(currMode,currKey,currDegree[step],&currRoot[step],&currQuality[step]);
 
-				if (debug()) { std::cout << stepX << " MODE: Root: " << q.noteNames[currRoot[step]] << " Quality: " << chords.qualityNames[currQuality[step]] << std::endl; }
+				if (debug()) { std::cout << stepX << 
+					" MODE: Root: " << CoreUtil().noteNames[currRoot[step]] << 
+					" Quality: " << CoreUtil().qualityNames[currQuality[step]] << std::endl; }
 
 				// Now get the actual chord from the main list
 				switch(currQuality[step]) {
-					case Chord::MAJ: 
+					case Core::MAJ: 
 						currChord[step] = round(rescalef(fabs(currQualityInput[step]), 0.0, 10.0, 1, 70)); 
 						break;
-					case Chord::MIN: 
+					case Core::MIN: 
 						currChord[step] = round(rescalef(fabs(currQualityInput[step]), 0.0, 10.0, 71, 90));
 						break;
-					case Chord::DIM: 
+					case Core::DIM: 
 						currChord[step] = round(rescalef(fabs(currQualityInput[step]), 0.0, 10.0, 91, 98));
 						break;		
 				}
@@ -363,7 +329,7 @@ void Progress::step() {
 			// If anything has changed, recalculate output for that step
 			if (prevRootInput[step] != currRootInput[step]) {
 				prevRootInput[step] = currRootInput[step];
-				currRoot[step] = round(rescalef(fabs(currRootInput[step]), 0.0, 10.0, 0, Quantizer::NUM_NOTES - 1)); // Param range is 0 to 10, mapped to 0 to 11
+				currRoot[step] = round(rescalef(fabs(currRootInput[step]), 0.0, 10.0, 0, Core::NUM_NOTES - 1)); // Param range is 0 to 10, mapped to 0 to 11
 				update = true;
 			}
 		
@@ -385,21 +351,22 @@ void Progress::step() {
 		// So, after all that, we calculate the pitch output
 		if (update) {
 			
-			if (debug()) { std::cout << stepX << " UPDATE Step: " << step << " Input: Root: " << currRoot[step] << " Chord: " << currChord[step] << " Inversion: "
-		 		<< currInv[step] << std::endl; }
+			if (debug()) { std::cout << stepX << " UPDATE Step: " << step << 
+				" Input: Root: " << currRoot[step] << 
+				" Chord: " << currChord[step] << " Inversion: " << currInv[step] << std::endl; }
 		
 			int *chordArray;
 	
 			// Get the array of pitches based on the inversion
 			switch(currInv[step]) {
-				case ROOT:  		chordArray = chords.Chords[currChord[step]].root; 	break;
-				case FIRST_INV:  	chordArray = chords.Chords[currChord[step]].first; 	break;
-				case SECOND_INV:  	chordArray = chords.Chords[currChord[step]].second;	break;
-				default: chordArray = chords.Chords[currChord[step]].root;
+				case Core::ROOT:  		chordArray = CoreUtil().ChordTable[currChord[step]].root; 	break;
+				case Core::FIRST_INV:  	chordArray = CoreUtil().ChordTable[currChord[step]].first; 	break;
+				case Core::SECOND_INV:  chordArray = CoreUtil().ChordTable[currChord[step]].second;	break;
+				default: chordArray = CoreUtil().ChordTable[currChord[step]].root;
 			}
 			
-			if (debug()) { std::cout << stepX  << " UPDATE Step: " << step << " Output: Chord: "
-					<< q.noteNames[currRoot[step]] << chords.Chords[currChord[step]].quality << " (" << status[currInv[step]] << ") " << std::endl; }
+			if (debug()) { std::cout << stepX  << " UPDATE Step: " << step << 
+				" Output: Chord: " << CoreUtil().noteNames[currRoot[step]] << CoreUtil().ChordTable[currChord[step]].quality << " (" << CoreUtil().inversionNames[currInv[step]] << ") " << std::endl; }
 	 	
 			for (int j = 0; j < NUM_PITCHES; j++) {
 	
@@ -408,9 +375,9 @@ void Progress::step() {
 				// offset. We correct for that offset now, pitching thaem back into the original octave.
 				// They could be pitched into the octave above (or below)
 				if (chordArray[j] < 0) {
-					pitches[step][j] = q.getVoltsFromPitch(chordArray[j] + offset,currRoot[step]);			
+					pitches[step][j] = CoreUtil().getVoltsFromPitch(chordArray[j] + offset,currRoot[step]);			
 				} else {
-					pitches[step][j] = q.getVoltsFromPitch(chordArray[j],currRoot[step]);			
+					pitches[step][j] = CoreUtil().getVoltsFromPitch(chordArray[j],currRoot[step]);			
 				}	
 			}
 		}	
@@ -439,9 +406,7 @@ struct ProgressDisplay : TransparentWidget {
 	Progress *module;
 	int frame = 0;
 	std::shared_ptr<Font> font;
-	Chord chord;
-	Quantizer quant;
-
+	
 	ProgressDisplay() {
 		font = Font::load(assetPlugin(plugin, "res/Roboto-Light.ttf"));
 	}
@@ -461,14 +426,15 @@ struct ProgressDisplay : TransparentWidget {
 			
 			// Print current root and mode
 			
-			snprintf(text, sizeof(text), "%s %s", quant.noteNames[module->currKey].c_str(), quant.modeNames[module->currMode].c_str());
+			snprintf(text, sizeof(text), "%s %s", CoreUtil().noteNames[module->currKey].c_str(), CoreUtil().modeNames[module->currMode].c_str());
 			nvgText(vg, pos.x + 10, pos.y + 5, text, NULL);
 			
 			for (int i = 0; i < 8; i++) {
-				snprintf(text, sizeof(text), "%d: %s %s %s [%s]", i + 1, quant.noteNames[module->currRoot[i]].c_str(), 
-					chord.Chords[module->currChord[i]].quality.c_str(), 
-					chord.inversionNames[module->currInv[i]].c_str(), 
-					quant.degreeNames[module->currTonic[i] * 3 + module->currQuality[i]].c_str()); // FIXME how to get lower case tonic
+				snprintf(text, sizeof(text), "%d: %s %s %s [%s]", i + 1, 
+					CoreUtil().noteNames[module->currRoot[i]].c_str(), 
+					CoreUtil().ChordTable[module->currChord[i]].quality.c_str(), 
+					CoreUtil().inversionNames[module->currInv[i]].c_str(), 
+					CoreUtil().degreeNames[module->currDegree[i] * 3 + module->currQuality[i]].c_str()); // FIXME how to get lower case degree
 					nvgText(vg, pos.x + 10, pos.y + 25 + i * 15, text, NULL);
 				
 			}
@@ -476,8 +442,10 @@ struct ProgressDisplay : TransparentWidget {
 		} else {
 
 			for (int i = 0; i < 8; i++) {
-				snprintf(text, sizeof(text), "%d %s %s %s", i + 1, quant.noteNames[module->currRoot[i]].c_str(), chord.Chords[module->currChord[i]].quality.c_str(), 
-					chord.inversionNames[module->currInv[i]].c_str());
+				snprintf(text, sizeof(text), "%d %s %s %s", i + 1, 
+					CoreUtil().noteNames[module->currRoot[i]].c_str(), 
+					CoreUtil().ChordTable[module->currChord[i]].quality.c_str(), 
+					CoreUtil().inversionNames[module->currInv[i]].c_str());
 				nvgText(vg, pos.x + 10, pos.y + 25 + i * 15, text, NULL);
 				
 			}

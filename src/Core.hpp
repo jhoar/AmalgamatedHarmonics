@@ -4,7 +4,18 @@
 
 #include <iostream>
 
-struct Quantizer {
+
+struct ChordDef {
+	int number;
+	std::string quality;
+	int	root[6];
+	int	first[6];
+	int	second[6];
+};
+
+struct Core {
+
+ 	static constexpr float SEMITONE = 1.0 / 12.0;
 
 	// Reference, midi note to scale
 	// 0	1
@@ -113,41 +124,6 @@ struct Quantizer {
 		"Blues"
 	};
 
-	enum Degrees {
-		DEGREE_I,
-		DEGREE_II,
-		DEGREE_III,
-		DEGREE_IV,
-		DEGREE_V,
-		DEGREE_VI,
-		DEGREE_VII,
-		NUM_DEGREES
-	};
-
-	std::string degreeNames[21] {
-		"I",
-		"i",
-		"i°",
-		"II",
-		"ii",
-		"ii°",
-		"III",
-		"iii",
-		"iii°",
-		"IV",
-		"iv",
-		"iv°",
-		"V",
-		"v",
-		"v°",
-		"VI",
-		"vi",
-		"vi°",
-		"VII",
-		"vii",
-		"vii°"
-	};
-
 	std::string intervalNames[13] {
 		"1",
 		"b2",
@@ -185,36 +161,72 @@ struct Quantizer {
 		"Locrian"
 	};
 
-	enum Tonics {
- 		TONIC_I = 0,
-		TONIC_II,
-		TONIC_III,
-		TONIC_IV,
-		TONIC_V,
-		TONIC_VI,
-		TONIC_VII,
-		NUM_TONICS
+	enum DEGREES {
+ 		DEGREE_I = 0,
+		DEGREE_II,
+		DEGREE_III,
+		DEGREE_IV,
+		DEGREE_V,
+		DEGREE_VI,
+		DEGREE_VII,
+		NUM_DEGREES
 	};		
 	
-	std::string tonicNames[7] {
+	std::string degreeNames[21] { // Degree * 3 + Quality
 		"I",
+		"i",
+		"i°",
 		"II",
+		"ii",
+		"ii°",
 		"III",
+		"iii",
+		"iii°",
 		"IV",
+		"iv",
+		"iv°",
 		"V",
+		"v",
+		"v°",
 		"VI",
-		"VII"
+		"vi",
+		"vi°",
+		"VII",
+		"vii",
+		"vii°"
 	};
+		
+	enum Inversion {
+		ROOT,
+		FIRST_INV,
+		SECOND_INV,
+		NUM_INV
+	};
+	
+	std::string inversionNames[5] {
+		"Root",
+		"1st Inv",
+		"2nd Inv"
+	};
+	
+	enum Quality {
+		MAJ = 0,
+		MIN,
+		DIM,
+		NUM_QUALITY
+	};
+
+	std::string qualityNames[3] {
+		"Maj",
+		"Min",
+		"Dim"
+	};
+		
 		
 	bool debug = false;
 	int poll = 5000;
 	int stepX = 0;
 	
-	/* From the numerical key on a keyboard (0 = C, 11 = B), spacing in px between white keys and a starting x and Y coordinate for the C key (in px)
-	* calculate the actual X and Y coordinate for a key, and the scale note to which that key belongs (see Midi note mapping)
-	* http://www.grantmuller.com/MidiReference/doc/midiReference/ScaleReference.html */
-	void calculateKey(int inKey, float spacing, float xOff, float yOff, float *x, float *y, int *scale); 
-
 	/*
 	* Convert a V/OCT voltage to a quantized pitch, key and scale, and calculate various information about the quantised note.
 	*/
@@ -227,51 +239,40 @@ struct Quantizer {
  	 * Convert a root note (relative to C, C=0) and positive semi-tone offset from that root to a voltage (1V/OCT, 0V = C4 (or 3??))
 	 */
 	float getVoltsFromPitch(int inNote, int inRoot){	
-		float semiTone = 1.0 / 12.0;
-		return (inRoot + inNote) * semiTone;
+		return (inRoot + inNote) * SEMITONE;
 	}
 	
 	float getVoltsFromScale(int scale) {
-		return rescalef(scale, 0, Quantizer::NUM_SCALES - 1, 0.0, 10.0);
+		return rescalef(scale, 0, NUM_SCALES - 1, 0.0, 10.0);
 	}
 	
 	int getScaleFromVolts(float volts) {
-		return round(rescalef(fabs(volts), 0.0, 10.0, 0, Quantizer::NUM_SCALES - 1));
+		return round(rescalef(fabs(volts), 0.0, 10.0, 0, NUM_SCALES - 1));
 	}
 	
 	int getModeFromVolts(float volts) {
-		int mode = round(rescalef(fabs(volts), 0.0, 10.0, 0, Quantizer::NUM_SCALES - 1));
+		int mode = round(rescalef(fabs(volts), 0.0, 10.0, 0, NUM_SCALES - 1));
 		return clampi(mode - 1, 0, 6);
 	}
 	
 	float getVoltsFromMode(int mode) {
 		// Mode 0 = IONIAN, MODE 6 = LOCRIAN -> Scale 1 - 7
-		return rescalef(mode + 1, 0, Quantizer::NUM_SCALES - 1, 0.0, 10.0);
+		return rescalef(mode + 1, 0, NUM_SCALES - 1, 0.0, 10.0);
 	}
 	
 	float getVoltsFromKey(int key) {
-		return rescalef(key, 0, Quantizer::NUM_NOTES - 1, 0.0, 10.0);
+		return rescalef(key, 0, NUM_NOTES - 1, 0.0, 10.0);
 	}
 	
 	int getKeyFromVolts(float volts) {
-		return round(rescalef(fabs(volts), 0.0, 10.0, 0, Quantizer::NUM_NOTES - 1));
+		return round(rescalef(fabs(volts), 0.0, 10.0, 0, NUM_NOTES - 1));
 	}
 	
-};
-
-struct ChordDef {
-	int number;
-	std::string quality;
-	int	root[6];
-	int	first[6];
-	int	second[6];
-};
-
-struct Chord {
-
+	void getRootFromMode(int inMode, int inRoot, int inTonic, int *currRoot, int *quality);
+	
 	const static int NUM_CHORDS = 99;
 
-	ChordDef Chords[NUM_CHORDS] {
+	ChordDef ChordTable[NUM_CHORDS] {
 		{	0	,"None",{	-24	,	-24	,	-24	,	-24	,	-24	,	-24	},{	-24	,	-24	,	-24	,	-24	,	-24	,	-24	},{	-24	,	-24	,	-24	,	-24	,	-24	,	-24	}},
 		{	1	,"M",{	0	,	4	,	7	,	-24	,	-20	,	-17	},{	12	,	4	,	7	,	-12	,	-20	,	-17	},{	12	,	16	,	7	,	-12	,	-8	,	-17	}},
 		{	2	,"M#5",{	0	,	4	,	8	,	-24	,	-20	,	-16	},{	12	,	4	,	8	,	-12	,	-20	,	-16	},{	12	,	16	,	8	,	-12	,	-8	,	-16	}},
@@ -372,26 +373,7 @@ struct Chord {
 		{	97	,"madd4",{	0	,	3	,	5	,	7	,	-24	,	-21	},{	12	,	3	,	5	,	7	,	-24	,	-21	},{	12	,	15	,	5	,	7	,	-12	,	-21	}},
 		{	98	,"madd9",{	0	,	3	,	7	,	14	,	-24	,	-21	},{	12	,	3	,	7	,	14	,	-24	,	-21	},{	12	,	15	,	7	,	14	,	-12	,	-21	}},		
 	};
-	
-	std::string inversionNames[5] {
-		"Root",
-		"1st Inv",
-		"2nd Inv"
-	};
-	
-	enum Quality {
-		MAJ = 0,
-		MIN,
-		DIM,
-		NUM_QUALITY
-	};
-
-	std::string qualityNames[3] {
-		"Maj",
-		"Min",
-		"Dim"
-	};
-	
+		
 	int ModeQuality[7][7] {
 		{MAJ,MIN,MIN,MAJ,MAJ,MIN,DIM}, // Ionian
 		{MIN,MIN,MAJ,MAJ,MIN,DIM,MAJ}, // Dorian
@@ -429,20 +411,21 @@ struct Chord {
 	int tonicIndex[13] {1, 3, 5, 0, 2, 4, 6, 1, 3, 5, 0, 2, 4};
 	int scaleIndex[7] {5, 3, 1, 6, 4, 2, 0};
 	int noteIndex[13] { 
-		Quantizer::NOTE_G_FLAT,
-		Quantizer::NOTE_D_FLAT,
-		Quantizer::NOTE_A_FLAT,
-		Quantizer::NOTE_E_FLAT,
-		Quantizer::NOTE_B_FLAT,
-		Quantizer::NOTE_F,
-		Quantizer::NOTE_C,
-		Quantizer::NOTE_G,
-		Quantizer::NOTE_D,
-		Quantizer::NOTE_A,
-		Quantizer::NOTE_E,		
-		Quantizer::NOTE_B,
-		Quantizer::NOTE_G_FLAT};	
+		NOTE_G_FLAT,
+		NOTE_D_FLAT,
+		NOTE_A_FLAT,
+		NOTE_E_FLAT,
+		NOTE_B_FLAT,
+		NOTE_F,
+		NOTE_C,
+		NOTE_G,
+		NOTE_D,
+		NOTE_A,
+		NOTE_E,		
+		NOTE_B,
+		NOTE_G_FLAT};	
 			
-	void getRootFromMode(int inMode, int inRoot, int inTonic, int *currRoot, int *quality);
 		
 };
+
+Core & CoreUtil();

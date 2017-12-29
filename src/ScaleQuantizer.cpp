@@ -1,5 +1,6 @@
 #include "AH.hpp"
 #include "Core.hpp"
+#include "UI.hpp"
 
 #include <iostream>
 
@@ -30,9 +31,7 @@ struct ScaleQuantizer : Module {
 
 	ScaleQuantizer() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
 	void step() override;
-	void setQuantizer(Quantizer &quant);
-	
-	Quantizer q;
+
 	bool firstStep = true;
 	int lastScale = 0;
 	int lastRoot = 0;
@@ -46,10 +45,6 @@ struct ScaleQuantizer : Module {
 
 };
 
-void ScaleQuantizer::setQuantizer(Quantizer &quantizer) {
-	q = quantizer;
-}
-
 void ScaleQuantizer::step() {
 	
 	lastScale = currScale;
@@ -62,19 +57,19 @@ void ScaleQuantizer::step() {
 	float scale = inputs[SCALE_INPUT].value;
 
 	// Calculate output pitch from raw voltage
-	currPitch = q.getPitchFromVolts(volts, root, scale, &currRoot, &currScale, &currNote, &currDegree);
+	currPitch = CoreUtil().getPitchFromVolts(volts, root, scale, &currRoot, &currScale, &currNote, &currDegree);
 
 	// Set the value
 	outputs[OUT_OUTPUT].value = currPitch;
 
 	// update tone lights
-	for (int i = 0; i < Quantizer::NUM_NOTES; i++) {
+	for (int i = 0; i < Core::NUM_NOTES; i++) {
 		lights[NOTE_LIGHT + i].value = 0.0;
 	}
 	lights[NOTE_LIGHT + currNote].value = 1.0;
 
 	// update degree lights
-	for (int i = 0; i < Quantizer::NUM_NOTES; i++) {
+	for (int i = 0; i < Core::NUM_NOTES; i++) {
 		lights[DEGREE_LIGHT + i].value = 0.0;
 		outputs[GATE_OUTPUT + i].value = 0.0;
 	}
@@ -82,14 +77,14 @@ void ScaleQuantizer::step() {
 	outputs[GATE_OUTPUT + currDegree].value = 10.0;
 
 	if (lastScale != currScale || firstStep) {
-		for (int i = 0; i < Quantizer::NUM_NOTES; i++) {
+		for (int i = 0; i < Core::NUM_NOTES; i++) {
 			lights[SCALE_LIGHT + i].value = 0.0;
 		}
 		lights[SCALE_LIGHT + currScale].value = 1.0;
 	} 
 
 	if (lastRoot != currRoot || firstStep) {
-		for (int i = 0; i < Quantizer::NUM_NOTES; i++) {
+		for (int i = 0; i < Core::NUM_NOTES; i++) {
 			lights[KEY_LIGHT + i].value = 0.0;
 		}
 		lights[KEY_LIGHT + currRoot].value = 1.0;
@@ -108,8 +103,7 @@ void ScaleQuantizer::step() {
 ScaleQuantizerWidget::ScaleQuantizerWidget() {
 	ScaleQuantizer *module = new ScaleQuantizer();
 	
-	Quantizer quant = Quantizer();
-	module->setQuantizer(quant);
+	UI ui;
 	
 	setModule(module);
 	box.size = Vec(240, 380);
@@ -126,11 +120,11 @@ ScaleQuantizerWidget::ScaleQuantizerWidget() {
 	addChild(createScrew<ScrewSilver>(Vec(15, 365)));
 	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
-	addInput(createInput<PJ301MPort>(Vec(11.5, 329), module, ScaleQuantizer::IN_INPUT));
-	addInput(createInput<PJ301MPort>(Vec(59.5, 329), module, ScaleQuantizer::KEY_INPUT));
-	addInput(createInput<PJ301MPort>(Vec(107.5, 329), module, ScaleQuantizer::SCALE_INPUT));
-	addOutput(createOutput<PJ301MPort>(Vec(155.5, 329), module, ScaleQuantizer::TRIG_OUTPUT));
-	addOutput(createOutput<PJ301MPort>(Vec(203.5, 329), module, ScaleQuantizer::OUT_OUTPUT));
+	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 5), module, ScaleQuantizer::IN_INPUT));
+	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 1, 5), module, ScaleQuantizer::KEY_INPUT));
+	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 2, 5), module, ScaleQuantizer::SCALE_INPUT));
+	addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 3, 5), module, ScaleQuantizer::TRIG_OUTPUT));
+	addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 4, 5), module, ScaleQuantizer::OUT_OUTPUT));
 
 	float xOffset = 18.0;
 	float xSpace = 21.0;
@@ -141,16 +135,16 @@ ScaleQuantizerWidget::ScaleQuantizerWidget() {
 	for (int i = 0; i < 12; i++) {
 		addChild(createLight<SmallLight<GreenLight>>(Vec(xOffset + i * 18.0, 280.0), module, ScaleQuantizer::SCALE_LIGHT + i));
 
-		quant.calculateKey(i, xSpace, xOffset, 230.0, &xPos, &yPos, &scale);
+		ui.calculateKeyboard(i, xSpace, xOffset, 230.0, &xPos, &yPos, &scale);
 		addChild(createLight<SmallLight<GreenLight>>(Vec(xPos, yPos), module, ScaleQuantizer::KEY_LIGHT + scale));
 
-		quant.calculateKey(i, xSpace, xOffset + 72.0, 165.0, &xPos, &yPos, &scale);
+		ui.calculateKeyboard(i, xSpace, xOffset + 72.0, 165.0, &xPos, &yPos, &scale);
 		addChild(createLight<SmallLight<GreenLight>>(Vec(xPos, yPos), module, ScaleQuantizer::NOTE_LIGHT + scale));
 
-		quant.calculateKey(i, 30.0, xOffset + 9.5, 110.0, &xPos, &yPos, &scale);
+		ui.calculateKeyboard(i, 30.0, xOffset + 9.5, 110.0, &xPos, &yPos, &scale);
 		addChild(createLight<SmallLight<GreenLight>>(Vec(xPos, yPos), module, ScaleQuantizer::DEGREE_LIGHT + scale));
 
-		quant.calculateKey(i, 30.0, xOffset, 85.0, &xPos, &yPos, &scale);
+		ui.calculateKeyboard(i, 30.0, xOffset, 85.0, &xPos, &yPos, &scale);
 
 		addOutput(createOutput<PJ301MPort>(Vec(xPos, yPos), module, ScaleQuantizer::GATE_OUTPUT + scale));
 	}

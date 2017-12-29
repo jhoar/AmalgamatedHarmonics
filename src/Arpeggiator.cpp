@@ -1,22 +1,10 @@
 #include "AH.hpp"
 #include "Core.hpp"
+#include "UI.hpp"
 #include "components.hpp"
 #include "dsp/digital.hpp"
 
 #include <iostream>
-
-struct AHButton : SVGSwitch, MomentarySwitch {
-	AHButton() {
-		addFrame(SVG::load(assetPlugin(plugin,"res/ComponentLibrary/AHButton.svg")));
-	}
-};
-
-struct AHKnob : RoundKnob {
-	AHKnob() {
-		snap = true;
-		setSVG(SVG::load(assetPlugin(plugin,"res/ComponentLibrary/AHKnob.svg")));
-	}
-};
 
 struct Arpeggiator : Module {
 
@@ -498,6 +486,8 @@ struct ArpeggiatorDisplay : TransparentWidget {
 ArpeggiatorWidget::ArpeggiatorWidget() {
 	Arpeggiator *module = new Arpeggiator();
 	
+	UI ui;
+	
 	setModule(module);
 	box.size = Vec(240, 380);
 
@@ -521,34 +511,29 @@ ArpeggiatorWidget::ArpeggiatorWidget() {
 		addChild(display);
 	}
 
-	float xStart = 5.0;
-	float boxWidth = 35.0;
-	float gap = 10.0;
-	float connDelta = 5.0;
-
-	addOutput(createOutput<PJ301MPort>(Vec(6.5 + connDelta, 49.0),  module, Arpeggiator::OUT_OUTPUT));
-	addOutput(createOutput<PJ301MPort>(Vec(54.5 + connDelta, 49.0),  module, Arpeggiator::GATE_OUTPUT));
-	addParam(createParam<AHButton>(Vec(110.5, 52.0), module, Arpeggiator::LOCK_PARAM, 0.0, 1.0, 0.0));
-	addChild(createLight<MediumLight<GreenLight>>(Vec(114.9, 56.4), module, Arpeggiator::LOCK_LIGHT));
-	addOutput(createOutput<PJ301MPort>(Vec(150.5 + connDelta, 49.0), module, Arpeggiator::EOC_OUTPUT));
-	addOutput(createOutput<PJ301MPort>(Vec(198.5 + connDelta, 49.0), module, Arpeggiator::EOS_OUTPUT));
+	addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 0),  module, Arpeggiator::OUT_OUTPUT));
+	addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 1, 0),  module, Arpeggiator::GATE_OUTPUT));
+	addParam(createParam<AHButton>(ui.getPosition(UI::BUTTON, 2, 0), module, Arpeggiator::LOCK_PARAM, 0.0, 1.0, 0.0));
+	addChild(createLight<MediumLight<GreenLight>>(ui.getPosition(UI::LIGHT, 2, 0), module, Arpeggiator::LOCK_LIGHT));
+	addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 3, 0), module, Arpeggiator::EOC_OUTPUT));
+	addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 4, 0), module, Arpeggiator::EOS_OUTPUT));
+		
 	addParam(createParam<BefacoPush>(Vec(127, 155), module, Arpeggiator::TRIGGER_PARAM, 0.0, 1.0, 0.0));
 	
 		
 	for (int i = 0; i < Arpeggiator::NUM_PITCHES; i++) {
-		float xPos = xStart + ((float)i * boxWidth + gap);
-		addInput(createInput<PJ301MPort>(Vec(xPos + connDelta, 329),  module, Arpeggiator::PITCH_INPUT + i));
+		addInput(createInput<PJ301MPort>(ui.getPositionDense(UI::PORT, i, 5),  module, Arpeggiator::PITCH_INPUT + i));
 	}
 	
-	addInput(createInput<PJ301MPort>(Vec(20.0, 269), module, Arpeggiator::STEP_INPUT));
-    addParam(createParam<AHKnob>(Vec(55.0, 269), module, Arpeggiator::STEP_PARAM, 0.0, 16.0, 0.0)); 
-	addInput(createInput<PJ301MPort>(Vec(90.0, 269), module, Arpeggiator::DIST_INPUT));
-    addParam(createParam<AHKnob>(Vec(125.0, 269), module, Arpeggiator::DIST_PARAM, 0.0, 12.0, 0.0));
-	addInput(createInput<PJ301MPort>(Vec(160.0, 269), module, Arpeggiator::TRIG_INPUT));
-	addInput(createInput<PJ301MPort>(Vec(195.0, 269), module, Arpeggiator::CLOCK_INPUT));
+	addInput(createInput<PJ301MPort>(ui.getPositionDense(UI::PORT, 0, 4), module, Arpeggiator::STEP_INPUT));
+    addParam(createParam<AHKnob>(ui.getPositionDense(UI::KNOB, 1, 4), module, Arpeggiator::STEP_PARAM, 0.0, 16.0, 0.0)); 
+	addInput(createInput<PJ301MPort>(ui.getPositionDense(UI::PORT, 2, 4), module, Arpeggiator::DIST_INPUT));
+    addParam(createParam<AHKnob>(ui.getPositionDense(UI::KNOB, 3, 4), module, Arpeggiator::DIST_PARAM, 0.0, 12.0, 0.0));
+	addInput(createInput<PJ301MPort>(ui.getPositionDense(UI::PORT, 4, 4), module, Arpeggiator::TRIG_INPUT));
+	addInput(createInput<PJ301MPort>(ui.getPositionDense(UI::PORT, 5, 4), module, Arpeggiator::CLOCK_INPUT));
 	
 	addParam(createParam<BefacoSwitch>(Vec(178.5, 112.0), module, Arpeggiator::SDIR_PARAM, 0, 2, 0));
-	addParam(createParam<BefacoSwitch>(Vec(178.5, 197.0), module, Arpeggiator::PDIR_PARAM, 0, 2, 0));
+	addParam(createParam<BefacoSwitch>(Vec(178.5, 187.0), module, Arpeggiator::PDIR_PARAM, 0, 2, 0));
 
 }
 

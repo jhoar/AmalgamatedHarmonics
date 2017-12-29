@@ -1,22 +1,9 @@
 #include "AH.hpp"
 #include "Core.hpp"
-#include "components.hpp"
+#include "UI.hpp"
 #include "dsp/digital.hpp"
 
 #include <iostream>
-
-struct AHButton : SVGSwitch, MomentarySwitch {
-	AHButton() {
-		addFrame(SVG::load(assetPlugin(plugin,"res/ComponentLibrary/AHButton.svg")));
-	}
-};
-
-struct AHKnob : RoundKnob {
-	AHKnob() {
-		snap = true;
-		setSVG(SVG::load(assetPlugin(plugin,"res/ComponentLibrary/AHKnob.svg")));
-	}
-};
 
 struct Circle : Module {
 
@@ -49,10 +36,6 @@ struct Circle : Module {
 	Circle() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
 	void step() override;
 	
-	void setQuantizer(Quantizer &quant);	
-	Quantizer q;
-	Chord chords;
-	
 	SchmittTrigger rotLTrigger;
 	SchmittTrigger rotRTrigger;
 	
@@ -77,10 +60,6 @@ struct Circle : Module {
 	
 };
 
-void Circle::setQuantizer(Quantizer &quantizer) { 
-	q = quantizer;
-}
-
 void Circle::step() {
 	
 	stepX++;
@@ -92,7 +71,7 @@ void Circle::step() {
 	int newKeyIndex = 0;
 	if (inputs[KEY_INPUT].active) {
 		float fRoot = inputs[KEY_INPUT].value;
-		newKeyIndex = q.getKeyFromVolts(fRoot);
+		newKeyIndex = CoreUtil().getKeyFromVolts(fRoot);
 	} else {
 		newKeyIndex = params[KEY_PARAM].value;
 	}
@@ -105,7 +84,6 @@ void Circle::step() {
 		newMode = params[MODE_PARAM].value;
 	}
 
-	// FIXME FOr now a direct mapping
 	curMode = newMode;
 		
 	// Process inputs
@@ -145,15 +123,15 @@ void Circle::step() {
 	}
 	
 	
-	int curKey = q.CIRCLE_FIFTHS[curKeyIndex];
-	int baseKey = q.CIRCLE_FIFTHS[baseKeyIndex];
+	int curKey = CoreUtil().CIRCLE_FIFTHS[curKeyIndex];
+	int baseKey = CoreUtil().CIRCLE_FIFTHS[baseKeyIndex];
 	
-	float keyVolts = q.getVoltsFromKey(curKey);
-	float modeVolts = q.getVoltsFromMode(curMode);
+	float keyVolts = CoreUtil().getVoltsFromKey(curKey);
+	float modeVolts = CoreUtil().getVoltsFromMode(curMode);
 	
 	if (debug()) { std::cout << stepX << " Out: " << curKey << " " << curMode << std::endl;	}
 			
-	for (int i = 0; i < Quantizer::NUM_NOTES; i++) {
+	for (int i = 0; i < Core::NUM_NOTES; i++) {
 		lights[CKEY_LIGHT + i].value = 0.0;
 		lights[BKEY_LIGHT + i].value = 0.0;
 	}
@@ -161,7 +139,7 @@ void Circle::step() {
 	lights[CKEY_LIGHT + curKey].value = 1.0;
 	lights[BKEY_LIGHT + baseKey].value = 1.0;
 	
-	for (int i = 0; i < Quantizer::NUM_MODES; i++) {
+	for (int i = 0; i < Core::NUM_MODES; i++) {
 		lights[MODE_LIGHT + i].value = 0.0;
 	}
 	lights[MODE_LIGHT + curMode].value = 1.0;
@@ -177,8 +155,7 @@ CircleWidget::CircleWidget() {
 	Circle *module = new Circle();
 	setModule(module);
 	
-	Quantizer quant = Quantizer();
-	module->setQuantizer(quant);
+	UI ui;
 	
 	box.size = Vec(240, 380);
 
@@ -194,12 +171,12 @@ CircleWidget::CircleWidget() {
 	addChild(createScrew<ScrewSilver>(Vec(15, 365)));
 	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
-	addInput(createInput<PJ301MPort>(Vec(20.0, 329), module, Circle::ROTL_INPUT));
-	addInput(createInput<PJ301MPort>(Vec(55.0, 329), module, Circle::ROTR_INPUT));
-	addInput(createInput<PJ301MPort>(Vec(90.0, 329), module, Circle::KEY_INPUT));
-	addParam(createParam<AHKnob>(Vec(125.0, 329), module, Circle::KEY_PARAM, 0.0, 11.0, 0.0)); 
-	addInput(createInput<PJ301MPort>(Vec(160.0, 329), module, Circle::MODE_INPUT));
-	addParam(createParam<AHKnob>(Vec(195.0, 329), module, Circle::MODE_PARAM, 0.0, 6.0, 0.0)); 
+	addInput(createInput<PJ301MPort>(ui.getPositionDense(UI::PORT, 0, 5), module, Circle::ROTL_INPUT));
+	addInput(createInput<PJ301MPort>(ui.getPositionDense(UI::PORT, 1, 5), module, Circle::ROTR_INPUT));
+	addInput(createInput<PJ301MPort>(ui.getPositionDense(UI::PORT, 2, 5), module, Circle::KEY_INPUT));
+	addParam(createParam<AHKnob>(ui.getPositionDense(UI::KNOB, 3, 5), module, Circle::KEY_PARAM, 0.0, 11.0, 0.0)); 
+	addInput(createInput<PJ301MPort>(ui.getPositionDense(UI::PORT, 4, 5), module, Circle::MODE_INPUT));
+	addParam(createParam<AHKnob>(ui.getPositionDense(UI::KNOB, 5, 5), module, Circle::MODE_PARAM, 0.0, 6.0, 0.0)); 
 
 	float xOffset = 18.0;
 	float xSpace = 21.0;
@@ -208,10 +185,10 @@ CircleWidget::CircleWidget() {
 	int scale = 0;
 
 	for (int i = 0; i < 12; i++) {
-		quant.calculateKey(i, xSpace, xOffset, 230.0, &xPos, &yPos, &scale);
+		ui.calculateKeyboard(i, xSpace, xOffset, 230.0, &xPos, &yPos, &scale);
 		addChild(createLight<SmallLight<GreenLight>>(Vec(xPos, yPos), module, Circle::CKEY_LIGHT + scale));
 
-		quant.calculateKey(i, xSpace, xOffset + 72.0, 165.0, &xPos, &yPos, &scale);
+		ui.calculateKeyboard(i, xSpace, xOffset + 72.0, 165.0, &xPos, &yPos, &scale);
 		addChild(createLight<SmallLight<RedLight>>(Vec(xPos, yPos), module, Circle::BKEY_LIGHT + scale));
 	}
 	
@@ -219,8 +196,8 @@ CircleWidget::CircleWidget() {
 		addChild(createLight<SmallLight<GreenLight>>(Vec(2 * xOffset + i * 18.0, 280.0), module, Circle::MODE_LIGHT + i));
 	}
 
-	addOutput(createOutput<PJ301MPort>(Vec(11.5, 49.0),  module, Circle::KEY_OUTPUT));
-	addOutput(createOutput<PJ301MPort>(Vec(59.5, 49.0), module, Circle::MODE_OUTPUT));
+	addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 0),  module, Circle::KEY_OUTPUT));
+	addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 1, 0), module, Circle::MODE_OUTPUT));
 
 }
 

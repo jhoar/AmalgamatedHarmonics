@@ -1,14 +1,8 @@
 #include "AH.hpp"
 #include "Core.hpp"
+#include "UI.hpp"
 
 #include <iostream>
-
-struct AHKnob : RoundKnob {
-	AHKnob() {
-		snap = true;
-		setSVG(SVG::load(assetPlugin(plugin,"res/ComponentLibrary/AHKnob.svg")));
-	}
-};
 
 struct ScaleQuantizer2 : Module {
 
@@ -35,9 +29,7 @@ struct ScaleQuantizer2 : Module {
 
 	ScaleQuantizer2() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
 	void step() override;
-	void setQuantizer(Quantizer &quant);
-	
-	Quantizer q;
+
 	bool firstStep = true;
 	int lastScale = 0;
 	int lastRoot = 0;
@@ -46,10 +38,6 @@ struct ScaleQuantizer2 : Module {
 	int currRoot = 0;
 
 };
-
-void ScaleQuantizer2::setQuantizer(Quantizer &quantizer) {
-	q = quantizer;
-}
 
 void ScaleQuantizer2::step() {
 	
@@ -61,14 +49,14 @@ void ScaleQuantizer2::step() {
 
 	if (inputs[KEY_INPUT].active) {
 		float fRoot = inputs[KEY_INPUT].value;
-		currRoot = q.getKeyFromVolts(fRoot);
+		currRoot = CoreUtil().getKeyFromVolts(fRoot);
 	} else {
 		currRoot = params[KEY_PARAM].value;
 	}
 	
 	if (inputs[SCALE_INPUT].active) {
 		float fScale = inputs[SCALE_INPUT].value;
-		currScale = q.getScaleFromVolts(fScale);
+		currScale = CoreUtil().getScaleFromVolts(fScale);
 	} else {
 		currScale = params[SCALE_PARAM].value;
 	}
@@ -76,21 +64,21 @@ void ScaleQuantizer2::step() {
 	for (int i = 0; i < 8; i++) {
 		float volts = inputs[IN_INPUT + i].value;
 		// Calculate output pitch from raw voltage
-		float currPitch = q.getPitchFromVolts(volts, currRoot, currScale, &currNote, &currDegree);
+		float currPitch = CoreUtil().getPitchFromVolts(volts, currRoot, currScale, &currNote, &currDegree);
 
 		// Set the value
 		outputs[OUT_OUTPUT + i].value = currPitch;		
 	}
 
 	if (lastScale != currScale || firstStep) {
-		for (int i = 0; i < Quantizer::NUM_NOTES; i++) {
+		for (int i = 0; i < Core::NUM_NOTES; i++) {
 			lights[SCALE_LIGHT + i].value = 0.0;
 		}
 		lights[SCALE_LIGHT + currScale].value = 1.0;
 	} 
 
 	if (lastRoot != currRoot || firstStep) {
-		for (int i = 0; i < Quantizer::NUM_NOTES; i++) {
+		for (int i = 0; i < Core::NUM_NOTES; i++) {
 			lights[KEY_LIGHT + i].value = 0.0;
 		}
 		lights[KEY_LIGHT + currRoot].value = 1.0;
@@ -103,8 +91,7 @@ void ScaleQuantizer2::step() {
 ScaleQuantizer2Widget::ScaleQuantizer2Widget() {
 	ScaleQuantizer2 *module = new ScaleQuantizer2();
 	
-	Quantizer quant = Quantizer();
-	module->setQuantizer(quant);
+	UI ui;
 	
 	setModule(module);
 	box.size = Vec(240, 380);
@@ -121,10 +108,10 @@ ScaleQuantizer2Widget::ScaleQuantizer2Widget() {
 	addChild(createScrew<ScrewSilver>(Vec(15, 365)));
 	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
-	addInput(createInput<PJ301MPort>(Vec(11.5, 329), module, ScaleQuantizer2::KEY_INPUT));
-    addParam(createParam<AHKnob>(Vec(59.5, 329), module, ScaleQuantizer2::KEY_PARAM, 0.0, 11.0, 0.0)); // 12 notes
-	addInput(createInput<PJ301MPort>(Vec(155.5, 329), module, ScaleQuantizer2::SCALE_INPUT));
-    addParam(createParam<AHKnob>(Vec(203.5, 329), module, ScaleQuantizer2::SCALE_PARAM, 0.0, 11.0, 0.0)); // 12 notes
+	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 5), module, ScaleQuantizer2::KEY_INPUT));
+    addParam(createParam<AHKnob>(ui.getPosition(UI::KNOB, 1, 5), module, ScaleQuantizer2::KEY_PARAM, 0.0, 11.0, 0.0)); // 12 notes
+	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 3, 5), module, ScaleQuantizer2::SCALE_INPUT));
+    addParam(createParam<AHKnob>(ui.getPosition(UI::PORT, 4, 5), module, ScaleQuantizer2::SCALE_PARAM, 0.0, 11.0, 0.0)); // 12 notes
 
 	for (int i = 0; i < 8; i++) {
 		addInput(createInput<PJ301MPort>(Vec(6 + i * 29, 61), module, ScaleQuantizer2::IN_INPUT + i));
@@ -140,7 +127,7 @@ ScaleQuantizer2Widget::ScaleQuantizer2Widget() {
 	for (int i = 0; i < 12; i++) {
 		addChild(createLight<SmallLight<GreenLight>>(Vec(xOffset + i * 18.0, 280.0), module, ScaleQuantizer2::SCALE_LIGHT + i));
 
-		quant.calculateKey(i, xSpace, xOffset, 230.0, &xPos, &yPos, &scale);
+		ui.calculateKeyboard(i, xSpace, xOffset, 230.0, &xPos, &yPos, &scale);
 		addChild(createLight<SmallLight<GreenLight>>(Vec(xPos, yPos), module, ScaleQuantizer2::KEY_LIGHT + scale));
 
 	}
