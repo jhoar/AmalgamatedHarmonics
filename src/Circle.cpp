@@ -174,9 +174,9 @@ CircleWidget::CircleWidget() {
 	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 0, true, false), module, Circle::ROTL_INPUT));
 	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 5, 0, true, false), module, Circle::ROTR_INPUT));
 	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 5, true, false), module, Circle::KEY_INPUT));
-	addParam(createParam<AHKnob>(ui.getPosition(UI::KNOB, 1, 5, true, false), module, Circle::KEY_PARAM, 0.0, 11.0, 0.0)); 
+	addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 1, 5, true, false), module, Circle::KEY_PARAM, 0.0, 11.0, 0.0)); 
 	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 2, 5, true, false), module, Circle::MODE_INPUT));
-	addParam(createParam<AHKnob>(ui.getPosition(UI::KNOB, 3, 5, true, false), module, Circle::MODE_PARAM, 0.0, 6.0, 0.0)); 
+	addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 3, 5, true, false), module, Circle::MODE_PARAM, 0.0, 6.0, 0.0)); 
 
 	float div = (M_PI * 2) / 12.0;
 

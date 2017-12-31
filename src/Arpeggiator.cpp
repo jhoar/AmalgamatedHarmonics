@@ -526,9 +526,9 @@ ArpeggiatorWidget::ArpeggiatorWidget() {
 	}
 	
 	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 4, true, false), module, Arpeggiator::STEP_INPUT));
-    addParam(createParam<AHKnob>(ui.getPosition(UI::KNOB, 1, 4, true, false), module, Arpeggiator::STEP_PARAM, 0.0, 16.0, 0.0)); 
+    addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 1, 4, true, false), module, Arpeggiator::STEP_PARAM, 0.0, 16.0, 0.0)); 
 	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 2, 4, true, false), module, Arpeggiator::DIST_INPUT));
-    addParam(createParam<AHKnob>(ui.getPosition(UI::KNOB, 3, 4, true, false), module, Arpeggiator::DIST_PARAM, 0.0, 12.0, 0.0));
+    addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 3, 4, true, false), module, Arpeggiator::DIST_PARAM, 0.0, 12.0, 0.0));
 	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 4, 4, true, false), module, Arpeggiator::TRIG_INPUT));
 	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 5, 4, true, false), module, Arpeggiator::CLOCK_INPUT));
 	

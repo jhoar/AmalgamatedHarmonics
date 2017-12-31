@@ -9,7 +9,8 @@ struct ScaleQuantizer2 : Module {
 	enum ParamIds {
 		KEY_PARAM,
 		SCALE_PARAM,
-		NUM_PARAMS
+		SHIFT_PARAM,
+		NUM_PARAMS = SHIFT_PARAM + 8
 	};
 	enum InputIds {
 		IN_INPUT,
@@ -63,11 +64,13 @@ void ScaleQuantizer2::step() {
 	
 	for (int i = 0; i < 8; i++) {
 		float volts = inputs[IN_INPUT + i].value;
+		float shift = params[SHIFT_PARAM + i].value;
+
 		// Calculate output pitch from raw voltage
 		float currPitch = CoreUtil().getPitchFromVolts(volts, currRoot, currScale, &currNote, &currDegree);
 
 		// Set the value
-		outputs[OUT_OUTPUT + i].value = currPitch;		
+		outputs[OUT_OUTPUT + i].value = currPitch + shift;		
 	}
 
 	if (lastScale != currScale || firstStep) {
@@ -109,13 +112,14 @@ ScaleQuantizer2Widget::ScaleQuantizer2Widget() {
 	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
 	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 5, false, false), module, ScaleQuantizer2::KEY_INPUT));
-    addParam(createParam<AHKnob>(ui.getPosition(UI::KNOB, 1, 5, false, false), module, ScaleQuantizer2::KEY_PARAM, 0.0, 11.0, 0.0)); // 12 notes
+    addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 1, 5, false, false), module, ScaleQuantizer2::KEY_PARAM, 0.0, 11.0, 0.0)); // 12 notes
 	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 3, 5, false, false), module, ScaleQuantizer2::SCALE_INPUT));
-    addParam(createParam<AHKnob>(ui.getPosition(UI::PORT, 4, 5, false, false), module, ScaleQuantizer2::SCALE_PARAM, 0.0, 11.0, 0.0)); // 12 notes
+    addParam(createParam<AHKnobSnap>(ui.getPosition(UI::PORT, 4, 5, false, false), module, ScaleQuantizer2::SCALE_PARAM, 0.0, 11.0, 0.0)); // 12 notes
 
 	for (int i = 0; i < 8; i++) {
 		addInput(createInput<PJ301MPort>(Vec(6 + i * 29, 61), module, ScaleQuantizer2::IN_INPUT + i));
-		addOutput(createOutput<PJ301MPort>(Vec(6 + i * 29, 91), module, ScaleQuantizer2::OUT_OUTPUT + i));
+		addParam(createParam<AHTrimpotSnap>(Vec(9 + i * 29.1, 91), module, ScaleQuantizer2::SHIFT_PARAM + i, -3.0, 3.0, 0.0));
+		addOutput(createOutput<PJ301MPort>(Vec(6 + i * 29, 116), module, ScaleQuantizer2::OUT_OUTPUT + i));
 	}
 
 	float xOffset = 18.0;

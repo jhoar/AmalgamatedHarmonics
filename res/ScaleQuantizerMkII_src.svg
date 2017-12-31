@@ -955,7 +955,7 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.6853183"
-     inkscape:cx="6.3327834"
+     inkscape:cx="-119.45947"
      inkscape:cy="189.23485"
      inkscape:current-layer="layer2"
      showgrid="false"
@@ -1510,13 +1510,11 @@
        id="rect1222"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="csscccccc" />
-    <rect
-       y="129.38675"
-       x="-0.01175524"
-       height="65"
-       width="240"
+    <path
+       style="fill:#d4af37;fill-opacity:1;stroke-width:1.45938587"
+       d="M -0.01175524,187.38676 H 239.98824 v 30 H -0.01175524 Z"
        id="rect1229"
-       style="fill:#d4af37;fill-opacity:1;stroke-width:2.14815784" />
+       inkscape:connector-curvature="0" />
     <text
        id="text1122"
        y="293.20239"
@@ -1541,12 +1539,12 @@
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1;">Scale</tspan></text>
     <text
        id="text1130"
-       y="123.16801"
+       y="126.25135"
        x="7.4051614"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none"
        xml:space="preserve"><tspan
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666667px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr;text-anchor:start;fill:#d4af37;fill-opacity:1"
-         y="123.16801"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1"
+         y="126.25135"
          x="7.4051614"
          id="tspan1128"
          sodipodi:role="line">IN V/OCT</tspan></text>
@@ -1859,12 +1857,12 @@
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none"
        x="7.4051614"
-       y="207.168"
+       y="229.5513"
        id="text1687"><tspan
          sodipodi:role="line"
          id="tspan1685"
          x="7.4051614"
-         y="207.168"
+         y="229.5513"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">OUT V/OCT</tspan></text>
     <text
        xml:space="preserve"

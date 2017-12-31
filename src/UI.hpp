@@ -9,8 +9,8 @@ struct AHButton : SVGSwitch, MomentarySwitch {
 	}
 };
 
-struct AHKnob : RoundKnob {
-	AHKnob() {
+struct AHKnobSnap : RoundKnob {
+	AHKnobSnap() {
 		snap = true;
 		setSVG(SVG::load(assetPlugin(plugin,"res/ComponentLibrary/AHKnob.svg")));
 	}
@@ -20,6 +20,21 @@ struct AHKnobNoSnap : RoundKnob {
 	AHKnobNoSnap() {
 		snap = false;
 		setSVG(SVG::load(assetPlugin(plugin,"res/ComponentLibrary/AHKnob.svg")));
+	}
+};
+
+
+struct AHTrimpotSnap : RoundKnob {
+	AHTrimpotSnap() {
+		snap = true;
+		setSVG(SVG::load(assetPlugin(plugin,"res/ComponentLibrary/AHTrimpot.svg")));
+	}
+};
+
+struct AHTrimpotNoSnap : RoundKnob {
+	AHTrimpotNoSnap() {
+		snap = false;
+		setSVG(SVG::load(assetPlugin(plugin,"res/ComponentLibrary/AHTrimpot.svg")));
 	}
 };
 

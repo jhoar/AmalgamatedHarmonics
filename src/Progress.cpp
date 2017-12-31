@@ -486,12 +486,12 @@ ProgressWidget::ProgressWidget() {
 	}
 	
 
-	addParam(createParam<AHKnob>(ui.getPosition(UI::KNOB, 0, 0, true, false), module, Progress::CLOCK_PARAM, -2.0, 6.0, 2.0));
+	addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 0, 0, true, false), module, Progress::CLOCK_PARAM, -2.0, 6.0, 2.0));
 	addParam(createParam<AHButton>(ui.getPosition(UI::BUTTON, 1, 0, true, false), module, Progress::RUN_PARAM, 0.0, 1.0, 0.0));
 	addChild(createLight<MediumLight<GreenLight>>(ui.getPosition(UI::LIGHT, 1, 0, true, false), module, Progress::RUNNING_LIGHT));
 	addParam(createParam<AHButton>(ui.getPosition(UI::BUTTON, 2, 0, true, false), module, Progress::RESET_PARAM, 0.0, 1.0, 0.0));
 	addChild(createLight<MediumLight<GreenLight>>(ui.getPosition(UI::LIGHT, 2, 0, true, false), module, Progress::RESET_LIGHT));
-	addParam(createParam<AHKnob>(ui.getPosition(UI::KNOB, 3, 0, true, false), module, Progress::STEPS_PARAM, 1.0, 8.0, 8.0));
+	addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 3, 0, true, false), module, Progress::STEPS_PARAM, 1.0, 8.0, 8.0));
 	addChild(createLight<MediumLight<GreenLight>>(ui.getPosition(UI::LIGHT, 4, 0, true, false), module, Progress::GATES_LIGHT));
 
 	static const float portX[13] = {20, 58, 96, 135, 173, 212, 250, 288, 326, 364, 402, 440, 478};
@@ -515,7 +515,7 @@ ProgressWidget::ProgressWidget() {
 	for (int i = 0; i < 8; i++) {
 		addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, i + 1, 4, true, true), module, Progress::ROOT_PARAM + i, 0.0, 10.0, 0.0));
 		addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, i + 1, 5, true, true), module, Progress::CHORD_PARAM + i, 0.0, 10.0, 0.0));
-		addParam(createParam<AHKnob>(ui.getPosition(UI::KNOB, i + 1, 6, true, true), module, Progress::INV_PARAM + i, 0.0, 2.0, 0.0));
+		addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, i + 1, 6, true, true), module, Progress::INV_PARAM + i, 0.0, 2.0, 0.0));
 		addParam(createParam<AHButton>(ui.getPosition(UI::BUTTON, i + 1, 7, true, true), module, Progress::GATE_PARAM + i, 0.0, 1.0, 0.0));
 		addChild(createLight<MediumLight<GreenLight>>(ui.getPosition(UI::LIGHT, i + 1, 7, true, true), module, Progress::GATE_LIGHTS + i));
 		addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, i + 1, 5, true, false), module, Progress::GATE_OUTPUT + i));
