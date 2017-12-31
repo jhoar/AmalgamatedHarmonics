@@ -205,8 +205,8 @@ struct Core {
 	
 	std::string inversionNames[5] {
 		"",
-		"1st Inv",
-		"2nd Inv"
+		"(1)",
+		"(2)"
 	};
 	
 	enum Quality {

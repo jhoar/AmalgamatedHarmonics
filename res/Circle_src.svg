@@ -968,16 +968,16 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.6859566"
-     inkscape:cx="120"
-     inkscape:cy="182.58815"
+     inkscape:cx="-37.773931"
+     inkscape:cy="111.41194"
      inkscape:current-layer="layer2"
      showgrid="false"
      units="mm"
      inkscape:window-width="1440"
      inkscape:window-height="856"
-     inkscape:window-x="47"
-     inkscape:window-y="1"
-     inkscape:window-maximized="1"
+     inkscape:window-x="68"
+     inkscape:window-y="18"
+     inkscape:window-maximized="0"
      showguides="false"
      inkscape:guide-bbox="true"
      inkscape:showpageshadow="false"
@@ -1914,5 +1914,19 @@
          x="61.936157"
          y="161.91072"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">F | Dm</tspan></text>
+    <rect
+       style="display:inline;opacity:1;fill:#d4af2c;fill-opacity:1;stroke:none;stroke-width:0.84479064;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect1152"
+       width="31.912909"
+       height="2.9548988"
+       x="33.083244"
+       y="413.81985" />
+    <rect
+       y="413.81985"
+       x="105.08326"
+       height="2.9548988"
+       width="31.912909"
+       id="rect2727"
+       style="display:inline;opacity:1;fill:#d4af2c;fill-opacity:1;stroke:none;stroke-width:0.84479064;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
   </g>
 </svg>
