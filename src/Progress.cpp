@@ -430,7 +430,7 @@ struct ProgressDisplay : TransparentWidget {
 			nvgText(vg, pos.x + 10, pos.y + 5, text, NULL);
 			
 			for (int i = 0; i < 8; i++) {
-				snprintf(text, sizeof(text), "%d: %s %s %s [%s]", i + 1, 
+				snprintf(text, sizeof(text), "%d: %s%s %s [%s]", i + 1, 
 					CoreUtil().noteNames[module->currRoot[i]].c_str(), 
 					CoreUtil().ChordTable[module->currChord[i]].quality.c_str(), 
 					CoreUtil().inversionNames[module->currInv[i]].c_str(), 
@@ -459,6 +459,8 @@ struct ProgressDisplay : TransparentWidget {
 
 ProgressWidget::ProgressWidget() {
 	Progress *module = new Progress();
+	
+	UI ui;
 		
 	setModule(module);
 	box.size = Vec(15*34, 380);
@@ -466,7 +468,7 @@ ProgressWidget::ProgressWidget() {
 	{
 		SVGPanel *panel = new SVGPanel();
 		panel->box.size = box.size;
-		panel->setBackground(SVG::load(assetPlugin(plugin, "res/Progress2.svg")));
+		panel->setBackground(SVG::load(assetPlugin(plugin, "res/Progress.svg")));
 		addChild(panel);
 	}
 
@@ -501,20 +503,22 @@ ProgressWidget::ProgressWidget() {
 	addInput(createInput<PJ301MPort>(Vec(portX[4]-1, 98), module, Progress::KEY_INPUT));
 	addInput(createInput<PJ301MPort>(Vec(portX[5]-1, 98), module, Progress::MODE_INPUT));
 
-	addOutput(createOutput<PJ301MPort>(Vec(portX[6]-1, 98), module, Progress::GATES_OUTPUT));
 	
 	for (int i = 0; i < Progress::NUM_PITCHES; i++) {
 		addOutput(createOutput<PJ301MPort>(Vec(portX[i + 7], 98),  module, Progress::PITCH_OUTPUT + i));
 	}	
 
 	for (int i = 0; i < 8; i++) {
-		addParam(createParam<AHKnobNoSnap>(Vec(portX[i]-2, 157), module, Progress::ROOT_PARAM + i, 0.0, 10.0, 0.0));
-		addParam(createParam<AHKnobNoSnap>(Vec(portX[i]-2, 198), module, Progress::CHORD_PARAM + i, 0.0, 10.0, 0.0));
-		addParam(createParam<AHKnob>(Vec(portX[i]-2, 240), module, Progress::INV_PARAM + i, 0.0, 2.0, 0.0));
-		addParam(createParam<AHButton>(Vec(portX[i]+2, 278-1), module, Progress::GATE_PARAM + i, 0.0, 1.0, 0.0));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(portX[i]+6.4, 281.4), module, Progress::GATE_LIGHTS + i));
-		addOutput(createOutput<PJ301MPort>(Vec(portX[i]-1, 307), module, Progress::GATE_OUTPUT + i));
+		addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, i + 1, 4, true, true), module, Progress::ROOT_PARAM + i, 0.0, 10.0, 0.0));
+		addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, i + 1, 5, true, true), module, Progress::CHORD_PARAM + i, 0.0, 10.0, 0.0));
+		addParam(createParam<AHKnob>(ui.getPosition(UI::KNOB, i + 1, 6, true, true), module, Progress::INV_PARAM + i, 0.0, 2.0, 0.0));
+		addParam(createParam<AHButton>(ui.getPosition(UI::BUTTON, i + 1, 7, true, true), module, Progress::GATE_PARAM + i, 0.0, 1.0, 0.0));
+		addChild(createLight<MediumLight<GreenLight>>(ui.getPosition(UI::LIGHT, i + 1, 7, true, true), module, Progress::GATE_LIGHTS + i));
+		addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, i + 1, 8, true, true), module, Progress::GATE_OUTPUT + i));
 	}
+
+	addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 9, 8, true, true), module, Progress::GATES_OUTPUT));
+
 	
 }
 

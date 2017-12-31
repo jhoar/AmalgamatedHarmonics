@@ -108,10 +108,10 @@ ScaleQuantizer2Widget::ScaleQuantizer2Widget() {
 	addChild(createScrew<ScrewSilver>(Vec(15, 365)));
 	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
-	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 5), module, ScaleQuantizer2::KEY_INPUT));
-    addParam(createParam<AHKnob>(ui.getPosition(UI::KNOB, 1, 5), module, ScaleQuantizer2::KEY_PARAM, 0.0, 11.0, 0.0)); // 12 notes
-	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 3, 5), module, ScaleQuantizer2::SCALE_INPUT));
-    addParam(createParam<AHKnob>(ui.getPosition(UI::PORT, 4, 5), module, ScaleQuantizer2::SCALE_PARAM, 0.0, 11.0, 0.0)); // 12 notes
+	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 5, false, false), module, ScaleQuantizer2::KEY_INPUT));
+    addParam(createParam<AHKnob>(ui.getPosition(UI::KNOB, 1, 5, false, false), module, ScaleQuantizer2::KEY_PARAM, 0.0, 11.0, 0.0)); // 12 notes
+	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 3, 5, false, false), module, ScaleQuantizer2::SCALE_INPUT));
+    addParam(createParam<AHKnob>(ui.getPosition(UI::PORT, 4, 5, false, false), module, ScaleQuantizer2::SCALE_PARAM, 0.0, 11.0, 0.0)); // 12 notes
 
 	for (int i = 0; i < 8; i++) {
 		addInput(createInput<PJ301MPort>(Vec(6 + i * 29, 61), module, ScaleQuantizer2::IN_INPUT + i));

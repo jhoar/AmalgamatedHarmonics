@@ -511,26 +511,26 @@ ArpeggiatorWidget::ArpeggiatorWidget() {
 		addChild(display);
 	}
 
-	addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 0),  module, Arpeggiator::OUT_OUTPUT));
-	addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 1, 0),  module, Arpeggiator::GATE_OUTPUT));
-	addParam(createParam<AHButton>(ui.getPosition(UI::BUTTON, 2, 0), module, Arpeggiator::LOCK_PARAM, 0.0, 1.0, 0.0));
-	addChild(createLight<MediumLight<GreenLight>>(ui.getPosition(UI::LIGHT, 2, 0), module, Arpeggiator::LOCK_LIGHT));
-	addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 3, 0), module, Arpeggiator::EOC_OUTPUT));
-	addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 4, 0), module, Arpeggiator::EOS_OUTPUT));
+	addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 0, false, false),  module, Arpeggiator::OUT_OUTPUT));
+	addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 1, 0, false, false),  module, Arpeggiator::GATE_OUTPUT));
+	addParam(createParam<AHButton>(ui.getPosition(UI::BUTTON, 2, 0, false, false), module, Arpeggiator::LOCK_PARAM, 0.0, 1.0, 0.0));
+	addChild(createLight<MediumLight<GreenLight>>(ui.getPosition(UI::LIGHT, 2, 0, false, false), module, Arpeggiator::LOCK_LIGHT));
+	addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 3, 0, false, false), module, Arpeggiator::EOC_OUTPUT));
+	addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 4, 0, false, false), module, Arpeggiator::EOS_OUTPUT));
 		
 	addParam(createParam<BefacoPush>(Vec(127, 155), module, Arpeggiator::TRIGGER_PARAM, 0.0, 1.0, 0.0));
 	
 		
 	for (int i = 0; i < Arpeggiator::NUM_PITCHES; i++) {
-		addInput(createInput<PJ301MPort>(ui.getPositionDense(UI::PORT, i, 5),  module, Arpeggiator::PITCH_INPUT + i));
+		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, i, 5, true, false),  module, Arpeggiator::PITCH_INPUT + i));
 	}
 	
-	addInput(createInput<PJ301MPort>(ui.getPositionDense(UI::PORT, 0, 4), module, Arpeggiator::STEP_INPUT));
-    addParam(createParam<AHKnob>(ui.getPositionDense(UI::KNOB, 1, 4), module, Arpeggiator::STEP_PARAM, 0.0, 16.0, 0.0)); 
-	addInput(createInput<PJ301MPort>(ui.getPositionDense(UI::PORT, 2, 4), module, Arpeggiator::DIST_INPUT));
-    addParam(createParam<AHKnob>(ui.getPositionDense(UI::KNOB, 3, 4), module, Arpeggiator::DIST_PARAM, 0.0, 12.0, 0.0));
-	addInput(createInput<PJ301MPort>(ui.getPositionDense(UI::PORT, 4, 4), module, Arpeggiator::TRIG_INPUT));
-	addInput(createInput<PJ301MPort>(ui.getPositionDense(UI::PORT, 5, 4), module, Arpeggiator::CLOCK_INPUT));
+	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 4, true, false), module, Arpeggiator::STEP_INPUT));
+    addParam(createParam<AHKnob>(ui.getPosition(UI::KNOB, 1, 4, true, false), module, Arpeggiator::STEP_PARAM, 0.0, 16.0, 0.0)); 
+	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 2, 4, true, false), module, Arpeggiator::DIST_INPUT));
+    addParam(createParam<AHKnob>(ui.getPosition(UI::KNOB, 3, 4, true, false), module, Arpeggiator::DIST_PARAM, 0.0, 12.0, 0.0));
+	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 4, 4, true, false), module, Arpeggiator::TRIG_INPUT));
+	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 5, 4, true, false), module, Arpeggiator::CLOCK_INPUT));
 	
 	addParam(createParam<BefacoSwitch>(Vec(178.5, 112.0), module, Arpeggiator::SDIR_PARAM, 0, 2, 0));
 	addParam(createParam<BefacoSwitch>(Vec(178.5, 187.0), module, Arpeggiator::PDIR_PARAM, 0, 2, 0));

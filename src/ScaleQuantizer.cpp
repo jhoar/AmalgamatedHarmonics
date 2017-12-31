@@ -120,11 +120,11 @@ ScaleQuantizerWidget::ScaleQuantizerWidget() {
 	addChild(createScrew<ScrewSilver>(Vec(15, 365)));
 	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
-	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 5), module, ScaleQuantizer::IN_INPUT));
-	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 1, 5), module, ScaleQuantizer::KEY_INPUT));
-	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 2, 5), module, ScaleQuantizer::SCALE_INPUT));
-	addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 3, 5), module, ScaleQuantizer::TRIG_OUTPUT));
-	addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 4, 5), module, ScaleQuantizer::OUT_OUTPUT));
+	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 5, false, false), module, ScaleQuantizer::IN_INPUT));
+	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 1, 5, false, false), module, ScaleQuantizer::KEY_INPUT));
+	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 2, 5, false, false), module, ScaleQuantizer::SCALE_INPUT));
+	addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 3, 5, false, false), module, ScaleQuantizer::TRIG_OUTPUT));
+	addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 4, 5, false, false), module, ScaleQuantizer::OUT_OUTPUT));
 
 	float xOffset = 18.0;
 	float xSpace = 21.0;

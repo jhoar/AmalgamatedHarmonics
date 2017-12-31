@@ -171,35 +171,44 @@ CircleWidget::CircleWidget() {
 	addChild(createScrew<ScrewSilver>(Vec(15, 365)));
 	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
-	addInput(createInput<PJ301MPort>(ui.getPositionDense(UI::PORT, 0, 5), module, Circle::ROTL_INPUT));
-	addInput(createInput<PJ301MPort>(ui.getPositionDense(UI::PORT, 1, 5), module, Circle::ROTR_INPUT));
-	addInput(createInput<PJ301MPort>(ui.getPositionDense(UI::PORT, 2, 5), module, Circle::KEY_INPUT));
-	addParam(createParam<AHKnob>(ui.getPositionDense(UI::KNOB, 3, 5), module, Circle::KEY_PARAM, 0.0, 11.0, 0.0)); 
-	addInput(createInput<PJ301MPort>(ui.getPositionDense(UI::PORT, 4, 5), module, Circle::MODE_INPUT));
-	addParam(createParam<AHKnob>(ui.getPositionDense(UI::KNOB, 5, 5), module, Circle::MODE_PARAM, 0.0, 6.0, 0.0)); 
+	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 0, true, false), module, Circle::ROTL_INPUT));
+	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 5, 0, true, false), module, Circle::ROTR_INPUT));
+	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 5, true, false), module, Circle::KEY_INPUT));
+	addParam(createParam<AHKnob>(ui.getPosition(UI::KNOB, 1, 5, true, false), module, Circle::KEY_PARAM, 0.0, 11.0, 0.0)); 
+	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 2, 5, true, false), module, Circle::MODE_INPUT));
+	addParam(createParam<AHKnob>(ui.getPosition(UI::KNOB, 3, 5, true, false), module, Circle::MODE_PARAM, 0.0, 6.0, 0.0)); 
 
-	float xOffset = 18.0;
-	float xSpace = 21.0;
-	float xPos = 0.0;
-	float yPos = 0.0;
-	int scale = 0;
+	float div = (M_PI * 2) / 12.0;
 
 	for (int i = 0; i < 12; i++) {
-		ui.calculateKeyboard(i, xSpace, xOffset, 230.0, &xPos, &yPos, &scale);
-		addChild(createLight<SmallLight<GreenLight>>(Vec(xPos, yPos), module, Circle::CKEY_LIGHT + scale));
 
-		ui.calculateKeyboard(i, xSpace, xOffset + 72.0, 165.0, &xPos, &yPos, &scale);
-		addChild(createLight<SmallLight<RedLight>>(Vec(xPos, yPos), module, Circle::BKEY_LIGHT + scale));
+		float cosDiv = cos(div * i);
+		float sinDiv = sin(div * i);
+	
+		float xPos  = sinDiv * 52.5;
+		float yPos  = cosDiv * 52.5;
+		float xxPos = sinDiv * 60.0;
+		float yyPos = cosDiv * 60.0;
+
+//		ui.calculateKeyboard(i, xSpace, xOffset, 230.0, &xPos, &yPos, &scale);
+		addChild(createLight<SmallLight<GreenLight>>(Vec(xxPos + 116.5, 149.5 - yyPos), module, Circle::CKEY_LIGHT + CoreUtil().CIRCLE_FIFTHS[i]));
+
+//		ui.calculateKeyboard(i, xSpace, xOffset + 72.0, 165.0, &xPos, &yPos, &scale);
+		addChild(createLight<SmallLight<RedLight>>(Vec(xPos + 116.5, 149.5 - yPos), module, Circle::BKEY_LIGHT + CoreUtil().CIRCLE_FIFTHS[i]));
 	}
 	
+	float xOffset = 18.0;
+	
 	for (int i = 0; i < 7; i++) {
-		addChild(createLight<SmallLight<GreenLight>>(Vec(2 * xOffset + i * 18.0, 280.0), module, Circle::MODE_LIGHT + i));
+		float xPos = 2 * xOffset + i * 18.2;
+		addChild(createLight<SmallLight<GreenLight>>(Vec(xPos, 280.0), module, Circle::MODE_LIGHT + i));
 	}
 
-	addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 0),  module, Circle::KEY_OUTPUT));
-	addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 1, 0), module, Circle::MODE_OUTPUT));
+	addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 4, 5, true, false),  module, Circle::KEY_OUTPUT));
+	addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 5, 5, true, false), module, Circle::MODE_OUTPUT));
 
 }
 
 
 
+// ♯♭
