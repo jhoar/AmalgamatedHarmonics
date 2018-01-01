@@ -5,5 +5,5 @@ Welcome to the Amalgamated Harmonics; your one-stop shop for barely usable modul
 * [Progress](https://github.com/jhoar/AmalgamatedHarmonics/wiki/Progress), a chord sequencer
 * [Fifths and Fourths](https://github.com/jhoar/AmalgamatedHarmonics/wiki/54), an implementation of the Circle of Fifths intended to work with Progress and Scale Quantizer
 
-The latest release is [0.5.6](https://github.com/jhoar/AmalgamatedHarmonics/releases/tag/v0.5.6)
+The latest release is [0.5.7](https://github.com/jhoar/AmalgamatedHarmonics/releases/tag/v0.5.7)
 
