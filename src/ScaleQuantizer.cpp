@@ -41,7 +41,7 @@ struct ScaleQuantizer : Module {
 	int currRoot = 0;
 	int currNote = 0;
 	int currDegree = 0;
-	int currPitch = 0.0;
+	float currPitch = 0.0;
 
 };
 

@@ -67,8 +67,11 @@ void ScaleQuantizer2::step() {
 		float shift = params[SHIFT_PARAM + i].value;
 
 		// Calculate output pitch from raw voltage
-		float currPitch = CoreUtil().getPitchFromVolts(volts, currRoot, currScale, &currNote, &currDegree);
-
+		float currPitch = 0.0;
+		if (inputs[IN_INPUT + i].active) { 
+			currPitch = CoreUtil().getPitchFromVolts(volts, currRoot, currScale, &currNote, &currDegree);
+		} 
+		
 		// Set the value
 		outputs[OUT_OUTPUT + i].value = currPitch + shift;		
 	}

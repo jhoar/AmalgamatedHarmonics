@@ -71,14 +71,17 @@ float Core::getPitchFromVolts(float inVolts, float inRoot, float inScale, int *o
 		}
 	}
 
-
+	// Offset the note w.r.t the input root
+	closestVal = closestVal + currRoot / 12.0;
 
 	int currNote = (currRoot + curScaleArr[noteFound]) % 12;
 	if (debug && stepX % poll == 0) {
 		// Dump the note and degree, mod the size in case where we have wrapped round
 
-		std::cout << "Found index in scale: " << noteFound << ", currNote: "  << currNote <<  " (Name: " << noteNames[currNote] << ")" << std::endl;
-		std::cout << "This is scale note: "  << curScaleArr[noteFound] << " (Interval: " << intervalNames[curScaleArr[noteFound]] << ")" << std::endl;
+		std::cout << "DUMP1 Found index in scale: " << noteFound << ", currNote: "  << currNote <<  " (Name: " << noteNames[currNote] << ")";
+		std::cout << " This is scale note: "  << curScaleArr[noteFound] << " (Interval: " << intervalNames[curScaleArr[noteFound]] << ")";
+		std::cout << ": " << inVolts << " -> " << closestVal << std::endl;
+
 	}
 
 	*outRoot = currRoot;
@@ -129,8 +132,8 @@ float Core::getPitchFromVolts(float inVolts, int inRoot, int inScale, int *outNo
 
 	for (int i = 0; i < notesInScale; i++) {
 
-		float fOctave = (float)octave;
-		int degree = curScaleArr[i]; // 0 - 11!
+		float fOctave = (float)octave;  // in C
+		int degree = curScaleArr[i]; // 0 - 11, semitones above octave
 		float fVoltsAboveOctave = degree / 12.0;
 		float fScaleNoteInVolts = fOctave + fVoltsAboveOctave;
 		float distAway = fabs(inVolts - fScaleNoteInVolts);
@@ -158,14 +161,19 @@ float Core::getPitchFromVolts(float inVolts, int inRoot, int inScale, int *outNo
 		}
 	}
 
-
-
 	int currNote = (currRoot + curScaleArr[noteFound]) % 12;
+
+	// Offset the note w.r.t the input root
+	closestVal = closestVal + inRoot / 12.0;
+
 	if (debug && stepX % poll == 0) {
 		// Dump the note and degree, mod the size in case where we have wrapped round
 
-		std::cout << "Found index in scale: " << noteFound << ", currNote: "  << currNote <<  " (Name: " << noteNames[currNote] << ")" << std::endl;
-		std::cout << "This is scale note: "  << curScaleArr[noteFound] << " (Interval: " << intervalNames[curScaleArr[noteFound]] << ")" << std::endl;
+		std::cout << "DUMP2 Found index in scale: " << noteFound << ", currNote: "  << currNote <<  " (Name: " << noteNames[currNote] << ") ";
+		std::cout << "This is scale note: "  << curScaleArr[noteFound] << " (Interval: " << intervalNames[curScaleArr[noteFound]] << ")";
+		std::cout << ": " << inVolts << " -> " << closestVal << std::endl;
+		
+		
 	}
 
 	*outNote = currNote;

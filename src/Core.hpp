@@ -224,7 +224,7 @@ struct Core {
 		
 		
 	bool debug = false;
-	int poll = 5000;
+	int poll = 50000;
 	int stepX = 0;
 	
 	/*
