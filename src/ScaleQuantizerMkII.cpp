@@ -10,12 +10,14 @@ struct ScaleQuantizer2 : Module {
 		KEY_PARAM,
 		SCALE_PARAM,
 		SHIFT_PARAM,
-		NUM_PARAMS = SHIFT_PARAM + 8
+		TRANS_PARAM = SHIFT_PARAM + 8,
+		NUM_PARAMS
 	};
 	enum InputIds {
 		IN_INPUT,
 		KEY_INPUT = IN_INPUT + 8,
 		SCALE_INPUT,
+		TRANS_INPUT,
 		NUM_INPUTS
 	};
 	enum OutputIds {
@@ -62,6 +64,8 @@ void ScaleQuantizer2::step() {
 		currScale = params[SCALE_PARAM].value;
 	}
 	
+	float trans = (inputs[TRANS_INPUT].value + params[TRANS_PARAM].value) / 12.0;
+	
 	for (int i = 0; i < 8; i++) {
 		float volts = inputs[IN_INPUT + i].value;
 		float shift = params[SHIFT_PARAM + i].value;
@@ -73,7 +77,7 @@ void ScaleQuantizer2::step() {
 		} 
 		
 		// Set the value
-		outputs[OUT_OUTPUT + i].value = currPitch + shift;		
+		outputs[OUT_OUTPUT + i].value = currPitch + shift + trans;
 	}
 
 	if (lastScale != currScale || firstStep) {
@@ -114,10 +118,12 @@ ScaleQuantizer2Widget::ScaleQuantizer2Widget() {
 	addChild(createScrew<ScrewSilver>(Vec(15, 365)));
 	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
-	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 5, false, false), module, ScaleQuantizer2::KEY_INPUT));
-    addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 1, 5, false, false), module, ScaleQuantizer2::KEY_PARAM, 0.0, 11.0, 0.0)); // 12 notes
-	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 3, 5, false, false), module, ScaleQuantizer2::SCALE_INPUT));
-    addParam(createParam<AHKnobSnap>(ui.getPosition(UI::PORT, 4, 5, false, false), module, ScaleQuantizer2::SCALE_PARAM, 0.0, 11.0, 0.0)); // 12 notes
+	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 5, true, false), module, ScaleQuantizer2::KEY_INPUT));
+    addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 1, 5, true, false), module, ScaleQuantizer2::KEY_PARAM, 0.0, 11.0, 0.0)); // 12 notes
+	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 2, 5, true, false), module, ScaleQuantizer2::SCALE_INPUT));
+    addParam(createParam<AHKnobSnap>(ui.getPosition(UI::PORT, 3, 5, true, false), module, ScaleQuantizer2::SCALE_PARAM, 0.0, 11.0, 0.0)); // 12 notes
+	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 4, 5, true, false), module, ScaleQuantizer2::TRANS_INPUT));
+    addParam(createParam<AHKnobSnap>(ui.getPosition(UI::PORT, 5, 5, true, false), module, ScaleQuantizer2::TRANS_PARAM, -11.0, 11.0, 0.0)); // 12 notes
 
 	for (int i = 0; i < 8; i++) {
 		addInput(createInput<PJ301MPort>(Vec(6 + i * 29, 61), module, ScaleQuantizer2::IN_INPUT + i));
