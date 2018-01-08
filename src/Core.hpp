@@ -223,6 +223,9 @@ struct Core {
 	};
 		
 		
+	double gaussrand();
+	
+		
 	bool debug = false;
 	int poll = 50000;
 	int stepX = 0;

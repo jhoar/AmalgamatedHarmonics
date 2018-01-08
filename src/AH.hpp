@@ -31,3 +31,9 @@ struct CircleWidget : ModuleWidget {
 	CircleWidget();
 };
 
+struct ImperfectWidget : ModuleWidget {
+        ImperfectWidget();
+};
+
+
+
