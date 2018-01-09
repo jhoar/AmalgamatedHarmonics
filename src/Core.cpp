@@ -150,6 +150,7 @@ void Core::getRootFromMode(int inMode, int inRoot, int inTonic, int *currRoot, i
      return core;
  }
  
+ //	http://c-faq.com/lib/gaussian.html
  double Core::gaussrand() {
  	static double U, V;
  	static int phase = 0;
@@ -165,5 +166,18 @@ void Core::getRootFromMode(int inMode, int inRoot, int inTonic, int *currRoot, i
  	phase = 1 - phase;
 
  	return Z;
+ }
+ 
+ int Core::ipow(int base, int exp) {
+     int result = 1;
+     while (exp)
+     {
+         if (exp & 1)
+             result *= base;
+         exp >>= 1;
+         base *= base;
+     }
+
+     return result;
  }
  

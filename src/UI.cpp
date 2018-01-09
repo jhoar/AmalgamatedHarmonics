@@ -62,6 +62,10 @@ Vec UI::getPosition(int type, int xSlot, int ySlot, bool xDense, bool yDense) {
 		if (xDense) { xArray = X_LIGHT_COMPACT; } else { xArray = X_LIGHT; }
 		if (yDense) { yArray = Y_LIGHT_COMPACT; } else { yArray = Y_LIGHT; }
 		break;
+		case TRIMPOT: 
+		if (xDense) { xArray = X_TRIMPOT_COMPACT; } else { xArray = X_TRIMPOT; }
+		if (yDense) { yArray = Y_TRIMPOT_COMPACT; } else { yArray = Y_TRIMPOT; }
+		break;
 		default:
 		if (xDense) { xArray = X_KNOB_COMPACT; } else { xArray = X_KNOB; }
 		if (yDense) { yArray = Y_KNOB_COMPACT; } else { yArray = Y_KNOB; }

@@ -225,6 +225,7 @@ struct Core {
 		
 	double gaussrand();
 	
+	int ipow(int base, int exp);
 		
 	bool debug = false;
 	int poll = 50000;

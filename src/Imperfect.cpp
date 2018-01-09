@@ -10,20 +10,15 @@ struct Imperfect : Module {
 
 	enum ParamIds {
 		DELAY_PARAM,
-		DELAYSPREAD_PARAM,
-		DELAYSPREADSCALE_PARAM,
-		LENGTH_PARAM = DELAYSPREADSCALE_PARAM + 8,
-		LENGTHSPREAD_PARAM,
-		LENGTHSPREADSCALE_PARAM,
-		NUM_PARAMS = LENGTHSPREADSCALE_PARAM + 8
+		DELAYSPREAD_PARAM = DELAY_PARAM + 8,
+		LENGTH_PARAM = DELAYSPREAD_PARAM + 8,
+		LENGTHSPREAD_PARAM = LENGTH_PARAM + 8,
+		DIVISION_PARAM = LENGTHSPREAD_PARAM + 8,
+		NUM_PARAMS = DIVISION_PARAM + 8
 	};
 	enum InputIds {
 		TRIG_INPUT,
-		DELAY_INPUT,
-		DELAYSPREAD_INPUT,
-		LENGTH_INPUT,
-		LENGTHSPREAD_INPUT,
-		NUM_INPUTS
+		NUM_INPUTS = TRIG_INPUT + 8
 	};
 	enum OutputIds {
 		OUT_OUTPUT,
@@ -45,7 +40,10 @@ struct Imperfect : Module {
 	float gateTime[8];
 	PulseGenerator delayPhase[8];
 	PulseGenerator gatePhase[8];
-	SchmittTrigger inTrigger;
+	SchmittTrigger inTrigger[8];
+
+	int counter[8];
+	int counterIndex[8];
 
 	int stepX;
 	
@@ -59,76 +57,86 @@ void Imperfect::step() {
 	
 	stepX++;
 	
+
+	float delta = 1.0 / engineGetSampleRate();	
+
 	float dlyLen;
 	float dlySpr;
 	float gateLen;
 	float gateSpr;
-
-	float delta = 1.0 / engineGetSampleRate();	
-
-	if (inputs[DELAY_INPUT].active) {
-		dlyLen = inputs[DELAY_INPUT].value;
-	} else {
-		dlyLen = params[DELAY_PARAM].value;
-	}
-
-	if (inputs[DELAYSPREAD_INPUT].active) {
-		dlySpr = inputs[DELAYSPREAD_INPUT].value;
-	} else {
-		dlySpr = params[DELAYSPREAD_PARAM].value;
-	}
-
-	if (inputs[LENGTH_INPUT].active) {
-		gateLen = inputs[LENGTH_INPUT].value;
-	} else {
-		gateLen = params[LENGTH_PARAM].value;
-	}
-
-	if (inputs[LENGTHSPREAD_INPUT].active) {
-		gateSpr = inputs[LENGTHSPREAD_INPUT].value;
-	} else {
-		gateSpr = params[LENGTHSPREAD_PARAM].value;
-	}
 	
-	if (inputs[TRIG_INPUT].active) {
+	int lastValidInput = -1;
 	
-		if (inTrigger.process(inputs[TRIG_INPUT].value)) {
-
+	for (int i = 0; i < 8; i++) {
 		
-			for (int i = 0; i < 8; i++) {			
+		bool generateSignal = false;
+		
+		bool inputActive = inputs[TRIG_INPUT + i].active;
+		bool haveTrigger = inTrigger[i].process(inputs[TRIG_INPUT + i].value);
+		bool outputActive = outputs[OUT_OUTPUT + i].active;
+		
+		// If we have an active input, we should forget about previosu triggers
+		if (inputActive) {
 			
-				if (outputs[OUT_OUTPUT + i].active) {
-
-					float dlyScale = params[DELAYSPREADSCALE_PARAM + i].value;
-					float gateScale = params[LENGTHSPREADSCALE_PARAM + i].value;
-
-					// Determine delay and gate times for all active outputs
-					double rndD = clampf(core.gaussrand(), -2.0, 2.0);
-					delayTime[i] = dlyLen + fabs(dlySpr * rndD * dlyScale);
-
-					if (debug()) { 
-						std::cout << stepX << " Delay: " << i << ": Len: " << dlyLen << " Spr: " << dlySpr << " Scr: " << dlyScale << " r: " << rndD << " = " << delayTime[i] << std::endl; 
-					}
-					
-					// The modified gate time cannot be earlier than the start of the delay
-					double rndG = clampf(core.gaussrand(), -2.0, 2.0);
-
-					gateTime[i] = gateLen + fabs(gateSpr * rndG * gateScale);
-					if (debug()) { 
-						std::cout << stepX << " Gate: " << i << ": Len = " << gateLen << ", Spr: " << gateSpr << " Scl: " << gateScale << " r: " << rndG << " = " << gateTime[i] << std::endl; 
-					}
-
-					// Trigger the respective delay pulse generators
-					delayState[i] = true;
-					delayPhase[i].trigger(delayTime[i]);
-				
-				}	
+			lastValidInput = -1;
+	
+			if (haveTrigger) {
+				if (debug()) { std::cout << stepX << " " << i << " has active input and has received trigger" << std::endl; }
+				generateSignal = true;
+				lastValidInput = i;
+			}
+			
+		} else {
+//			if (debug()) { std::cout << stepX << " " << i << " --> " << lastValidInput << std::endl; }
+			// We have an output and previously seen a trigger
+			if (outputActive && lastValidInput > -1) {
+				if (debug()) { std::cout << stepX << " " << i << " has active out and has seen trigger on " << lastValidInput << std::endl; }
+				generateSignal = true;
 			}
 		}
-	}
+				
+		if (generateSignal) {
 
+			counter[i]++;
+			int target = core.ipow(2,params[DIVISION_PARAM + i].value);
+		
+			if (debug()) { 
+				std::cout << stepX << " Div: " << i << ": Target: " << target << " Cnt: " << counter[lastValidInput] << " Exp: " << counter[lastValidInput] % target << std::endl; 
+			}
+
+			if (counter[lastValidInput] % target == 0) { 
+
+				dlyLen  = params[DELAY_PARAM + i].value;
+				dlySpr  = params[DELAYSPREAD_PARAM + i].value;
+				gateLen = params[LENGTH_PARAM + i].value;
+				gateSpr = params[LENGTHSPREAD_PARAM + i].value;
+
+				// Determine delay and gate times for all active outputs
+				double rndD = clampf(core.gaussrand(), -2.0, 2.0);
+				delayTime[i] = dlyLen + fabs(dlySpr * rndD);
+
+				if (debug()) { 
+					std::cout << stepX << " Delay: " << i << ": Len: " << dlyLen << " Spr: " << dlySpr << " r: " << rndD << " = " << delayTime[i] << std::endl; 
+				}
+			
+				// The modified gate time cannot be earlier than the start of the delay
+				double rndG = clampf(core.gaussrand(), -2.0, 2.0);
+
+				gateTime[i] = gateLen + fabs(gateSpr * rndG);
+				if (debug()) { 
+					std::cout << stepX << " Gate: " << i << ": Len: " << gateLen << ", Spr: " << gateSpr << " r: " << rndG << " = " << gateTime[i] << std::endl; 
+				}
+
+				// Trigger the respective delay pulse generators
+				delayState[i] = true;
+				delayPhase[i].trigger(delayTime[i]);
+			
+			}
+			
+		}
+	}
 	
-	for (int i = 0; i < 8; i++) {			
+	for (int i = 0; i < 8; i++) {
 	
 		if (delayState[i] && !delayPhase[i].process(delta)) {
 			gatePhase[i].trigger(gateTime[i]);
@@ -163,7 +171,7 @@ ImperfectWidget::ImperfectWidget() {
 	UI ui;
 	
 	setModule(module);
-	box.size = Vec(240, 380);
+	box.size = Vec(315, 380);
 
 	{
 		SVGPanel *panel = new SVGPanel();
@@ -177,25 +185,16 @@ ImperfectWidget::ImperfectWidget() {
 	addChild(createScrew<ScrewSilver>(Vec(15, 365)));
 	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
-	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 4, true, false), module, Imperfect::TRIG_INPUT));
-	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 2, 4, true, false), module, Imperfect::DELAY_INPUT));
-	addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 3, 4, true, false), module, Imperfect::DELAY_PARAM, 0.0, 2.0, 0.0));
-	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 4, 4, true, false), module, Imperfect::DELAYSPREAD_INPUT));
-	addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 5, 4, true, false), module, Imperfect::DELAYSPREAD_PARAM, 0.0, 2.0, 1.0));
-	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 2, 5, true, false), module, Imperfect::LENGTH_INPUT));
-	addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 3, 5, true, false), module, Imperfect::LENGTH_PARAM, 0.02, 2.0, 0.0));
-	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 4, 5, true, false), module, Imperfect::LENGTHSPREAD_INPUT));
-	addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 5, 5, true, false), module, Imperfect::LENGTHSPREAD_PARAM, 0.0, 2.0, 1.0)); 
-
 	for (int i = 0; i < 8; i++) {
-		addOutput(createOutput<PJ301MPort>(Vec(6 + i * 29, 61), module, Imperfect::OUT_OUTPUT + i));
-		addParam(createParam<AHTrimpotNoSnap>(Vec(9 + i * 29.1, 91), module, Imperfect::DELAYSPREADSCALE_PARAM + i, 0.0, 2.0, 1.0));
-		addParam(createParam<AHTrimpotNoSnap>(Vec(9 + i * 29.1, 116), module, Imperfect::LENGTHSPREADSCALE_PARAM + i, 0.0, 2.0, 1.0));
-		addChild(createLight<MediumLight<GreenRedLight>>(Vec(13.5 + i * 29.1, 141), module, Imperfect::OUT_LIGHT + i * 2));
+		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, i + 1, true, true), module, Imperfect::TRIG_INPUT + i));
+		addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 1, i + 1, true, true), module, Imperfect::DELAY_PARAM + i, 0.0, 2.0, 0.0));
+		addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 2, i + 1, true, true), module, Imperfect::DELAYSPREAD_PARAM + i, 0.0, 2.0, 1.0));
+		addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 3, i + 1, true, true), module, Imperfect::LENGTH_PARAM + i, 0.02, 2.0, 0.0));
+		addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 4, i + 1, true, true), module, Imperfect::LENGTHSPREAD_PARAM + i, 0.0, 2.0, 1.0)); 
+		addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 5, i + 1, true, true), module, Imperfect::DIVISION_PARAM + i, 0, 8, 0));
+		addChild(createLight<MediumLight<GreenRedLight>>(ui.getPosition(UI::LIGHT, 6, i + 1, true, true), module, Imperfect::OUT_LIGHT + i * 2));
+		addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 7, i + 1, true, true), module, Imperfect::OUT_OUTPUT + i));
 	}
 	
-	
-	
-
 }
 
