@@ -46,8 +46,20 @@ struct Progress : Module {
 		GATE_LIGHTS,
 		NUM_LIGHTS = GATE_LIGHTS + 8
 	};
+
+	float delta;
+	float sampleRate;
 		
-	Progress() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
+	Progress() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
+		sampleRate = engineGetSampleRate();
+		delta = 1.0 / sampleRate;
+	}
+	
+	void onSampleRateChange() override { 
+		sampleRate = engineGetSampleRate();
+		delta = 1.0 / sampleRate;
+	}
+
 	void step() override;
 	
 	bool running = true;
@@ -110,6 +122,8 @@ struct Progress : Module {
 	int currQuality[8];
 	
 	float pitches[8][6];
+	
+	float oldPitches[6];
 		
 	inline bool debug() {
 		// if (stepX % poll == 0) {
@@ -151,7 +165,6 @@ void Progress::step() {
 	
 	const float lightLambda = 0.075;
 	
-	float sampleRate = engineGetSampleRate();
 	// Run
 	if (runningTrigger.process(params[RUN_PARAM].value)) {
 		running = !running;
@@ -200,7 +213,7 @@ void Progress::step() {
 
 	resetLight -= resetLight / lightLambda / sampleRate;
 
-	bool pulse = gatePulse.process(1.0 / sampleRate);
+	bool pulse = gatePulse.process(delta);
 
 	// Gate buttons
 	for (int i = 0; i < 8; i++) {
@@ -381,6 +394,15 @@ void Progress::step() {
 				}	
 			}
 		}	
+	}
+
+	if (debug()) {
+		for (int i = 0; i < NUM_PITCHES; i++) {
+			if (pitches[index][i] != oldPitches[i]) {
+			 	std::cout << stepX  << " XXX PROG P: " << i << " = " << pitches[index][i] << std::endl;
+				oldPitches[i] = pitches[index][i];
+			}
+		}
 	}
 	
 	// Set the pitch output

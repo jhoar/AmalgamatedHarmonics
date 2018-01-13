@@ -29,7 +29,16 @@ struct Imperfect : Module {
 		NUM_LIGHTS = OUT_LIGHT + 16
 	};
 
-	Imperfect() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
+	float delta;
+		
+	Imperfect() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
+		delta = 1.0 / engineGetSampleRate();
+	}
+	
+	void onSampleRateChange() override { 
+		delta = 1.0 / engineGetSampleRate();
+	}
+
 	void step() override;
 
 	Core core;
@@ -45,6 +54,7 @@ struct Imperfect : Module {
 	int counter[8];
 	int counterIndex[8];
 
+
 	int stepX;
 	
 	inline bool debug() {
@@ -57,9 +67,6 @@ void Imperfect::step() {
 	
 	stepX++;
 	
-
-	float delta = 1.0 / engineGetSampleRate();	
-
 	float dlyLen;
 	float dlySpr;
 	float gateLen;
@@ -75,7 +82,7 @@ void Imperfect::step() {
 		bool haveTrigger = inTrigger[i].process(inputs[TRIG_INPUT + i].value);
 		bool outputActive = outputs[OUT_OUTPUT + i].active;
 		
-		// If we have an active input, we should forget about previosu triggers
+		// If we have an active input, we should forget about previous valid inputs
 		if (inputActive) {
 			
 			lastValidInput = -1;
@@ -87,7 +94,6 @@ void Imperfect::step() {
 			}
 			
 		} else {
-//			if (debug()) { std::cout << stepX << " " << i << " --> " << lastValidInput << std::endl; }
 			// We have an output and previously seen a trigger
 			if (outputActive && lastValidInput > -1) {
 				if (debug()) { std::cout << stepX << " " << i << " has active out and has seen trigger on " << lastValidInput << std::endl; }
@@ -139,27 +145,29 @@ void Imperfect::step() {
 			gateState[i] = true;
 			delayState[i] = false;
 		}
+
+		lights[OUT_LIGHT + i * 2].value = 0.0;
+		lights[OUT_LIGHT + i * 2 + 1].value = 0.0;
 		
 		if (gatePhase[i].process(delta)) {
 			outputs[OUT_OUTPUT + i].value = 10.0;
+
 			lights[OUT_LIGHT + i * 2].value = 1.0;
 			lights[OUT_LIGHT + i * 2 + 1].value = 0.0;
+
 		} else {
 			outputs[OUT_OUTPUT + i].value = 0.0;
 			gateState[i] = false;
+
 			if (delayState[i]) {
 				lights[OUT_LIGHT + i * 2].value = 0.0;
 				lights[OUT_LIGHT + i * 2 + 1].value = 1.0;
-			} else {
-				lights[OUT_LIGHT + i * 2].value = 0.0;
-				lights[OUT_LIGHT + i * 2 + 1].value = 0.0;
-			}
+			} 
 			
 		}
 			
 	}
 	
-
 }
 
 ImperfectWidget::ImperfectWidget() {

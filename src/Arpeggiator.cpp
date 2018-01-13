@@ -41,7 +41,16 @@ struct Arpeggiator : Module {
 		NUM_LIGHTS
 	};
 	
-	Arpeggiator() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
+	float delta;
+		
+	Arpeggiator() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
+		delta = 1.0 / engineGetSampleRate();
+	}
+	
+	void onSampleRateChange() override { 
+		delta = 1.0 / engineGetSampleRate();
+	}
+	
 	void step() override;
 	
 	SchmittTrigger clockTrigger; // for clock
@@ -76,7 +85,7 @@ struct Arpeggiator : Module {
 	float outVolts;
 	bool isRunning = false;
 	bool freeRunning = false;
-
+	
 	int cycleLength = 0;
 	int stepI = 0;
 	int cycleI = 0;
@@ -103,7 +112,6 @@ void Arpeggiator::step() {
 	}
 	
 	// Get the clock rate and semi-tone
-	float delta = 1.0 / engineGetSampleRate();	
 	float semiTone = 1.0 / 12.0;
 	
 	// Get inputs from Rack
@@ -223,7 +231,6 @@ void Arpeggiator::step() {
 		}
 	}
 	
-	
 	// Detect cable being plugged in when free-running, stop free-running
 	if (freeRunning && trigActive && isRunning) {
 		if (debug()) { std::cout << stepX << " TRIG input re-connected" << std::endl; }
@@ -239,7 +246,7 @@ void Arpeggiator::step() {
 		stepsRemaining--;
 		
 		// Pulse the EOC gate
-		eocPulse.trigger(5e-4);
+		eocPulse.trigger(5e-3);
 		if (debug()) { std::cout << stepX << " Finished Cycle S: " << stepI <<
 			" C: " << cycleI <<
 			" sRemain: " << stepsRemaining <<
@@ -258,7 +265,7 @@ void Arpeggiator::step() {
 			isRunning = false;
 			
 			// Pulse the EOS gate
-			eosPulse.trigger(5e-4);
+			eosPulse.trigger(5e-3);
 			if (debug()) { std::cout << stepX << " Finished sequence S: " << stepI <<
 				" C: " << cycleI <<
 				" sRemain: " << stepsRemaining <<
@@ -415,13 +422,13 @@ void Arpeggiator::step() {
 		
 	}	
 	
-	bool sPulse = eosPulse.process(delta);
-	bool cPulse = eocPulse.process(delta);
-	bool gPulse = gatePulse.process(delta);
-	
 	// Set the value
 	lights[LOCK_LIGHT].value = locked ? 1.0 : 0.0;
 	outputs[OUT_OUTPUT].value = outVolts;
+	
+	bool gPulse = gatePulse.process(delta);
+	bool sPulse = eosPulse.process(delta);
+	bool cPulse = eocPulse.process(delta);
 	outputs[GATE_OUTPUT].value = gPulse ? 10.0 : 0.0;
 	outputs[EOS_OUTPUT].value = sPulse ? 10.0 : 0.0;
 	outputs[EOC_OUTPUT].value = cPulse ? 10.0 : 0.0;
