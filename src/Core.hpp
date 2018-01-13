@@ -80,16 +80,16 @@ struct Core {
 	
 	std::string noteNames[12] = {
 		"C",
-		"Db",
+		"C#/Db",
 		"D",
-		"Eb",
+		"D#/Eb",
 		"E",
 		"F",
-		"Gb",
+		"F#/Gb",
 		"G",
-		"Ab",
+		"G#/Ab",
 		"A",
-		"Bb",
+		"A#/Bb",
 		"B",
 	};
 
@@ -228,7 +228,7 @@ struct Core {
 	int ipow(int base, int exp);
 		
 	bool debug = false;
-	int poll = 50000;
+	int poll = 100000;
 	int stepX = 0;
 	
 	/*

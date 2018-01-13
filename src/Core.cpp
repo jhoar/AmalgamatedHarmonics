@@ -9,7 +9,7 @@ float Core::getPitchFromVolts(float inVolts, float inRoot, float inScale, int *o
 	int currScale = getScaleFromVolts(inScale);
 
 	if (debug && stepX % poll == 0) {
-		std::cout << stepX << " Root in: " << inRoot << " Root out: " << currRoot<< " Scale in: " << inScale << " Scale out: " << currScale << std::endl;
+		std::cout << "QUANT " << stepX << " Root in: " << inRoot << " Root out: " << currRoot<< " Scale in: " << inScale << " Scale out: " << currScale << std::endl;
 	}	
 	
 	float outVolts = getPitchFromVolts(inVolts, currRoot, currScale, outNote, outDegree);
@@ -48,29 +48,32 @@ float Core::getPitchFromVolts(float inVolts, int currRoot, int currScale, int *o
 	int noteFound = 0;
 
 	if (debug && stepX % poll == 0) {
-		std::cout << "Octave: " << octave << " Scale: " << scaleNames[currScale] << " Root: " << noteNames[currRoot] << std::endl;
+		std::cout << "QUANT Octave: " << octave << " Scale: " << scaleNames[currScale] << " Root: " << noteNames[currRoot] << std::endl;
 	}
 
-	int octaveOffset = 0;
+	float octaveOffset = 0;
 	if (currRoot != 0) {
 		octaveOffset = (12 - currRoot) / 12.0;
 	}
 	
 	if (debug && stepX % poll == 0) {
-		std::cout << "octave: " << octave << "currRoot: " << currRoot << " -> " << octaveOffset << "inVolts: " << inVolts << std::endl;
+		std::cout << "QUANT Octave: " << octave << " currRoot: " << currRoot << " -> Offset: " << octaveOffset << " inVolts: " << inVolts << std::endl;
 	}
 		
-	for (int i = 0; i < notesInScale; i++) {
+	float fOctave = (float)octave - octaveOffset;	
+	int scaleIndex = 0;
+	int searchOctave = 0;
+	
+	do { 
 
-		float fOctave = (float)octave - octaveOffset;
-		int degree = curScaleArr[i]; // 0 - 11!
-		float fVoltsAboveOctave = degree / 12.0;
+		int degree = curScaleArr[scaleIndex]; // 0 - 11!
+		float fVoltsAboveOctave = searchOctave + degree / 12.0;
 		float fScaleNoteInVolts = fOctave + fVoltsAboveOctave;
 		float distAway = fabs(inVolts - fScaleNoteInVolts);
 
 		if (debug && stepX % poll == 0) {
-			std::cout << "input: " << inVolts 
-			<< " index: " << i 
+			std::cout << "QUANT input: " << inVolts
+			<< " index: " << scaleIndex
 			<< " root: " << currRoot
 			<< " octave: " << fOctave
 			<< " degree: " << degree
@@ -80,9 +83,8 @@ float Core::getPitchFromVolts(float inVolts, int currRoot, int currScale, int *o
 			<< std::endl;
 		}
 
-		// Assume that the list of notes is ordered, so there is an single inflection point at the minimum value 
+		// Assume that the list of notes is ordered, so there is an single inflection point at the minimum value
 		if (distAway >= closestDist){
-			noteFound = i - 1; // We break here because the previous note was closer, all subsequent notes are farther away
 			break;
 		} else {
 			// Let's remember this
@@ -90,15 +92,32 @@ float Core::getPitchFromVolts(float inVolts, int currRoot, int currScale, int *o
 			closestDist = distAway;
 		}
 		
+		scaleIndex++;
+		
+		if (scaleIndex == notesInScale - 1) {
+			scaleIndex = 0;
+			searchOctave++;
+		}
+
+	} while (true);
+
+	if(scaleIndex == 0) {
+		noteFound = notesInScale - 2; // NIS is a count, not index
+	} else {
+		noteFound = scaleIndex - 1;
 	}
 
+	if (debug && stepX % poll == 0) {
+		std::cout << "QUANT NIS: " << notesInScale <<  " scaleIndex: " << scaleIndex << " NF: " << noteFound << std::endl;
+	}
+	
 	int currNote = (currRoot + curScaleArr[noteFound]) % 12; // So this is the nth note of the scale; 
 	// case in point, V=0, Scale = F#m returns the 6th note, which should be C#
 
 	if (debug && stepX % poll == 0) {
 		// Dump the note and degree, mod the size in case where we have wrapped round
 
-		std::cout << "DUMP Found index in scale: " << noteFound << ", currNote: "  << currNote;
+		std::cout << "QUANT Found index in scale: " << noteFound << ", currNote: "  << currNote;
 		std::cout << " This is scale note: "  << curScaleArr[noteFound] << " (Interval: " << intervalNames[curScaleArr[noteFound]] << ")";
 		std::cout << ": " << inVolts << " -> " << closestVal << std::endl;
 
