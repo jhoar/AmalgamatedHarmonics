@@ -51,13 +51,13 @@ float Core::getPitchFromVolts(float inVolts, int currRoot, int currScale, int *o
 		std::cout << "Octave: " << octave << " Scale: " << scaleNames[currScale] << " Root: " << noteNames[currRoot] << std::endl;
 	}
 
-	int octaveOffset = 0;
+	float octaveOffset = 0.0;
 	if (currRoot != 0) {
 		octaveOffset = (12 - currRoot) / 12.0;
 	}
 	
 	if (debug && stepX % poll == 0) {
-		std::cout << "octave: " << octave << "currRoot: " << currRoot << " -> " << octaveOffset << "inVolts: " << inVolts << std::endl;
+		std::cout << "Octave: " << octave << " currRoot: " << currRoot << " -> offset: " << octaveOffset << " inVolts: " << inVolts << std::endl;
 	}
 		
 	for (int i = 0; i < notesInScale; i++) {
