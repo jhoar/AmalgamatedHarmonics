@@ -86,6 +86,11 @@ struct Arpeggiator : Module {
 	bool isRunning = false;
 	bool freeRunning = false;
 	
+	int newSequence = 0;
+	int newCycle = 0;
+	const static int LAUNCH = 1;
+	const static int COUNTDOWN = 3;
+	
 	int cycleLength = 0;
 	int stepI = 0;
 	int cycleI = 0;
@@ -172,11 +177,6 @@ void Arpeggiator::step() {
 		return; // No inputs, no music
 	}
 	
-	
-	// If there are still steps left after the end of a cycle, start a new cycle
-	bool newCycle = false;
-	bool newSequence = false;
-	
 	// Has the trigger input been fired
 	if (triggerStatus) {
 		triggerPulse.trigger(5e-5);
@@ -199,6 +199,15 @@ void Arpeggiator::step() {
 		locked = !locked;
 	}
 	
+	if (newSequence) {
+		newSequence--;
+		if (debug()) { std::cout << stepX << " Countdown newSequence " << newSequence << std::endl; }
+	}
+
+	if (newCycle) {
+		newCycle--;
+		if (debug()) { std::cout << stepX << " Countdown newCycle " << newCycle << std::endl; }
+	}
 	
 	// OK so the problem here might be that the clock gate is still high right after the trigger gate fired on the previous step
 	// So we need to wait a while for the clock gate to go low
@@ -209,11 +218,10 @@ void Arpeggiator::step() {
 		isClocked = true;
 	}
 	
-	
 	// Has the trigger input been fired, either on the input or button
 	if (triggerStatus || buttonStatus) {
-		newSequence = true;
-		newCycle = true;		
+		newSequence = COUNTDOWN;
+		newCycle = COUNTDOWN;		
 		if (debug()) { std::cout << stepX << " Triggered" << std::endl; }
 	}
 	
@@ -223,8 +231,8 @@ void Arpeggiator::step() {
 		if (!trigActive) { // If nothing plugged into the TRIG input
 			if (debug()) { std::cout << stepX << " Free running sequence; starting" << std::endl; }
 			freeRunning = true; // We're free-running
-			newSequence = true;
-			newCycle = true;
+			newSequence = COUNTDOWN;
+			newCycle = LAUNCH;
 		} else {
 			if (debug()) { std::cout << stepX << " Triggered sequence; wait for trigger" << std::endl; }
 			freeRunning = false;
@@ -235,8 +243,7 @@ void Arpeggiator::step() {
 	if (freeRunning && trigActive && isRunning) {
 		if (debug()) { std::cout << stepX << " TRIG input re-connected" << std::endl; }
 		freeRunning = false;
-	}
-	
+	}	
 	
 	// Reached the end of the cycle
 	if (isRunning && isClocked && cycleRemaining == 0) {
@@ -258,8 +265,8 @@ void Arpeggiator::step() {
 		
 			// Free running, so start new seqeuence & cycle
 			if (freeRunning) {
-				newCycle = true;
-				newSequence = true;
+				newCycle = COUNTDOWN;
+				newSequence = COUNTDOWN;
 			} 
 
 			isRunning = false;
@@ -274,7 +281,7 @@ void Arpeggiator::step() {
 			}
 
 		} else {
-			newCycle = true;
+			newCycle = LAUNCH;
 			if (debug()) { std::cout << stepX << " Flagging new cycle" << std::endl; }
 		}
 		
@@ -283,7 +290,7 @@ void Arpeggiator::step() {
 	
 	
 	// Capture the settings for this cycle
-	if (newCycle) {
+	if (newCycle == LAUNCH) {
 		
 		// Update params
 		if (!locked) {
@@ -303,7 +310,7 @@ void Arpeggiator::step() {
 	
 	
 	// If we have been triggered, start a new sequence
-	if (newSequence) {
+	if (newSequence == LAUNCH) {
 		
 		if (debug()) { std::cout << stepX << " New Sequence" << std::endl;	}
 		
@@ -321,7 +328,7 @@ void Arpeggiator::step() {
 	
 	
 	// Starting a new cycle
-	if (newCycle) {
+	if (newCycle == LAUNCH) {
 		
 		if (debug()) {
 			std::cout << stepX << " Defining cycle: nStep: " << nStep << 
@@ -400,7 +407,7 @@ void Arpeggiator::step() {
 	// Advance the sequence
 	// Are we starting a sequence or are running and have been clocked; if so advance the sequence
 	// Only advance from the clock
-	if (isRunning && isClocked) {
+	if (isRunning && (isClocked || newCycle == LAUNCH)) {
 
 		if (debug()) { std::cout << stepX << " Advance Cycle S: " << stepI <<
 			" C: " << cycleI <<
