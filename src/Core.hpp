@@ -80,16 +80,16 @@ struct Core {
 	
 	std::string noteNames[12] = {
 		"C",
-		"C#/Db",
+		"Db",
 		"D",
-		"D#/Eb",
+		"Eb",
 		"E",
 		"F",
-		"F#/Gb",
+		"Gb",
 		"G",
-		"G#/Ab",
+		"Ab",
 		"A",
-		"A#/Bb",
+		"Bb",
 		"B",
 	};
 
