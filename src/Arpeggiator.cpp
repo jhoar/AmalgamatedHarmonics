@@ -6,6 +6,66 @@
 
 #include <iostream>
 
+struct Sequence {
+	
+	int pDir = 0;
+	int sDir = 0;
+	int nStep = 0;
+	int nDist = 0;
+	
+	
+	int stepI = 0;
+	int cycleI = 0;
+	int stepsRemaining = 0;
+	int cycleRemaining = 0;
+	int currDist = 0;
+	
+	void advanceSequence() {
+		stepI++;
+		stepsRemaining--;
+	}
+	
+	void advanceCycle() {
+		cycleI++;
+		cycleRemaining--;
+	}
+	
+	void initSequence(int inputStep, int inputDist, int inputPDir, int inputSDir, bool locked) {
+		
+		if (!locked) {
+			nStep = inputStep;
+			nDist = inputDist;
+			pDir = inputPDir;
+			sDir = inputSDir;
+		}
+				
+		stepsRemaining = nStep;	
+		stepI = 0;
+
+		// At the beginning of the sequence (i.e. dist = 0)
+		// currDist is the distance from the base note of the sequence, nDist controls the size of the increment
+		currDist = 0;
+	}
+	
+	void setCycle(int n) {
+		cycleRemaining = n;
+		cycleI = 0;
+	}
+	
+	bool isCycleFinished() {
+		return (cycleRemaining == 0);
+	}
+	
+	bool isSequenceFinished() {
+		return (stepsRemaining == 0);
+	}
+	
+	bool isSequenceStarted() {
+		return stepI;
+	}
+
+};
+
 struct Arpeggiator : Module {
 
 	const static int MAX_STEPS = 16;
@@ -69,16 +129,9 @@ struct Arpeggiator : Module {
 	float pitchValue[NUM_PITCHES];
 
 	int inputPDir;
-	int pDir = 0;
-	
 	int inputSDir;
-	int sDir = 0;
-
 	int inputStep = 0;
-	int nStep = 0;
-	
 	int inputDist = 0;
-	int nDist = 0;
 	
 	bool locked = false;
 
@@ -86,23 +139,20 @@ struct Arpeggiator : Module {
 	bool isRunning = false;
 	bool freeRunning = false;
 	
+	Sequence seq;
+	
 	int newSequence = 0;
 	int newCycle = 0;
 	const static int LAUNCH = 1;
 	const static int COUNTDOWN = 3;
 	
-	int cycleLength = 0;
-	int stepI = 0;
-	int cycleI = 0;
-	int stepsRemaining;
-	int cycleRemaining;
-	int currDist = 0;
+	int nValidPitches = 0;
 
 	int stepX = 0;
 	int poll = 5000;
 	
 	inline bool debug() {
-		return false;
+		return true;
 	}
 	
 };
@@ -163,17 +213,17 @@ void Arpeggiator::step() {
 	inputPDir 	= iPDir;
 	inputSDir	= iSDir;
 	
-	int cycleLength = 0;
+	int nValidPitches = 0;
 	for (int p = 0; p < NUM_PITCHES; p++) {
 		if (pitchStatus[p]) { //Plugged in 
-			inputPitches[cycleLength] = pitchValue[p];
-			cycleLength++;
+			inputPitches[nValidPitches] = pitchValue[p];
+			nValidPitches++;
 		}
 	}
 	
 	
 	// Check that we even have anything plugged in
-	if (cycleLength == 0) {
+	if (nValidPitches == 0) {
 		return; // No inputs, no music
 	}
 	
@@ -246,22 +296,21 @@ void Arpeggiator::step() {
 	}	
 	
 	// Reached the end of the cycle
-	if (isRunning && isClocked && cycleRemaining == 0) {
+	if (isRunning && isClocked && seq.isCycleFinished()) {
 		
 		// Completed 1 step
-		stepI++;
-		stepsRemaining--;
+		seq.advanceSequence();
 		
 		// Pulse the EOC gate
 		eocPulse.trigger(5e-3);
-		if (debug()) { std::cout << stepX << " Finished Cycle S: " << stepI <<
-			" C: " << cycleI <<
-			" sRemain: " << stepsRemaining <<
-			" cRemain: " << cycleRemaining << std::endl;
+		if (debug()) { std::cout << stepX << " Finished Cycle S: " << seq.stepI <<
+			" C: " << seq.cycleI <<
+			" sRemain: " << seq.stepsRemaining <<
+			" cRemain: " << seq.cycleRemaining << std::endl;
 		}
 		
 		// Reached the end of the sequence
-		if (isRunning && stepsRemaining == 0) {
+		if (isRunning && seq.isSequenceFinished()) {
 		
 			// Free running, so start new seqeuence & cycle
 			if (freeRunning) {
@@ -273,10 +322,10 @@ void Arpeggiator::step() {
 			
 			// Pulse the EOS gate
 			eosPulse.trigger(5e-3);
-			if (debug()) { std::cout << stepX << " Finished sequence S: " << stepI <<
-				" C: " << cycleI <<
-				" sRemain: " << stepsRemaining <<
-				" cRemain: " << cycleRemaining << 
+			if (debug()) { std::cout << stepX << " Finished sequence S: " << seq.stepI <<
+				" C: " << seq.cycleI <<
+				" sRemain: " << seq.stepsRemaining <<
+				" cRemain: " << seq.cycleRemaining << 
 				" flag:" << isRunning << std::endl;
 			}
 
@@ -289,40 +338,43 @@ void Arpeggiator::step() {
 	
 	
 	
-	// Capture the settings for this cycle
-	if (newCycle == LAUNCH) {
-		
-		// Update params
-		if (!locked) {
-			if (debug()) { std::cout << stepX << " Read sequence inputs" << std::endl; }
-			nStep = inputStep;
-			nDist = inputDist;
-			pDir = inputPDir;
-			sDir = inputSDir;
-		}
-
-		// If we have no steps to play, play nothing
-		if (nStep == 0) {
-			return; // No steps, abort
-		} 
 	
-	}
+	
+	
+	// RE-WRITE STARTS HERE
+	// Input: 
+	// Status:
+	// - newSequence
+	// - newCycle
+	// - locked
+	// Definition
+	// - inputStep
+	// - inputDist
+	// - inputPDir
+	// - inputSDir
+	// - nValidPitches
+	// - inputPitches
+	//
+	// Output:
+	// - pitches
+	// - isRunning
+	
+	
 	
 	
 	// If we have been triggered, start a new sequence
 	if (newSequence == LAUNCH) {
 		
+		// At the first step of the sequence
 		if (debug()) { std::cout << stepX << " New Sequence" << std::endl;	}
+		if (!locked) {
+			if (debug()) { std::cout << stepX << " Update sequence inputs" << std::endl; }
+		}
+		// So this is where we tweak the sequence parameters
+		seq.initSequence(inputStep, inputDist, inputPDir, inputSDir, locked);
 		
 		// We're running now
 		isRunning = true;
-		
-		// At the first step of the sequence
-		stepsRemaining = nStep;	
-		stepI = 0;
-	
-		// At the beginning of the sequence (i.e. dist = 0)
-		currDist = 0;
 		
 	} 
 	
@@ -331,61 +383,64 @@ void Arpeggiator::step() {
 	if (newCycle == LAUNCH) {
 		
 		if (debug()) {
-			std::cout << stepX << " Defining cycle: nStep: " << nStep << 
-				" nDist: " << nDist << 
-				" pDir: " << pDir << 
-				" sDir: " << sDir << 
-				" cycLength: " << cycleLength << 
-				" seqLen: " << nStep * cycleLength;
-			for (int i = 0; i < cycleLength; i++) {
+			
+			std::cout << stepX << " Defining cycle: nStep: " << seq.nStep << 
+				" nDist: " << seq.nDist << 
+				" pDir: " << seq.pDir << 
+				" sDir: " << seq.sDir << 
+				" nValidPitches: " << nValidPitches << 
+				" seqLen: " << seq.nStep * nValidPitches;
+			
+			for (int i = 0; i < nValidPitches; i++) {
 				 std::cout << " P" << i << " V: " << inputPitches[i];
 			}
+			
 			std::cout << std::endl;
 		}
 		
 		/// Reset the cycle counters
-		cycleRemaining = cycleLength;
-		cycleI = 0;
+		seq.setCycle(nValidPitches);
 		
 		if (debug()) { std::cout << stepX << " New cycle" << std::endl; }
 	
 		// Deal with RND setting, when sDir == 1, force it up or down
-		if (sDir == 1) {
+		if (seq.sDir == 1) {
 			if (rand() % 2 == 0) {
-				sDir = 0;
+				seq.sDir = 0;
 			} else {
-				sDir = 2;
+				seq.sDir = 2;
 			}
 		}
 		
 		// Only starting moving after the first cycle
-		if (stepI) {	
-			switch (sDir) {
-				case 0:			currDist--; break;
-				case 2:			currDist++; break;
+		if (seq.isSequenceStarted()) {	
+			switch (seq.sDir) {
+				case 0:			seq.currDist--; break;
+				case 2:			seq.currDist++; break;
 				default: 		; 
 			}
 		}
 		
 		if (!locked) {// Pitches are locked, and so is the order. This keeps randomly generated arps fixed when locked
-			for (int i = 0; i < cycleLength; i++) {
+			// pitches[i] are offset from the input values according to the dist setting. Here we calculate the offsets
+			for (int i = 0; i < nValidPitches; i++) {
 		
 				int target;
 						
 				// Read the pitches according to direction, but we should do this for the sequence?
-				switch (pDir) {
-					case 0: target = cycleLength - i - 1; break; 		// DOWN
-					case 1: target = rand() % cycleLength; break;		// RANDOM
+				switch (seq.pDir) {
+					case 0: target = nValidPitches - i - 1; break; 		// DOWN
+					case 1: target = rand() % nValidPitches; break;		// RANDOM
 					case 2: target = i; break;							// UP
 					default: target = i; break; // For random case, read randomly from array, so order does not matter
 				}
 
 				// How many semi-tones do we need to shift
-				float dV = semiTone * nDist * currDist;
+				float dV = semiTone * seq.nDist * seq.currDist;
 				pitches[i] = clampf(inputPitches[target] + dV, -10.0, 10.0);
 		
 				if (debug()) {
-					std::cout << stepX << " Pitch: " << i << " stepI: " << stepI <<
+					std::cout << stepX << " Pitch: " << i << " stepI: " << seq.stepI <<
 						" dV:" << dV <<
 						" target: " << target <<
 						" in: " << inputPitches[target] <<
@@ -396,7 +451,7 @@ void Arpeggiator::step() {
 		
 		if (debug()) {
 			std::cout << stepX << " Output pitches: ";
-			for (int i = 0; i < cycleLength; i++) {
+			for (int i = 0; i < nValidPitches; i++) {
 				 std::cout << " P" << i << " V: " << pitches[i];
 			}
 			std::cout << std::endl;
@@ -404,25 +459,32 @@ void Arpeggiator::step() {
 		
 	}
 	
+	
+	// RE-WRITE ENDS HERE
+	
+	
+	
+	
+	
+	
 	// Advance the sequence
 	// Are we starting a sequence or are running and have been clocked; if so advance the sequence
 	// Only advance from the clock
 	if (isRunning && (isClocked || newCycle == LAUNCH)) {
 
-		if (debug()) { std::cout << stepX << " Advance Cycle S: " << stepI <<
-			" C: " << cycleI <<
-			" sRemain: " << stepsRemaining <<
-			" cRemain: " << cycleRemaining << std::endl;
+		if (debug()) { std::cout << stepX << " Advance Cycle S: " << seq.stepI <<
+			" C: " << seq.cycleI <<
+			" sRemain: " << seq.stepsRemaining <<
+			" cRemain: " << seq.cycleRemaining << std::endl;
 		}
 		
 		// Finally set the out voltage
-		outVolts = pitches[cycleI];
+		outVolts = pitches[seq.cycleI];
 		
 		if (debug()) { std::cout << stepX << " Output V = " << outVolts << std::endl; }
 		
 		// Update counters
-		cycleI++;
-		cycleRemaining--;
+		seq.advanceCycle();
 		
 		// Pulse the output gate
 		gatePulse.trigger(5e-4);
@@ -463,19 +525,19 @@ struct ArpeggiatorDisplay : TransparentWidget {
 		nvgFillColor(vg, nvgRGBA(212, 175, 55, 0xff));
 		char text[128];
 
-		snprintf(text, sizeof(text), "STEP: %d [%d]", module->nStep, module->inputStep);
+		snprintf(text, sizeof(text), "STEP: %d [%d]", module->seq.nStep, module->inputStep);
 		nvgText(vg, pos.x + 10, pos.y + 5, text, NULL);
-		snprintf(text, sizeof(text), "DIST: %d [%d]", module->nDist, module->inputDist);
+		snprintf(text, sizeof(text), "DIST: %d [%d]", module->seq.nDist, module->inputDist);
 		nvgText(vg, pos.x + 10, pos.y + 25, text, NULL);
 		
-		if (module->sDir == 0) {
+		if (module->seq.sDir == 0) {
 			snprintf(text, sizeof(text), "SEQ: DSC");			
 		} else {
 			snprintf(text, sizeof(text), "SEQ: ASC");			
 		}
 		nvgText(vg, pos.x + 10, pos.y + 45, text, NULL);
 		
-		switch(module->pDir) {
+		switch(module->seq.pDir) {
 			case 0: snprintf(text, sizeof(text), "ARP: R-L"); break;
 			case 1: snprintf(text, sizeof(text), "ARP: RND"); break;
 			case 2: snprintf(text, sizeof(text), "ARP: L-R"); break;
@@ -540,7 +602,7 @@ ArpeggiatorWidget::ArpeggiatorWidget() {
 	}
 	
 	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 4, true, false), module, Arpeggiator::STEP_INPUT));
-    addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 1, 4, true, false), module, Arpeggiator::STEP_PARAM, 0.0, 16.0, 0.0)); 
+    addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 1, 4, true, false), module, Arpeggiator::STEP_PARAM, 1.0, 16.0, 1.0)); 
 	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 2, 4, true, false), module, Arpeggiator::DIST_INPUT));
     addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 3, 4, true, false), module, Arpeggiator::DIST_PARAM, 0.0, 12.0, 0.0));
 	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 4, 4, true, false), module, Arpeggiator::TRIG_INPUT));
