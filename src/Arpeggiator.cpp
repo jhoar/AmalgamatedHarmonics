@@ -337,31 +337,6 @@ void Arpeggiator::step() {
 	}
 	
 	
-	
-	
-	
-	
-	// RE-WRITE STARTS HERE
-	// Input: 
-	// Status:
-	// - newSequence
-	// - newCycle
-	// - locked
-	// Definition
-	// - inputStep
-	// - inputDist
-	// - inputPDir
-	// - inputSDir
-	// - nValidPitches
-	// - inputPitches
-	//
-	// Output:
-	// - pitches
-	// - isRunning
-	
-	
-	
-	
 	// If we have been triggered, start a new sequence
 	if (newSequence == LAUNCH) {
 		
@@ -458,14 +433,6 @@ void Arpeggiator::step() {
 		}
 		
 	}
-	
-	
-	// RE-WRITE ENDS HERE
-	
-	
-	
-	
-	
 	
 	// Advance the sequence
 	// Are we starting a sequence or are running and have been clocked; if so advance the sequence

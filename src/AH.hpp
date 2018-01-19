@@ -22,6 +22,11 @@ struct ArpeggiatorWidget : ModuleWidget {
 	ArpeggiatorWidget();
 };
 
+struct Arpeggiator2Widget : ModuleWidget {
+	Arpeggiator2Widget();
+};
+
+
 struct ProgressWidget : ModuleWidget {
 		ProgressWidget();
 		Menu *createContextMenu() override;
