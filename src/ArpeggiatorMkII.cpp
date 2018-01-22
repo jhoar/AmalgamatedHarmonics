@@ -15,8 +15,6 @@ struct Pattern {
 	virtual void advance() = 0;
 
 	virtual int getOffset() = 0;
-
-	virtual int getCounter() = 0;
 	
 	virtual bool isPatternFinished() = 0;
 
@@ -43,10 +41,6 @@ struct UpPattern : Pattern {
 	int getOffset() override {
 		return currSt;
 	}
-	
-	int getCounter() override {
-		return currSt;		
-	}
 
 	bool isPatternFinished() override {
 		return(currSt == length);
@@ -58,7 +52,6 @@ struct DownPattern : Pattern {
 
 	int currSt;
 	int length;
-	int count;
 	
 	std::string getName() override {
 		return "Down";
@@ -67,22 +60,15 @@ struct DownPattern : Pattern {
 	void initialise(int l, bool fr) override {
 		length = l;
 		currSt = length - 1;
-		count = 0;
 	}
 	
 	void advance() override {
 		currSt--;
-		count++;
 	}
 	
 	int getOffset() override {
 		return currSt;
 	}
-	
-	int getCounter() override {
-		return count;		
-	}
-	
 
 	bool isPatternFinished() override {
 		return (currSt < 0);
@@ -121,10 +107,6 @@ struct UpDownPattern : Pattern {
 		return mag - abs(mag - currSt);
 	}
 
-	int getCounter() override {
-		return currSt;		
-	}
-
 	bool isPatternFinished() override {
 		return(currSt == end);
 	}
@@ -161,11 +143,7 @@ struct DownUpPattern : Pattern {
 	int getOffset() override {
 		return -(mag - abs(mag - currSt));
 	}
-	
-	int getCounter() override {
-		return currSt;		
-	}
-	
+
 	bool isPatternFinished() override {
 		return(currSt == end);
 	}
@@ -189,10 +167,6 @@ struct NotePattern : Pattern {
 	
 	int getOffset() override {
 		return getNote(currSt);
-	}
-	
-	int getCounter() override {
-		return currSt;		
 	}
 
 	bool isPatternFinished() override {
@@ -408,14 +382,7 @@ struct LeftRightArp : Arpeggio {
 	
 };
 
-int getDistance(int count, int trans, int scale) {
-	if (scale == 0) {
-		return count * trans;
-	}
-	
-	return 1;
 
-}
 
 struct Arpeggiator2 : Module {
 	
@@ -429,8 +396,8 @@ struct Arpeggiator2 : Module {
 		PATT_PARAM,
 		ARP_PARAM,
 		LENGTH_PARAM,
-		TRANSP_PARAM,
-		SCALE_PARAM,
+		PARAM_PARAM,
+		VALUE_PARAM,
 		NUM_PARAMS
 	};
 	enum InputIds {
@@ -496,9 +463,6 @@ struct Arpeggiator2 : Module {
 	int inputPat;
 	int inputArp;
 	int inputLen;
-	int inputTrans;
-	int inputScale;
-	
 	
 	int stepX = 0;
 	int poll = 5000;
@@ -511,8 +475,8 @@ struct Arpeggiator2 : Module {
 	int pattern;
 	int arp;
 	int length;
-	float nDist;
-	float scale;
+	float param1;
+	float param2;
 	
 	float semiTone = 1.0 / 12.0;
 
@@ -573,8 +537,8 @@ void Arpeggiator2::step() {
 	}	
 	
 	// Read param section
-	int inputTrans = params[TRANSP_PARAM].value;
-	int inputScale = params[SCALE_PARAM].value;
+	int pParam   = params[PARAM_PARAM].value;
+	float pValue = params[VALUE_PARAM].value;
 
 	// Process inputs
 	bool clockStatus	= clockTrigger.process(clockInput);
@@ -719,8 +683,6 @@ void Arpeggiator2::step() {
 		if (!locked) {
 			pattern = inputPat;
 			length = inputLen;
-			nDist = inputTrans;
-			scale = inputScale;
 
 			switch(pattern) {
 				case 0:		currPatt = &patt_up; 		break;
@@ -785,10 +747,7 @@ void Arpeggiator2::step() {
 		if (debug()) { std::cout << stepX << " Advance Cycle: " << currArp->getPitch() << std::endl; }
 				
 		// Finally set the out voltage
-		
-		int transSt = getDistance(currPatt->getCounter(), nDist, scale);
-		
-		outVolts = clampf(pitches[currArp->getPitch()] + semiTone * transSt * (float)currPatt->getOffset(), -10.0, 10.0);
+		outVolts = clampf(pitches[currArp->getPitch()] + semiTone * (float)currPatt->getOffset(), -10.0, 10.0);
 		
 		if (debug()) { std::cout << stepX << " Output V = " << outVolts << std::endl; }
 		
@@ -890,8 +849,8 @@ Arpeggiator2Widget::Arpeggiator2Widget() {
 	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 4, true, false), module, Arpeggiator2::TRIG_INPUT));
 	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 1, 4, true, false), module, Arpeggiator2::CLOCK_INPUT));
 	
-	addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 4, 2, true, false), module, Arpeggiator2::TRANSP_PARAM, 0, 11, 0)); 
-	addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 5, 2, true, false), module, Arpeggiator2::SCALE_PARAM, 0.0, 2.0, 0.0)); 
+	addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 4, 2, true, false), module, Arpeggiator2::PARAM_PARAM, 0, 5, 0)); 
+	addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 5, 2, true, false), module, Arpeggiator2::VALUE_PARAM, -5.0, 5.0, 0.0)); 
 	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 4, 3, true, false), module, Arpeggiator2::LENGTH_INPUT));
 	addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 5, 3, true, false), module, Arpeggiator2::LENGTH_PARAM, 1.0, 16.0, 1.0)); 
 
