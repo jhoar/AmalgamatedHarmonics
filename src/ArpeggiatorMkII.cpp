@@ -10,7 +10,7 @@ struct Pattern {
 	
 	virtual std::string getName() = 0;
 
-	virtual void initialise(int l) = 0;
+	virtual void initialise(int l, bool freeRun) = 0;
 
 	virtual void advance() = 0;
 
@@ -24,15 +24,12 @@ struct UpPattern : Pattern {
 
 	int currSt;
 	int length;
-	bool started = false;
-
-	std::string name{"Up"};
 
 	std::string getName() override {
-		return name;
+		return "Up";
 	};
 
-	void initialise(int l) override {
+	void initialise(int l, bool fr) override {
 		length = l;
 		currSt = 0;
 	}
@@ -56,13 +53,11 @@ struct DownPattern : Pattern {
 	int currSt;
 	int length;
 	
-	std::string name{"Down"};
-	
 	std::string getName() override {
-		return name;
+		return "Down";
 	};	
 
-	void initialise(int l) override {
+	void initialise(int l, bool fr) override {
 		length = l;
 		currSt = length - 1;
 	}
@@ -87,15 +82,17 @@ struct UpDownPattern : Pattern {
 	int mag;
 	int end;
 	
-	std::string name{"UpDown"};
-	
 	std::string getName() override {
-		return name;
+		return "UpDown";
 	};	
 
-	void initialise(int l) override {
+	void initialise(int l, bool fr) override {
 		mag = l - 1;
-		end = 2 * l - 2;
+		if (fr) {
+			end = 2 * l - 2;
+		} else {
+			end = 2 * l - 1;
+		}
 		if (end < 1) {
 			end = 1;
 		}
@@ -122,15 +119,17 @@ struct DownUpPattern : Pattern {
 	int mag;
 	int end;
 	
-	std::string name{"DownUp"};
-	
 	std::string getName() override {
-		return name;
+		return "DownUp";
 	};	
 
-	void initialise(int l) override {
+	void initialise(int l, bool fr) override {
 		mag = l - 1;
-		end = 2 * l - 2;
+		if (fr) {
+			end = 2 * l - 2;
+		} else {
+			end = 2 * l - 1;
+		}
 		if (end < 1) {
 			end = 1;
 		}
@@ -151,32 +150,118 @@ struct DownUpPattern : Pattern {
 	
 };
 
+struct NotePattern : Pattern {
+
+	int currSt;
+	int length;
+	
+	std::vector<int> notes;
+	
+	void initialise(int l, bool fr) override {
+		currSt = 0;
+	}
+	
+	void advance() override {
+		currSt++;
+	}
+	
+	int getOffset() override {
+		return getNote(currSt);
+	}
+
+	bool isPatternFinished() override {
+		return (currSt == (int)notes.size());
+	}
+	
+	virtual int getNote(int i) = 0;
+	
+};
+
+struct RezPattern : NotePattern {
+	
+	std::string name{"Rez"};
+	
+	std::string getName() override {
+		return name;
+	};	
+
+	RezPattern() {
+		notes.clear();
+		notes.push_back(0);
+		notes.push_back(12);
+		notes.push_back(0);
+		notes.push_back(0);
+		notes.push_back(8);
+		notes.push_back(0);
+		notes.push_back(0);
+		notes.push_back(3);		
+		notes.push_back(0);
+		notes.push_back(0);
+		notes.push_back(3);
+		notes.push_back(0);
+		notes.push_back(3);
+		notes.push_back(0);
+		notes.push_back(8);
+		notes.push_back(0);
+	}
+	
+	int getNote(int i) override {
+		return notes[i];
+	}
+	
+};
+
+struct OnTheRunPattern : NotePattern {
+	
+	std::string name{"On The Run"};
+	
+	std::string getName() override {
+		return name;
+	};	
+
+	OnTheRunPattern() {
+		notes.clear();
+		notes.push_back(0);
+		notes.push_back(4);
+		notes.push_back(6);
+		notes.push_back(4);
+		notes.push_back(9);
+		notes.push_back(11);
+		notes.push_back(13);		
+		notes.push_back(11);		
+	}
+	
+	int getNote(int i) override {
+		return notes[i];
+	}
+	
+};
 
 
 struct Arpeggio {
 
-	std::string name{"null"};
+	virtual std::string getName() = 0;
 
-	virtual void initialise(int nPitches) = 0;
+	virtual void initialise(int nPitches, bool fr) = 0;
 	
 	virtual void advance() = 0;
 	
 	virtual int getPitch() = 0;
 	
 	virtual bool isArpeggioFinished() = 0;
-	
-	
 
 };
 
-struct UpArp : Arpeggio {
+struct RightArp : Arpeggio {
 
-	std::string name{"Up"};
-	
 	int index;
 	int nPitches;
 
-	void initialise(int np) override {
+	std::string getName() override {
+		return "Right";
+	};
+
+	void initialise(int np, bool fr) override {
 		index = 0;
 		nPitches = np;
 	}
@@ -194,6 +279,109 @@ struct UpArp : Arpeggio {
 	}
 	
 };
+
+struct LeftArp : Arpeggio {
+
+	int index;
+	int nPitches;
+
+	std::string getName() override {
+		return "Left";
+	};
+	
+	void initialise(int np, bool fr) override {
+		nPitches = np;
+		index = nPitches - 1;
+	}
+	
+	void advance() override {
+		index--;
+	}
+	
+	int getPitch() override {
+		return index;
+	}
+
+	bool isArpeggioFinished() override {
+		return (index < 0);
+	}
+	
+};
+
+struct RightLeftArp : Arpeggio {
+
+	int currSt;
+	int mag;
+	int end;
+	
+	std::string getName() override {
+		return "RightLeft";
+	};	
+
+	void initialise(int l, bool fr) override {
+		mag = l - 1;
+		if (fr) {
+			end = 2 * l - 2;
+		} else {
+			end = 2 * l - 1;
+		}
+		if (end < 1) {
+			end = 1;
+		}
+		currSt = 0;
+	}
+	
+	void advance() override {
+		currSt++;
+	}
+	
+	int getPitch() override {
+		return mag - abs(mag - currSt);
+	}
+
+	bool isArpeggioFinished() override {
+		return(currSt == end);
+	}
+	
+};
+
+struct LeftRightArp : Arpeggio {
+
+	int currSt;
+	int mag;
+	int end;
+	
+	std::string getName() override {
+		return "LeftRight";
+	};	
+
+	void initialise(int l, bool fr) override {
+		mag = l - 1;
+		if (fr) {
+			end = 2 * l - 2;
+		} else {
+			end = 2 * l - 1;
+		}
+		if (end < 1) {
+			end = 1;
+		}
+		currSt = 0;
+	}
+	
+	void advance() override {
+		currSt++;
+	}
+	
+	int getPitch() override {
+		return abs(mag - currSt);
+	}
+
+	bool isArpeggioFinished() override {
+		return(currSt == end);
+	}
+	
+};
+
 
 
 struct Arpeggiator2 : Module {
@@ -292,15 +480,20 @@ struct Arpeggiator2 : Module {
 	
 	float semiTone = 1.0 / 12.0;
 
-	UpPattern patt_up; 
-	DownPattern patt_down; 
-	UpDownPattern patt_updown;
-	DownUpPattern patt_downup;
+	UpPattern		patt_up; 
+	DownPattern 	patt_down; 
+	UpDownPattern 	patt_updown;
+	DownUpPattern 	patt_downup;
+	RezPattern 		patt_rez;
+	OnTheRunPattern	patt_ontherun;
 	
-	UpArp arp_up;
+	RightArp 		arp_right;
+	LeftArp 		arp_left;
+	RightLeftArp 	arp_rightleft;
+	LeftRightArp 	arp_leftright;
 
 	Pattern *currPatt = &patt_up;
-	Arpeggio *currArp = &arp_up;
+	Arpeggio *currArp = &arp_right;
 	
 	float pitches[6];
 	int nPitches;
@@ -496,6 +689,8 @@ void Arpeggiator2::step() {
 				case 1:		currPatt = &patt_down;		break;
 				case 2:		currPatt = &patt_updown;	break;
 				case 3:		currPatt = &patt_downup;	break;
+				case 4:		currPatt = &patt_rez;		break;
+				case 5:		currPatt = &patt_ontherun;	break;
 				default:	currPatt = &patt_up;		break;
 			};
 			
@@ -505,7 +700,7 @@ void Arpeggiator2::step() {
 			" Length: " << inputLen <<
 			" Locked: " << locked << std::endl; }
 		
-		currPatt->initialise(length);
+		currPatt->initialise(length, freeRunning);
 		
 		// We're running now
 		isRunning = true;
@@ -515,8 +710,6 @@ void Arpeggiator2::step() {
 	
 	// Starting a new cycle
 	if (newCycle == LAUNCH) {
-
-		if (debug()) { std::cout << stepX << " Initiatise new Cycle" << std::endl; }
 				
 		/// Reset the cycle counters
 		if (!locked) {
@@ -524,7 +717,11 @@ void Arpeggiator2::step() {
 			arp = inputArp;
 			
 			switch(arp) {
-				default:	currArp = &arp_up;	break;
+				case 0: 	currArp = &arp_right;		break;
+				case 1: 	currArp = &arp_left;		break;
+				case 2: 	currArp = &arp_rightleft;	break;
+				case 3: 	currArp = &arp_leftright;	break;
+				default:	currArp = &arp_right;		break; 	
 			};
 			
 			// Copy pitches
@@ -535,7 +732,9 @@ void Arpeggiator2::step() {
 				
 		}
 
-		currArp->initialise(nPitches);
+		if (debug()) { std::cout << stepX << " Initiatise new Cycle: " << nPitches << " " << currArp->getName() << std::endl; }
+
+		currArp->initialise(nPitches, freeRunning);
 		
 	}
 	
@@ -545,8 +744,8 @@ void Arpeggiator2::step() {
 	// Only advance from the clock
 	if (isRunning && (isClocked || newCycle == LAUNCH)) {
 
-		if (debug()) { std::cout << stepX << " Advance Cycle" << std::endl; }
-		
+		if (debug()) { std::cout << stepX << " Advance Cycle: " << currArp->getPitch() << std::endl; }
+				
 		// Finally set the out voltage
 		outVolts = clampf(pitches[currArp->getPitch()] + semiTone * (float)currPatt->getOffset(), -10.0, 10.0);
 		
@@ -643,9 +842,9 @@ Arpeggiator2Widget::Arpeggiator2Widget() {
 	}
 	
 	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 2, 4, true, false), module, Arpeggiator2::PATT_INPUT));
-	addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 3, 4, true, false), module, Arpeggiator2::PATT_PARAM, 0.0, 16.0, 0.0)); 
+	addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 3, 4, true, false), module, Arpeggiator2::PATT_PARAM, 0.0, 5.0, 0.0)); 
 	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 4, 4, true, false), module, Arpeggiator2::ARP_INPUT));
-	addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 5, 4, true, false), module, Arpeggiator2::ARP_PARAM, 0.0, 16.0, 0.0)); 
+	addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 5, 4, true, false), module, Arpeggiator2::ARP_PARAM, 0.0, 3.0, 0.0)); 
 	
 	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 4, true, false), module, Arpeggiator2::TRIG_INPUT));
 	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 1, 4, true, false), module, Arpeggiator2::CLOCK_INPUT));
