@@ -835,13 +835,11 @@ struct Arpeggiator2Display : TransparentWidget {
 		nvgText(vg, pos.x + 10, pos.y + 25, text, NULL);
 
 		switch(module->currPatt->scale) {
-			case 0: snprintf(text, sizeof(text), "Transpose Scale: Semitone"); break;
-			case 1: snprintf(text, sizeof(text), "Transpose Scale: Major"); break;
-			case 2: snprintf(text, sizeof(text), "Transpose Scale: Minor"); break;
-			default: snprintf(text, sizeof(text), "ARP: ERR"); break;
+			case 0: snprintf(text, sizeof(text), "Transpose: %d semitones", module->currPatt->trans); break;
+			case 1: snprintf(text, sizeof(text), "Transpose: %d Major int.", module->currPatt->trans); break;
+			case 2: snprintf(text, sizeof(text), "Transpose: %d Minor int.", module->currPatt->trans); break;
+			default: snprintf(text, sizeof(text), "Error..."); break;
 		}
-
-		snprintf(text, sizeof(text), "Transpose Steps: %d", module->currPatt->trans);
 		nvgText(vg, pos.x + 10, pos.y + 45, text, NULL);
 
 		snprintf(text, sizeof(text), "Arpeggio: %s", module->currArp->getName().c_str());
