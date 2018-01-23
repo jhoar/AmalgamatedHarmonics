@@ -58,7 +58,7 @@ struct Imperfect : Module {
 	int stepX;
 	
 	inline bool debug() {
-		return false;
+		return true;
 	}
 	
 };
@@ -192,10 +192,10 @@ ImperfectWidget::ImperfectWidget() {
 
 	for (int i = 0; i < 8; i++) {
 		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, i + 1, true, true), module, Imperfect::TRIG_INPUT + i));
-		addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 1, i + 1, true, true), module, Imperfect::DELAY_PARAM + i, 1.0, 3.0, 1.0));
-		addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 2, i + 1, true, true), module, Imperfect::DELAYSPREAD_PARAM + i, 1.0, 3.0, 1.0));
-		addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 3, i + 1, true, true), module, Imperfect::LENGTH_PARAM + i, 1.001, 3.0, 1.001)); // Always produce gate
-		addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 4, i + 1, true, true), module, Imperfect::LENGTHSPREAD_PARAM + i, 1.0, 3.0, 1.0)); 
+		addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 1, i + 1, true, true), module, Imperfect::DELAY_PARAM + i, 1.0, 2.0, 1.0));
+		addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 2, i + 1, true, true), module, Imperfect::DELAYSPREAD_PARAM + i, 1.0, 2.0, 1.0));
+		addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 3, i + 1, true, true), module, Imperfect::LENGTH_PARAM + i, 1.001, 2.0, 1.001)); // Always produce gate
+		addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 4, i + 1, true, true), module, Imperfect::LENGTHSPREAD_PARAM + i, 1.0, 2.0, 1.0)); 
 		addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 5, i + 1, true, true), module, Imperfect::DIVISION_PARAM + i, 0, 8, 0));
 		addChild(createLight<MediumLight<GreenRedLight>>(ui.getPosition(UI::LIGHT, 6, i + 1, true, true), module, Imperfect::OUT_LIGHT + i * 2));
 		addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 7, i + 1, true, true), module, Imperfect::OUT_OUTPUT + i));
