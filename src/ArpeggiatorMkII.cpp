@@ -494,7 +494,7 @@ struct Arpeggiator2 : Module {
 	int poll = 5000;
 		
 	inline bool debug() {
-		return true;
+		return false;
 	}
 	
 	
@@ -818,7 +818,7 @@ struct Arpeggiator2Display : TransparentWidget {
 
 	void draw(NVGcontext *vg) override {
 	
-		Vec pos = Vec(0, 20);
+		Vec pos = Vec(0, 15);
 
 		nvgFontSize(vg, 20);
 		nvgFontFaceId(vg, font->handle);
@@ -826,10 +826,27 @@ struct Arpeggiator2Display : TransparentWidget {
 
 		nvgFillColor(vg, nvgRGBA(212, 175, 55, 0xff));
 	
-		std::string inputs ("Hello!");
+		char text[128];
+
+		snprintf(text, sizeof(text), "Pattern: %s", module->currPatt->getName().c_str());
+		nvgText(vg, pos.x + 10, pos.y + 5, text, NULL);
+
+		snprintf(text, sizeof(text), "Length: %d", module->currPatt->length);
+		nvgText(vg, pos.x + 10, pos.y + 25, text, NULL);
+
+		switch(module->currPatt->scale) {
+			case 0: snprintf(text, sizeof(text), "Transpose Scale: Semitone"); break;
+			case 1: snprintf(text, sizeof(text), "Transpose Scale: Major"); break;
+			case 2: snprintf(text, sizeof(text), "Transpose Scale: Minor"); break;
+			default: snprintf(text, sizeof(text), "ARP: ERR"); break;
+		}
+
+		snprintf(text, sizeof(text), "Transpose Steps: %d", module->currPatt->trans);
+		nvgText(vg, pos.x + 10, pos.y + 45, text, NULL);
+
+		snprintf(text, sizeof(text), "Arpeggio: %s", module->currArp->getName().c_str());
+		nvgText(vg, pos.x + 10, pos.y + 65, text, NULL);
 		
-		nvgText(vg, pos.x + 10, pos.y + 85, inputs.c_str(), NULL);
-				
 	}
 	
 };
@@ -869,7 +886,7 @@ Arpeggiator2Widget::Arpeggiator2Widget() {
 	addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 3, 0, false, false), module, Arpeggiator2::EOC_OUTPUT));
 	addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 4, 0, false, false), module, Arpeggiator2::EOS_OUTPUT));
 		
-	addParam(createParam<BefacoPush>(Vec(127, 155), module, Arpeggiator2::TRIGGER_PARAM, 0.0, 1.0, 0.0));
+	addParam(createParam<BefacoPush>(Vec(195, 148), module, Arpeggiator2::TRIGGER_PARAM, 0.0, 1.0, 0.0));
 	
 	for (int i = 0; i < Arpeggiator2::NUM_PITCHES; i++) {
 		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, i, 5, true, false),  module, Arpeggiator2::PITCH_INPUT + i));
@@ -880,7 +897,7 @@ Arpeggiator2Widget::Arpeggiator2Widget() {
 	
 	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 4, true, false), module, Arpeggiator2::TRIG_INPUT));
 	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 1, 4, true, false), module, Arpeggiator2::CLOCK_INPUT));
-	addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 2, 4, true, false), module, Arpeggiator2::SCALE_PARAM, 0, 2, 0)); 
+	addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 3, 4, true, false), module, Arpeggiator2::SCALE_PARAM, 0, 2, 0)); 
 
 	
 	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 3, true, false), module, Arpeggiator2::PATT_INPUT));
