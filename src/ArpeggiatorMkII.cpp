@@ -8,46 +8,70 @@
 
 struct Pattern {
 	
+	int length;
+	int trans;
+	int scale;
+	int count;
+		
+	int MAJOR[7] = {0,2,4,5,7,9,11};
+	int MINOR[7] = {0,2,3,5,7,8,10};
+		
 	virtual std::string getName() = 0;
 
-	virtual void initialise(int l, int sc, int tr, bool freeRun) = 0;
+	virtual void initialise(int l, int sc, int tr, bool freeRun) {
+		length = l;
+		trans = tr;
+		scale = sc;
+		count = 0;
+	};
 
-	virtual void advance() = 0;
+	virtual void advance() {
+		count++;
+	};
 
 	virtual int getOffset() = 0;
 	
 	virtual bool isPatternFinished() = 0;
+	
+	int getMajor(int count) {
+		int i = abs(count);
+		int sign = (count < 0) ? -1 : (count > 0);
+		return sign * ((i / 7) * 12 + MAJOR[i % 7]);
+	}
+
+	int getMinor(int count) {
+		int i = abs(count);
+		int sign = (count < 0) ? -1 : (count > 0);
+		return sign * ((i / 7) * 12 + MINOR[i % 7]);
+	}
+
 
 };
 
 struct UpPattern : Pattern {
-
-	int currSt;
-	int length;
-	int trans;
-	int scale;
 
 	std::string getName() override {
 		return "Up";
 	};
 
 	void initialise(int l, int sc, int tr, bool fr) override {
-		length = l;
-		currSt = 0;
-		trans = tr;
-		scale = sc;
-	}
-	
-	void advance() override {
-		currSt++;
+		Pattern::initialise(l,sc,tr,fr);
 	}
 	
 	int getOffset() override {
-		return currSt * trans;
+		
+		switch(scale) {
+			case 0: return count * trans; break;
+			case 1: return getMajor(count * trans); break;
+			case 2: return getMinor(count * trans); break;
+			default:
+				return count * trans; break;
+		}
+	
 	}
 
 	bool isPatternFinished() override {
-		return(currSt == length);
+		return(count == length);
 	}
 	
 };
@@ -55,23 +79,29 @@ struct UpPattern : Pattern {
 struct DownPattern : Pattern {
 
 	int currSt;
-	int length;
 	
 	std::string getName() override {
 		return "Down";
 	};	
 
 	void initialise(int l, int sc, int tr, bool fr) override {
-		length = l;
+		Pattern::initialise(l,sc,tr,fr);
 		currSt = length - 1;
 	}
 	
 	void advance() override {
+		Pattern::advance();
 		currSt--;
 	}
 	
 	int getOffset() override {
-		return currSt;
+		switch(scale) {
+			case 0: return currSt * trans; break;
+			case 1: return getMajor(currSt * trans); break;
+			case 2: return getMinor(currSt * trans); break;
+			default:
+				return currSt * trans; break;
+		}
 	}
 
 	bool isPatternFinished() override {
@@ -82,7 +112,6 @@ struct DownPattern : Pattern {
 
 struct UpDownPattern : Pattern {
 
-	int currSt;
 	int mag;
 	int end;
 	
@@ -91,6 +120,7 @@ struct UpDownPattern : Pattern {
 	};	
 
 	void initialise(int l, int sc, int tr, bool fr) override {
+		Pattern::initialise(l,sc,tr,fr);
 		mag = l - 1;
 		if (fr) {
 			end = 2 * l - 2;
@@ -100,26 +130,30 @@ struct UpDownPattern : Pattern {
 		if (end < 1) {
 			end = 1;
 		}
-		currSt = 0;
-	}
-	
-	void advance() override {
-		currSt++;
 	}
 	
 	int getOffset() override {
-		return mag - abs(mag - currSt);
+		
+		int note = (mag - abs(mag - count));
+		
+		switch(scale) {
+			case 0: return note * trans; break;
+			case 1: return getMajor(note * trans); break;
+			case 2: return getMinor(note * trans); break;
+			default:
+				return note * trans; break;
+		}
+
 	}
 
 	bool isPatternFinished() override {
-		return(currSt == end);
+		return(count == end);
 	}
 	
 };
 
 struct DownUpPattern : Pattern {
 
-	int currSt;
 	int mag;
 	int end;
 	
@@ -128,6 +162,7 @@ struct DownUpPattern : Pattern {
 	};	
 
 	void initialise(int l, int sc, int tr, bool fr) override {
+		Pattern::initialise(l,sc,tr,fr);
 		mag = l - 1;
 		if (fr) {
 			end = 2 * l - 2;
@@ -137,44 +172,42 @@ struct DownUpPattern : Pattern {
 		if (end < 1) {
 			end = 1;
 		}
-		currSt = 0;
-	}
-	
-	void advance() override {
-		currSt++;
 	}
 	
 	int getOffset() override {
-		return -(mag - abs(mag - currSt));
+
+		int note = -(mag - abs(mag - count));
+		
+		switch(scale) {
+			case 0: return note * trans; break;
+			case 1: return getMajor(note * trans); break;
+			case 2: return getMinor(note * trans); break;
+			default:
+				return note * trans; break;
+		}
+		
 	}
 
 	bool isPatternFinished() override {
-		return(currSt == end);
+		return(count == end);
 	}
 	
 };
 
 struct NotePattern : Pattern {
 
-	int currSt;
-	int length;
-	
 	std::vector<int> notes;
 	
 	void initialise(int l, int sc, int tr, bool fr) override {
-		currSt = 0;
-	}
-	
-	void advance() override {
-		currSt++;
+		Pattern::initialise(l,sc,tr,fr);
 	}
 	
 	int getOffset() override {
-		return getNote(currSt);
+		return getNote(count);
 	}
 
 	bool isPatternFinished() override {
-		return (currSt == (int)notes.size());
+		return (count == (int)notes.size());
 	}
 	
 	int getNote(int i) {
