@@ -462,6 +462,29 @@ struct Arpeggiator2 : Module {
 	
 	void step() override;
 	
+	json_t *toJson() override {
+		json_t *rootJ = json_object();
+
+		// gateMode
+		json_t *gateModeJ = json_integer((int) gateMode);
+		json_object_set_new(rootJ, "gateMode", gateModeJ);
+
+		return rootJ;
+	}
+	
+	void fromJson(json_t *rootJ) override {
+		// gateMode
+		json_t *gateModeJ = json_object_get(rootJ, "gateMode");
+		if (gateModeJ)
+			gateMode = (GateMode)json_integer_value(gateModeJ);
+	}
+	
+	enum GateMode {
+		TRIGGER,
+		RETRIGGER,
+		CONTINUOUS,
+	};
+	GateMode gateMode = TRIGGER;
 	
 	SchmittTrigger clockTrigger; // for clock
 	SchmittTrigger trigTrigger;  // for step trigger
@@ -538,8 +561,9 @@ void Arpeggiator2::step() {
 		
 	// Get inputs from Rack
 	float clockInput	= inputs[CLOCK_INPUT].value;
+	bool  clockActive	= inputs[CLOCK_INPUT].active;
 	float trigInput		= inputs[TRIG_INPUT].value;
-	float trigActive	= inputs[TRIG_INPUT].active;
+	bool  trigActive	= inputs[TRIG_INPUT].active;
 	float lockInput		= params[LOCK_PARAM].value;
 	float buttonInput	= params[TRIGGER_PARAM].value;
 	
@@ -598,6 +622,9 @@ void Arpeggiator2::step() {
 		return; // No inputs, no music
 	}
 	
+	if (!clockActive) {
+		isRunning = false;
+	}
 		
 	// Has the trigger input been fired
 	if (triggerStatus) {
@@ -645,9 +672,11 @@ void Arpeggiator2::step() {
 	
 	// Has the trigger input been fired, either on the input or button
 	if (triggerStatus || buttonStatus) {
-		newSequence = COUNTDOWN;
-		newCycle = COUNTDOWN;		
-		if (debug()) { std::cout << stepX << " Triggered" << std::endl; }
+		if (debug()) { std::cout << stepX << " Start countdown " << clockActive <<std::endl; }
+		if (clockActive) {
+			newSequence = COUNTDOWN;
+			newCycle = COUNTDOWN;
+		}
 	}
 	
 	
@@ -789,7 +818,7 @@ void Arpeggiator2::step() {
 		currArp->advance();
 		
 		// Pulse the output gate
-		gatePulse.trigger(5e-4);
+		gatePulse.trigger(5e-3);
 		
 	}	
 	
@@ -800,7 +829,15 @@ void Arpeggiator2::step() {
 	bool gPulse = gatePulse.process(delta);
 	bool sPulse = eosPulse.process(delta);
 	bool cPulse = eocPulse.process(delta);
-	outputs[GATE_OUTPUT].value = gPulse ? 10.0 : 0.0;
+	
+	bool gatesOn = isRunning;
+//	std::cout << gatesOn << " " << gPulse << std::endl;
+	if (gateMode == TRIGGER)
+		gatesOn = gatesOn && gPulse;
+	else if (gateMode == RETRIGGER)
+		gatesOn = gatesOn && !gPulse;
+	
+	outputs[GATE_OUTPUT].value = gatesOn ? 10.0 : 0.0;
 	outputs[EOS_OUTPUT].value = sPulse ? 10.0 : 0.0;
 	outputs[EOC_OUTPUT].value = cPulse ? 10.0 : 0.0;
 			
@@ -907,5 +944,49 @@ Arpeggiator2Widget::Arpeggiator2Widget() {
 
 }
 
+struct ArpGateModeItem : MenuItem {
+	Arpeggiator2 *arp;
+	Arpeggiator2::GateMode gateMode;
+	void onAction(EventAction &e) override {
+		arp->gateMode = gateMode;
+	}
+	void step() override {
+		rightText = (arp->gateMode == gateMode) ? "✔" : "";
+	}
+};
+
+Menu *Arpeggiator2Widget::createContextMenu() {
+	Menu *menu = ModuleWidget::createContextMenu();
+
+	MenuLabel *spacerLabel = new MenuLabel();
+	menu->pushChild(spacerLabel);
+
+	Arpeggiator2 *arp = dynamic_cast<Arpeggiator2*>(module);
+	assert(arp);
+
+	MenuLabel *modeLabel = new MenuLabel();
+	modeLabel->text = "Gate Mode";
+	menu->pushChild(modeLabel);
+
+	ArpGateModeItem *triggerItem = new ArpGateModeItem();
+	triggerItem->text = "Trigger";
+	triggerItem->arp = arp;
+	triggerItem->gateMode = Arpeggiator2::TRIGGER;
+	menu->pushChild(triggerItem);
+
+	ArpGateModeItem *retriggerItem = new ArpGateModeItem();
+	retriggerItem->text = "Retrigger";
+	retriggerItem->arp = arp;
+	retriggerItem->gateMode = Arpeggiator2::RETRIGGER;
+	menu->pushChild(retriggerItem);
+
+	ArpGateModeItem *continuousItem = new ArpGateModeItem();
+	continuousItem->text = "Continuous";
+	continuousItem->arp = arp;
+	continuousItem->gateMode = Arpeggiator2::CONTINUOUS;
+	menu->pushChild(continuousItem);
+
+	return menu;
+}
 
 

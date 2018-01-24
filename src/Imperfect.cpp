@@ -32,6 +32,7 @@ struct Imperfect : Module {
 	float delta;
 		
 	Imperfect() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
+		reset();
 		delta = 1.0 / engineGetSampleRate();
 	}
 	
@@ -40,6 +41,16 @@ struct Imperfect : Module {
 	}
 
 	void step() override;
+	
+	void reset() override {
+		for (int i = 0; i < 8; i++) {
+			delayState[i] = false;
+			gateState[i] = false;
+			delayTime[i] = 0.0;
+			gateTime[i] = 0.0;
+		}
+	}
+	
 
 	Core core;
 
@@ -58,7 +69,7 @@ struct Imperfect : Module {
 	int stepX;
 	
 	inline bool debug() {
-		return true;
+		return false;
 	}
 	
 };

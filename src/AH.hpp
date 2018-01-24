@@ -15,7 +15,7 @@ struct ScaleQuantizerWidget : ModuleWidget {
 };
 
 struct ScaleQuantizer2Widget : ModuleWidget {
-        ScaleQuantizer2Widget();
+	ScaleQuantizer2Widget();
 };
 
 struct ArpeggiatorWidget : ModuleWidget {
@@ -24,12 +24,13 @@ struct ArpeggiatorWidget : ModuleWidget {
 
 struct Arpeggiator2Widget : ModuleWidget {
 	Arpeggiator2Widget();
+	Menu *createContextMenu() override;
 };
 
 
 struct ProgressWidget : ModuleWidget {
-		ProgressWidget();
-		Menu *createContextMenu() override;
+	ProgressWidget();
+	Menu *createContextMenu() override;
 };
 
 struct CircleWidget : ModuleWidget {
@@ -37,7 +38,7 @@ struct CircleWidget : ModuleWidget {
 };
 
 struct ImperfectWidget : ModuleWidget {
-        ImperfectWidget();
+	ImperfectWidget();
 };
 
 

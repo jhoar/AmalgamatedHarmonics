@@ -5,10 +5,6 @@
 
 #include <iostream>
 
-// TODO
-// - Mode mode: chord namer
-// UI
-
 struct Progress : Module {
 
 	const static int NUM_PITCHES = 6;
@@ -61,6 +57,50 @@ struct Progress : Module {
 	}
 
 	void step() override;
+	
+	json_t *toJson() override {
+		json_t *rootJ = json_object();
+
+		// running
+		json_object_set_new(rootJ, "running", json_boolean(running));
+
+		// gates
+		json_t *gatesJ = json_array();
+		for (int i = 0; i < 8; i++) {
+			json_t *gateJ = json_integer((int) gateState[i]);
+			json_array_append_new(gatesJ, gateJ);
+		}
+		json_object_set_new(rootJ, "gates", gatesJ);
+
+		// gateMode
+		json_t *gateModeJ = json_integer((int) gateMode);
+		json_object_set_new(rootJ, "gateMode", gateModeJ);
+
+		return rootJ;
+	}
+	
+	void fromJson(json_t *rootJ) override {
+		// running
+		json_t *runningJ = json_object_get(rootJ, "running");
+		if (runningJ)
+			running = json_is_true(runningJ);
+
+		// gates
+		json_t *gatesJ = json_object_get(rootJ, "gates");
+		if (gatesJ) {
+			for (int i = 0; i < 8; i++) {
+				json_t *gateJ = json_array_get(gatesJ, i);
+				if (gateJ)
+					gateState[i] = !!json_integer_value(gateJ);
+			}
+		}
+
+		// gateMode
+		json_t *gateModeJ = json_object_get(rootJ, "gateMode");
+		if (gateModeJ)
+			gateMode = (GateMode)json_integer_value(gateModeJ);
+	}
+	
 	
 	bool running = true;
 	SchmittTrigger clockTrigger; // for external clock
@@ -516,7 +556,7 @@ ProgressWidget::ProgressWidget() {
 	addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 3, 0, true, false), module, Progress::STEPS_PARAM, 1.0, 8.0, 8.0));
 	addChild(createLight<MediumLight<GreenLight>>(ui.getPosition(UI::LIGHT, 4, 0, true, false), module, Progress::GATES_LIGHT));
 
-	static const float portX[13] = {20, 58, 96, 135, 173, 212, 250, 288, 326, 364, 402, 440, 478};
+//	static const float portX[13] = {20, 58, 96, 135, 173, 212, 250, 288, 326, 364, 402, 440, 478};
 	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 1, true, false), module, Progress::CLOCK_INPUT));
 	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 1, 1, true, false), module, Progress::EXT_CLOCK_INPUT));
 	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 2, 1, true, false), module, Progress::RESET_INPUT));
