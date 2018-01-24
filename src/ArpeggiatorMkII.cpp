@@ -453,6 +453,7 @@ struct Arpeggiator2 : Module {
 	float delta;
 		
 	Arpeggiator2() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
+		reset();
 		delta = 1.0 / engineGetSampleRate();
 	}
 	
@@ -461,6 +462,14 @@ struct Arpeggiator2 : Module {
 	}
 	
 	void step() override;
+	
+	void reset() override {	
+		newSequence = 0;
+		newCycle = 0;
+		isRunning = false;
+		freeRunning = false;
+	}
+	
 	
 	json_t *toJson() override {
 		json_t *rootJ = json_object();
