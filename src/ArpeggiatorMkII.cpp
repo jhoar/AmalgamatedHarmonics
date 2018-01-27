@@ -6,12 +6,13 @@
 
 #include <iostream>
 
+
 struct Pattern {
 	
-	int length;
-	int trans;
-	int scale;
-	int count;
+	int length = 0;
+	int trans = 0;
+	int scale = 0;
+	int count = 0;
 		
 	int MAJOR[7] = {0,2,4,5,7,9,11};
 	int MINOR[7] = {0,2,3,5,7,8,10};
@@ -45,7 +46,6 @@ struct Pattern {
 		return sign * ((i / 7) * 12 + MINOR[i % 7]);
 	}
 
-
 };
 
 struct UpPattern : Pattern {
@@ -78,7 +78,7 @@ struct UpPattern : Pattern {
 
 struct DownPattern : Pattern {
 
-	int currSt;
+	int currSt = 0;
 	
 	std::string getName() override {
 		return "Down";
@@ -112,8 +112,8 @@ struct DownPattern : Pattern {
 
 struct UpDownPattern : Pattern {
 
-	int mag;
-	int end;
+	int mag = 0;
+	int end = 0;
 	
 	std::string getName() override {
 		return "UpDown";
@@ -154,8 +154,8 @@ struct UpDownPattern : Pattern {
 
 struct DownUpPattern : Pattern {
 
-	int mag;
-	int end;
+	int mag = 0;
+	int end = 0;
 	
 	std::string getName() override {
 		return "DownUp";
@@ -282,8 +282,8 @@ struct Arpeggio {
 
 struct RightArp : Arpeggio {
 
-	int index;
-	int nPitches;
+	int index = 0;
+	int nPitches = 0;
 
 	std::string getName() override {
 		return "Right";
@@ -310,8 +310,8 @@ struct RightArp : Arpeggio {
 
 struct LeftArp : Arpeggio {
 
-	int index;
-	int nPitches;
+	int index = 0;
+	int nPitches = 0;
 
 	std::string getName() override {
 		return "Left";
@@ -338,9 +338,9 @@ struct LeftArp : Arpeggio {
 
 struct RightLeftArp : Arpeggio {
 
-	int currSt;
-	int mag;
-	int end;
+	int currSt = 0;
+	int mag = 0;
+	int end = 0;
 	
 	std::string getName() override {
 		return "RightLeft";
@@ -375,9 +375,9 @@ struct RightLeftArp : Arpeggio {
 
 struct LeftRightArp : Arpeggio {
 
-	int currSt;
-	int mag;
-	int end;
+	int currSt = 0;
+	int mag = 0;
+	int end = 0;
 	
 	std::string getName() override {
 		return "LeftRight";
@@ -409,7 +409,6 @@ struct LeftRightArp : Arpeggio {
 	}
 	
 };
-
 
 
 struct Arpeggiator2 : Module {
@@ -454,6 +453,7 @@ struct Arpeggiator2 : Module {
 		
 	Arpeggiator2() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
 		reset();
+		id = rand();
 		delta = 1.0 / engineGetSampleRate();
 	}
 	
@@ -463,13 +463,12 @@ struct Arpeggiator2 : Module {
 	
 	void step() override;
 	
-	void reset() override {	
+	void reset() override {
 		newSequence = 0;
 		newCycle = 0;
 		isRunning = false;
 		freeRunning = false;
 	}
-	
 	
 	json_t *toJson() override {
 		json_t *rootJ = json_object();
@@ -484,8 +483,10 @@ struct Arpeggiator2 : Module {
 	void fromJson(json_t *rootJ) override {
 		// gateMode
 		json_t *gateModeJ = json_object_get(rootJ, "gateMode");
-		if (gateModeJ)
+		
+		if (gateModeJ) {
 			gateMode = (GateMode)json_integer_value(gateModeJ);
+		}
 	}
 	
 	enum GateMode {
@@ -507,20 +508,21 @@ struct Arpeggiator2 : Module {
 
 	bool locked = false;
 
-	float outVolts;
+	float outVolts = 0;
 	bool isRunning = false;
 	bool freeRunning = false;
+	int error = 0;
 	
 	int newSequence = 0;
 	int newCycle = 0;
 	const static int LAUNCH = 1;
 	const static int COUNTDOWN = 3;
 	
-	int inputPat;
-	int inputArp;
-	int inputLen;
-	int inputTrans;
-	int inputScale;
+	int inputPat = 0;
+	int inputArp = 0;
+	int inputLen = 0;
+	int inputTrans = 0;
+	int inputScale = 0;
 	
 	int stepX = 0;
 	int poll = 5000;
@@ -530,11 +532,11 @@ struct Arpeggiator2 : Module {
 	}
 	
 	
-	int pattern;
-	int arp;
-	int length;
-	float trans;
-	float scale;
+	int pattern = 0;
+	int arp = 0;
+	int length = 0;
+	float trans = 0;
+	float scale = 0;
 	
 	float semiTone = 1.0 / 12.0;
 
@@ -554,7 +556,8 @@ struct Arpeggiator2 : Module {
 	Arpeggio *currArp = &arp_right;
 	
 	float pitches[6];
-	int nPitches;
+	int nPitches = 0;
+	int id = 0;
 	
 };
 
@@ -562,12 +565,12 @@ struct Arpeggiator2 : Module {
 void Arpeggiator2::step() {
 	
 	stepX++;
-	
+
 	// Wait a few steps for the inputs to flow through Rack
 	if (stepX < 10) { 
 		return;
 	}
-		
+	
 	// Get inputs from Rack
 	float clockInput	= inputs[CLOCK_INPUT].value;
 	bool  clockActive	= inputs[CLOCK_INPUT].active;
@@ -576,7 +579,7 @@ void Arpeggiator2::step() {
 	float lockInput		= params[LOCK_PARAM].value;
 	float buttonInput	= params[TRIGGER_PARAM].value;
 	
-	
+	// Read param section	
 	if (inputs[PATT_INPUT].active) {
 		inputPat = inputs[PATT_INPUT].value;
 	} else {
@@ -595,7 +598,6 @@ void Arpeggiator2::step() {
 		inputLen = params[LENGTH_PARAM].value;
 	}	
 	
-	// Read param section
 	if (inputs[TRANS_INPUT].active) {
 		inputTrans = inputs[TRANS_INPUT].value;
 	} else {
@@ -610,7 +612,7 @@ void Arpeggiator2::step() {
 	bool lockStatus		= lockTrigger.process(lockInput);
 	bool buttonStatus 	= buttonTrigger.process(buttonInput);
 	
-	
+	// Read input pitches and assign to pitch array
 	int nValidPitches = 0;
 	float inputPitches[NUM_PITCHES];
 	for (int p = 0; p < NUM_PITCHES; p++) {
@@ -618,19 +620,24 @@ void Arpeggiator2::step() {
 		if (inputs[index].active) {
 			inputPitches[nValidPitches] = inputs[index].value;
 			nValidPitches++;
+		} else {
+			inputPitches[nValidPitches] = 0.0;
 		}
 	}
 	
-		
-	// Check that we even have anything plugged in
+	// Always play something
 	if (nValidPitches == 0) {
-		return; // No inputs, no music
+		if (debug()) { std::cout << stepX << " " << id  << " No inputs, assume single 0V pitch" << std::endl; }
+		nValidPitches = 1;
 	}
-
+	
+	// Need to understand why this happens
 	if (inputLen == 0) {
+		if (debug()) { std::cout << stepX << " " << id  << " InputLen == 0, aborting" << std::endl; }
 		return; // No inputs, no music
 	}
 	
+	// If there is no clock input, then force that we are not running
 	if (!clockActive) {
 		isRunning = false;
 	}
@@ -638,18 +645,16 @@ void Arpeggiator2::step() {
 	// Has the trigger input been fired
 	if (triggerStatus) {
 		triggerPulse.trigger(5e-5);
-		if (debug()) { std::cout << stepX << " Triggered" << std::endl; }
+		if (debug()) { std::cout << stepX << " " << id  << " Triggered" << std::endl; }
 	}
-	
 	
 	// Update the trigger pulse and determine if it is still high
 	bool triggerHigh = triggerPulse.process(delta);
 	if (debug()) { 
 		if (triggerHigh) {
-			std::cout << stepX << " Trigger is high" << std::endl;
+			std::cout << stepX << " " << id  << " Trigger is high" << std::endl;
 		}
 	}
-	
 	
 	// Update lock
 	if (lockStatus) {
@@ -657,16 +662,14 @@ void Arpeggiator2::step() {
 		locked = !locked;
 	}
 	
-	
 	if (newSequence) {
 		newSequence--;
-		if (debug()) { std::cout << stepX << " Countdown newSequence: " << newSequence << std::endl; }
+		if (debug()) { std::cout << stepX << " " << id  << " Countdown newSequence: " << newSequence << std::endl; }
 	}
-
-
+	
 	if (newCycle) {
 		newCycle--;
-		if (debug()) { std::cout << stepX << " Countdown newCycle: " << newCycle << std::endl; }
+		if (debug()) { std::cout << stepX << " " << id  << " Countdown newCycle: " << newCycle << std::endl; }
 	}
 	
 	// OK so the problem here might be that the clock gate is still high right after the trigger gate fired on the previous step
@@ -674,41 +677,37 @@ void Arpeggiator2::step() {
 	// Has the clock input been fired
 	bool isClocked = false;
 	if (clockStatus && !triggerHigh) {
-		if (debug()) { std::cout << stepX << " Clocked" << std::endl; }
+		if (debug()) { std::cout << stepX << " " << id  << " Clocked" << std::endl; }
 		isClocked = true;
 	}
 	
-	
 	// Has the trigger input been fired, either on the input or button
 	if (triggerStatus || buttonStatus) {
-		if (debug()) { std::cout << stepX << " Start countdown " << clockActive <<std::endl; }
+		if (debug()) { std::cout << stepX << " " << id  << " Start countdown " << clockActive <<std::endl; }
 		if (clockActive) {
 			newSequence = COUNTDOWN;
 			newCycle = COUNTDOWN;
 		}
 	}
 	
-	
 	// So this is where the free-running could be triggered
 	if (isClocked && !isRunning) { // Must have a clock and not be already running
 		if (!trigActive) { // If nothing plugged into the TRIG input
-			if (debug()) { std::cout << stepX << " Free running sequence; starting" << std::endl; }
+			if (debug()) { std::cout << stepX << " " << id  << " Free running sequence; starting" << std::endl; }
 			freeRunning = true; // We're free-running
 			newSequence = COUNTDOWN;
 			newCycle = LAUNCH;
 		} else {
-			if (debug()) { std::cout << stepX << " Triggered sequence; wait for trigger" << std::endl; }
+			if (debug()) { std::cout << stepX << " " << id  << " Triggered sequence; wait for trigger" << std::endl; }
 			freeRunning = false;
 		}
 	}
 	
-	
 	// Detect cable being plugged in when free-running, stop free-running
 	if (freeRunning && trigActive && isRunning) {
-		if (debug()) { std::cout << stepX << " TRIG input re-connected" << std::endl; }
+		if (debug()) { std::cout << stepX << " " << id  << " TRIG input re-connected" << std::endl; }
 		freeRunning = false;
 	}	
-	
 	
 	// Reached the end of the cycle
 	if (isRunning && isClocked && currArp->isArpeggioFinished()) {
@@ -718,7 +717,7 @@ void Arpeggiator2::step() {
 		
 		// Pulse the EOC gate
 		eocPulse.trigger(5e-3);
-		if (debug()) { std::cout << stepX << " Finished Cycle" << std::endl; }
+		if (debug()) { std::cout << stepX << " " << id  << " Finished Cycle" << std::endl; }
 		
 		// Reached the end of the sequence
 		if (isRunning && currPatt->isPatternFinished()) {
@@ -733,15 +732,14 @@ void Arpeggiator2::step() {
 			
 			// Pulse the EOS gate
 			eosPulse.trigger(5e-3);
-			if (debug()) { std::cout << stepX << " Finished Sequence, flag: " << isRunning << std::endl; }
+			if (debug()) { std::cout << stepX << " " << id  << " Finished Sequence, flag: " << isRunning << std::endl; }
 
 		} else {
 			newCycle = LAUNCH;
-			if (debug()) { std::cout << stepX << " Flagging new cycle" << std::endl; }
+			if (debug()) { std::cout << stepX << " " << id  << " Flagging new cycle" << std::endl; }
 		}
 		
 	}
-	
 	
 	// If we have been triggered, start a new sequence
 	if (newSequence == LAUNCH) {
@@ -755,7 +753,6 @@ void Arpeggiator2::step() {
 			trans = inputTrans;
 			scale = inputScale;
 			
-
 			switch(pattern) {
 				case 0:		currPatt = &patt_up; 		break;
 				case 1:		currPatt = &patt_down;		break;
@@ -768,7 +765,7 @@ void Arpeggiator2::step() {
 			
 		}
 
-		if (debug()) { std::cout << stepX << " Initiatise new Sequence: Pattern: " << currPatt->getName() << 
+		if (debug()) { std::cout << stepX << " " << id  << " Initiatise new Sequence: Pattern: " << currPatt->getName() << 
 			" Length: " << inputLen <<
 			" Locked: " << locked << std::endl; }
 		
@@ -778,7 +775,6 @@ void Arpeggiator2::step() {
 		isRunning = true;
 		
 	} 
-	
 	
 	// Starting a new cycle
 	if (newCycle == LAUNCH) {
@@ -804,24 +800,23 @@ void Arpeggiator2::step() {
 				
 		}
 
-		if (debug()) { std::cout << stepX << " Initiatise new Cycle: " << nPitches << " " << currArp->getName() << std::endl; }
+		if (debug()) { std::cout << stepX << " " << id  << " Initiatise new Cycle: " << nPitches << " " << currArp->getName() << std::endl; }
 
 		currArp->initialise(nPitches, freeRunning);
 		
 	}
-	
 	
 	// Advance the sequence
 	// Are we starting a sequence or are running and have been clocked; if so advance the sequence
 	// Only advance from the clock
 	if (isRunning && (isClocked || newCycle == LAUNCH)) {
 
-		if (debug()) { std::cout << stepX << " Advance Cycle: " << currArp->getPitch() << std::endl; }
+		if (debug()) { std::cout << stepX << " " << id  << " Advance Cycle: " << currArp->getPitch() << std::endl; }
 				
 		// Finally set the out voltage
 		outVolts = clampf(pitches[currArp->getPitch()] + semiTone * (float)currPatt->getOffset(), -10.0, 10.0);
 		
-		if (debug()) { std::cout << stepX << " Output V = " << outVolts << std::endl; }
+		if (debug()) { std::cout << stepX << " " << id  << " Output V = " << outVolts << std::endl; }
 		
 		// Update counters
 		currArp->advance();
@@ -829,7 +824,7 @@ void Arpeggiator2::step() {
 		// Pulse the output gate
 		gatePulse.trigger(5e-3);
 		
-	}	
+	}
 	
 	// Set the value
 	lights[LOCK_LIGHT].value = locked ? 1.0 : 0.0;
@@ -840,16 +835,16 @@ void Arpeggiator2::step() {
 	bool cPulse = eocPulse.process(delta);
 	
 	bool gatesOn = isRunning;
-//	std::cout << gatesOn << " " << gPulse << std::endl;
-	if (gateMode == TRIGGER)
+	if (gateMode == TRIGGER) {
 		gatesOn = gatesOn && gPulse;
-	else if (gateMode == RETRIGGER)
+	} else if (gateMode == RETRIGGER) {
 		gatesOn = gatesOn && !gPulse;
+	}
 	
 	outputs[GATE_OUTPUT].value = gatesOn ? 10.0 : 0.0;
 	outputs[EOS_OUTPUT].value = sPulse ? 10.0 : 0.0;
 	outputs[EOC_OUTPUT].value = cPulse ? 10.0 : 0.0;
-			
+	
 }
 
 struct Arpeggiator2Display : TransparentWidget {
@@ -873,24 +868,27 @@ struct Arpeggiator2Display : TransparentWidget {
 		nvgFillColor(vg, nvgRGBA(212, 175, 55, 0xff));
 	
 		char text[128];
+		if (module->inputLen == 0) {
+			snprintf(text, sizeof(text), "Error: inputLen == 0");
+			nvgText(vg, pos.x + 10, pos.y + 5, text, NULL);			
+		} else {
+			snprintf(text, sizeof(text), "Pattern: %s", module->currPatt->getName().c_str());
+			nvgText(vg, pos.x + 10, pos.y + 5, text, NULL);
 
-		snprintf(text, sizeof(text), "Pattern: %s", module->currPatt->getName().c_str());
-		nvgText(vg, pos.x + 10, pos.y + 5, text, NULL);
+			snprintf(text, sizeof(text), "Length: %d", module->currPatt->length);
+			nvgText(vg, pos.x + 10, pos.y + 25, text, NULL);
 
-		snprintf(text, sizeof(text), "Length: %d", module->currPatt->length);
-		nvgText(vg, pos.x + 10, pos.y + 25, text, NULL);
+			switch(module->currPatt->scale) {
+				case 0: snprintf(text, sizeof(text), "Transpose: %d semitones", module->currPatt->trans); break;
+				case 1: snprintf(text, sizeof(text), "Transpose: %d Major int.", module->currPatt->trans); break;
+				case 2: snprintf(text, sizeof(text), "Transpose: %d Minor int.", module->currPatt->trans); break;
+				default: snprintf(text, sizeof(text), "Error..."); break;
+			}
+			nvgText(vg, pos.x + 10, pos.y + 45, text, NULL);
 
-		switch(module->currPatt->scale) {
-			case 0: snprintf(text, sizeof(text), "Transpose: %d semitones", module->currPatt->trans); break;
-			case 1: snprintf(text, sizeof(text), "Transpose: %d Major int.", module->currPatt->trans); break;
-			case 2: snprintf(text, sizeof(text), "Transpose: %d Minor int.", module->currPatt->trans); break;
-			default: snprintf(text, sizeof(text), "Error..."); break;
+			snprintf(text, sizeof(text), "Arpeggio: %s", module->currArp->getName().c_str());
+			nvgText(vg, pos.x + 10, pos.y + 65, text, NULL);
 		}
-		nvgText(vg, pos.x + 10, pos.y + 45, text, NULL);
-
-		snprintf(text, sizeof(text), "Arpeggio: %s", module->currArp->getName().c_str());
-		nvgText(vg, pos.x + 10, pos.y + 65, text, NULL);
-		
 	}
 	
 };
