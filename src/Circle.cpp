@@ -32,9 +32,35 @@ struct Circle : Module {
 		CKEY_LIGHT = BKEY_LIGHT + 12, 
 		NUM_LIGHTS = CKEY_LIGHT + 12
 	};
+	enum Scaling {
+		CHROMATIC,
+		FIFTHS
+	};
+	Scaling voltScale = FIFTHS;
 	
 	Circle() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
 	void step() override;
+	
+	json_t *toJson() override {
+		json_t *rootJ = json_object();
+
+		// gateMode
+		json_t *scaleModeJ = json_integer((int) voltScale);
+		json_object_set_new(rootJ, "scale", scaleModeJ);
+
+		return rootJ;
+	}
+	
+	void fromJson(json_t *rootJ) override {
+		// gateMode
+		json_t *scaleModeJ = json_object_get(rootJ, "scale");
+		
+		if (scaleModeJ) {
+			voltScale = (Scaling)json_integer_value(scaleModeJ);
+		}
+	}
+	
+	
 	
 	SchmittTrigger rotLTrigger;
 	SchmittTrigger rotRTrigger;
@@ -49,13 +75,13 @@ struct Circle : Module {
 	int curMode = 0;
 		
 	int stepX = 0;
-	int poll = 5000;
+	int poll = 50000;
 	
 	inline bool debug() {
 		if (stepX % poll == 0) {
-			return false;			
+			return true;			
 		}
-		return false;
+		return true;
 	}
 	
 };
@@ -69,9 +95,14 @@ void Circle::step() {
 	float rotRInput		= inputs[ROTR_INPUT].value;
 	
 	int newKeyIndex = 0;
+	int deg;
 	if (inputs[KEY_INPUT].active) {
 		float fRoot = inputs[KEY_INPUT].value;
-		newKeyIndex = CoreUtil().getKeyFromVolts(fRoot);
+		if (voltScale == FIFTHS) {
+			newKeyIndex = CoreUtil().getKeyFromVolts(fRoot);
+		} else {
+			CoreUtil().getPitchFromVolts(fRoot, Core::NOTE_C, Core::SCALE_CHROMATIC, &newKeyIndex, &deg);
+		}
 	} else {
 		newKeyIndex = params[KEY_PARAM].value;
 	}
@@ -121,16 +152,13 @@ void Circle::step() {
 		baseKeyIndex = newKeyIndex;
 		curKeyIndex = newKeyIndex;
 	}
-	
-	
+
 	int curKey = CoreUtil().CIRCLE_FIFTHS[curKeyIndex];
 	int baseKey = CoreUtil().CIRCLE_FIFTHS[baseKeyIndex];
-	
+
 	float keyVolts = CoreUtil().getVoltsFromKey(curKey);
 	float modeVolts = CoreUtil().getVoltsFromMode(curMode);
 	
-	if (debug()) { std::cout << stepX << " Out: " << curKey << " " << curMode << std::endl;	}
-			
 	for (int i = 0; i < Core::NUM_NOTES; i++) {
 		lights[CKEY_LIGHT + i].value = 0.0;
 		lights[BKEY_LIGHT + i].value = 0.0;
@@ -207,6 +235,46 @@ CircleWidget::CircleWidget() {
 	addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 4, 5, true, false),  module, Circle::KEY_OUTPUT));
 	addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 5, 5, true, false), module, Circle::MODE_OUTPUT));
 
+}
+
+
+struct CircleScalingItem : MenuItem {
+	Circle *circle;
+	Circle::Scaling scalingMode;
+	void onAction(EventAction &e) override {
+		circle->voltScale = scalingMode;
+	}
+	void step() override {
+		rightText = (circle->voltScale == scalingMode) ? "✔" : "";
+	}
+};
+
+Menu *CircleWidget::createContextMenu() {
+	Menu *menu = ModuleWidget::createContextMenu();
+
+	MenuLabel *spacerLabel = new MenuLabel();
+	menu->pushChild(spacerLabel);
+
+	Circle *circle = dynamic_cast<Circle*>(module);
+	assert(circle);
+
+	MenuLabel *modeLabel = new MenuLabel();
+	modeLabel->text = "Scaling Mode";
+	menu->pushChild(modeLabel);
+
+	CircleScalingItem *fifthsItem = new CircleScalingItem();
+	fifthsItem->text = "Fifths";
+	fifthsItem->circle = circle;
+	fifthsItem->scalingMode = Circle::FIFTHS;
+	menu->pushChild(fifthsItem);
+
+	CircleScalingItem *chromaticItem = new CircleScalingItem();
+	chromaticItem->text = "Chromatic (V/OCT)";
+	chromaticItem->circle = circle;
+	chromaticItem->scalingMode = Circle::CHROMATIC;
+	menu->pushChild(chromaticItem);
+
+	return menu;
 }
 
 
