@@ -79,9 +79,9 @@ struct Circle : Module {
 	
 	inline bool debug() {
 		if (stepX % poll == 0) {
-			return true;			
+			return false;			
 		}
-		return true;
+		return false;
 	}
 	
 };
@@ -152,9 +152,18 @@ void Circle::step() {
 		baseKeyIndex = newKeyIndex;
 		curKeyIndex = newKeyIndex;
 	}
-
+	
 	int curKey = CoreUtil().CIRCLE_FIFTHS[curKeyIndex];
-	int baseKey = CoreUtil().CIRCLE_FIFTHS[baseKeyIndex];
+	int baseKey;
+
+	if (voltScale == FIFTHS) {
+		baseKey = CoreUtil().CIRCLE_FIFTHS[baseKeyIndex];
+		if (debug()) { std::cout << stepX << " Base Fifth scaling: " << baseKeyIndex << "->" << baseKey << std::endl;}
+	} else {
+		baseKey = baseKeyIndex;		
+		if (debug()) { std::cout << stepX << " Base Chrom scaling: " << baseKeyIndex << "->" << baseKey << std::endl;}
+	}
+
 
 	float keyVolts = CoreUtil().getVoltsFromKey(curKey);
 	float modeVolts = CoreUtil().getVoltsFromMode(curMode);
@@ -259,7 +268,7 @@ Menu *CircleWidget::createContextMenu() {
 	assert(circle);
 
 	MenuLabel *modeLabel = new MenuLabel();
-	modeLabel->text = "Scaling Mode";
+	modeLabel->text = "Root Volt Scaling";
 	menu->pushChild(modeLabel);
 
 	CircleScalingItem *fifthsItem = new CircleScalingItem();
