@@ -79,9 +79,9 @@ struct Circle : Module {
 	
 	inline bool debug() {
 		if (stepX % poll == 0) {
-			return true;			
+			return false;			
 		}
-		return true;
+		return false;
 	}
 	
 };
@@ -123,20 +123,35 @@ void Circle::step() {
 		
 	if (rotLStatus) {
 		if (debug()) { std::cout << stepX << " Rotate left: " << curKeyIndex; }
-		if (curKeyIndex == 0) {
-			curKeyIndex = 11;
+		if (voltScale == FIFTHS) {
+			if (curKeyIndex == 0) {
+				curKeyIndex = 11;
+			} else {
+				curKeyIndex--;
+			}
 		} else {
-			curKeyIndex--;
+			curKeyIndex = curKeyIndex + 5;
+			if (curKeyIndex > 11) {
+				curKeyIndex = curKeyIndex - 12;
+			}
 		}
+		
 		if (debug()) { std::cout << " -> " << curKeyIndex << std::endl;	}
 	} 
 	
 	if (rotRStatus) {
 		if (debug()) { std::cout << stepX << " Rotate right: " << curKeyIndex; }
-		if (curKeyIndex == 11) {
-			curKeyIndex = 0;
+		if (voltScale == FIFTHS) {
+			if (curKeyIndex == 11) {
+				curKeyIndex = 0;
+			} else {
+				curKeyIndex++;
+			}
 		} else {
-			curKeyIndex++;
+			curKeyIndex = curKeyIndex - 5;
+			if (curKeyIndex < 0) {
+				curKeyIndex = curKeyIndex + 12;
+			}
 		}
 		if (debug()) { std::cout << " -> " << curKeyIndex << std::endl;	}
 	} 
