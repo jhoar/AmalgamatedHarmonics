@@ -79,9 +79,9 @@ struct Circle : Module {
 	
 	inline bool debug() {
 		if (stepX % poll == 0) {
-			return false;			
+			return true;			
 		}
-		return false;
+		return true;
 	}
 	
 };
@@ -153,15 +153,15 @@ void Circle::step() {
 		curKeyIndex = newKeyIndex;
 	}
 	
-	int curKey = CoreUtil().CIRCLE_FIFTHS[curKeyIndex];
+	int curKey;
 	int baseKey;
 
 	if (voltScale == FIFTHS) {
+		curKey = CoreUtil().CIRCLE_FIFTHS[curKeyIndex];
 		baseKey = CoreUtil().CIRCLE_FIFTHS[baseKeyIndex];
-		if (debug()) { std::cout << stepX << " Base Fifth scaling: " << baseKeyIndex << "->" << baseKey << std::endl;}
 	} else {
+		curKey = curKeyIndex;
 		baseKey = baseKeyIndex;		
-		if (debug()) { std::cout << stepX << " Base Chrom scaling: " << baseKeyIndex << "->" << baseKey << std::endl;}
 	}
 
 
