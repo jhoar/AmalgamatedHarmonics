@@ -36,6 +36,7 @@ struct ScaleQuantizer2 : Module {
 	bool firstStep = true;
 	int lastScale = 0;
 	int lastRoot = 0;
+	float lastTrans = -10000.0;
 	
 	int currScale = 0;
 	int currRoot = 0;
@@ -63,8 +64,18 @@ void ScaleQuantizer2::step() {
 	} else {
 		currScale = params[SCALE_PARAM].value;
 	}
-	
+
 	float trans = (inputs[TRANS_INPUT].value + params[TRANS_PARAM].value) / 12.0;
+	if (trans != 0.0) {
+		if (trans != lastTrans) {
+			int i;
+			int d;
+			trans = CoreUtil().getPitchFromVolts(trans, Core::NOTE_C, Core::SCALE_CHROMATIC, &i, &d);
+			lastTrans = trans;
+		} else {
+			trans = lastTrans;
+		}
+	}
 	
 	for (int i = 0; i < 8; i++) {
 		float volts = inputs[IN_INPUT + i].value;
