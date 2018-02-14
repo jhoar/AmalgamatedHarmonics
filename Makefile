@@ -1,30 +1,27 @@
+# Must follow the format in the Naming section of https://vcvrack.com/manual/PluginDevelopmentTutorial.html
+SLUG = Template
+
+# Must follow the format in the Versioning section of https://vcvrack.com/manual/PluginDevelopmentTutorial.html
+VERSION = 0.6.0dev
 
 # FLAGS will be passed to both the C and C++ compiler
 FLAGS +=
 CFLAGS +=
 CXXFLAGS +=
 
-# Careful about linking to libraries, since you can't assume much about the user's environment and library search path.
+# Careful about linking to shared libraries, since you can't assume much about the user's environment and library search path.
 # Static libraries are fine.
 LDFLAGS +=
 
 # Add .cpp and .c files to the build
-SOURCES = $(wildcard src/*.cpp)
+SOURCES += $(wildcard src/*.cpp)
 
+# Add files to the ZIP package when running `make dist`
+# The compiled plugin is automatically added.
+DISTRIBUTABLES += $(wildcard LICENSE*) res
 
-# Must include the VCV plugin Makefile framework
-include ../../plugin.mk
+# If RACK_DIR is not defined when calling the Makefile, default to two levels above
+RACK_DIR ?= ../..
 
-
-# Convenience target for including files in the distributable release
-DIST_NAME = AmalgamatedHarmonics
-.PHONY: dist
-dist: all
-ifndef VERSION
-	$(error VERSION must be defined when making distributables)
-endif
-	mkdir -p dist/$(DIST_NAME)
-	cp LICENSE* dist/$(DIST_NAME)/
-	cp $(TARGET) dist/$(DIST_NAME)/
-	cp -R res dist/$(DIST_NAME)/
-	cd dist && zip -5 -r $(DIST_NAME)-$(VERSION)-$(ARCH).zip $(DIST_NAME)
+# Include the VCV Rack plugin Makefile framework
+include $(RACK_DIR)/plugin.mk
