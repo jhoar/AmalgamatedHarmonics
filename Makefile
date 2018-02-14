@@ -1,5 +1,5 @@
 # Must follow the format in the Naming section of https://vcvrack.com/manual/PluginDevelopmentTutorial.html
-SLUG = Template
+SLUG = AmalgamatedHarmonics
 
 # Must follow the format in the Versioning section of https://vcvrack.com/manual/PluginDevelopmentTutorial.html
 VERSION = 0.6.0dev
