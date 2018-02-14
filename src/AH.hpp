@@ -35,6 +35,7 @@ struct ProgressWidget : ModuleWidget {
 
 struct CircleWidget : ModuleWidget {
 	CircleWidget();
+	Menu *createContextMenu() override;
 };
 
 struct ImperfectWidget : ModuleWidget {
