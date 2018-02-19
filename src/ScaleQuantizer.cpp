@@ -99,13 +99,14 @@ void ScaleQuantizer::step() {
 	firstStep = false;
 
 }
+struct ScaleQuantizerWidget : ModuleWidget {
+	ScaleQuantizerWidget(ScaleQuantizer *module);
+};
 
-ScaleQuantizerWidget::ScaleQuantizerWidget() {
-	ScaleQuantizer *module = new ScaleQuantizer();
+ScaleQuantizerWidget::ScaleQuantizerWidget(ScaleQuantizer *module) : ModuleWidget(module) {
 	
 	UI ui;
 	
-	setModule(module);
 	box.size = Vec(240, 380);
 
 	{
@@ -115,16 +116,16 @@ ScaleQuantizerWidget::ScaleQuantizerWidget() {
 		addChild(panel);
 	}
 
-	addChild(createScrew<ScrewSilver>(Vec(15, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(15, 365)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 365)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
-	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 5, false, false), module, ScaleQuantizer::IN_INPUT));
-	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 1, 5, false, false), module, ScaleQuantizer::KEY_INPUT));
-	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 2, 5, false, false), module, ScaleQuantizer::SCALE_INPUT));
-	addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 3, 5, false, false), module, ScaleQuantizer::TRIG_OUTPUT));
-	addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 4, 5, false, false), module, ScaleQuantizer::OUT_OUTPUT));
+	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 5, false, false), Port::INPUT, module, ScaleQuantizer::IN_INPUT));
+	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 1, 5, false, false), Port::INPUT, module, ScaleQuantizer::KEY_INPUT));
+	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 2, 5, false, false), Port::INPUT, module, ScaleQuantizer::SCALE_INPUT));
+	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 3, 5, false, false), Port::OUTPUT, module, ScaleQuantizer::TRIG_OUTPUT));
+	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 4, 5, false, false), Port::OUTPUT, module, ScaleQuantizer::OUT_OUTPUT));
 
 	float xOffset = 18.0;
 	float xSpace = 21.0;
@@ -133,20 +134,23 @@ ScaleQuantizerWidget::ScaleQuantizerWidget() {
 	int scale = 0;
 
 	for (int i = 0; i < 12; i++) {
-		addChild(createLight<SmallLight<GreenLight>>(Vec(xOffset + i * 18.0, 280.0), module, ScaleQuantizer::SCALE_LIGHT + i));
+		addChild(ModuleLightWidget::create<SmallLight<GreenLight>>(Vec(xOffset + i * 18.0, 280.0), module, ScaleQuantizer::SCALE_LIGHT + i));
 
 		ui.calculateKeyboard(i, xSpace, xOffset, 230.0, &xPos, &yPos, &scale);
-		addChild(createLight<SmallLight<GreenLight>>(Vec(xPos, yPos), module, ScaleQuantizer::KEY_LIGHT + scale));
+		addChild(ModuleLightWidget::create<SmallLight<GreenLight>>(Vec(xPos, yPos), module, ScaleQuantizer::KEY_LIGHT + scale));
 
 		ui.calculateKeyboard(i, xSpace, xOffset + 72.0, 165.0, &xPos, &yPos, &scale);
-		addChild(createLight<SmallLight<GreenLight>>(Vec(xPos, yPos), module, ScaleQuantizer::NOTE_LIGHT + scale));
+		addChild(ModuleLightWidget::create<SmallLight<GreenLight>>(Vec(xPos, yPos), module, ScaleQuantizer::NOTE_LIGHT + scale));
 
 		ui.calculateKeyboard(i, 30.0, xOffset + 9.5, 110.0, &xPos, &yPos, &scale);
-		addChild(createLight<SmallLight<GreenLight>>(Vec(xPos, yPos), module, ScaleQuantizer::DEGREE_LIGHT + scale));
+		addChild(ModuleLightWidget::create<SmallLight<GreenLight>>(Vec(xPos, yPos), module, ScaleQuantizer::DEGREE_LIGHT + scale));
 
 		ui.calculateKeyboard(i, 30.0, xOffset, 85.0, &xPos, &yPos, &scale);
 
-		addOutput(createOutput<PJ301MPort>(Vec(xPos, yPos), module, ScaleQuantizer::GATE_OUTPUT + scale));
+		addOutput(Port::create<PJ301MPort>(Vec(xPos, yPos), Port::OUTPUT, module, ScaleQuantizer::GATE_OUTPUT + scale));
 	}
 
 }
+
+Model *modelScaleQuantizer = Model::create<ScaleQuantizer, ScaleQuantizerWidget>( "Amalgamated Harmonics", "ScaleQuantizer", "Scale Quantizer", QUANTIZER_TAG);
+

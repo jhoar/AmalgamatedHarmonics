@@ -129,12 +129,12 @@ void Imperfect::step() {
 				gateSpr = log2(params[LENGTHSPREAD_PARAM + i].value);
 
 				// Determine delay and gate times for all active outputs
-				double rndD = clampf(core.gaussrand(), -2.0, 2.0);
-				delayTime[i] = clampf(dlyLen + dlySpr * rndD, 0.0, 100.0);
+				double rndD = clamp(core.gaussrand(), -2.0f, 2.0f);
+				delayTime[i] = clamp(dlyLen + dlySpr * rndD, 0.0f, 100.0f);
 			
 				// The modified gate time cannot be earlier than the start of the delay
-				double rndG = clampf(core.gaussrand(), -2.0, 2.0);
-				gateTime[i] = clampf(gateLen + gateSpr * rndG, 0.02, 100.0);
+				double rndG = clamp(core.gaussrand(), -2.0f, 2.0f);
+				gateTime[i] = clamp(gateLen + gateSpr * rndG, 0.02f, 100.0f);
 
 				if (debug()) { 
 					std::cout << stepX << " Delay: " << i << ": Len: " << dlyLen << " Spr: " << dlySpr << " r: " << rndD << " = " << delayTime[i] << std::endl; 
@@ -181,12 +181,14 @@ void Imperfect::step() {
 	
 }
 
-ImperfectWidget::ImperfectWidget() {
-	Imperfect *module = new Imperfect();
+struct ImperfectWidget : ModuleWidget {
+	ImperfectWidget(Imperfect *module);
+};
+
+ImperfectWidget::ImperfectWidget(Imperfect *module) : ModuleWidget(module) {
 	
 	UI ui;
 	
-	setModule(module);
 	box.size = Vec(315, 380);
 
 	{
@@ -196,21 +198,23 @@ ImperfectWidget::ImperfectWidget() {
 		addChild(panel);
 	}
 
-	addChild(createScrew<ScrewSilver>(Vec(15, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(15, 365)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 365)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
 	for (int i = 0; i < 8; i++) {
-		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, i + 1, true, true), module, Imperfect::TRIG_INPUT + i));
-		addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 1, i + 1, true, true), module, Imperfect::DELAY_PARAM + i, 1.0, 2.0, 1.0));
-		addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 2, i + 1, true, true), module, Imperfect::DELAYSPREAD_PARAM + i, 1.0, 2.0, 1.0));
-		addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 3, i + 1, true, true), module, Imperfect::LENGTH_PARAM + i, 1.001, 2.0, 1.001)); // Always produce gate
-		addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 4, i + 1, true, true), module, Imperfect::LENGTHSPREAD_PARAM + i, 1.0, 2.0, 1.0)); 
-		addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 5, i + 1, true, true), module, Imperfect::DIVISION_PARAM + i, 0, 8, 0));
-		addChild(createLight<MediumLight<GreenRedLight>>(ui.getPosition(UI::LIGHT, 6, i + 1, true, true), module, Imperfect::OUT_LIGHT + i * 2));
-		addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 7, i + 1, true, true), module, Imperfect::OUT_OUTPUT + i));
+		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, i + 1, true, true), Port::INPUT, module, Imperfect::TRIG_INPUT + i));
+		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 1, i + 1, true, true), module, Imperfect::DELAY_PARAM + i, 1.0, 2.0, 1.0));
+		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 2, i + 1, true, true), module, Imperfect::DELAYSPREAD_PARAM + i, 1.0, 2.0, 1.0));
+		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 3, i + 1, true, true), module, Imperfect::LENGTH_PARAM + i, 1.001, 2.0, 1.001)); // Always produce gate
+		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 4, i + 1, true, true), module, Imperfect::LENGTHSPREAD_PARAM + i, 1.0, 2.0, 1.0)); 
+		addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 5, i + 1, true, true), module, Imperfect::DIVISION_PARAM + i, 0, 8, 0));
+		addChild(ModuleLightWidget::create<MediumLight<GreenRedLight>>(ui.getPosition(UI::LIGHT, 6, i + 1, true, true), module, Imperfect::OUT_LIGHT + i * 2));
+		addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 7, i + 1, true, true), Port::OUTPUT, module, Imperfect::OUT_OUTPUT + i));
 	}
 	
 }
+
+Model *modelImperfect = Model::create<Imperfect, ImperfectWidget>( "Amalgamated Harmonics", "Imperfect", "Imperfect", UTILITY_TAG);
 

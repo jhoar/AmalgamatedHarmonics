@@ -110,7 +110,7 @@ void Circle::step() {
 	int newMode = 0;
 	if (inputs[MODE_INPUT].active) {
 		float fMode = inputs[MODE_INPUT].value;
-		newMode = round(rescalef(fabs(fMode), 0.0, 10.0, 0.0, 6.0)); 
+		newMode = round(rescale(fabs(fMode), 0.0f, 10.0f, 0.0f, 6.0f)); 
 	} else {
 		newMode = params[MODE_PARAM].value;
 	}
@@ -201,11 +201,12 @@ void Circle::step() {
 	
 }
 
+struct CircleWidget : ModuleWidget {
+	CircleWidget(Circle *module);
+	Menu *createContextMenu() override;
+};
 
-CircleWidget::CircleWidget() {
-	
-	Circle *module = new Circle();
-	setModule(module);
+CircleWidget::CircleWidget(Circle *module) : ModuleWidget(module) {
 	
 	UI ui;
 	
@@ -218,17 +219,17 @@ CircleWidget::CircleWidget() {
 		addChild(panel);
 	}
 
-	addChild(createScrew<ScrewSilver>(Vec(15, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(15, 365)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 365)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
-	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 0, true, false), module, Circle::ROTL_INPUT));
-	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 5, 0, true, false), module, Circle::ROTR_INPUT));
-	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 5, true, false), module, Circle::KEY_INPUT));
-	addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 1, 5, true, false), module, Circle::KEY_PARAM, 0.0, 11.0, 0.0)); 
-	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 2, 5, true, false), module, Circle::MODE_INPUT));
-	addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 3, 5, true, false), module, Circle::MODE_PARAM, 0.0, 6.0, 0.0)); 
+	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 0, true, false), Port::INPUT, module, Circle::ROTL_INPUT));
+	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 5, 0, true, false), Port::INPUT, module, Circle::ROTR_INPUT));
+	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 5, true, false), Port::INPUT, module, Circle::KEY_INPUT));
+	addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 1, 5, true, false), module, Circle::KEY_PARAM, 0.0, 11.0, 0.0)); 
+	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 2, 5, true, false), Port::INPUT, module, Circle::MODE_INPUT));
+	addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 3, 5, true, false), module, Circle::MODE_PARAM, 0.0, 6.0, 0.0)); 
 
 	float div = (M_PI * 2) / 12.0;
 
@@ -243,21 +244,21 @@ CircleWidget::CircleWidget() {
 		float yyPos = cosDiv * 60.0;
 
 //		ui.calculateKeyboard(i, xSpace, xOffset, 230.0, &xPos, &yPos, &scale);
-		addChild(createLight<SmallLight<GreenLight>>(Vec(xxPos + 116.5, 149.5 - yyPos), module, Circle::CKEY_LIGHT + CoreUtil().CIRCLE_FIFTHS[i]));
+		addChild(ModuleLightWidget::create<SmallLight<GreenLight>>(Vec(xxPos + 116.5, 149.5 - yyPos), module, Circle::CKEY_LIGHT + CoreUtil().CIRCLE_FIFTHS[i]));
 
 //		ui.calculateKeyboard(i, xSpace, xOffset + 72.0, 165.0, &xPos, &yPos, &scale);
-		addChild(createLight<SmallLight<RedLight>>(Vec(xPos + 116.5, 149.5 - yPos), module, Circle::BKEY_LIGHT + CoreUtil().CIRCLE_FIFTHS[i]));
+		addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(xPos + 116.5, 149.5 - yPos), module, Circle::BKEY_LIGHT + CoreUtil().CIRCLE_FIFTHS[i]));
 	}
 	
 	float xOffset = 18.0;
 	
 	for (int i = 0; i < 7; i++) {
 		float xPos = 2 * xOffset + i * 18.2;
-		addChild(createLight<SmallLight<GreenLight>>(Vec(xPos, 280.0), module, Circle::MODE_LIGHT + i));
+		addChild(ModuleLightWidget::create<SmallLight<GreenLight>>(Vec(xPos, 280.0), module, Circle::MODE_LIGHT + i));
 	}
 
-	addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 4, 5, true, false),  module, Circle::KEY_OUTPUT));
-	addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 5, 5, true, false), module, Circle::MODE_OUTPUT));
+	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 4, 5, true, false), Port::OUTPUT, module, Circle::KEY_OUTPUT));
+	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 5, 5, true, false), Port::OUTPUT, module, Circle::MODE_OUTPUT));
 
 }
 
@@ -301,6 +302,6 @@ Menu *CircleWidget::createContextMenu() {
 	return menu;
 }
 
-
+Model *modelCircle = Model::create<Circle, CircleWidget>( "Amalgamated Harmonics", "Circle", "Fifths and Fourths", SEQUENCER_TAG);
 
 // ♯♭

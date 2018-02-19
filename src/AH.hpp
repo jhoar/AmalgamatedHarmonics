@@ -10,37 +10,17 @@ extern Plugin *plugin;
 // module widgets
 ////////////////////
 
-struct ScaleQuantizerWidget : ModuleWidget {
-	ScaleQuantizerWidget();
-};
+extern Model *modelArpeggiator;
 
-struct ScaleQuantizer2Widget : ModuleWidget {
-	ScaleQuantizer2Widget();
-};
+extern Model *modelArpeggiator2;
 
-struct ArpeggiatorWidget : ModuleWidget {
-	ArpeggiatorWidget();
-};
+extern Model *modelCircle;
 
-struct Arpeggiator2Widget : ModuleWidget {
-	Arpeggiator2Widget();
-	Menu *createContextMenu() override;
-};
+extern Model *modelImperfect;
 
+extern Model *modelProgress;
 
-struct ProgressWidget : ModuleWidget {
-	ProgressWidget();
-	Menu *createContextMenu() override;
-};
+extern Model *modelScaleQuantizer;
 
-struct CircleWidget : ModuleWidget {
-	CircleWidget();
-	Menu *createContextMenu() override;
-};
-
-struct ImperfectWidget : ModuleWidget {
-	ImperfectWidget();
-};
-
-
+extern Model *modelScaleQuantizer2;
 

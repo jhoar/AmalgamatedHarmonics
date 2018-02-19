@@ -1,7 +1,7 @@
 #pragma once
 
 #include "AH.hpp"
-#include "components.hpp"
+#include "componentlibrary.hpp"
 
 struct AHButton : SVGSwitch, MomentarySwitch {
 	AHButton() {

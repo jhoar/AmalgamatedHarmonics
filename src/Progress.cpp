@@ -242,7 +242,7 @@ void Progress::step() {
 
 	if (nextStep) {
 		// Advance step
-		int numSteps = clampi(roundf(params[STEPS_PARAM].value + inputs[STEPS_INPUT].value), 1, 8);
+		int numSteps = clamp((int)roundf(params[STEPS_PARAM].value + inputs[STEPS_INPUT].value), 1, 8);
 		index += 1;
 		if (index >= numSteps) {
 			index = 0;
@@ -346,7 +346,7 @@ void Progress::step() {
 			if (update) {
 				
 				// Get Degree (I- VII)
-				currDegree[step] = round(rescalef(fabs(currDegreeInput[step]), 0.0, 10.0, 0, Core::NUM_DEGREES - 1)); 
+				currDegree[step] = round(rescale(fabs(currDegreeInput[step]), 0.0f, 10.0f, 0.0f, Core::NUM_DEGREES - 1)); 
 
 				if (debug()) { std::cout << stepX << 
 					" MODE: Mode: " << currMode << " (" << CoreUtil().modeNames[currMode] << 
@@ -363,13 +363,13 @@ void Progress::step() {
 				// Now get the actual chord from the main list
 				switch(currQuality[step]) {
 					case Core::MAJ: 
-						currChord[step] = round(rescalef(fabs(currQualityInput[step]), 0.0, 10.0, 1, 70)); 
+						currChord[step] = round(rescale(fabs(currQualityInput[step]), 0.0f, 10.0f, 1.0f, 70.0f)); 
 						break;
 					case Core::MIN: 
-						currChord[step] = round(rescalef(fabs(currQualityInput[step]), 0.0, 10.0, 71, 90));
+						currChord[step] = round(rescale(fabs(currQualityInput[step]), 0.0f, 10.0f, 71.0f, 90.0f));
 						break;
 					case Core::DIM: 
-						currChord[step] = round(rescalef(fabs(currQualityInput[step]), 0.0, 10.0, 91, 98));
+						currChord[step] = round(rescale(fabs(currQualityInput[step]), 0.0f, 10.0f, 91.0f, 98.0f));
 						break;		
 				}
 			
@@ -382,13 +382,13 @@ void Progress::step() {
 			// If anything has changed, recalculate output for that step
 			if (prevRootInput[step] != currRootInput[step]) {
 				prevRootInput[step] = currRootInput[step];
-				currRoot[step] = round(rescalef(fabs(currRootInput[step]), 0.0, 10.0, 0, Core::NUM_NOTES - 1)); // Param range is 0 to 10, mapped to 0 to 11
+				currRoot[step] = round(rescale(fabs(currRootInput[step]), 0.0f, 10.0f, 0.0f, Core::NUM_NOTES - 1)); // Param range is 0 to 10, mapped to 0 to 11
 				update = true;
 			}
 		
 			if (prevChrInput[step] != currChrInput[step]) {
 				prevChrInput[step]  = currChrInput[step]; 
-				currChord[step] = round(rescalef(fabs(currChrInput[step]), 0.0, 10.0, 1, 98)); // Param range is 0 to 10		
+				currChord[step] = round(rescale(fabs(currChrInput[step]), 0.0f, 10.0f, 1.0f, 98.0f)); // Param range is 0 to 10		
 				update = true;
 			}
 			
@@ -518,13 +518,15 @@ struct ProgressDisplay : TransparentWidget {
 	
 };
 
+struct ProgressWidget : ModuleWidget {
+	ProgressWidget(Progress *module);
+	Menu *createContextMenu() override;
+};
 
-ProgressWidget::ProgressWidget() {
-	Progress *module = new Progress();
+ProgressWidget::ProgressWidget(Progress *module) : ModuleWidget(module) {
 	
 	UI ui;
 		
-	setModule(module);
 	box.size = Vec(15*31, 380);
 
 	{
@@ -534,10 +536,10 @@ ProgressWidget::ProgressWidget() {
 		addChild(panel);
 	}
 
-	addChild(createScrew<ScrewSilver>(Vec(15, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x-30, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(15, 365)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x-30, 365)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x-30, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x-30, 365)));
 	
 	{
 		ProgressDisplay *display = new ProgressDisplay();
@@ -548,43 +550,42 @@ ProgressWidget::ProgressWidget() {
 	}
 	
 
-	addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 0, 0, true, false), module, Progress::CLOCK_PARAM, -2.0, 6.0, 2.0));
-	addParam(createParam<AHButton>(ui.getPosition(UI::BUTTON, 1, 0, true, false), module, Progress::RUN_PARAM, 0.0, 1.0, 0.0));
-	addChild(createLight<MediumLight<GreenLight>>(ui.getPosition(UI::LIGHT, 1, 0, true, false), module, Progress::RUNNING_LIGHT));
-	addParam(createParam<AHButton>(ui.getPosition(UI::BUTTON, 2, 0, true, false), module, Progress::RESET_PARAM, 0.0, 1.0, 0.0));
-	addChild(createLight<MediumLight<GreenLight>>(ui.getPosition(UI::LIGHT, 2, 0, true, false), module, Progress::RESET_LIGHT));
-	addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 3, 0, true, false), module, Progress::STEPS_PARAM, 1.0, 8.0, 8.0));
-	addChild(createLight<MediumLight<GreenLight>>(ui.getPosition(UI::LIGHT, 4, 0, true, false), module, Progress::GATES_LIGHT));
+	addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 0, 0, true, false), module, Progress::CLOCK_PARAM, -2.0, 6.0, 2.0));
+	addParam(ParamWidget::create<AHButton>(ui.getPosition(UI::BUTTON, 1, 0, true, false), module, Progress::RUN_PARAM, 0.0, 1.0, 0.0));
+	addChild(ModuleLightWidget::create<MediumLight<GreenLight>>(ui.getPosition(UI::LIGHT, 1, 0, true, false), module, Progress::RUNNING_LIGHT));
+	addParam(ParamWidget::create<AHButton>(ui.getPosition(UI::BUTTON, 2, 0, true, false), module, Progress::RESET_PARAM, 0.0, 1.0, 0.0));
+	addChild(ModuleLightWidget::create<MediumLight<GreenLight>>(ui.getPosition(UI::LIGHT, 2, 0, true, false), module, Progress::RESET_LIGHT));
+	addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 3, 0, true, false), module, Progress::STEPS_PARAM, 1.0, 8.0, 8.0));
+	addChild(ModuleLightWidget::create<MediumLight<GreenLight>>(ui.getPosition(UI::LIGHT, 4, 0, true, false), module, Progress::GATES_LIGHT));
 
 //	static const float portX[13] = {20, 58, 96, 135, 173, 212, 250, 288, 326, 364, 402, 440, 478};
-	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 1, true, false), module, Progress::CLOCK_INPUT));
-	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 1, 1, true, false), module, Progress::EXT_CLOCK_INPUT));
-	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 2, 1, true, false), module, Progress::RESET_INPUT));
-	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 3, 1, true, false), module, Progress::STEPS_INPUT));
+	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 1, true, false), Port::INPUT, module, Progress::CLOCK_INPUT));
+	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 1, 1, true, false), Port::INPUT, module, Progress::EXT_CLOCK_INPUT));
+	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 2, 1, true, false), Port::INPUT, module, Progress::RESET_INPUT));
+	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 3, 1, true, false), Port::INPUT, module, Progress::STEPS_INPUT));
 
-	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 4, 1, true, false), module, Progress::KEY_INPUT));
-	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 5, 1, true, false), module, Progress::MODE_INPUT));
+	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 4, 1, true, false), Port::INPUT, module, Progress::KEY_INPUT));
+	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 5, 1, true, false), Port::INPUT, module, Progress::MODE_INPUT));
 
 	
 	for (int i = 0; i < 3; i++) {
-		addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 7 + i, 0, true, false),  module, Progress::PITCH_OUTPUT + i));
+		addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 7 + i, 0, true, false), Port::OUTPUT, module, Progress::PITCH_OUTPUT + i));
 	}	
 
 	for (int i = 0; i < 3; i++) {
-		addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 7 + i, 1, true, false),  module, Progress::PITCH_OUTPUT + 3 + i));
+		addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 7 + i, 1, true, false), Port::OUTPUT, module, Progress::PITCH_OUTPUT + 3 + i));
 	}
 
 	for (int i = 0; i < 8; i++) {
-		addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, i + 1, 4, true, true), module, Progress::ROOT_PARAM + i, 0.0, 10.0, 0.0));
-		addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, i + 1, 5, true, true), module, Progress::CHORD_PARAM + i, 0.0, 10.0, 0.0));
-		addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, i + 1, 6, true, true), module, Progress::INV_PARAM + i, 0.0, 2.0, 0.0));
-		addParam(createParam<AHButton>(ui.getPosition(UI::BUTTON, i + 1, 7, true, true), module, Progress::GATE_PARAM + i, 0.0, 1.0, 0.0));
-		addChild(createLight<MediumLight<GreenLight>>(ui.getPosition(UI::LIGHT, i + 1, 7, true, true), module, Progress::GATE_LIGHTS + i));
-		addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, i + 1, 5, true, false), module, Progress::GATE_OUTPUT + i));
+		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, i + 1, 4, true, true), module, Progress::ROOT_PARAM + i, 0.0, 10.0, 0.0));
+		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, i + 1, 5, true, true), module, Progress::CHORD_PARAM + i, 0.0, 10.0, 0.0));
+		addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, i + 1, 6, true, true), module, Progress::INV_PARAM + i, 0.0, 2.0, 0.0));
+		addParam(ParamWidget::create<AHButton>(ui.getPosition(UI::BUTTON, i + 1, 7, true, true), module, Progress::GATE_PARAM + i, 0.0, 1.0, 0.0));
+		addChild(ModuleLightWidget::create<MediumLight<GreenLight>>(ui.getPosition(UI::LIGHT, i + 1, 7, true, true), module, Progress::GATE_LIGHTS + i));
+		addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, i + 1, 5, true, false), Port::OUTPUT, module, Progress::GATE_OUTPUT + i));
 	}
 
-	addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 9, 5, true, false), module, Progress::GATES_OUTPUT));
-
+	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 9, 5, true, false), Port::OUTPUT, module, Progress::GATES_OUTPUT));
 	
 }
 
@@ -633,5 +634,6 @@ Menu *ProgressWidget::createContextMenu() {
 	return menu;
 }
 
+Model *modelProgress = Model::create<Progress, ProgressWidget>( "Amalgamated Harmonics", "Progress", "Progress", SEQUENCER_TAG);
 
 

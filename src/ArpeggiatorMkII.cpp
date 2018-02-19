@@ -1,7 +1,7 @@
 #include "AH.hpp"
 #include "Core.hpp"
 #include "UI.hpp"
-#include "components.hpp"
+#include "componentlibrary.hpp"
 #include "dsp/digital.hpp"
 
 #include <iostream>
@@ -814,7 +814,7 @@ void Arpeggiator2::step() {
 		if (debug()) { std::cout << stepX << " " << id  << " Advance Cycle: " << currArp->getPitch() << std::endl; }
 				
 		// Finally set the out voltage
-		outVolts = clampf(pitches[currArp->getPitch()] + semiTone * (float)currPatt->getOffset(), -10.0, 10.0);
+		outVolts = clamp(pitches[currArp->getPitch()] + semiTone * (float)currPatt->getOffset(), -10.0f, 10.0f);
 		
 		if (debug()) { std::cout << stepX << " " << id  << " Output V = " << outVolts << std::endl; }
 		
@@ -893,12 +893,15 @@ struct Arpeggiator2Display : TransparentWidget {
 	
 };
 
-Arpeggiator2Widget::Arpeggiator2Widget() {
-	Arpeggiator2 *module = new Arpeggiator2();
+struct Arpeggiator2Widget : ModuleWidget {
+	Arpeggiator2Widget(Arpeggiator2 *module);
+	Menu *createContextMenu() override;
+};
+
+Arpeggiator2Widget::Arpeggiator2Widget(Arpeggiator2 *module) : ModuleWidget(module) {
 	
 	UI ui;
 	
-	setModule(module);
 	box.size = Vec(240, 380);
 
 	{
@@ -908,10 +911,10 @@ Arpeggiator2Widget::Arpeggiator2Widget() {
 		addChild(panel);
 	}
 
-	addChild(createScrew<ScrewSilver>(Vec(15, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(15, 365)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 365)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
 	{
 		Arpeggiator2Display *display = new Arpeggiator2Display();
@@ -921,33 +924,33 @@ Arpeggiator2Widget::Arpeggiator2Widget() {
 		addChild(display);
 	}
 
-	addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 0, false, false),  module, Arpeggiator2::OUT_OUTPUT));
-	addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 1, 0, false, false),  module, Arpeggiator2::GATE_OUTPUT));
-	addParam(createParam<AHButton>(ui.getPosition(UI::BUTTON, 2, 0, false, false), module, Arpeggiator2::LOCK_PARAM, 0.0, 1.0, 0.0));
-	addChild(createLight<MediumLight<GreenLight>>(ui.getPosition(UI::LIGHT, 2, 0, false, false), module, Arpeggiator2::LOCK_LIGHT));
-	addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 3, 0, false, false), module, Arpeggiator2::EOC_OUTPUT));
-	addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 4, 0, false, false), module, Arpeggiator2::EOS_OUTPUT));
+	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 0, false, false), Port::OUTPUT, module, Arpeggiator2::OUT_OUTPUT));
+	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 1, 0, false, false), Port::OUTPUT, module, Arpeggiator2::GATE_OUTPUT));
+	addParam(ParamWidget::create<AHButton>(ui.getPosition(UI::BUTTON, 2, 0, false, false), module, Arpeggiator2::LOCK_PARAM, 0.0, 1.0, 0.0));
+	addChild(ModuleLightWidget::create<MediumLight<GreenLight>>(ui.getPosition(UI::LIGHT, 2, 0, false, false), module, Arpeggiator2::LOCK_LIGHT));
+	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 3, 0, false, false), Port::OUTPUT, module, Arpeggiator2::EOC_OUTPUT));
+	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 4, 0, false, false), Port::OUTPUT, module, Arpeggiator2::EOS_OUTPUT));
 		
-	addParam(createParam<BefacoPush>(Vec(195, 148), module, Arpeggiator2::TRIGGER_PARAM, 0.0, 1.0, 0.0));
+	addParam(ParamWidget::create<BefacoPush>(Vec(195, 148), module, Arpeggiator2::TRIGGER_PARAM, 0.0, 1.0, 0.0));
 	
 	for (int i = 0; i < Arpeggiator2::NUM_PITCHES; i++) {
-		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, i, 5, true, false),  module, Arpeggiator2::PITCH_INPUT + i));
+		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, i, 5, true, false), Port::INPUT, module, Arpeggiator2::PITCH_INPUT + i));
 	}
 	
-	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 4, 4, true, false), module, Arpeggiator2::ARP_INPUT));
-	addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 5, 4, true, false), module, Arpeggiator2::ARP_PARAM, 0.0, 3.0, 0.0)); 
+	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 4, 4, true, false), Port::INPUT, module, Arpeggiator2::ARP_INPUT));
+	addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 5, 4, true, false), module, Arpeggiator2::ARP_PARAM, 0.0, 3.0, 0.0)); 
 	
-	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 4, true, false), module, Arpeggiator2::TRIG_INPUT));
-	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 1, 4, true, false), module, Arpeggiator2::CLOCK_INPUT));
-	addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 3, 4, true, false), module, Arpeggiator2::SCALE_PARAM, 0, 2, 0)); 
+	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 4, true, false), Port::INPUT, module, Arpeggiator2::TRIG_INPUT));
+	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 1, 4, true, false), Port::INPUT, module, Arpeggiator2::CLOCK_INPUT));
+	addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 3, 4, true, false), module, Arpeggiator2::SCALE_PARAM, 0, 2, 0)); 
 
 	
-	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 3, true, false), module, Arpeggiator2::PATT_INPUT));
-	addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 1, 3, true, false), module, Arpeggiator2::PATT_PARAM, 0.0, 5.0, 0.0)); 
-	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 2, 3, true, false), module, Arpeggiator2::TRANS_INPUT)); 
-	addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 3, 3, true, false), module, Arpeggiator2::TRANS_PARAM, -24, 24, 0)); 
-	addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 4, 3, true, false), module, Arpeggiator2::LENGTH_INPUT));
-	addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 5, 3, true, false), module, Arpeggiator2::LENGTH_PARAM, 1.0, 16.0, 1.0)); 
+	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 3, true, false), Port::INPUT, module, Arpeggiator2::PATT_INPUT));
+	addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 1, 3, true, false), module, Arpeggiator2::PATT_PARAM, 0.0, 5.0, 0.0)); 
+	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 2, 3, true, false), Port::INPUT, module, Arpeggiator2::TRANS_INPUT)); 
+	addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 3, 3, true, false), module, Arpeggiator2::TRANS_PARAM, -24, 24, 0)); 
+	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 4, 3, true, false), Port::INPUT, module, Arpeggiator2::LENGTH_INPUT));
+	addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 5, 3, true, false), module, Arpeggiator2::LENGTH_PARAM, 1.0, 16.0, 1.0)); 
 
 }
 
@@ -996,4 +999,5 @@ Menu *Arpeggiator2Widget::createContextMenu() {
 	return menu;
 }
 
+Model *modelArpeggiator2 = Model::create<Arpeggiator2, Arpeggiator2Widget>( "Amalgamated Harmonics", "Arpeggiator2", "Arpeggiator MkII", SEQUENCER_TAG);
 

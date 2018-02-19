@@ -247,29 +247,29 @@ struct Core {
 	}
 	
 	float getVoltsFromScale(int scale) {
-		return rescalef(scale, 0, NUM_SCALES - 1, 0.0, 10.0);
+		return rescale(scale, 0.0f, NUM_SCALES - 1, 0.0f, 10.0f);
 	}
 	
 	int getScaleFromVolts(float volts) {
-		return round(rescalef(fabs(volts), 0.0, 10.0, 0, NUM_SCALES - 1));
+		return round(rescale(fabs(volts), 0.0f, 10.0f, 0.0f, NUM_SCALES - 1));
 	}
 	
 	int getModeFromVolts(float volts) {
-		int mode = round(rescalef(fabs(volts), 0.0, 10.0, 0, NUM_SCALES - 1));
-		return clampi(mode - 1, 0, 6);
+		int mode = round(rescale(fabs(volts), 0.0f, 10.0f, 0.0f, NUM_SCALES - 1));
+		return clamp(mode - 1, 0, 6);
 	}
 	
 	float getVoltsFromMode(int mode) {
 		// Mode 0 = IONIAN, MODE 6 = LOCRIAN -> Scale 1 - 7
-		return rescalef(mode + 1, 0, NUM_SCALES - 1, 0.0, 10.0);
+		return rescale(mode + 1, 0.0f, NUM_SCALES - 1, 0.0f, 10.0f);
 	}
 	
 	float getVoltsFromKey(int key) {
-		return rescalef(key, 0, NUM_NOTES - 1, 0.0, 10.0);
+		return rescale(key, 0.0f, NUM_NOTES - 1, 0.0f, 10.0f);
 	}
 	
 	int getKeyFromVolts(float volts) {
-		return round(rescalef(fabs(volts), 0.0, 10.0, 0, NUM_NOTES - 1));
+		return round(rescale(fabs(volts), 0.0f, 10.0f, 0.0f, NUM_NOTES - 1));
 	}
 	
 	void getRootFromMode(int inMode, int inRoot, int inTonic, int *currRoot, int *quality);
