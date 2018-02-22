@@ -554,6 +554,10 @@ struct Arpeggiator2 : Module {
 
 	Pattern *currPatt = &patt_up;
 	Arpeggio *currArp = &arp_right;
+
+	Pattern *uiPatt = &patt_up;
+	Arpeggio *uiArp = &arp_right;
+
 	
 	float pitches[6];
 	int nPitches = 0;
@@ -826,6 +830,30 @@ void Arpeggiator2::step() {
 		
 	}
 	
+	// Update UI
+	switch(inputPat) {
+		case 0:		uiPatt = &patt_up; 			break;
+		case 1:		uiPatt = &patt_down;		break;
+		case 2:		uiPatt = &patt_updown;		break;
+		case 3:		uiPatt = &patt_downup;		break;
+		case 4:		uiPatt = &patt_rez;			break;
+		case 5:		uiPatt = &patt_ontherun;	break;
+		default:	uiPatt = &patt_up;			break;
+	};
+
+	uiPatt->initialise(inputLen, inputScale, inputTrans, freeRunning);
+
+	switch(inputArp) {
+		case 0: 	uiArp = &arp_right;		break;
+		case 1: 	uiArp = &arp_left;		break;
+		case 2: 	uiArp = &arp_rightleft;	break;
+		case 3: 	uiArp = &arp_leftright;	break;
+		default:	uiArp = &arp_right;		break; 	
+	};
+	
+	uiArp->initialise(nPitches, freeRunning);
+	
+	
 	// Set the value
 	lights[LOCK_LIGHT].value = locked ? 1.0 : 0.0;
 	outputs[OUT_OUTPUT].value = outVolts;
@@ -872,21 +900,21 @@ struct Arpeggiator2Display : TransparentWidget {
 			snprintf(text, sizeof(text), "Error: inputLen == 0");
 			nvgText(vg, pos.x + 10, pos.y + 5, text, NULL);			
 		} else {
-			snprintf(text, sizeof(text), "Pattern: %s", module->currPatt->getName().c_str());
+			snprintf(text, sizeof(text), "Pattern: %s", module->uiPatt->getName().c_str());
 			nvgText(vg, pos.x + 10, pos.y + 5, text, NULL);
 
-			snprintf(text, sizeof(text), "Length: %d", module->currPatt->length);
+			snprintf(text, sizeof(text), "Length: %d", module->uiPatt->length);
 			nvgText(vg, pos.x + 10, pos.y + 25, text, NULL);
 
-			switch(module->currPatt->scale) {
-				case 0: snprintf(text, sizeof(text), "Transpose: %d semitones", module->currPatt->trans); break;
-				case 1: snprintf(text, sizeof(text), "Transpose: %d Major int.", module->currPatt->trans); break;
-				case 2: snprintf(text, sizeof(text), "Transpose: %d Minor int.", module->currPatt->trans); break;
+			switch(module->uiPatt->scale) {
+				case 0: snprintf(text, sizeof(text), "Transpose: %d semitones", module->uiPatt->trans); break;
+				case 1: snprintf(text, sizeof(text), "Transpose: %d Major int.", module->uiPatt->trans); break;
+				case 2: snprintf(text, sizeof(text), "Transpose: %d Minor int.", module->uiPatt->trans); break;
 				default: snprintf(text, sizeof(text), "Error..."); break;
 			}
 			nvgText(vg, pos.x + 10, pos.y + 45, text, NULL);
 
-			snprintf(text, sizeof(text), "Arpeggio: %s", module->currArp->getName().c_str());
+			snprintf(text, sizeof(text), "Arpeggio: %s", module->uiArp->getName().c_str());
 			nvgText(vg, pos.x + 10, pos.y + 65, text, NULL);
 		}
 	}
