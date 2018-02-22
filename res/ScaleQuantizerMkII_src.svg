@@ -955,8 +955,8 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.6853183"
-     inkscape:cx="94.15003"
-     inkscape:cy="94.297294"
+     inkscape:cx="55.664385"
+     inkscape:cy="236.70363"
      inkscape:current-layer="layer2"
      showgrid="false"
      units="mm"
@@ -1512,7 +1512,7 @@
        sodipodi:nodetypes="csscccccc" />
     <path
        style="fill:#d4af37;fill-opacity:1;stroke-width:1.45938587"
-       d="M -0.01175524,187.38676 H 239.98824 v 30 H -0.01175524 Z"
+       d="M -0.01175524,215.38676 H 239.98824 v 30 H -0.01175524 Z"
        id="rect1229"
        inkscape:connector-curvature="0" />
     <text
@@ -1539,12 +1539,12 @@
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1;">Scale</tspan></text>
     <text
        id="text1130"
-       y="126.25135"
+       y="111.25135"
        x="7.4051614"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none"
        xml:space="preserve"><tspan
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1"
-         y="126.25135"
+         y="111.25135"
          x="7.4051614"
          id="tspan1128"
          sodipodi:role="line">IN V/OCT</tspan></text>
@@ -1857,12 +1857,12 @@
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none"
        x="7.4051614"
-       y="229.5513"
+       y="257.55136"
        id="text1687"><tspan
          sodipodi:role="line"
          id="tspan1685"
          x="7.4051614"
-         y="229.5513"
+         y="257.55136"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">OUT V/OCT</tspan></text>
     <text
        xml:space="preserve"
@@ -2052,5 +2052,16 @@
        x="106.01724"
        y="-415.98093"
        transform="scale(1,-1)" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none"
+       x="7.4051614"
+       y="161.25134"
+       id="text6504"><tspan
+         sodipodi:role="line"
+         id="tspan6502"
+         x="7.4051614"
+         y="161.25134"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">HOLD</tspan></text>
   </g>
 </svg>

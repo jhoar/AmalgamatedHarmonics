@@ -1,3 +1,5 @@
+#include "dsp/digital.hpp"
+
 #include "AH.hpp"
 #include "Core.hpp"
 #include "UI.hpp"
@@ -18,7 +20,8 @@ struct ScaleQuantizer2 : Module {
 		KEY_INPUT = IN_INPUT + 8,
 		SCALE_INPUT,
 		TRANS_INPUT,
-		NUM_INPUTS
+		HOLD_INPUT,
+		NUM_INPUTS = HOLD_INPUT + 8
 	};
 	enum OutputIds {
 		OUT_OUTPUT,
@@ -36,7 +39,10 @@ struct ScaleQuantizer2 : Module {
 	bool firstStep = true;
 	int lastScale = 0;
 	int lastRoot = 0;
-	float lastTrans = -10000.0;
+	float lastTrans = -10000.0f;
+	
+	SchmittTrigger holdTrigger[8];
+	float holdPitch[8] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0};
 	
 	int currScale = 0;
 	int currRoot = 0;
@@ -78,31 +84,44 @@ void ScaleQuantizer2::step() {
 	}
 	
 	for (int i = 0; i < 8; i++) {
+		float holdInput		= inputs[HOLD_INPUT + i].value;
+		bool  holdActive	= inputs[HOLD_INPUT + i].active;
+		bool  holdStatus	= holdTrigger[i].process(holdInput);
+
 		float volts = inputs[IN_INPUT + i].value;
 		float shift = params[SHIFT_PARAM + i].value;
 
-		// Calculate output pitch from raw voltage
-		float currPitch = 0.0;
-		if (inputs[IN_INPUT + i].active) { 
-			currPitch = CoreUtil().getPitchFromVolts(volts, currRoot, currScale, &currNote, &currDegree);
-		} 
-		
-		// Set the value
-		outputs[OUT_OUTPUT + i].value = currPitch + shift + trans;
+		if (holdActive) { 
+			
+			// Sample the pitch
+			if (holdStatus && inputs[IN_INPUT + i].active) {
+				holdPitch[i] = CoreUtil().getPitchFromVolts(volts, currRoot, currScale, &currNote, &currDegree);
+			}
+			
+		} else {
+
+			if (inputs[IN_INPUT + i].active) { 
+				holdPitch[i] = CoreUtil().getPitchFromVolts(volts, currRoot, currScale, &currNote, &currDegree);
+			} 
+			
+		}
+
+		outputs[OUT_OUTPUT + i].value = holdPitch[i] + shift + trans;
+
 	}
 
 	if (lastScale != currScale || firstStep) {
 		for (int i = 0; i < Core::NUM_NOTES; i++) {
-			lights[SCALE_LIGHT + i].value = 0.0;
+			lights[SCALE_LIGHT + i].value = 0.0f;
 		}
-		lights[SCALE_LIGHT + currScale].value = 1.0;
+		lights[SCALE_LIGHT + currScale].value = 1.0f;
 	} 
 
 	if (lastRoot != currRoot || firstStep) {
 		for (int i = 0; i < Core::NUM_NOTES; i++) {
-			lights[KEY_LIGHT + i].value = 0.0;
+			lights[KEY_LIGHT + i].value = 0.0f;
 		}
-		lights[KEY_LIGHT + currRoot].value = 1.0;
+		lights[KEY_LIGHT + currRoot].value = 1.0f;
 	} 
 
 	firstStep = false;
@@ -132,16 +151,17 @@ ScaleQuantizer2Widget::ScaleQuantizer2Widget(ScaleQuantizer2 *module) : ModuleWi
 	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
 	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 5, true, false), Port::INPUT, module, ScaleQuantizer2::KEY_INPUT));
-    addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 1, 5, true, false), module, ScaleQuantizer2::KEY_PARAM, 0.0, 11.0, 0.0)); // 12 notes
+    addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 1, 5, true, false), module, ScaleQuantizer2::KEY_PARAM, 0.0f, 11.0f, 0.0f)); // 12 notes
 	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 2, 5, true, false), Port::INPUT, module, ScaleQuantizer2::SCALE_INPUT));
-    addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::PORT, 3, 5, true, false), module, ScaleQuantizer2::SCALE_PARAM, 0.0, 11.0, 0.0)); // 12 notes
+    addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::PORT, 3, 5, true, false), module, ScaleQuantizer2::SCALE_PARAM, 0.0f, 11.0f, 0.0f)); // 12 notes
 	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 4, 5, true, false), Port::INPUT, module, ScaleQuantizer2::TRANS_INPUT));
-    addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::PORT, 5, 5, true, false), module, ScaleQuantizer2::TRANS_PARAM, -11.0, 11.0, 0.0)); // 12 notes
+    addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::PORT, 5, 5, true, false), module, ScaleQuantizer2::TRANS_PARAM, -11.0f, 11.0f, 0.0f)); // 12 notes
 
 	for (int i = 0; i < 8; i++) {
-		addInput(Port::create<PJ301MPort>(Vec(6 + i * 29, 61), Port::INPUT, module, ScaleQuantizer2::IN_INPUT + i));
-		addParam(ParamWidget::create<AHTrimpotSnap>(Vec(9 + i * 29.1, 91), module, ScaleQuantizer2::SHIFT_PARAM + i, -3.0, 3.0, 0.0));
-		addOutput(Port::create<PJ301MPort>(Vec(6 + i * 29, 116), Port::OUTPUT, module, ScaleQuantizer2::OUT_OUTPUT + i));
+		addInput(Port::create<PJ301MPort>(Vec(6 + i * 29, 41), Port::INPUT, module, ScaleQuantizer2::IN_INPUT + i));
+		addParam(ParamWidget::create<AHTrimpotSnap>(Vec(9 + i * 29.1, 121), module, ScaleQuantizer2::SHIFT_PARAM + i, -3.0f, 3.0f, 0.0f));
+		addOutput(Port::create<PJ301MPort>(Vec(6 + i * 29, 143), Port::OUTPUT, module, ScaleQuantizer2::OUT_OUTPUT + i));
+		addInput(Port::create<PJ301MPort>(Vec(6 + i * 29, 91), Port::INPUT, module, ScaleQuantizer2::HOLD_INPUT + i));		
 	}
 
 	float xOffset = 18.0;
@@ -151,9 +171,9 @@ ScaleQuantizer2Widget::ScaleQuantizer2Widget(ScaleQuantizer2 *module) : ModuleWi
 	int scale = 0;
 
 	for (int i = 0; i < 12; i++) {
-		addChild(ModuleLightWidget::create<SmallLight<GreenLight>>(Vec(xOffset + i * 18.0, 280.0), module, ScaleQuantizer2::SCALE_LIGHT + i));
+		addChild(ModuleLightWidget::create<SmallLight<GreenLight>>(Vec(xOffset + i * 18.0f, 280.0f), module, ScaleQuantizer2::SCALE_LIGHT + i));
 
-		ui.calculateKeyboard(i, xSpace, xOffset, 230.0, &xPos, &yPos, &scale);
+		ui.calculateKeyboard(i, xSpace, xOffset, 230.0f, &xPos, &yPos, &scale);
 		addChild(ModuleLightWidget::create<SmallLight<GreenLight>>(Vec(xPos, yPos), module, ScaleQuantizer2::KEY_LIGHT + scale));
 
 	}
