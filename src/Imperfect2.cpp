@@ -18,7 +18,11 @@ struct Imperfect2 : Module {
 	};
 	enum InputIds {
 		TRIG_INPUT,
-		NUM_INPUTS = TRIG_INPUT + 4
+		DELAY_INPUT = TRIG_INPUT + 4,
+		DELAYSPREAD_INPUT = DELAY_INPUT + 4,
+		LENGTH_INPUT = DELAYSPREAD_INPUT + 4,
+		LENGTHSPREAD_INPUT = LENGTH_INPUT + 4,
+		NUM_INPUTS = LENGTHSPREAD_INPUT + 4
 	};
 	enum OutputIds {
 		OUT_OUTPUT,
@@ -181,10 +185,30 @@ void Imperfect2::step() {
 			
 		}
 		
-		dlyLen  = log2(params[DELAY_PARAM + i].value);
-		dlySpr  = log2(params[DELAYSPREAD_PARAM + i].value);
-		gateLen = log2(params[LENGTH_PARAM + i].value);
-		gateSpr = log2(params[LENGTHSPREAD_PARAM + i].value);
+		if (inputs[DELAY_INPUT + i].active) {
+			dlyLen = log2(fabs(inputs[DELAY_INPUT + i].value) + 1.0f); 
+		} else {
+			dlyLen = log2(params[DELAY_PARAM + i].value);
+		}	
+
+		if (inputs[DELAYSPREAD_INPUT + i].active) {
+			dlySpr = log2(fabs(inputs[DELAYSPREAD_INPUT + i].value) + 1.0f); 
+		} else {
+			dlySpr = log2(params[DELAYSPREAD_PARAM + i].value);
+		}	
+		
+		if (inputs[LENGTH_INPUT + i].active) {
+			gateLen = log2(fabs(inputs[LENGTH_INPUT + i].value) + 1.001f); 
+		} else {
+			gateLen = log2(params[LENGTH_PARAM + i].value);
+		}	
+		
+		if (inputs[LENGTHSPREAD_INPUT + i].active) {
+			gateSpr = log2(fabs(inputs[LENGTHSPREAD_INPUT + i].value) + 1.0f); 
+		} else {
+			gateSpr = log2(params[LENGTHSPREAD_PARAM + i].value);
+		}	
+		
 		division[i] = params[DIVISION_PARAM + i].value;
 		
 		delayTimeMs[i] = dlyLen * 1000;
@@ -321,23 +345,23 @@ struct Imperfect2Box : TransparentWidget {
 		nvgText(vg, pos.x + 20, pos.y, text, NULL);
 		
 		snprintf(text, sizeof(text), "%d", *dly);
-		nvgText(vg, pos.x + 54, pos.y, text, NULL);
+		nvgText(vg, pos.x + 74, pos.y, text, NULL);
 
 		if (*dlySpr != 0) {
 			snprintf(text, sizeof(text), "%d", *dlySpr);
-			nvgText(vg, pos.x + 89, pos.y, text, NULL);
+			nvgText(vg, pos.x + 144, pos.y, text, NULL);
 		}
 
 		snprintf(text, sizeof(text), "%d", *gate);
-		nvgText(vg, pos.x + 124, pos.y, text, NULL);
+		nvgText(vg, pos.x + 214, pos.y, text, NULL);
 
 		if (*gateSpr != 0) {
 			snprintf(text, sizeof(text), "%d", *gateSpr);
-			nvgText(vg, pos.x + 159, pos.y, text, NULL);
+			nvgText(vg, pos.x + 284, pos.y, text, NULL);
 		}
 
 		snprintf(text, sizeof(text), "%d", *division);
-		nvgText(vg, pos.x + 197, pos.y, text, NULL);
+		nvgText(vg, pos.x + 334, pos.y, text, NULL);
 
 		
 	}
@@ -353,7 +377,7 @@ Imperfect2Widget::Imperfect2Widget(Imperfect2 *module) : ModuleWidget(module) {
 	
 	UI ui;
 	
-	box.size = Vec(315, 380);
+	box.size = Vec(450, 380);
 
 	{
 		SVGPanel *panel = new SVGPanel();
@@ -431,13 +455,17 @@ Imperfect2Widget::Imperfect2Widget(Imperfect2 *module) : ModuleWidget(module) {
 
 	for (int i = 0; i < 4; i++) {
 		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, i * 2 + 1, true, true), Port::INPUT, module, Imperfect2::TRIG_INPUT + i));
-		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 1, i * 2 + 1, true, true), module, Imperfect2::DELAY_PARAM + i, 1.0f, 2.0f, 1.0f));
-		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 2, i * 2 + 1, true, true), module, Imperfect2::DELAYSPREAD_PARAM + i, 1.0f, 2.0f, 1.0f));
-		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 3, i * 2 + 1, true, true), module, Imperfect2::LENGTH_PARAM + i, 1.001f, 2.0f, 1.001f)); // Always produce gate
-		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 4, i * 2 + 1, true, true), module, Imperfect2::LENGTHSPREAD_PARAM + i, 1.0, 2.0, 1.0f)); 
-		addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 5, i * 2 + 1, true, true), module, Imperfect2::DIVISION_PARAM + i, 1, 64, 1));
-		addChild(ModuleLightWidget::create<MediumLight<GreenRedLight>>(ui.getPosition(UI::LIGHT, 6, i * 2 + 1, true, true), module, Imperfect2::OUT_LIGHT + i * 2));
-		addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 7, i * 2+ 1, true, true), Port::OUTPUT, module, Imperfect2::OUT_OUTPUT + i));
+		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 1, i * 2 + 1, true, true), Port::INPUT, module, Imperfect2::DELAY_INPUT + i));
+		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 2, i * 2 + 1, true, true), module, Imperfect2::DELAY_PARAM + i, 1.0f, 2.0f, 1.0f));
+		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 3, i * 2 + 1, true, true), Port::INPUT, module, Imperfect2::DELAYSPREAD_INPUT + i));
+		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 4, i * 2 + 1, true, true), module, Imperfect2::DELAYSPREAD_PARAM + i, 1.0f, 2.0f, 1.0f));
+		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 5, i * 2 + 1, true, true), Port::INPUT, module, Imperfect2::LENGTH_INPUT + i));
+		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 6, i * 2 + 1, true, true), module, Imperfect2::LENGTH_PARAM + i, 1.001f, 2.0f, 1.001f)); // Always produce gate
+		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 7, i * 2 + 1, true, true), Port::INPUT, module, Imperfect2::LENGTHSPREAD_INPUT + i));
+		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 8, i * 2 + 1, true, true), module, Imperfect2::LENGTHSPREAD_PARAM + i, 1.0, 2.0, 1.0f)); 
+		addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 9, i * 2 + 1, true, true), module, Imperfect2::DIVISION_PARAM + i, 1, 64, 1));
+		addChild(ModuleLightWidget::create<MediumLight<GreenRedLight>>(ui.getPosition(UI::LIGHT, 10, i * 2 + 1, true, true), module, Imperfect2::OUT_LIGHT + i * 2));
+		addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 11, i * 2+ 1, true, true), Port::OUTPUT, module, Imperfect2::OUT_OUTPUT + i));
 	}
 	
 }
