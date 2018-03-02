@@ -216,5 +216,5 @@ ImperfectWidget::ImperfectWidget(Imperfect *module) : ModuleWidget(module) {
 	
 }
 
-Model *modelImperfect = Model::create<Imperfect, ImperfectWidget>( "Amalgamated Harmonics", "Imperfect", "Imperfect", UTILITY_TAG);
+Model *modelImperfect = Model::create<Imperfect, ImperfectWidget>( "Amalgamated Harmonics", "Imperfect", "Imperfect (deprecated)", UTILITY_TAG);
 

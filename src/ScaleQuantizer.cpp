@@ -152,5 +152,5 @@ ScaleQuantizerWidget::ScaleQuantizerWidget(ScaleQuantizer *module) : ModuleWidge
 
 }
 
-Model *modelScaleQuantizer = Model::create<ScaleQuantizer, ScaleQuantizerWidget>( "Amalgamated Harmonics", "ScaleQuantizer", "Scale Quantizer", QUANTIZER_TAG);
+Model *modelScaleQuantizer = Model::create<ScaleQuantizer, ScaleQuantizerWidget>( "Amalgamated Harmonics", "ScaleQuantizer", "Scale Quantizer (deprecated)", QUANTIZER_TAG);
 

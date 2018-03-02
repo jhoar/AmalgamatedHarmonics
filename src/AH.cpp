@@ -19,6 +19,7 @@ void init(rack::Plugin *p) {
 	p->addModel(modelArpeggiator2);
 	p->addModel(modelCircle);
 	p->addModel(modelImperfect);
+	p->addModel(modelImperfect2);
 	p->addModel(modelProgress);
 	p->addModel(modelScaleQuantizer);
 	p->addModel(modelScaleQuantizer2);

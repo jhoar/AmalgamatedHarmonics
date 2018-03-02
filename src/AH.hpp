@@ -18,6 +18,8 @@ extern Model *modelCircle;
 
 extern Model *modelImperfect;
 
+extern Model *modelImperfect2;
+
 extern Model *modelProgress;
 
 extern Model *modelScaleQuantizer;
