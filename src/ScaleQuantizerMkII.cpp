@@ -25,7 +25,8 @@ struct ScaleQuantizer2 : Module {
 	};
 	enum OutputIds {
 		OUT_OUTPUT,
-		NUM_OUTPUTS = OUT_OUTPUT + 8
+		TRIG_OUTPUT = OUT_OUTPUT + 8,
+		NUM_OUTPUTS = TRIG_OUTPUT + 8
 	};
 	enum LightIds {
 		KEY_LIGHT,
@@ -33,7 +34,16 @@ struct ScaleQuantizer2 : Module {
 		NUM_LIGHTS = SCALE_LIGHT + 12
 	};
 
-	ScaleQuantizer2() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
+	float delta;
+
+	ScaleQuantizer2() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
+		delta = 1.0 / engineGetSampleRate();
+	}
+
+	void onSampleRateChange() override { 
+		delta = 1.0 / engineGetSampleRate();
+	}
+
 	void step() override;
 
 	bool firstStep = true;
@@ -43,6 +53,8 @@ struct ScaleQuantizer2 : Module {
 	
 	SchmittTrigger holdTrigger[8];
 	float holdPitch[8] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0};
+	float lastPitch[8] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0};
+	PulseGenerator triggerPulse[8];
 	
 	int currScale = 0;
 	int currRoot = 0;
@@ -105,6 +117,21 @@ void ScaleQuantizer2::step() {
 			} 
 			
 		}
+		
+		// If the quantised pitch has changed
+		if (lastPitch[i] != holdPitch[i]) {
+			// Pulse the gate
+			triggerPulse[i].trigger(1e-4);
+			
+			// Record the pitch
+			lastPitch[i] = holdPitch[i];
+		} 
+			
+		if (triggerPulse[i].process(delta)) {
+			outputs[TRIG_OUTPUT + i].value = 10.0f;
+		} else {
+			outputs[TRIG_OUTPUT + i].value = 0.0f;
+		}
 
 		outputs[OUT_OUTPUT + i].value = holdPitch[i] + shift + trans;
 
@@ -136,7 +163,7 @@ ScaleQuantizer2Widget::ScaleQuantizer2Widget(ScaleQuantizer2 *module) : ModuleWi
 	
 	UI ui;
 	
-	box.size = Vec(240, 380);
+	box.size = Vec(300, 380);
 
 	{
 		SVGPanel *panel = new SVGPanel();
@@ -152,16 +179,17 @@ ScaleQuantizer2Widget::ScaleQuantizer2Widget(ScaleQuantizer2 *module) : ModuleWi
 
 	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 5, true, false), Port::INPUT, module, ScaleQuantizer2::KEY_INPUT));
     addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 1, 5, true, false), module, ScaleQuantizer2::KEY_PARAM, 0.0f, 11.0f, 0.0f)); // 12 notes
-	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 2, 5, true, false), Port::INPUT, module, ScaleQuantizer2::SCALE_INPUT));
-    addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::PORT, 3, 5, true, false), module, ScaleQuantizer2::SCALE_PARAM, 0.0f, 11.0f, 0.0f)); // 12 notes
-	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 4, 5, true, false), Port::INPUT, module, ScaleQuantizer2::TRANS_INPUT));
-    addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::PORT, 5, 5, true, false), module, ScaleQuantizer2::TRANS_PARAM, -11.0f, 11.0f, 0.0f)); // 12 notes
+	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 3, 5, true, false), Port::INPUT, module, ScaleQuantizer2::SCALE_INPUT));
+    addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::PORT, 4, 5, true, false), module, ScaleQuantizer2::SCALE_PARAM, 0.0f, 11.0f, 0.0f)); // 12 notes
+	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 6, 5, true, false), Port::INPUT, module, ScaleQuantizer2::TRANS_INPUT));
+    addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::PORT, 7, 5, true, false), module, ScaleQuantizer2::TRANS_PARAM, -11.0f, 11.0f, 0.0f)); // 12 notes
 
 	for (int i = 0; i < 8; i++) {
 		addInput(Port::create<PJ301MPort>(Vec(6 + i * 29, 41), Port::INPUT, module, ScaleQuantizer2::IN_INPUT + i));
-		addParam(ParamWidget::create<AHTrimpotSnap>(Vec(9 + i * 29.1, 121), module, ScaleQuantizer2::SHIFT_PARAM + i, -3.0f, 3.0f, 0.0f));
-		addOutput(Port::create<PJ301MPort>(Vec(6 + i * 29, 143), Port::OUTPUT, module, ScaleQuantizer2::OUT_OUTPUT + i));
-		addInput(Port::create<PJ301MPort>(Vec(6 + i * 29, 91), Port::INPUT, module, ScaleQuantizer2::HOLD_INPUT + i));		
+		addParam(ParamWidget::create<AHTrimpotSnap>(Vec(9 + i * 29.1, 101), module, ScaleQuantizer2::SHIFT_PARAM + i, -3.0f, 3.0f, 0.0f));
+		addOutput(Port::create<PJ301MPort>(Vec(6 + i * 29, 125), Port::OUTPUT, module, ScaleQuantizer2::OUT_OUTPUT + i));
+		addInput(Port::create<PJ301MPort>(Vec(6 + i * 29, 71), Port::INPUT, module, ScaleQuantizer2::HOLD_INPUT + i));		
+		addOutput(Port::create<PJ301MPort>(Vec(6 + i * 29, 155), Port::OUTPUT, module, ScaleQuantizer2::TRIG_OUTPUT + i));
 	}
 
 	float xOffset = 18.0;
