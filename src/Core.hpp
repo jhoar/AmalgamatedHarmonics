@@ -1,8 +1,95 @@
 #pragma once
 
+#include <iostream>
+
+#include "dsp/digital.hpp"
+
 #include "AH.hpp"
 
-#include <iostream>
+
+struct AHPulseGenerator {
+	float time = 0.f;
+	float pulseTime = 0.f;
+	
+	bool ishigh() {
+			return time < pulseTime;
+	}
+	
+	bool process(float deltaTime) {
+		time += deltaTime;
+		return time < pulseTime;
+	}
+
+	bool trigger(float pulseTime) {
+		// Keep the previous pulseTime if the existing pulse would be held longer than the currently requested one.
+		if (time + pulseTime >= this->pulseTime) {
+			time = 0.f;
+			this->pulseTime = pulseTime;
+			return true;
+		} else {
+			return false;
+		}
+	}
+};
+
+struct BpmCalculator {
+	
+	float timer = 0.0f;
+	int misses = 0;
+	float seconds = 0;
+	SchmittTrigger gateTrigger;
+	
+	inline bool checkBeat(int mult) {
+		return ( ((timer - mult * seconds) * (timer - mult * seconds) / (seconds * seconds) < 0.2f ) && misses < 4);
+	}
+
+	float calculateBPM(float delta, float input) {
+
+		if (gateTrigger.process(input) ) {
+
+			if (timer > 0) {
+
+				float new_seconds;
+				bool found = false;
+
+				for(int mult = 1; !found && mult < 20; mult++ )  {
+
+					if (checkBeat(mult)) {
+						new_seconds = timer / mult;
+						if (mult == 1) {
+							misses = 0;
+						} else {
+							misses++;
+						}
+					
+						found = true;
+					};
+				
+				};
+
+				if (!found) {
+					// std::cerr << "default. misses = " << misses << "\n";
+					new_seconds = timer;
+					misses = 0;
+				}
+
+				float a = 0.5f; // params[SMOOTH_PARAM].value;
+				seconds = ((1.0f - a) * seconds + a * new_seconds);
+				timer -= seconds;
+
+			}
+
+		};
+
+		timer += delta;
+		if (seconds < 2.0e-05) {
+			return 0.0f;
+		} else {
+			return 60.0f / seconds;
+		}
+	};
+
+};
 
 
 struct ChordDef {

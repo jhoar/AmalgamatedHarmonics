@@ -70,9 +70,11 @@ struct Imperfect2 : Module {
 	int gateSprMs[4];
 	float bpm[4];
 	int division[4];
+	int actDelayMs[4] = {0, 0, 0, 0};
+	int actGateMs[4] = {0, 0, 0, 0};
 	
-	PulseGenerator delayPhase[4];
-	PulseGenerator gatePhase[4];
+	AHPulseGenerator delayPhase[4];
+	AHPulseGenerator gatePhase[4];
 	SchmittTrigger inTrigger[4];
 
 	int counter[4];
@@ -84,62 +86,10 @@ struct Imperfect2 : Module {
 		return false;
 	}
 	
-	float timer[4] = {0.0f, 0.0f, 0.0f, 0.0f};
-	int misses[4] = {0, 0, 0, 0};
-	float seconds[4] = {0.0f, 0.0f, 0.0f, 0.0f};
-	SchmittTrigger gateTrigger[4];
-	
-	inline bool checkBeat(float timer, int mult, float seconds, int misses) {
-		return ( ((timer - mult * seconds) * (timer - mult * seconds) / (seconds * seconds) < 0.2f ) && misses < 4);
-	}
-	
+	BpmCalculator bpmCalc[4];
+		
 };
 
-float Imperfect2::calculateBPM(int i) {
-
-	if (gateTrigger[i].process(inputs[TRIG_INPUT + i].value) ) {
-
-		if (timer[i] > 0) {
-
-			float new_seconds;
-			bool found = false;
-
-			for(int mult = 1; !found && mult < 20; mult++ )  {
-
-				if (checkBeat(timer[i], mult, seconds[i], misses[i])) {
-					new_seconds = timer[i] / mult;
-					if (mult == 1) {
-						misses[i] = 0;
-					} else {
-						misses[i]++;
-					}
-					
-					found = true;
-				};
-				
-			};
-
-			if (!found) {
-				// std::cerr << "default. misses = " << misses << "\n";
-				new_seconds = timer[i];
-				misses[i] = 0;
-			}
-
-			float a = 0.5f; // params[SMOOTH_PARAM].value;
-			seconds[i] = ((1.0f - a) * seconds[i] + a * new_seconds);
-			timer[i] -= seconds[i];
-
-		}
-
-	};
-
-	timer[i] += delta;
-	if (seconds[i] < 2.0e-05) {
-		return 0.0f;
-	} else {
-		return 60.0f / seconds[i];
-	}
-};
 
 
 void Imperfect2::step() {
@@ -161,21 +111,23 @@ void Imperfect2::step() {
 		bool haveTrigger = inTrigger[i].process(inputs[TRIG_INPUT + i].value);
 		bool outputActive = outputs[OUT_OUTPUT + i].active;
 		
+		// This is where we manage row-chaining/normalisation, i.e a row can be active without an
+		// input by receiving the input clock from a previous (higher) row
 		// If we have an active input, we should forget about previous valid inputs
 		if (inputActive) {
 			
-			bpm[i] = calculateBPM(i);
+			bpm[i] = bpmCalc[i].calculateBPM(delta, inputs[TRIG_INPUT + i].value);
 		
 			lastValidInput = -1;
 	
 			if (haveTrigger) {
 				if (debug()) { std::cout << stepX << " " << i << " has active input and has received trigger" << std::endl; }
 				generateSignal = true;
-				lastValidInput = i;
+				lastValidInput = i; // Row i has a valid input
 			}
 			
 		} else {
-			// We have an output and previously seen a trigger
+			// We have an output plugged in this row and previously seen a trigger on previous row
 			if (outputActive && lastValidInput > -1) {
 				if (debug()) { std::cout << stepX << " " << i << " has active out and has seen trigger on " << lastValidInput << std::endl; }
 				generateSignal = true;
@@ -212,9 +164,9 @@ void Imperfect2::step() {
 		division[i] = params[DIVISION_PARAM + i].value;
 		
 		delayTimeMs[i] = dlyLen * 1000;
-		delaySprMs[i] = dlySpr * 1000;
+		delaySprMs[i] = dlySpr * 2000; // scaled by ±2 below
 		gateTimeMs[i] = gateLen * 1000;
-		gateSprMs[i] = gateSpr * 1000;
+		gateSprMs[i] = gateSpr * 2000; // scaled by ±2 below
 				
 		if (generateSignal) {
 
@@ -227,22 +179,29 @@ void Imperfect2::step() {
 
 			if (counter[lastValidInput] % target == 0) { 
 
+				// check that we are not in the gate phase
+				if (!gatePhase[i].ishigh() && !delayPhase[i].ishigh()) {
+
 				// Determine delay and gate times for all active outputs
-				double rndD = clamp(core.gaussrand(), -2.0f, 2.0f);
-				delayTime[i] = clamp(dlyLen + dlySpr * rndD, 0.0f, 100.0f);
+					double rndD = clamp(core.gaussrand(), -2.0f, 2.0f);
+					delayTime[i] = clamp(dlyLen + dlySpr * rndD, 0.0f, 100.0f);
 				
-				// The modified gate time cannot be earlier than the start of the delay
-				double rndG = clamp(core.gaussrand(), -2.0f, 2.0f);
-				gateTime[i] = clamp(gateLen + gateSpr * rndG, 0.02f, 100.0f);
+					// The modified gate time cannot be earlier than the start of the delay
+					double rndG = clamp(core.gaussrand(), -2.0f, 2.0f);
+					gateTime[i] = clamp(gateLen + gateSpr * rndG, 0.001f, 100.0f);
 
-				if (debug()) { 
-					std::cout << stepX << " Delay: " << i << ": Len: " << dlyLen << " Spr: " << dlySpr << " r: " << rndD << " = " << delayTime[i] << std::endl; 
-					std::cout << stepX << " Gate: " << i << ": Len: " << gateLen << ", Spr: " << gateSpr << " r: " << rndG << " = " << gateTime[i] << std::endl; 
+					if (debug()) { 
+						std::cout << stepX << " Delay: " << i << ": Len: " << dlyLen << " Spr: " << dlySpr << " r: " << rndD << " = " << delayTime[i] << std::endl; 
+						std::cout << stepX << " Gate: " << i << ": Len: " << gateLen << ", Spr: " << gateSpr << " r: " << rndG << " = " << gateTime[i] << std::endl; 
+					}
+
+					// Trigger the respective delay pulse generator
+					delayState[i] = true;
+					if (delayPhase[i].trigger(delayTime[i])) {
+						actDelayMs[i] = delayTime[i] * 1000;
+					}
+					
 				}
-
-				// Trigger the respective delay pulse generators
-				delayState[i] = true;
-				delayPhase[i].trigger(delayTime[i]);
 			
 			}
 		}
@@ -251,7 +210,9 @@ void Imperfect2::step() {
 	for (int i = 0; i < 4; i++) {
 	
 		if (delayState[i] && !delayPhase[i].process(delta)) {
-			gatePhase[i].trigger(gateTime[i]);
+			if (gatePhase[i].trigger(gateTime[i])) {
+				actGateMs[i] = gateTime[i] * 1000;
+			}
 			gateState[i] = true;
 			delayState[i] = false;
 		}
@@ -280,35 +241,6 @@ void Imperfect2::step() {
 	
 }
 
-struct Imperfect2FloatBox : TransparentWidget {
-	
-	Imperfect2 *module;
-	int frame = 0;
-	std::shared_ptr<Font> font;
-	float *value;
-	
-	Imperfect2FloatBox() {
-		font = Font::load(assetPlugin(plugin, "res/DSEG7ClassicMini-BoldItalic.ttf"));
-	}
-
-	void draw(NVGcontext *vg) override {
-	
-		Vec pos = Vec(0, 15);
-
-		nvgFontSize(vg, 14);
-		nvgFontFaceId(vg, font->handle);
-		nvgTextLetterSpacing(vg, -1);
-
-		nvgFillColor(vg, nvgRGBA(255, 0, 0, 0xff));
-	
-		char text[6];
-		snprintf(text, sizeof(text), "%.1f", *value);
-		nvgText(vg, pos.x, pos.y, text, NULL);
-		
-	}
-	
-};
-
 struct Imperfect2Box : TransparentWidget {
 	
 	Imperfect2 *module;
@@ -320,6 +252,8 @@ struct Imperfect2Box : TransparentWidget {
 	int *gate;
 	int *gateSpr;
 	int *division;
+	int *actDly;
+	int *actGate;
 	
 	Imperfect2Box() {
 		font = Font::load(assetPlugin(plugin, "res/DSEG7ClassicMini-BoldItalic.ttf"));
@@ -362,6 +296,13 @@ struct Imperfect2Box : TransparentWidget {
 
 		snprintf(text, sizeof(text), "%d", *division);
 		nvgText(vg, pos.x + 334, pos.y, text, NULL);
+		
+		nvgFillColor(vg, nvgRGBA(0, 0, 0, 0xff));
+		snprintf(text, sizeof(text), "%d", *actDly);
+		nvgText(vg, pos.x + 372, pos.y, text, NULL);
+
+		snprintf(text, sizeof(text), "%d", *actGate);
+		nvgText(vg, pos.x + 408, pos.y, text, NULL);
 
 		
 	}
@@ -402,6 +343,9 @@ Imperfect2Widget::Imperfect2Widget(Imperfect2 *module) : ModuleWidget(module) {
 		display->gate = &(module->gateTimeMs[0]);
 		display->gateSpr = &(module->gateSprMs[0]);
 		display->division = &(module->division[0]);
+		display->actDly = &(module->actDelayMs[0]);
+		display->actGate = &(module->actGateMs[0]);
+		
 			
 		addChild(display);
 	}	
@@ -417,6 +361,8 @@ Imperfect2Widget::Imperfect2Widget(Imperfect2 *module) : ModuleWidget(module) {
 		display->gate = &(module->gateTimeMs[1]);
 		display->gateSpr = &(module->gateSprMs[1]);
 		display->division = &(module->division[1]);
+		display->actDly = &(module->actDelayMs[1]);
+		display->actGate = &(module->actGateMs[1]);
 			
 		addChild(display);
 	}	
@@ -432,6 +378,8 @@ Imperfect2Widget::Imperfect2Widget(Imperfect2 *module) : ModuleWidget(module) {
 		display->gate = &(module->gateTimeMs[2]);
 		display->gateSpr = &(module->gateSprMs[2]);
 		display->division = &(module->division[2]);
+		display->actDly = &(module->actDelayMs[2]);
+		display->actGate = &(module->actGateMs[2]);
 			
 		addChild(display);
 	}	
@@ -447,6 +395,8 @@ Imperfect2Widget::Imperfect2Widget(Imperfect2 *module) : ModuleWidget(module) {
 		display->gate = &(module->gateTimeMs[3]);
 		display->gateSpr = &(module->gateSprMs[3]);
 		display->division = &(module->division[3]);
+		display->actDly = &(module->actDelayMs[3]);
+		display->actGate = &(module->actGateMs[3]);
 			
 		addChild(display);
 	}	

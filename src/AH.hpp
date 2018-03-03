@@ -22,6 +22,8 @@ extern Model *modelImperfect2;
 
 extern Model *modelProgress;
 
+extern Model *modelRuckus;
+
 extern Model *modelScaleQuantizer;
 
 extern Model *modelScaleQuantizer2;
