@@ -954,16 +954,16 @@
      borderopacity="1.0"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.3929982"
-     inkscape:cx="192.97799"
-     inkscape:cy="2027.8949"
+     inkscape:zoom="1.6921053"
+     inkscape:cx="110.9409"
+     inkscape:cy="190"
      inkscape:current-layer="layer2"
      showgrid="false"
      units="mm"
      inkscape:window-width="1440"
      inkscape:window-height="856"
-     inkscape:window-x="106"
-     inkscape:window-y="65"
+     inkscape:window-x="124"
+     inkscape:window-y="123"
      inkscape:window-maximized="0"
      showguides="false"
      inkscape:guide-bbox="true"
@@ -1289,7 +1289,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -1644,5 +1644,30 @@
          x="66.184219"
          y="127.64323"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.60489655px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1;stroke-width:0.99420899">LENGTH</tspan></text>
+    <g
+       transform="translate(-3.4224e-4,1.5e-5)"
+       style="display:inline"
+       id="g4382">
+      <path
+         inkscape:connector-curvature="0"
+         id="rect11942"
+         d="M 32.747245,152.70677 H 349.86465 v -2.72801 H 32.747245 Z"
+         style="display:inline;opacity:1;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:2.36540818;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <path
+         style="display:inline;opacity:1;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:2.36540818;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="M 30.247587,222.10677 H 347.36499 v -2.728 H 30.247587 Z"
+         id="path3821"
+         inkscape:connector-curvature="0" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path3823"
+         d="M 30.247587,291.80675 H 347.36499 v -2.728 H 30.247587 Z"
+         style="display:inline;opacity:1;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:2.36540818;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path3827"
+         d="M 30.247587,361.80675 H 347.36499 v -2.728 H 30.247587 Z"
+         style="display:inline;opacity:1;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:2.36540818;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    </g>
   </g>
 </svg>

@@ -968,7 +968,7 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.6859566"
-     inkscape:cx="-37.773931"
+     inkscape:cx="-9.8965823"
      inkscape:cy="111.41194"
      inkscape:current-layer="layer2"
      showgrid="false"
@@ -1915,7 +1915,7 @@
          y="161.91072"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">F | Dm</tspan></text>
     <rect
-       style="display:inline;opacity:1;fill:#d4af2c;fill-opacity:1;stroke:none;stroke-width:0.84479064;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="display:inline;opacity:1;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.84479064;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect1152"
        width="31.912909"
        height="2.9548988"
@@ -1927,6 +1927,6 @@
        height="2.9548988"
        width="31.912909"
        id="rect2727"
-       style="display:inline;opacity:1;fill:#d4af2c;fill-opacity:1;stroke:none;stroke-width:0.84479064;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="display:inline;opacity:1;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.84479064;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
   </g>
 </svg>

@@ -981,15 +981,15 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.6921053"
-     inkscape:cx="136.5"
+     inkscape:cx="22.440905"
      inkscape:cy="190"
      inkscape:current-layer="layer2"
      showgrid="false"
      units="mm"
      inkscape:window-width="1440"
      inkscape:window-height="856"
-     inkscape:window-x="888"
-     inkscape:window-y="291"
+     inkscape:window-x="65"
+     inkscape:window-y="38"
      inkscape:window-maximized="0"
      showguides="false"
      inkscape:guide-bbox="true"
@@ -1731,17 +1731,17 @@
        transform="scale(1,-1)" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none;"
-       x="123.01947"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none"
+       x="122.29811"
        y="337.82428"
        id="text1150"><tspan
          sodipodi:role="line"
          id="tspan1148"
-         x="123.01947"
+         x="122.29811"
          y="337.82428"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1;">T. SCL</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">P. SCL</tspan></text>
     <rect
-       style="opacity:1;fill:#d4af2c;fill-opacity:1;stroke:none;stroke-width:0.84479064;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="opacity:1;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.84479064;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect1152"
        width="31.912909"
        height="2.9548988"
@@ -1795,14 +1795,14 @@
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none"
-       x="197.99086"
+       x="193.59502"
        y="281.82422"
        id="text4108"><tspan
          sodipodi:role="line"
          id="tspan4106"
-         x="197.99086"
+         x="193.59502"
          y="281.82422"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">LEN</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">P.LEN</tspan></text>
     <rect
        style="fill:#000000;fill-opacity:1;stroke-width:0.78504759"
        id="rect4110"
@@ -1835,23 +1835,23 @@
     <text
        id="text4124"
        y="281.82422"
-       x="126.18353"
+       x="125.46217"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none"
        xml:space="preserve"><tspan
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1"
          y="281.82422"
-         x="126.18353"
+         x="125.46217"
          id="tspan4122"
-         sodipodi:role="line">T. ST</tspan></text>
+         sodipodi:role="line">P. ST</tspan></text>
     <rect
        y="301.51981"
        x="175.0831"
        height="2.9548988"
        width="31.912909"
        id="rect4126"
-       style="opacity:1;fill:#d4af2c;fill-opacity:1;stroke:none;stroke-width:0.84479064;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="opacity:1;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.84479064;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <rect
-       style="opacity:1;fill:#d4af2c;fill-opacity:1;stroke:none;stroke-width:0.84479064;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="opacity:1;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.84479064;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect4128"
        width="31.912909"
        height="2.9548988"
@@ -1863,7 +1863,7 @@
        height="2.9548988"
        width="31.912909"
        id="rect4130"
-       style="opacity:1;fill:#d4af2c;fill-opacity:1;stroke:none;stroke-width:0.84479064;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="opacity:1;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.84479064;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <rect
        style="fill:#000000;fill-opacity:1;stroke-width:0.78504759"
        id="rect4132"
