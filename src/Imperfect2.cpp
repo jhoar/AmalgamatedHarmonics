@@ -6,7 +6,7 @@
 
 #include <iostream>
 
-struct Imperfect2 : Module {
+struct Imperfect2 : AHModule {
 
 	enum ParamIds {
 		DELAY_PARAM,
@@ -33,19 +33,11 @@ struct Imperfect2 : Module {
 		NUM_LIGHTS = OUT_LIGHT + 8
 	};
 
-	float delta;
-		
-	Imperfect2() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
+	Imperfect2() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
 		reset();
-		delta = 1.0 / engineGetSampleRate();
 	}
 	
-	void onSampleRateChange() override { 
-		delta = 1.0 / engineGetSampleRate();
-	}
-
 	void step() override;
-	float calculateBPM(int index); // From ML
 	
 	void reset() override {
 		for (int i = 0; i < 4; i++) {
@@ -56,8 +48,9 @@ struct Imperfect2 : Module {
 			bpm[i] = 0.0;
 		}
 	}
-	
-	
+
+	float calculateBPM(int index); // From ML
+
 	Core core;
 
 	bool delayState[4];
@@ -78,13 +71,6 @@ struct Imperfect2 : Module {
 	SchmittTrigger inTrigger[4];
 
 	int counter[4];
-	int counterIndex[4];
-
-	int stepX;
-	
-	inline bool debug() {
-		return false;
-	}
 	
 	BpmCalculator bpmCalc[4];
 		
@@ -256,7 +242,7 @@ struct Imperfect2Box : TransparentWidget {
 	int *actGate;
 	
 	Imperfect2Box() {
-		font = Font::load(assetPlugin(plugin, "res/DSEG7ClassicMini-BoldItalic.ttf"));
+		font = Font::load(assetPlugin(plugin, "res/DSEG14ClassicMini-BoldItalic.ttf"));
 	}
 
 	void draw(NVGcontext *vg) override {

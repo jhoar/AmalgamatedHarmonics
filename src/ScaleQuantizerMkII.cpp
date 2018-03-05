@@ -6,7 +6,7 @@
 
 #include <iostream>
 
-struct ScaleQuantizer2 : Module {
+struct ScaleQuantizer2 : AHModule {
 
 	enum ParamIds {
 		KEY_PARAM,
@@ -34,15 +34,7 @@ struct ScaleQuantizer2 : Module {
 		NUM_LIGHTS = SCALE_LIGHT + 12
 	};
 
-	float delta;
-
-	ScaleQuantizer2() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
-		delta = 1.0 / engineGetSampleRate();
-	}
-
-	void onSampleRateChange() override { 
-		delta = 1.0 / engineGetSampleRate();
-	}
+	ScaleQuantizer2() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
 
 	void step() override;
 
@@ -62,6 +54,8 @@ struct ScaleQuantizer2 : Module {
 };
 
 void ScaleQuantizer2::step() {
+	
+	stepX++;
 	
 	lastScale = currScale;
 	lastRoot = currRoot;

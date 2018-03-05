@@ -1,41 +1,153 @@
 #pragma once
 
+#include <iostream>
+
 #include "AH.hpp"
 #include "componentlibrary.hpp"
 
-struct AHButton : SVGSwitch, MomentarySwitch {
+
+
+struct ParamEvent  {
+
+	enum Format {
+		INT = 0,
+		FP
+	};
+	
+	ParamEvent(std::string n, Format s, float v) : name(n), spec(s), value(v) {}
+	
+	std::string name;
+	Format spec;
+	float value;
+
+};
+
+struct AHParam {
+	
+	std::string paramName = "NONAME";
+	ParamEvent::Format spec = ParamEvent::INT;
+	
+	virtual ParamEvent generateEvent() = 0;
+	
+	template <typename T = AHParam>
+	static void set(T *param, std::string n, ParamEvent::Format s) {
+		param->paramName = n;
+		param->spec = s;
+	}
+
+};
+
+struct AHModule : Module {
+
+	float delta;
+
+	AHModule(int numParams, int numInputs, int numOutputs, int numLights = 0) : Module(numParams, numInputs, numOutputs, numLights) {
+		delta = 1.0 / engineGetSampleRate();
+	}
+
+	void onSampleRateChange() override { 
+		delta = 1.0 / engineGetSampleRate();
+	}
+
+	int stepX;
+	
+	bool debugFlag = false;
+	
+	inline bool debug() {
+		return debugFlag;
+	}
+	
+	virtual void receiveEvent(ParamEvent e) { }
+
+};
+
+struct AHButton : SVGSwitch, MomentarySwitch, AHParam {
 	AHButton() {
 		addFrame(SVG::load(assetPlugin(plugin,"res/ComponentLibrary/AHButton.svg")));
 	}
+	
+	void onChange(EventChange &e) override { // buttons excluded
+		MomentarySwitch::onChange(e);
+	}
+
+	ParamEvent generateEvent() override {
+		return ParamEvent(paramName,spec,value);
+	};
+	
 };
 
-struct AHKnobSnap : RoundKnob {
+struct AHKnobSnap : RoundKnob, AHParam {
+		
 	AHKnobSnap() {
 		snap = true;
 		setSVG(SVG::load(assetPlugin(plugin,"res/ComponentLibrary/AHKnob.svg")));
 	}
+
+	void onChange(EventChange &e) override { 
+		AHModule *m = static_cast<AHModule *>(this->module);
+		m->receiveEvent(generateEvent());
+		RoundKnob::onChange(e);
+	}
+
+	ParamEvent generateEvent() override {
+		return ParamEvent(paramName,spec,value);
+	};
+
 };
 
-struct AHKnobNoSnap : RoundKnob {
+struct AHKnobNoSnap : RoundKnob, AHParam {
 	AHKnobNoSnap() {
 		snap = false;
 		setSVG(SVG::load(assetPlugin(plugin,"res/ComponentLibrary/AHKnob.svg")));
 	}
+	
+	void onChange(EventChange &e) override { 
+		AHModule *m = static_cast<AHModule *>(this->module);
+		m->receiveEvent(generateEvent());
+		RoundKnob::onChange(e);
+	}
+
+	ParamEvent generateEvent() override {
+		return ParamEvent(paramName,spec,value);
+	};
+		
 };
 
 
-struct AHTrimpotSnap : RoundKnob {
+struct AHTrimpotSnap : RoundKnob, AHParam {
 	AHTrimpotSnap() {
 		snap = true;
 		setSVG(SVG::load(assetPlugin(plugin,"res/ComponentLibrary/AHTrimpot.svg")));
 	}
+	
+	void onChange(EventChange &e) override { 
+		AHModule *m = static_cast<AHModule *>(this->module);
+		m->receiveEvent(generateEvent());
+		RoundKnob::onChange(e);
+	}
+
+	ParamEvent generateEvent() override {
+		return ParamEvent(paramName,spec,value);
+	};
+	
 };
 
-struct AHTrimpotNoSnap : RoundKnob {
+struct AHTrimpotNoSnap : RoundKnob, AHParam {
 	AHTrimpotNoSnap() {
 		snap = false;
 		setSVG(SVG::load(assetPlugin(plugin,"res/ComponentLibrary/AHTrimpot.svg")));
 	}
+	
+	void onChange(EventChange &e) override { 
+		AHModule *m = static_cast<AHModule *>(this->module);
+		m->receiveEvent(generateEvent());
+		RoundKnob::onChange(e);
+	}
+
+	ParamEvent generateEvent() override {
+		return ParamEvent(paramName,spec,value);
+	};
+	
 };
 
 

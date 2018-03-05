@@ -6,7 +6,7 @@
 
 #include <iostream>
 
-struct Imperfect : Module {
+struct Imperfect : AHModule {
 
 	enum ParamIds {
 		DELAY_PARAM,
@@ -29,17 +29,10 @@ struct Imperfect : Module {
 		NUM_LIGHTS = OUT_LIGHT + 16
 	};
 
-	float delta;
-		
-	Imperfect() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
+	Imperfect() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
 		reset();
-		delta = 1.0 / engineGetSampleRate();
 	}
 	
-	void onSampleRateChange() override { 
-		delta = 1.0 / engineGetSampleRate();
-	}
-
 	void step() override;
 	
 	void reset() override {
@@ -51,7 +44,6 @@ struct Imperfect : Module {
 		}
 	}
 	
-
 	Core core;
 
 	bool delayState[8];
@@ -63,14 +55,6 @@ struct Imperfect : Module {
 	SchmittTrigger inTrigger[8];
 
 	int counter[8];
-	int counterIndex[8];
-
-
-	int stepX;
-	
-	inline bool debug() {
-		return false;
-	}
 	
 };
 

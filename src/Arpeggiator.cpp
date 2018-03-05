@@ -13,7 +13,6 @@ struct Sequence {
 	int nStep = 0;
 	int nDist = 0;
 	
-	
 	int stepI = 0;
 	int cycleI = 0;
 	int stepsRemaining = 0;
@@ -66,7 +65,7 @@ struct Sequence {
 
 };
 
-struct Arpeggiator : Module {
+struct Arpeggiator : AHModule {
 
 	const static int MAX_STEPS = 16;
 	const static int MAX_DIST = 12; //Octave
@@ -101,16 +100,8 @@ struct Arpeggiator : Module {
 		NUM_LIGHTS
 	};
 	
-	float delta;
+	Arpeggiator() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) { }
 		
-	Arpeggiator() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
-		delta = 1.0 / engineGetSampleRate();
-	}
-	
-	void onSampleRateChange() override { 
-		delta = 1.0 / engineGetSampleRate();
-	}
-	
 	void step() override;
 	
 	SchmittTrigger clockTrigger; // for clock
@@ -148,13 +139,8 @@ struct Arpeggiator : Module {
 	
 	int nValidPitches = 0;
 
-	int stepX = 0;
 	int poll = 5000;
-	
-	inline bool debug() {
-		return true;
-	}
-	
+		
 };
 
 void Arpeggiator::step() {
