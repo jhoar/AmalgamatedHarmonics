@@ -41,7 +41,12 @@ struct Ruckus : AHModule {
 	void step() override;
 	float calculateBPM(int index); // From ML
 	
-	void reset() override {	}
+	void reset() override {	
+		for (int i = 0; i < 4; i++) {
+			xMute[i] = true;
+			yMute[i] = true;
+		}
+	}
 	
 	bool init = false;
 	
@@ -50,18 +55,14 @@ struct Ruckus : AHModule {
 	
 	void receiveEvent(ParamEvent e) override {
 		if (init) {
-			std::stringstream ss;
 			switch(e.spec) {
 				case ParamEvent::INT: 
-					ss << e.name << ": " << (int)e.value;
+					pState = e.name + ": " + std::to_string((int)e.value);
 					break;
 				case ParamEvent::FP:
-					ss << e.name << ": " << e.value;
-					break;
 				default:
-					ss << e.name << ": " << (int)e.value;
+					pState = e.name + ": " + std::to_string(e.value);
 			}
-			pState = std::string(ss.str());
 		}
 		displayC = 0;
 	}
@@ -101,8 +102,11 @@ void Ruckus::step() {
 	}
 	
 	bool haveTrigger = inTrigger.process(inputs[TRIG_INPUT].value);
+
+//	std::cout << xMute[1]  << std::endl;
 	
 	for (int i = 0; i < 4; i++) {
+
 		if (xLockTrigger[i].process(params[XMUTE_PARAM + i].value)) {
 			xMute[i] = !xMute[i];
 		}
@@ -110,6 +114,8 @@ void Ruckus::step() {
 			yMute[i] = !yMute[i];
 		}
 	}
+
+//	std::cout << xMute[1]  << std::endl;
 
 	for (int i = 0; i < 16; i++) {
 		division[i] = params[DIV_PARAM + i].value;
@@ -253,8 +259,7 @@ RuckusWidget::RuckusWidget(Ruckus *module) : ModuleWidget(module) {
 		
 		Vec bVec = ui.getPosition(UI::BUTTON, 1 + x * 2, 7, true, true);
 		bVec.y = bVec.y + d;
-		AHButton *buttonW = ParamWidget::create<AHButton>(bVec, module, Ruckus::XMUTE_PARAM + x, 0.0, 1.0, 1.0);
-		addParam(buttonW);
+		addParam(ParamWidget::create<AHButton>(bVec, module, Ruckus::XMUTE_PARAM + x, 0.0, 1.0, 0.0));
 		
 		Vec lVec = ui.getPosition(UI::LIGHT, 1 + x * 2, 7, true, true);
 		lVec.y = lVec.y + d;
@@ -267,8 +272,7 @@ RuckusWidget::RuckusWidget(Ruckus *module) : ModuleWidget(module) {
 
 		Vec bVec = ui.getPosition(UI::BUTTON, 8, y * 2, true, true);
 		bVec.x = bVec.x + d;		
-		AHButton *buttonW = ParamWidget::create<AHButton>(bVec, module, Ruckus::YMUTE_PARAM + y, 0.0, 1.0, 1.0);
-		addParam(buttonW);
+		addParam(ParamWidget::create<AHButton>(bVec, module, Ruckus::YMUTE_PARAM + y, 0.0, 1.0, 0.0));
 
 		Vec lVec = ui.getPosition(UI::LIGHT, 8, y * 2, true, true);
 		lVec.x = lVec.x + d;
