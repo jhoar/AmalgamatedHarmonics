@@ -71,6 +71,6 @@ Vec UI::getPosition(int type, int xSlot, int ySlot, bool xDense, bool yDense) {
 		if (yDense) { yArray = Y_KNOB_COMPACT; } else { yArray = Y_KNOB; }
 	}
 
-	return Vec(xArray[xSlot], yArray[ySlot]);
+	return Vec(xArray[0] + xArray[1] * xSlot, yArray[0] + yArray[1] * ySlot);
 	
 }

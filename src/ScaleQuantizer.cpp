@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-struct ScaleQuantizer : Module {
+struct ScaleQuantizer : AHModule {
 
 	enum ParamIds {
 		NUM_PARAMS
@@ -29,7 +29,7 @@ struct ScaleQuantizer : Module {
 		NUM_LIGHTS = DEGREE_LIGHT + 12
 	};
 
-	ScaleQuantizer() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
+	ScaleQuantizer() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
 	void step() override;
 
 	bool firstStep = true;
@@ -46,6 +46,8 @@ struct ScaleQuantizer : Module {
 };
 
 void ScaleQuantizer::step() {
+	
+	stepX++;
 	
 	lastScale = currScale;
 	lastRoot = currRoot;

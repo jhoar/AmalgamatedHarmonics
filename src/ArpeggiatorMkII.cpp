@@ -411,7 +411,7 @@ struct LeftRightArp : Arpeggio {
 };
 
 
-struct Arpeggiator2 : Module {
+struct Arpeggiator2 : AHModule {
 	
 	const static int MAX_STEPS = 16;
 	const static int MAX_DIST = 12; //Octave
@@ -449,18 +449,11 @@ struct Arpeggiator2 : Module {
 		NUM_LIGHTS
 	};
 	
-	float delta;
-		
-	Arpeggiator2() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
+	Arpeggiator2() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
 		reset();
 		id = rand();
-		delta = 1.0 / engineGetSampleRate();
 	}
-	
-	void onSampleRateChange() override { 
-		delta = 1.0 / engineGetSampleRate();
-	}
-	
+
 	void step() override;
 	
 	void reset() override {
@@ -524,14 +517,8 @@ struct Arpeggiator2 : Module {
 	int inputTrans = 0;
 	int inputScale = 0;
 	
-	int stepX = 0;
 	int poll = 5000;
 		
-	inline bool debug() {
-		return false;
-	}
-	
-	
 	int pattern = 0;
 	int arp = 0;
 	int length = 0;

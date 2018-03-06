@@ -5,7 +5,7 @@
 
 #include <iostream>
 
-struct Circle : Module {
+struct Circle : AHModule {
 
 	const static int NUM_PITCHES = 6;
 	
@@ -38,7 +38,7 @@ struct Circle : Module {
 	};
 	Scaling voltScale = FIFTHS;
 	
-	Circle() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
+	Circle() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
 	void step() override;
 	
 	json_t *toJson() override {
@@ -60,8 +60,6 @@ struct Circle : Module {
 		}
 	}
 	
-	
-	
 	SchmittTrigger rotLTrigger;
 	SchmittTrigger rotRTrigger;
 	
@@ -74,16 +72,8 @@ struct Circle : Module {
 	
 	int curMode = 0;
 		
-	int stepX = 0;
 	int poll = 50000;
-	
-	inline bool debug() {
-		if (stepX % poll == 0) {
-			return false;			
-		}
-		return false;
-	}
-	
+		
 };
 
 void Circle::step() {

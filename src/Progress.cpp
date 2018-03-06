@@ -5,7 +5,7 @@
 
 #include <iostream>
 
-struct Progress : Module {
+struct Progress : AHModule {
 
 	const static int NUM_PITCHES = 6;
 	
@@ -43,17 +43,14 @@ struct Progress : Module {
 		NUM_LIGHTS = GATE_LIGHTS + 8
 	};
 
-	float delta;
 	float sampleRate;
 		
-	Progress() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
+	Progress() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
 		sampleRate = engineGetSampleRate();
-		delta = 1.0 / sampleRate;
 	}
 	
 	void onSampleRateChange() override { 
 		sampleRate = engineGetSampleRate();
-		delta = 1.0 / sampleRate;
 	}
 
 	void step() override;
@@ -162,19 +159,8 @@ struct Progress : Module {
 	int currQuality[8];
 	
 	float pitches[8][6];
-	
 	float oldPitches[6];
-		
-	inline bool debug() {
-		// if (stepX % poll == 0) {
-		// 	return true;
-		// } else {
-		// 	return false;
-		// }
-		return false;
-
-	}
-	
+			
 	void reset() override {
 		
 		for (int i = 0; i < 8; i++) {
