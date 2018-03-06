@@ -984,32 +984,32 @@ Menu *Arpeggiator2Widget::createContextMenu() {
 	Menu *menu = ModuleWidget::createContextMenu();
 
 	MenuLabel *spacerLabel = new MenuLabel();
-	menu->pushChild(spacerLabel);
+	menu->addChild(spacerLabel);
 
 	Arpeggiator2 *arp = dynamic_cast<Arpeggiator2*>(module);
 	assert(arp);
 
 	MenuLabel *modeLabel = new MenuLabel();
 	modeLabel->text = "Gate Mode";
-	menu->pushChild(modeLabel);
+	menu->addChild(modeLabel);
 
 	ArpGateModeItem *triggerItem = new ArpGateModeItem();
 	triggerItem->text = "Trigger";
 	triggerItem->arp = arp;
 	triggerItem->gateMode = Arpeggiator2::TRIGGER;
-	menu->pushChild(triggerItem);
+	menu->addChild(triggerItem);
 
 	ArpGateModeItem *retriggerItem = new ArpGateModeItem();
 	retriggerItem->text = "Retrigger";
 	retriggerItem->arp = arp;
 	retriggerItem->gateMode = Arpeggiator2::RETRIGGER;
-	menu->pushChild(retriggerItem);
+	menu->addChild(retriggerItem);
 
 	ArpGateModeItem *continuousItem = new ArpGateModeItem();
 	continuousItem->text = "Continuous";
 	continuousItem->arp = arp;
 	continuousItem->gateMode = Arpeggiator2::CONTINUOUS;
-	menu->pushChild(continuousItem);
+	menu->addChild(continuousItem);
 
 	return menu;
 }

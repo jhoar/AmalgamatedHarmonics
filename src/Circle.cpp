@@ -268,26 +268,26 @@ Menu *CircleWidget::createContextMenu() {
 	Menu *menu = ModuleWidget::createContextMenu();
 
 	MenuLabel *spacerLabel = new MenuLabel();
-	menu->pushChild(spacerLabel);
+	menu->addChild(spacerLabel);
 
 	Circle *circle = dynamic_cast<Circle*>(module);
 	assert(circle);
 
 	MenuLabel *modeLabel = new MenuLabel();
 	modeLabel->text = "Root Volt Scaling";
-	menu->pushChild(modeLabel);
+	menu->addChild(modeLabel);
 
 	CircleScalingItem *fifthsItem = new CircleScalingItem();
 	fifthsItem->text = "Fifths";
 	fifthsItem->circle = circle;
 	fifthsItem->scalingMode = Circle::FIFTHS;
-	menu->pushChild(fifthsItem);
+	menu->addChild(fifthsItem);
 
 	CircleScalingItem *chromaticItem = new CircleScalingItem();
 	chromaticItem->text = "Chromatic (V/OCT)";
 	chromaticItem->circle = circle;
 	chromaticItem->scalingMode = Circle::CHROMATIC;
-	menu->pushChild(chromaticItem);
+	menu->addChild(chromaticItem);
 
 	return menu;
 }

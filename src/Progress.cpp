@@ -590,32 +590,32 @@ Menu *ProgressWidget::createContextMenu() {
 	Menu *menu = ModuleWidget::createContextMenu();
 
 	MenuLabel *spacerLabel = new MenuLabel();
-	menu->pushChild(spacerLabel);
+	menu->addChild(spacerLabel);
 
 	Progress *progress = dynamic_cast<Progress*>(module);
 	assert(progress);
 
 	MenuLabel *modeLabel = new MenuLabel();
 	modeLabel->text = "Gate Mode";
-	menu->pushChild(modeLabel);
+	menu->addChild(modeLabel);
 
 	ProgressGateModeItem *triggerItem = new ProgressGateModeItem();
 	triggerItem->text = "Trigger";
 	triggerItem->progress = progress;
 	triggerItem->gateMode = Progress::TRIGGER;
-	menu->pushChild(triggerItem);
+	menu->addChild(triggerItem);
 
 	ProgressGateModeItem *retriggerItem = new ProgressGateModeItem();
 	retriggerItem->text = "Retrigger";
 	retriggerItem->progress = progress;
 	retriggerItem->gateMode = Progress::RETRIGGER;
-	menu->pushChild(retriggerItem);
+	menu->addChild(retriggerItem);
 
 	ProgressGateModeItem *continuousItem = new ProgressGateModeItem();
 	continuousItem->text = "Continuous";
 	continuousItem->progress = progress;
 	continuousItem->gateMode = Progress::CONTINUOUS;
-	menu->pushChild(continuousItem);
+	menu->addChild(continuousItem);
 
 	return menu;
 }
