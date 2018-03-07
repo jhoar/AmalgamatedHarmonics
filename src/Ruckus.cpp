@@ -39,34 +39,39 @@ struct Ruckus : AHModule {
 	}
 	
 	void step() override;
-	float calculateBPM(int index); // From ML
+
+	enum ParamType {
+		DIV_TYPE,
+		SHIFT_TYPE,
+		PROB_TYPE
+	};
+	
+	void receiveEvent(ParamEvent e) override {
+		if (receiveEvents) {
+			switch(e.pType) {
+				case ParamType::DIV_TYPE: 
+					paramState = "> Div: " + std::to_string((int)e.value);
+					break;
+				case ParamType::SHIFT_TYPE: 
+					paramState = "> Shift: " + std::to_string((int)e.value);
+					break;
+				case ParamType::PROB_TYPE:
+					paramState = "> Prob " + std::to_string(e.value).substr(0,6);
+					break;
+				default:
+					paramState = "> UNK:" + std::to_string(e.value).substr(0,6);
+			}
+		}
+		keepStateDisplay = 0;
+	}
+	
 	
 	void reset() override {	
 		for (int i = 0; i < 4; i++) {
 			xMute[i] = true;
 			yMute[i] = true;
 		}
-	}
-	
-	bool init = false;
-	
-	int displayC = 0;
-	std::string pState = "";
-	
-	void receiveEvent(ParamEvent e) override {
-		if (init) {
-			switch(e.spec) {
-				case ParamEvent::INT: 
-					pState = e.name + ": " + std::to_string((int)e.value);
-					break;
-				case ParamEvent::FP:
-				default:
-					pState = e.name + ": " + std::to_string(e.value);
-			}
-		}
-		displayC = 0;
-	}
-	
+	}	
 	
 	Core core;
 
@@ -91,16 +96,8 @@ struct Ruckus : AHModule {
 
 void Ruckus::step() {
 	
-	init = true;
-	
-	stepX++;
-	
-	// Timeout for display
-	displayC++;
-	if (displayC > 50000) {
-		pState = ""; // Truncate
-	}
-	
+	AHModule::step();
+		
 	bool haveTrigger = inTrigger.process(inputs[TRIG_INPUT].value);
 
 //	std::cout << xMute[1]  << std::endl;
@@ -168,34 +165,6 @@ void Ruckus::step() {
 	
 }
 
-struct StateDisplay : TransparentWidget {
-	
-	Ruckus *module;
-	int frame = 0;
-	std::shared_ptr<Font> font;
-
-	StateDisplay() {
-		font = Font::load(assetPlugin(plugin, "res/DSEG14ClassicMini-BoldItalic.ttf"));
-	}
-
-	void draw(NVGcontext *vg) override {
-	
-		Vec pos = Vec(0, 15);
-
-		nvgFontSize(vg, 14);
-		nvgFontFaceId(vg, font->handle);
-		nvgTextLetterSpacing(vg, -1);
-
-		nvgFillColor(vg, nvgRGBA(255, 0, 0, 0xff));
-	
-		char text[128];
-		snprintf(text, sizeof(text), "%s", module->pState.c_str());
-		nvgText(vg, pos.x + 10, pos.y + 5, text, NULL);			
-
-	}
-	
-};
-
 struct RuckusWidget : ModuleWidget {
 	RuckusWidget(Ruckus *module);
 };
@@ -238,15 +207,15 @@ RuckusWidget::RuckusWidget(Ruckus *module) : ModuleWidget(module) {
 			Vec v = ui.getPosition(UI::KNOB, 1 + x * 2, y * 2, true, true);
 			
 			AHKnobSnap *divW = ParamWidget::create<AHKnobSnap>(v, module, Ruckus::DIV_PARAM + i, 0, 64, 0);
-			AHParam::set<AHKnobSnap>(divW, "Div " + std::to_string(i), ParamEvent::INT);
+			AHParamWidget::set<AHKnobSnap>(divW, Ruckus::DIV_TYPE, i);
 			addParam(divW);
 
 			AHTrimpotNoSnap *probW = ParamWidget::create<AHTrimpotNoSnap>(Vec(v.x + xd, v.y + yd), module, Ruckus::PROB_PARAM + i, 0.0f, 1.0f, 1.0f);
-			AHParam::set<AHTrimpotNoSnap>(probW, "Prob " + std::to_string(i), ParamEvent::FP);
+			AHParamWidget::set<AHTrimpotNoSnap>(probW, Ruckus::PROB_TYPE, i);
 			addParam(probW);
 
-			AHTrimpotSnap *shiftW = ParamWidget::create<AHTrimpotSnap>(Vec(v.x - xd + 4, v.y + yd), module, Ruckus::SHIFT_PARAM + i, -16.0f, 16.0f, 0.0f);
-			AHParam::set<AHTrimpotSnap>(shiftW, "Shift " + std::to_string(i), ParamEvent::INT);
+			AHTrimpotSnap *shiftW = ParamWidget::create<AHTrimpotSnap>(Vec(v.x - xd + 4, v.y + yd), module, Ruckus::SHIFT_PARAM + i, -64.0f, 64.0f, 0.0f);
+			AHParamWidget::set<AHTrimpotSnap>(shiftW, Ruckus::SHIFT_TYPE, i);
 			addParam(shiftW);
 		}
 	}

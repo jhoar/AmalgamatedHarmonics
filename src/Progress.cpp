@@ -55,6 +55,35 @@ struct Progress : AHModule {
 
 	void step() override;
 	
+	enum ParamType {
+		ROOT_TYPE,
+		CHORD_TYPE,
+		INV_TYPE
+	};
+
+	void receiveEvent(ParamEvent e) override {
+		if (receiveEvents) {
+			if (modeMode) {
+				
+				paramState = "> " + 
+					CoreUtil().noteNames[currRoot[e.pId]] + 
+					CoreUtil().ChordTable[currChord[e.pId]].quality + " " +  
+					CoreUtil().inversionNames[currInv[e.pId]] + " " + "[ " + 
+					CoreUtil().degreeNames[currDegree[e.pId] * 3 + currQuality[e.pId]] + "]"; 
+
+			} else {
+
+				paramState = "> " + 
+					CoreUtil().noteNames[currRoot[e.pId]] + 
+					CoreUtil().ChordTable[currChord[e.pId]].quality + " " +  
+					CoreUtil().inversionNames[currInv[e.pId]];
+
+			}
+		}
+		keepStateDisplay = 0;
+	}
+	
+		
 	json_t *toJson() override {
 		json_t *rootJ = json_object();
 
@@ -166,7 +195,7 @@ struct Progress : AHModule {
 		for (int i = 0; i < 8; i++) {
 			gateState[i] = true;
 		}
-				
+
 	}
 	
 };
@@ -175,19 +204,7 @@ struct Progress : AHModule {
 
 void Progress::step() {
 	
-	// int outRoot;
-	// int outQ;
-	// std::cout << " TEST " << std::endl;
-	// for (int mode = 0; mode < Quantizer::NUM_MODES; mode++) {
-	// 	for (int root = 0; root < Quantizer::NUM_NOTES; root++) {
-	// 		for (int degree = 0; degree < Quantizer::NUM_TONICS; degree++) {
-	// 			chords.getRootFromMode(mode,root,degree,&outRoot,&outQ);
-	// 		}
-	// 	}
-	// }
-	
-	
-	stepX++;
+	AHModule::step();
 	
 	const float lightLambda = 0.075;
 	
@@ -449,61 +466,6 @@ void Progress::step() {
 
 }
 
-struct ProgressDisplay : TransparentWidget {
-	
-	Progress *module;
-	int frame = 0;
-	std::shared_ptr<Font> font;
-	
-	ProgressDisplay() {
-		font = Font::load(assetPlugin(plugin, "res/Roboto-Light.ttf"));
-	}
-
-	void draw(NVGcontext *vg) override {
-	
-		Vec pos = Vec(0, 20);
-
-		nvgFontSize(vg, 16);
-		nvgFontFaceId(vg, font->handle);
-		nvgTextLetterSpacing(vg, -1);
-
-		nvgFillColor(vg, nvgRGBA(212, 175, 55, 0xff));
-		char text[128];
-
-		if (module->modeMode) {
-			
-			// Print current root and mode
-			
-			snprintf(text, sizeof(text), "%s %s", CoreUtil().noteNames[module->currKey].c_str(), CoreUtil().modeNames[module->currMode].c_str());
-			nvgText(vg, pos.x + 10, pos.y + 5, text, NULL);
-			
-			for (int i = 0; i < 8; i++) {
-				snprintf(text, sizeof(text), "%d: %s%s %s [%s]", i + 1, 
-					CoreUtil().noteNames[module->currRoot[i]].c_str(), 
-					CoreUtil().ChordTable[module->currChord[i]].quality.c_str(), 
-					CoreUtil().inversionNames[module->currInv[i]].c_str(), 
-					CoreUtil().degreeNames[module->currDegree[i] * 3 + module->currQuality[i]].c_str()); // FIXME how to get lower case degree
-					nvgText(vg, pos.x + 10, pos.y + 25 + i * 15, text, NULL);
-				
-			}
-			
-		} else {
-
-			for (int i = 0; i < 8; i++) {
-				snprintf(text, sizeof(text), "%d %s %s %s", i + 1, 
-					CoreUtil().noteNames[module->currRoot[i]].c_str(), 
-					CoreUtil().ChordTable[module->currChord[i]].quality.c_str(), 
-					CoreUtil().inversionNames[module->currInv[i]].c_str());
-				nvgText(vg, pos.x + 10, pos.y + 25 + i * 15, text, NULL);
-				
-			}
-			
-		}
-		
-	}
-	
-};
-
 struct ProgressWidget : ModuleWidget {
 	ProgressWidget(Progress *module);
 	Menu *createContextMenu() override;
@@ -513,7 +475,7 @@ ProgressWidget::ProgressWidget(Progress *module) : ModuleWidget(module) {
 	
 	UI ui;
 		
-	box.size = Vec(15*31, 380);
+	box.size = Vec(15*26, 380);
 
 	{
 		SVGPanel *panel = new SVGPanel();
@@ -528,14 +490,13 @@ ProgressWidget::ProgressWidget(Progress *module) : ModuleWidget(module) {
 	addChild(Widget::create<ScrewSilver>(Vec(box.size.x-30, 365)));
 	
 	{
-		ProgressDisplay *display = new ProgressDisplay();
+		StateDisplay *display = new StateDisplay();
 		display->module = module;
-		display->box.pos = Vec(330, 135);
-		display->box.size = Vec(100, 240);
+		display->box.pos = Vec(0, 135);
+		display->box.size = Vec(100, 140);
 		addChild(display);
 	}
 	
-
 	addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 0, 0, true, false), module, Progress::CLOCK_PARAM, -2.0, 6.0, 2.0));
 	addParam(ParamWidget::create<AHButton>(ui.getPosition(UI::BUTTON, 1, 0, true, false), module, Progress::RUN_PARAM, 0.0, 1.0, 0.0));
 	addChild(ModuleLightWidget::create<MediumLight<GreenLight>>(ui.getPosition(UI::LIGHT, 1, 0, true, false), module, Progress::RUNNING_LIGHT));
@@ -563,9 +524,18 @@ ProgressWidget::ProgressWidget(Progress *module) : ModuleWidget(module) {
 	}
 
 	for (int i = 0; i < 8; i++) {
-		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, i + 1, 4, true, true), module, Progress::ROOT_PARAM + i, 0.0, 10.0, 0.0));
-		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, i + 1, 5, true, true), module, Progress::CHORD_PARAM + i, 0.0, 10.0, 0.0));
-		addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, i + 1, 6, true, true), module, Progress::INV_PARAM + i, 0.0, 2.0, 0.0));
+		AHKnobNoSnap *rootW = ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, i + 1, 4, true, true), module, Progress::ROOT_PARAM + i, 0.0, 10.0, 0.0);
+		AHParamWidget::set<AHKnobNoSnap>(rootW, Progress::ROOT_TYPE, i);
+		addParam(rootW);
+		
+		AHKnobNoSnap *chordW = ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, i + 1, 5, true, true), module, Progress::CHORD_PARAM + i, 0.0, 10.0, 0.0);
+		AHParamWidget::set<AHKnobNoSnap>(chordW, Progress::CHORD_TYPE, i);
+		addParam(chordW);
+
+		AHKnobSnap *invW = ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, i + 1, 6, true, true), module, Progress::INV_PARAM + i, 0.0, 2.0, 0.0);
+		AHParamWidget::set<AHKnobSnap>(invW, Progress::INV_TYPE, i);
+		addParam(invW);
+
 		addParam(ParamWidget::create<AHButton>(ui.getPosition(UI::BUTTON, i + 1, 7, true, true), module, Progress::GATE_PARAM + i, 0.0, 1.0, 0.0));
 		addChild(ModuleLightWidget::create<MediumLight<GreenLight>>(ui.getPosition(UI::LIGHT, i + 1, 7, true, true), module, Progress::GATE_LIGHTS + i));
 		addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, i + 1, 5, true, false), Port::OUTPUT, module, Progress::GATE_OUTPUT + i));
