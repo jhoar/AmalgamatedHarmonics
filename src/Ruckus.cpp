@@ -40,6 +40,48 @@ struct Ruckus : AHModule {
 	
 	void step() override;
 
+	json_t *toJson() override {
+		json_t *rootJ = json_object();
+
+		// gates
+		json_t *xMutesJ = json_array();
+		json_t *yMutesJ = json_array();
+		
+		for (int i = 0; i < 4; i++) {
+			json_t *xMuteJ = json_integer((int) xMute[i]);
+			json_array_append_new(xMutesJ, xMuteJ);
+
+			json_t *yMuteJ = json_integer((int) yMute[i]);
+			json_array_append_new(yMutesJ, yMuteJ);
+		}
+		
+		json_object_set_new(rootJ, "xMutes", xMutesJ);
+		json_object_set_new(rootJ, "yMutes", yMutesJ);
+
+		return rootJ;
+	}
+	
+	void fromJson(json_t *rootJ) override {
+		// gates
+		json_t *xMutesJ = json_object_get(rootJ, "xMutes");
+		if (xMutesJ) {
+			for (int i = 0; i < 4; i++) {
+				json_t *xMuteJ = json_array_get(xMutesJ, i);
+				if (xMuteJ)
+					xMute[i] = !!json_integer_value(xMuteJ);
+			}
+		}
+
+		json_t *yMutesJ = json_object_get(rootJ, "yMutes");
+		if (yMutesJ) {
+			for (int i = 0; i < 4; i++) {
+				json_t *yMuteJ = json_array_get(yMutesJ, i);
+				if (yMuteJ)
+					yMute[i] = !!json_integer_value(yMuteJ);
+			}
+		}
+	}
+
 	enum ParamType {
 		DIV_TYPE,
 		SHIFT_TYPE,
