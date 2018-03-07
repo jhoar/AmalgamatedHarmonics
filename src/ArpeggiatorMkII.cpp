@@ -869,18 +869,18 @@ struct Arpeggiator2Display : TransparentWidget {
 	std::shared_ptr<Font> font;
 
 	Arpeggiator2Display() {
-		font = Font::load(assetPlugin(plugin, "res/Roboto-Light.ttf"));
+		font = Font::load(assetPlugin(plugin, "res/EurostileBold.ttf"));
 	}
 
 	void draw(NVGcontext *vg) override {
 	
 		Vec pos = Vec(0, 15);
 
-		nvgFontSize(vg, 20);
+		nvgFontSize(vg, 16);
 		nvgFontFaceId(vg, font->handle);
 		nvgTextLetterSpacing(vg, -1);
 
-		nvgFillColor(vg, nvgRGBA(212, 175, 55, 0xff));
+		nvgFillColor(vg, nvgRGBA(255, 0, 0, 0xff));
 	
 		char text[128];
 		if (module->inputLen == 0) {
@@ -894,9 +894,9 @@ struct Arpeggiator2Display : TransparentWidget {
 			nvgText(vg, pos.x + 10, pos.y + 25, text, NULL);
 
 			switch(module->uiPatt->scale) {
-				case 0: snprintf(text, sizeof(text), "Transpose: %d semitones", module->uiPatt->trans); break;
-				case 1: snprintf(text, sizeof(text), "Transpose: %d Major int.", module->uiPatt->trans); break;
-				case 2: snprintf(text, sizeof(text), "Transpose: %d Minor int.", module->uiPatt->trans); break;
+				case 0: snprintf(text, sizeof(text), "Transpose: %d s.t.", module->uiPatt->trans); break;
+				case 1: snprintf(text, sizeof(text), "Transpose: %d Maj. int.", module->uiPatt->trans); break;
+				case 2: snprintf(text, sizeof(text), "Transpose: %d Min. int.", module->uiPatt->trans); break;
 				default: snprintf(text, sizeof(text), "Error..."); break;
 			}
 			nvgText(vg, pos.x + 10, pos.y + 45, text, NULL);
