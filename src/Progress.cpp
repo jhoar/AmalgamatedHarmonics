@@ -218,14 +218,12 @@ void Progress::step() {
 
 	int numSteps = (int) clamp(roundf(params[STEPS_PARAM].value + inputs[STEPS_INPUT].value), 1.0f, 8.0f);
 
-	bool gateIn = false;
 	if (running) {
 		if (inputs[EXT_CLOCK_INPUT].active) {
 			// External clock
 			if (clockTrigger.process(inputs[EXT_CLOCK_INPUT].value)) {
 				setIndex(index + 1, numSteps);
 			}
-			gateIn = clockTrigger.isHigh();
 		}
 		else {
 			// Internal clock
@@ -234,11 +232,10 @@ void Progress::step() {
 			if (phase >= 1.0f) {
 				setIndex(index + 1, numSteps);
 			}
-			gateIn = (phase < 0.5f);
 		}
 	}
 
-    bool pulse = gatePulse.process(delta);
+	bool pulse = gatePulse.process(delta);
 
 	// Reset
 	if (resetTrigger.process(params[RESET_PARAM].value + inputs[RESET_INPUT].value)) {

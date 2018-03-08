@@ -21,7 +21,7 @@ void init(rack::Plugin *p) {
 	p->addModel(modelImperfect);
 	p->addModel(modelImperfect2);
 	p->addModel(modelProgress);
-        p->addModel(modelRuckus);
+	p->addModel(modelRuckus);
 	p->addModel(modelScaleQuantizer);
 	p->addModel(modelScaleQuantizer2);
 

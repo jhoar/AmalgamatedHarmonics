@@ -544,7 +544,6 @@ struct Arpeggiator2 : AHModule {
 
 	Pattern *uiPatt = &patt_up;
 	Arpeggio *uiArp = &arp_right;
-
 	
 	float pitches[6];
 	int nPitches = 0;
@@ -555,7 +554,7 @@ struct Arpeggiator2 : AHModule {
 
 void Arpeggiator2::step() {
 	
-	stepX++;
+	AHModule::step();
 
 	// Wait a few steps for the inputs to flow through Rack
 	if (stepX < 10) { 
@@ -839,7 +838,6 @@ void Arpeggiator2::step() {
 	};
 	
 	uiArp->initialise(nPitches, freeRunning);
-	
 	
 	// Set the value
 	lights[LOCK_LIGHT].value = locked ? 1.0 : 0.0;
