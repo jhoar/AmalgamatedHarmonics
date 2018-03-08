@@ -14,11 +14,11 @@ struct Progress : AHModule {
 		RUN_PARAM,
 		RESET_PARAM,
 		STEPS_PARAM,
-		ROOT_PARAM,
-		CHORD_PARAM = ROOT_PARAM + 8,
-		INV_PARAM   = CHORD_PARAM + 8,  
-		GATE_PARAM  = INV_PARAM + 8,
-		NUM_PARAMS  = GATE_PARAM + 8
+		ENUMS(ROOT_PARAM,8),
+		ENUMS(CHORD_PARAM,8),
+		ENUMS(INV_PARAM,8),
+		ENUMS(GATE_PARAM,8),
+		NUM_PARAMS
 	};
 	enum InputIds {
 		KEY_INPUT,
@@ -31,16 +31,16 @@ struct Progress : AHModule {
 	};
 	enum OutputIds {
 		GATES_OUTPUT,
-		PITCH_OUTPUT,
-		GATE_OUTPUT = PITCH_OUTPUT + 6,
-		NUM_OUTPUTS = GATE_OUTPUT + 8
+		ENUMS(PITCH_OUTPUT,6),
+		ENUMS(GATE_OUTPUT,8),
+		NUM_OUTPUTS
 	};
 	enum LightIds {
 		RUNNING_LIGHT,
 		RESET_LIGHT,
 		GATES_LIGHT,
-		GATE_LIGHTS,
-		NUM_LIGHTS = GATE_LIGHTS + 8
+		ENUMS(GATE_LIGHTS,8),
+		NUM_LIGHTS
 	};
 
 	float sampleRate;
@@ -62,22 +62,18 @@ struct Progress : AHModule {
 	};
 
 	void receiveEvent(ParamEvent e) override {
-		if (receiveEvents) {
+		if (receiveEvents && e.pType != -1) { // AHParamWidgets that are no config through set<>() have a pType of -1
 			if (modeMode) {
-				
 				paramState = "> " + 
 					CoreUtil().noteNames[currRoot[e.pId]] + 
 					CoreUtil().ChordTable[currChord[e.pId]].quality + " " +  
-					CoreUtil().inversionNames[currInv[e.pId]] + " " + "[ " + 
+					CoreUtil().inversionNames[currInv[e.pId]] + " " + "[" + 
 					CoreUtil().degreeNames[currDegree[e.pId] * 3 + currQuality[e.pId]] + "]"; 
-
 			} else {
-
 				paramState = "> " + 
 					CoreUtil().noteNames[currRoot[e.pId]] + 
 					CoreUtil().ChordTable[currChord[e.pId]].quality + " " +  
 					CoreUtil().inversionNames[currInv[e.pId]];
-
 			}
 		}
 		keepStateDisplay = 0;
@@ -93,7 +89,7 @@ struct Progress : AHModule {
 		// gates
 		json_t *gatesJ = json_array();
 		for (int i = 0; i < 8; i++) {
-			json_t *gateJ = json_integer((int) gateState[i]);
+			json_t *gateJ = json_integer((int) gates[i]);
 			json_array_append_new(gatesJ, gateJ);
 		}
 		json_object_set_new(rootJ, "gates", gatesJ);
@@ -117,7 +113,7 @@ struct Progress : AHModule {
 			for (int i = 0; i < 8; i++) {
 				json_t *gateJ = json_array_get(gatesJ, i);
 				if (gateJ)
-					gateState[i] = !!json_integer_value(gateJ);
+					gates[i] = !!json_integer_value(gateJ);
 			}
 		}
 
@@ -127,17 +123,27 @@ struct Progress : AHModule {
 			gateMode = (GateMode)json_integer_value(gateModeJ);
 	}
 	
-	
 	bool running = true;
-	SchmittTrigger clockTrigger; // for external clock
+	
+	// for external clock
+	SchmittTrigger clockTrigger; 
+	
 	// For buttons
 	SchmittTrigger runningTrigger;
 	SchmittTrigger resetTrigger;
 	SchmittTrigger gateTriggers[8];
-	float phase = 0.0;
+		
+	PulseGenerator gatePulse;
+
+	/** Phase of internal LFO */
+	float phase = 0.0f;
+
+	// Step index
 	int index = 0;
-	bool gateState[8] = {true,true,true,true,true,true,true,true};
-	float resetLight = 0.0;
+	bool gates[8] = {true,true,true,true,true,true,true,true};
+
+	float resetLight = 0.0f;
+	float gateLight = 0.0f;
 	float stepLights[8] = {};
 
 	enum GateMode {
@@ -146,18 +152,12 @@ struct Progress : AHModule {
 		CONTINUOUS,
 	};
 	GateMode gateMode = CONTINUOUS;
-	PulseGenerator gatePulse;
 		
 	bool modeMode = false;
 	bool prevModeMode = false;
 	
 	int offset = 24; 	// Repeated notes in chord and expressed in the chord definition as being transposed 2 octaves lower. 
 						// When played this offset needs to be removed (or the notes removed, or the notes transposed to an octave higher)
-	
-	int stepX = 0;
-	int poll = 50000;
-	
-	bool gate = true;		
 	
 	float prevRootInput[8] = {-100.0, -100.0, -100.0, -100.0, -100.0, -100.0, -100.0, -100.0};
 	float prevChrInput[8] = {-100.0, -100.0, -100.0, -100.0, -100.0, -100.0, -100.0, -100.0};
@@ -191,87 +191,58 @@ struct Progress : AHModule {
 	float oldPitches[6];
 			
 	void reset() override {
-		
 		for (int i = 0; i < 8; i++) {
-			gateState[i] = true;
+			gates[i] = true;
 		}
-
+	}
+	
+	void setIndex(int index, int nSteps) {
+		phase = 0.0f;
+		this->index = index;
+		if (this->index >= nSteps) {
+			this->index = 0;
+		}
+		this->gatePulse.trigger(Core::TRIGGER);
 	}
 	
 };
-
-
 
 void Progress::step() {
 	
 	AHModule::step();
 	
-	const float lightLambda = 0.075;
-	
 	// Run
 	if (runningTrigger.process(params[RUN_PARAM].value)) {
 		running = !running;
 	}
-	lights[RUNNING_LIGHT].value = running ? 1.0 : 0.0;
 
-	bool nextStep = false;
+	int numSteps = (int) clamp(roundf(params[STEPS_PARAM].value + inputs[STEPS_INPUT].value), 1.0f, 8.0f);
 
+	bool gateIn = false;
 	if (running) {
 		if (inputs[EXT_CLOCK_INPUT].active) {
 			// External clock
 			if (clockTrigger.process(inputs[EXT_CLOCK_INPUT].value)) {
-				phase = 0.0;
-				nextStep = true;
+				setIndex(index + 1, numSteps);
 			}
+			gateIn = clockTrigger.isHigh();
 		}
 		else {
 			// Internal clock
-			float clockTime = powf(2.0, params[CLOCK_PARAM].value + inputs[CLOCK_INPUT].value);
-			phase += clockTime / sampleRate;
-			if (phase >= 1.0) {
-				phase -= 1.0;
-				nextStep = true;
+			float clockTime = powf(2.0f, params[CLOCK_PARAM].value + inputs[CLOCK_INPUT].value);
+			phase += clockTime * engineGetSampleTime();
+			if (phase >= 1.0f) {
+				setIndex(index + 1, numSteps);
 			}
+			gateIn = (phase < 0.5f);
 		}
 	}
+
+    bool pulse = gatePulse.process(delta);
 
 	// Reset
 	if (resetTrigger.process(params[RESET_PARAM].value + inputs[RESET_INPUT].value)) {
-		phase = 0.0;
-		index = 8;
-		nextStep = true;
-		resetLight = 1.0;
-	}
-
-	if (nextStep) {
-		// Advance step
-		int numSteps = clamp((int)roundf(params[STEPS_PARAM].value + inputs[STEPS_INPUT].value), 1, 8);
-		index += 1;
-		if (index >= numSteps) {
-			index = 0;
-		}
-		stepLights[index] = 1.0;
-		gatePulse.trigger(1e-3);
-	}
-
-	resetLight -= resetLight / lightLambda / sampleRate;
-
-	bool pulse = gatePulse.process(delta);
-
-	// Gate buttons
-	for (int i = 0; i < 8; i++) {
-		if (gateTriggers[i].process(params[GATE_PARAM + i].value)) {
-			gateState[i] = !gateState[i];
-		}
-		bool gateOn = (running && i == index && gateState[i]);
-		if (gateMode == TRIGGER)
-			gateOn = gateOn && pulse;
-		else if (gateMode == RETRIGGER)
-			gateOn = gateOn && !pulse;
-
-		outputs[GATE_OUTPUT + i].value = gateOn ? 10.0 : 0.0;
-		stepLights[i] -= stepLights[i] / lightLambda / sampleRate;
-		lights[GATE_LIGHTS + i].value = gateState[i] ? 1.0 - stepLights[i] : stepLights[i];
+		setIndex(0, numSteps);
 	}
 
 	bool haveRoot = false;
@@ -351,17 +322,8 @@ void Progress::step() {
 				// Get Degree (I- VII)
 				currDegree[step] = round(rescale(fabs(currDegreeInput[step]), 0.0f, 10.0f, 0.0f, Core::NUM_DEGREES - 1)); 
 
-				if (debug()) { std::cout << stepX << 
-					" MODE: Mode: " << currMode << " (" << CoreUtil().modeNames[currMode] << 
-					") currKey: " << currKey << " (" <<  CoreUtil().noteNames[currKey] << 
-					") Degree: " << currDegree[step] << " (" << CoreUtil().degreeNames[currDegree[step]] << ")" << std::endl; }
-
 				// From the input root, mode and degree, we can get the root chord note and quality (Major,Minor,Diminshed)
 				CoreUtil().getRootFromMode(currMode,currKey,currDegree[step],&currRoot[step],&currQuality[step]);
-
-				if (debug()) { std::cout << stepX << 
-					" MODE: Root: " << CoreUtil().noteNames[currRoot[step]] << 
-					" Quality: " << CoreUtil().qualityNames[currQuality[step]] << std::endl; }
 
 				// Now get the actual chord from the main list
 				switch(currQuality[step]) {
@@ -406,11 +368,7 @@ void Progress::step() {
 		
 		// So, after all that, we calculate the pitch output
 		if (update) {
-			
-			if (debug()) { std::cout << stepX << " UPDATE Step: " << step << 
-				" Input: Root: " << currRoot[step] << 
-				" Chord: " << currChord[step] << " Inversion: " << currInv[step] << std::endl; }
-		
+					
 			int *chordArray;
 	
 			// Get the array of pitches based on the inversion
@@ -421,9 +379,6 @@ void Progress::step() {
 				default: chordArray = CoreUtil().ChordTable[currChord[step]].root;
 			}
 			
-			if (debug()) { std::cout << stepX  << " UPDATE Step: " << step << 
-				" Output: Chord: " << CoreUtil().noteNames[currRoot[step]] << CoreUtil().ChordTable[currChord[step]].quality << " (" << CoreUtil().inversionNames[currInv[step]] << ") " << std::endl; }
-	 	
 			for (int j = 0; j < NUM_PITCHES; j++) {
 	
 				// Set the pitches for this step. If the chord has less than 6 notes, the empty slots are
@@ -438,32 +393,41 @@ void Progress::step() {
 			}
 		}	
 	}
-
-	if (debug()) {
-		for (int i = 0; i < NUM_PITCHES; i++) {
-			if (pitches[index][i] != oldPitches[i]) {
-			 	std::cout << stepX  << " XXX PROG P: " << i << " = " << pitches[index][i] << std::endl;
-				oldPitches[i] = pitches[index][i];
-			}
-		}
-	}
 	
-	// Set the pitch output
+	// Gate buttons
+	for (int i = 0; i < 8; i++) {
+		if (gateTriggers[i].process(params[GATE_PARAM + i].value)) {
+			gates[i] = !gates[i];
+		}
+		
+		bool gateOn = (running && i == index && gates[i]);
+		if (gateMode == TRIGGER) {
+			gateOn = gateOn && pulse;
+		} else if (gateMode == RETRIGGER) {
+			gateOn = gateOn && !pulse;
+		}
+		
+		outputs[GATE_OUTPUT + i].value = gateOn ? 10.0f : 0.0f;
+		lights[GATE_LIGHTS + i].setBrightnessSmooth((pulse && i == index) ? (gates[i] ? 1.f : 0.33) : (gates[i] ? 0.66 : 0.0));
+	}
+
+	bool gatesOn = (running && gates[index]);
+	if (gateMode == TRIGGER) {
+		gatesOn = gatesOn && pulse;
+	} else if (gateMode == RETRIGGER) {
+		gatesOn = gatesOn && !pulse;
+	}
+
+	// Outputs
+	outputs[GATES_OUTPUT].value = gatesOn ? 10.0f : 0.0f;
+	lights[RUNNING_LIGHT].value = (running);
+	lights[RESET_LIGHT].setBrightnessSmooth(resetTrigger.isHigh());
+	lights[GATES_LIGHT].setBrightnessSmooth(pulse);
+
 	for (int i = 0; i < NUM_PITCHES; i++) {
 		outputs[PITCH_OUTPUT + i].value = pitches[index][i];
 	}
 	
-	bool gatesOn = (running && gateState[index]);
-	if (gateMode == TRIGGER)
-		gatesOn = gatesOn && pulse;
-	else if (gateMode == RETRIGGER)
-		gatesOn = gatesOn && !pulse;
-
-	// Outputs
-	outputs[GATES_OUTPUT].value = gatesOn ? 10.0 : 0.0;
-	lights[RESET_LIGHT].value = resetLight;
-	lights[GATES_LIGHT].value = gatesOn ? 1.0 : 0.0;	
-
 }
 
 struct ProgressWidget : ModuleWidget {
@@ -497,7 +461,7 @@ ProgressWidget::ProgressWidget(Progress *module) : ModuleWidget(module) {
 		addChild(display);
 	}
 	
-	addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 0, 0, true, false), module, Progress::CLOCK_PARAM, -2.0, 6.0, 2.0));
+	addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 0, 0, true, false), module, Progress::CLOCK_PARAM, -2.0, 6.0, 2.0));
 	addParam(ParamWidget::create<AHButton>(ui.getPosition(UI::BUTTON, 1, 0, true, false), module, Progress::RUN_PARAM, 0.0, 1.0, 0.0));
 	addChild(ModuleLightWidget::create<MediumLight<GreenLight>>(ui.getPosition(UI::LIGHT, 1, 0, true, false), module, Progress::RUNNING_LIGHT));
 	addParam(ParamWidget::create<AHButton>(ui.getPosition(UI::BUTTON, 2, 0, true, false), module, Progress::RESET_PARAM, 0.0, 1.0, 0.0));

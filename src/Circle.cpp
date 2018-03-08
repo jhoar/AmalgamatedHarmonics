@@ -27,10 +27,10 @@ struct Circle : AHModule {
 		NUM_OUTPUTS
 	};
 	enum LightIds {
-		MODE_LIGHT,
-		BKEY_LIGHT = MODE_LIGHT + 7,
-		CKEY_LIGHT = BKEY_LIGHT + 12, 
-		NUM_LIGHTS = CKEY_LIGHT + 12
+		ENUMS(MODE_LIGHT,7),
+		ENUMS(BKEY_LIGHT,12),
+		ENUMS(CKEY_LIGHT,12),
+		NUM_LIGHTS
 	};
 	enum Scaling {
 		CHROMATIC,

@@ -90,7 +90,7 @@ struct StateDisplay : TransparentWidget {
 
 struct AHParamWidget { // it's a mix-in
 
-	int pType;
+	int pType = -1;
 	int pId;
 	AHModule *mod = NULL;
 	

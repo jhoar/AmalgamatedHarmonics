@@ -5,33 +5,29 @@
 #include "Core.hpp"
 #include "UI.hpp"
 
-#include <iostream>
-#include <sstream>  
-
-
 struct Ruckus : AHModule {
 
 	enum ParamIds {
-		DIV_PARAM,
-		PROB_PARAM = DIV_PARAM + 16,
-		SHIFT_PARAM = PROB_PARAM + 16,
-		XMUTE_PARAM = SHIFT_PARAM + 16, 
-		YMUTE_PARAM = XMUTE_PARAM + 4, 
-		NUM_PARAMS = YMUTE_PARAM + 4,
+		ENUMS(DIV_PARAM,16),
+		ENUMS(PROB_PARAM,16),
+		ENUMS(SHIFT_PARAM,16),
+		ENUMS(XMUTE_PARAM,16), 
+		ENUMS(YMUTE_PARAM,4), 
+		NUM_PARAMS
 	};
 	enum InputIds {
 		TRIG_INPUT,
 		NUM_INPUTS
 	};
 	enum OutputIds {
-		XOUT_OUTPUT,
-		YOUT_OUTPUT = XOUT_OUTPUT + 4,
-		NUM_OUTPUTS = YOUT_OUTPUT + 4,
+		ENUMS(XOUT_OUTPUT,4),
+		ENUMS(YOUT_OUTPUT,4),
+		NUM_OUTPUTS
 	};
 	enum LightIds {
-		XMUTE_LIGHT, 
-		YMUTE_LIGHT = XMUTE_LIGHT + 4, 
-		NUM_LIGHTS = YMUTE_LIGHT + 4,
+		ENUMS(XMUTE_LIGHT,4), 
+		ENUMS(YMUTE_LIGHT,4), 
+		NUM_LIGHTS
 	};
 
 	Ruckus() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
@@ -92,13 +88,13 @@ struct Ruckus : AHModule {
 		if (receiveEvents) {
 			switch(e.pType) {
 				case ParamType::DIV_TYPE: 
-					paramState = "> Div: " + std::to_string((int)e.value);
+					paramState = "> Division: " + std::to_string((int)e.value);
 					break;
 				case ParamType::SHIFT_TYPE: 
-					paramState = "> Shift: " + std::to_string((int)e.value);
+					paramState = "> Beat shift: " + std::to_string((int)e.value);
 					break;
 				case ParamType::PROB_TYPE:
-					paramState = "> Prob " + std::to_string(e.value).substr(0,6);
+					paramState = "> Probability: " + std::to_string(e.value).substr(0,6);
 					break;
 				default:
 					paramState = "> UNK:" + std::to_string(e.value).substr(0,6);
@@ -132,7 +128,7 @@ struct Ruckus : AHModule {
 	int shift[16];
 	float prob[16];
 	
-	unsigned int counter = 100;
+	unsigned int beatCounter = 100;
 	
 };
 
@@ -140,10 +136,6 @@ void Ruckus::step() {
 	
 	AHModule::step();
 		
-	bool haveTrigger = inTrigger.process(inputs[TRIG_INPUT].value);
-
-//	std::cout << xMute[1]  << std::endl;
-	
 	for (int i = 0; i < 4; i++) {
 
 		if (xLockTrigger[i].process(params[XMUTE_PARAM + i].value)) {
@@ -154,17 +146,15 @@ void Ruckus::step() {
 		}
 	}
 
-//	std::cout << xMute[1]  << std::endl;
-
 	for (int i = 0; i < 16; i++) {
 		division[i] = params[DIV_PARAM + i].value;
 		prob[i] = params[PROB_PARAM + i].value;
 		shift[i] = params[SHIFT_PARAM + i].value;
 	}
 	
-	if (haveTrigger) {
+	if (inTrigger.process(inputs[TRIG_INPUT].value)) {
 
-		counter++;
+		beatCounter++;
 
 		for (int y = 0; y < 4; y++) {
 			for (int x = 0; x < 4; x++) {
@@ -174,11 +164,10 @@ void Ruckus::step() {
 					continue; // 0 == skip
 				}
 				
-				if ((counter + shift[i]) % division[i] == 0) { 
-					float f = randomUniform();
-					if (f < prob[i]) {
-						xGate[x].trigger(1e-4);
-						yGate[y].trigger(1e-4);
+				if ((beatCounter + shift[i]) % division[i] == 0) { 
+					if (randomUniform() < prob[i]) {
+						xGate[x].trigger(Core::TRIGGER);
+						yGate[y].trigger(Core::TRIGGER);
 					}
 				} 
 			}
@@ -245,7 +234,6 @@ RuckusWidget::RuckusWidget(Ruckus *module) : ModuleWidget(module) {
 	for (int y = 0; y < 4; y++) {
 		for (int x = 0; x < 4; x++) {
 			int i = y * 4 + x;
-//			std::cout << x << " " << y << " " << i << "Xc="<< x * 2 << "Yc=" << 1 + y * 2 << std::endl;
 			Vec v = ui.getPosition(UI::KNOB, 1 + x * 2, y * 2, true, true);
 			
 			AHKnobSnap *divW = ParamWidget::create<AHKnobSnap>(v, module, Ruckus::DIV_PARAM + i, 0, 64, 0);
@@ -264,7 +252,6 @@ RuckusWidget::RuckusWidget(Ruckus *module) : ModuleWidget(module) {
 
 	float d = 12.0f;
 
-	// X out
 	for (int x = 0; x < 4; x++) {
 		addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 1 + x * 2, 8, true, true), Port::OUTPUT, module, Ruckus::XOUT_OUTPUT + x));
 		

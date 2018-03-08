@@ -9,28 +9,28 @@
 struct Imperfect2 : AHModule {
 
 	enum ParamIds {
-		DELAY_PARAM,
-		DELAYSPREAD_PARAM = DELAY_PARAM + 4,
-		LENGTH_PARAM = DELAYSPREAD_PARAM + 4,
-		LENGTHSPREAD_PARAM = LENGTH_PARAM + 4,
-		DIVISION_PARAM = LENGTHSPREAD_PARAM + 4,
-		NUM_PARAMS = DIVISION_PARAM + 4
+		ENUMS(DELAY_PARAM,4),
+		ENUMS(DELAYSPREAD_PARAM,4),
+		ENUMS(LENGTH_PARAM,4),
+		ENUMS(LENGTHSPREAD_PARAM,4),
+		ENUMS(DIVISION_PARAM,4),
+		NUM_PARAMS
 	};
 	enum InputIds {
-		TRIG_INPUT,
-		DELAY_INPUT = TRIG_INPUT + 4,
-		DELAYSPREAD_INPUT = DELAY_INPUT + 4,
-		LENGTH_INPUT = DELAYSPREAD_INPUT + 4,
-		LENGTHSPREAD_INPUT = LENGTH_INPUT + 4,
-		NUM_INPUTS = LENGTHSPREAD_INPUT + 4
+		ENUMS(TRIG_INPUT,4),
+		ENUMS(DELAY_INPUT,4),
+		ENUMS(DELAYSPREAD_INPUT,4),
+		ENUMS(LENGTH_INPUT,4),
+		ENUMS(LENGTHSPREAD_INPUT,4),
+		NUM_INPUTS
 	};
 	enum OutputIds {
-		OUT_OUTPUT,
-		NUM_OUTPUTS = OUT_OUTPUT + 4
+		ENUMS(OUT_OUTPUT,4),
+		NUM_OUTPUTS
 	};
 	enum LightIds {
-		OUT_LIGHT,
-		NUM_LIGHTS = OUT_LIGHT + 8
+		ENUMS(OUT_LIGHT,8),
+		NUM_LIGHTS
 	};
 
 	Imperfect2() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
@@ -174,7 +174,7 @@ void Imperfect2::step() {
 				
 					// The modified gate time cannot be earlier than the start of the delay
 					double rndG = clamp(core.gaussrand(), -2.0f, 2.0f);
-					gateTime[i] = clamp(gateLen + gateSpr * rndG, 0.001f, 100.0f);
+					gateTime[i] = clamp(gateLen + gateSpr * rndG, Core::TRIGGER, 100.0f);
 
 					if (debug()) { 
 						std::cout << stepX << " Delay: " << i << ": Len: " << dlyLen << " Spr: " << dlySpr << " r: " << rndD << " = " << delayTime[i] << std::endl; 

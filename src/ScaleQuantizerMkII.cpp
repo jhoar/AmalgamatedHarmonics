@@ -11,27 +11,27 @@ struct ScaleQuantizer2 : AHModule {
 	enum ParamIds {
 		KEY_PARAM,
 		SCALE_PARAM,
-		SHIFT_PARAM,
-		TRANS_PARAM = SHIFT_PARAM + 8,
+		ENUMS(SHIFT_PARAM,8),
+		TRANS_PARAM,
 		NUM_PARAMS
 	};
 	enum InputIds {
-		IN_INPUT,
-		KEY_INPUT = IN_INPUT + 8,
+		ENUMS(IN_INPUT,8),
+		KEY_INPUT,
 		SCALE_INPUT,
 		TRANS_INPUT,
-		HOLD_INPUT,
-		NUM_INPUTS = HOLD_INPUT + 8
+		ENUMS(HOLD_INPUT,8),
+		NUM_INPUTS
 	};
 	enum OutputIds {
-		OUT_OUTPUT,
-		TRIG_OUTPUT = OUT_OUTPUT + 8,
-		NUM_OUTPUTS = TRIG_OUTPUT + 8
+		ENUMS(OUT_OUTPUT,8),
+		ENUMS(TRIG_OUTPUT,8),
+		NUM_OUTPUTS
 	};
 	enum LightIds {
-		KEY_LIGHT,
-		SCALE_LIGHT = KEY_LIGHT + 12,
-		NUM_LIGHTS = SCALE_LIGHT + 12
+		ENUMS(KEY_LIGHT,12),
+		ENUMS(SCALE_LIGHT,12),
+		NUM_LIGHTS
 	};
 
 	ScaleQuantizer2() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
@@ -115,7 +115,7 @@ void ScaleQuantizer2::step() {
 		// If the quantised pitch has changed
 		if (lastPitch[i] != holdPitch[i]) {
 			// Pulse the gate
-			triggerPulse[i].trigger(1e-4);
+			triggerPulse[i].trigger(Core::TRIGGER);
 			
 			// Record the pitch
 			lastPitch[i] = holdPitch[i];

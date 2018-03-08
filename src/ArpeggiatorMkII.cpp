@@ -430,8 +430,8 @@ struct Arpeggiator2 : AHModule {
 	enum InputIds {
 		CLOCK_INPUT,
 		TRIG_INPUT,
-		PITCH_INPUT,
-		PATT_INPUT = PITCH_INPUT + NUM_PITCHES,
+		ENUMS(PITCH_INPUT,6),
+		PATT_INPUT,
 		ARP_INPUT,
 		LENGTH_INPUT,
 		TRANS_INPUT,
@@ -707,7 +707,7 @@ void Arpeggiator2::step() {
 		currPatt->advance();
 		
 		// Pulse the EOC gate
-		eocPulse.trigger(5e-3);
+		eocPulse.trigger(Core::TRIGGER);
 		if (debug()) { std::cout << stepX << " " << id  << " Finished Cycle" << std::endl; }
 		
 		// Reached the end of the sequence
@@ -722,7 +722,7 @@ void Arpeggiator2::step() {
 			isRunning = false;
 			
 			// Pulse the EOS gate
-			eosPulse.trigger(5e-3);
+			eosPulse.trigger(Core::TRIGGER);
 			if (debug()) { std::cout << stepX << " " << id  << " Finished Sequence, flag: " << isRunning << std::endl; }
 
 		} else {
@@ -813,7 +813,7 @@ void Arpeggiator2::step() {
 		currArp->advance();
 		
 		// Pulse the output gate
-		gatePulse.trigger(5e-3);
+		gatePulse.trigger(Core::TRIGGER);
 		
 	}
 	
