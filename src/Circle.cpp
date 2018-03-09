@@ -78,7 +78,7 @@ struct Circle : AHModule {
 
 void Circle::step() {
 	
-	stepX++;
+	AHModule::step();
 
 	// Get inputs from Rack
 	float rotLInput		= inputs[ROTL_INPUT].value;

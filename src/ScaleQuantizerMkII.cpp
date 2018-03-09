@@ -55,7 +55,7 @@ struct ScaleQuantizer2 : AHModule {
 
 void ScaleQuantizer2::step() {
 	
-	stepX++;
+	AHModule::step();
 	
 	lastScale = currScale;
 	lastRoot = currRoot;
