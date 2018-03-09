@@ -235,8 +235,6 @@ void Progress::step() {
 		}
 	}
 
-	bool pulse = gatePulse.process(delta);
-
 	// Reset
 	if (resetTrigger.process(params[RESET_PARAM].value + inputs[RESET_INPUT].value)) {
 		setIndex(0, numSteps);
@@ -390,6 +388,8 @@ void Progress::step() {
 			}
 		}	
 	}
+	
+	bool pulse = gatePulse.process(delta);
 	
 	// Gate buttons
 	for (int i = 0; i < 8; i++) {

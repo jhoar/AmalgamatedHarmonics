@@ -37,10 +37,10 @@ struct AHModule : Module {
 	
 	bool receiveEvents = false;
 	int keepStateDisplay = 0;
-	std::string paramState = "";
+	std::string paramState = ">";
 	
 	virtual void receiveEvent(ParamEvent e) {
-		paramState = "";
+		paramState = ">";
 		keepStateDisplay = 0;
 	}
 	
@@ -90,7 +90,7 @@ struct StateDisplay : TransparentWidget {
 
 struct AHParamWidget { // it's a mix-in
 
-	int pType = -1;
+	int pType = -1; // Should be set by ste<>(), but if not this allows us to catch pwidgers we are not interested in
 	int pId;
 	AHModule *mod = NULL;
 	

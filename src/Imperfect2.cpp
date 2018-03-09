@@ -49,8 +49,6 @@ struct Imperfect2 : AHModule {
 		}
 	}
 
-	float calculateBPM(int index); // From ML
-
 	Core core;
 
 	bool delayState[4];
@@ -332,7 +330,6 @@ Imperfect2Widget::Imperfect2Widget(Imperfect2 *module) : ModuleWidget(module) {
 		display->actDly = &(module->actDelayMs[0]);
 		display->actGate = &(module->actGateMs[0]);
 		
-			
 		addChild(display);
 	}	
 

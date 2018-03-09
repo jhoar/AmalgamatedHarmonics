@@ -176,7 +176,7 @@ void Ruckus::step() {
 
 	for (int i = 0; i < 4; i++) {
 
-		if(xGate[i].process(delta) && xMute[i]) {
+		if (xGate[i].process(delta) && xMute[i]) {
 			outputs[XOUT_OUTPUT + i].value = 10.0f;		
 		} else {
 			outputs[XOUT_OUTPUT + i].value = 0.0f;		
@@ -184,7 +184,7 @@ void Ruckus::step() {
 		
 		lights[XMUTE_LIGHT + i].value = xMute[i] ? 1.0 : 0.0;
 
-		if(yGate[i].process(delta) && yMute[i]) {
+		if (yGate[i].process(delta) && yMute[i]) {
 			outputs[YOUT_OUTPUT + i].value = 10.0f;		
 		} else {
 			outputs[YOUT_OUTPUT + i].value = 0.0f;		
