@@ -1012,5 +1012,5 @@ Menu *Arpeggiator2Widget::createContextMenu() {
 	return menu;
 }
 
-Model *modelArpeggiator2 = Model::create<Arpeggiator2, Arpeggiator2Widget>( "Amalgamated Harmonics", "Arpeggiator2", "Arpeggiator MkII", SEQUENCER_TAG);
+Model *modelArpeggiator2 = Model::create<Arpeggiator2, Arpeggiator2Widget>( "Amalgamated Harmonics", "Arpeggiator2", "Arpeggiator MkII", ARPEGGIATOR_TAG);
 
