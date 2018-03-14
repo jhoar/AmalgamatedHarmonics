@@ -954,9 +954,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.6921053"
-     inkscape:cx="170.62987"
-     inkscape:cy="213.63919"
+     inkscape:zoom="1.6894737"
+     inkscape:cx="147.64798"
+     inkscape:cy="213.67601"
      inkscape:current-layer="layer2"
      showgrid="false"
      units="mm"
@@ -1418,18 +1418,6 @@
        y="-410.38678"
        ry="4.2187495"
        transform="scale(1,-1)" />
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:39.76836014px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;display:inline;fill:#d4af37;fill-opacity:1;stroke:none;stroke-width:0.99420899"
-       x="333.20102"
-       y="372.21854"
-       id="text2688"
-       transform="scale(0.99420903,1.0058247)"><tspan
-         sodipodi:role="line"
-         x="333.20102"
-         y="372.21854"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.60489655px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1;stroke-width:0.99420899"
-         id="tspan46744">CLOCK</tspan></text>
     <path
        style="fill:none;stroke:#ff0000;stroke-width:2.728;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:0.69999999;stroke-dasharray:none;stroke-opacity:1"
        d="m 67.725837,118.37466 v 273.2382 z"
@@ -1470,5 +1458,29 @@
        d="M 66.030241,326.07025 H 342.92757 Z"
        id="path10969"
        inkscape:connector-curvature="0" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:39.76836014px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;display:inline;fill:#d4af37;fill-opacity:1;stroke:none;stroke-width:0.99420899"
+       x="350.9689"
+       y="397.38065"
+       id="text2688"
+       transform="scale(0.99420903,1.0058247)"><tspan
+         sodipodi:role="line"
+         x="350.9689"
+         y="397.38065"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.60489655px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1;stroke-width:0.99420899"
+         id="tspan46744">RESET</tspan></text>
+    <text
+       transform="scale(0.99420903,1.0058247)"
+       id="text1142"
+       y="397.38065"
+       x="308.92499"
+       style="font-style:normal;font-weight:normal;font-size:39.76836014px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;display:inline;fill:#d4af37;fill-opacity:1;stroke:none;stroke-width:0.99420899"
+       xml:space="preserve"><tspan
+         id="tspan1140"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.60489655px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1;stroke-width:0.99420899"
+         y="397.38065"
+         x="308.92499"
+         sodipodi:role="line">CLOCK</tspan></text>
   </g>
 </svg>

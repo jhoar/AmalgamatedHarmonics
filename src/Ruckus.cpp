@@ -17,6 +17,7 @@ struct Ruckus : AHModule {
 	};
 	enum InputIds {
 		TRIG_INPUT,
+		RESET_INPUT,
 		NUM_INPUTS
 	};
 	enum OutputIds {
@@ -123,12 +124,13 @@ struct Ruckus : AHModule {
 	SchmittTrigger yLockTrigger[4];
 
 	SchmittTrigger inTrigger;
+	SchmittTrigger resetTrigger;
 
 	int division[16];
 	int shift[16];
 	float prob[16];
 	
-	unsigned int beatCounter = 100;
+	unsigned int beatCounter = 0;
 	
 };
 
@@ -151,6 +153,10 @@ void Ruckus::step() {
 		prob[i] = params[PROB_PARAM + i].value;
 		shift[i] = params[SHIFT_PARAM + i].value;
 	}
+
+	if (resetTrigger.process(inputs[RESET_INPUT].value)) {
+		beatCounter = 0;
+	}
 	
 	if (inTrigger.process(inputs[TRIG_INPUT].value)) {
 
@@ -160,11 +166,17 @@ void Ruckus::step() {
 			for (int x = 0; x < 4; x++) {
 				int i = y * 4 + x;
 						
-				if(division[i] == 0) {
-					continue; // 0 == skip
+				if(division[i] == 0) { // 0 == skip
+					continue; 
 				}
 				
-				if ((beatCounter + shift[i]) % division[i] == 0) { 
+				int target = beatCounter + shift[i];
+				
+				if (target < 0) { // shifted into negative count 
+					continue; 
+				}
+				
+				if (target % division[i] == 0) { 
 					if (randomUniform() < prob[i]) {
 						xGate[x].trigger(Core::TRIGGER);
 						yGate[y].trigger(Core::TRIGGER);
@@ -226,7 +238,16 @@ RuckusWidget::RuckusWidget(Ruckus *module) : ModuleWidget(module) {
 		addChild(display);
 	}
 	
-	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 9, 8, true, true), Port::INPUT, module, Ruckus::TRIG_INPUT));
+	//299.5 329.7
+	Vec a = ui.getPosition(UI::PORT, 6, 5, false, false);
+	a.x = 312.0;
+
+	//325.5 329.7
+	Vec b = ui.getPosition(UI::PORT, 7, 5, false, false);
+	b.x = 352.0;
+	
+	addInput(Port::create<PJ301MPort>(a, Port::INPUT, module, Ruckus::TRIG_INPUT));
+	addInput(Port::create<PJ301MPort>(b, Port::INPUT, module, Ruckus::RESET_INPUT));
 
 	float xd = 18.0f;
 	float yd = 20.0f;
