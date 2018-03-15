@@ -95,7 +95,7 @@ struct Ruckus : AHModule {
 					paramState = "> Beat shift: " + std::to_string((int)e.value);
 					break;
 				case ParamType::PROB_TYPE:
-					paramState = "> Probability: " + std::to_string(e.value).substr(0,6);
+					paramState = "> Probability: " + std::to_string(e.value * 100.0f).substr(0,6) + "%";
 					break;
 				default:
 					paramState = "> UNK:" + std::to_string(e.value).substr(0,6);
