@@ -452,6 +452,8 @@ struct Arpeggiator2 : AHModule {
 	Arpeggiator2() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
 		reset();
 		id = rand();
+        debugFlag = false;
+
 	}
 
 	void step() override;
@@ -533,11 +535,25 @@ struct Arpeggiator2 : AHModule {
 	DownUpPattern 	patt_downup;
 	RezPattern 		patt_rez;
 	OnTheRunPattern	patt_ontherun;
+
+	UpPattern		ui_patt_up; 
+	DownPattern 	ui_patt_down; 
+	UpDownPattern 	ui_patt_updown;
+	DownUpPattern 	ui_patt_downup;
+	RezPattern 		ui_patt_rez;
+	OnTheRunPattern	ui_patt_ontherun;
+
 	
 	RightArp 		arp_right;
 	LeftArp 		arp_left;
 	RightLeftArp 	arp_rightleft;
 	LeftRightArp 	arp_leftright;
+
+	RightArp 		ui_arp_right;
+	LeftArp 		ui_arp_left;
+	RightLeftArp 	ui_arp_rightleft;
+	LeftRightArp 	ui_arp_leftright;
+
 
 	Pattern *currPatt = &patt_up;
 	Arpeggio *currArp = &arp_right;
@@ -548,7 +564,7 @@ struct Arpeggiator2 : AHModule {
 	float pitches[6];
 	int nPitches = 0;
 	int id = 0;
-	
+
 };
 
 
@@ -614,6 +630,12 @@ void Arpeggiator2::step() {
 			inputPitches[nValidPitches] = 0.0;
 		}
 	}
+
+	// if (debug()) {
+	// 	for (int p = 0; p < nValidPitches; p++) {
+	// 		std::cout << inputPitches[p] << std::endl;
+	// 	}
+	// }
 	
 	// Always play something
 	if (nValidPitches == 0) {
@@ -802,6 +824,9 @@ void Arpeggiator2::step() {
 	if (isRunning && (isClocked || newCycle == LAUNCH)) {
 
 		if (debug()) { std::cout << stepX << " " << id  << " Advance Cycle: " << currArp->getPitch() << std::endl; }
+
+		if (debug()) { std::cout << stepX << " " << id  << " Advance Cycle: " << pitches[currArp->getPitch()] << " " << (float)currPatt->getOffset() << std::endl; }
+
 				
 		// Finally set the out voltage
 		outVolts = clamp(pitches[currArp->getPitch()] + semiTone * (float)currPatt->getOffset(), -10.0f, 10.0f);
@@ -818,23 +843,23 @@ void Arpeggiator2::step() {
 	
 	// Update UI
 	switch(inputPat) {
-		case 0:		uiPatt = &patt_up; 			break;
-		case 1:		uiPatt = &patt_down;		break;
-		case 2:		uiPatt = &patt_updown;		break;
-		case 3:		uiPatt = &patt_downup;		break;
-		case 4:		uiPatt = &patt_rez;			break;
-		case 5:		uiPatt = &patt_ontherun;	break;
-		default:	uiPatt = &patt_up;			break;
+		case 0:		uiPatt = &ui_patt_up; 			break;
+		case 1:		uiPatt = &ui_patt_down;		break;
+		case 2:		uiPatt = &ui_patt_updown;		break;
+		case 3:		uiPatt = &ui_patt_downup;		break;
+		case 4:		uiPatt = &ui_patt_rez;			break;
+		case 5:		uiPatt = &ui_patt_ontherun;	break;
+		default:	uiPatt = &ui_patt_up;			break;
 	};
 
 	uiPatt->initialise(inputLen, inputScale, inputTrans, freeRunning);
 
 	switch(inputArp) {
-		case 0: 	uiArp = &arp_right;		break;
-		case 1: 	uiArp = &arp_left;		break;
-		case 2: 	uiArp = &arp_rightleft;	break;
-		case 3: 	uiArp = &arp_leftright;	break;
-		default:	uiArp = &arp_right;		break; 	
+		case 0: 	uiArp = &ui_arp_right;		break;
+		case 1: 	uiArp = &ui_arp_left;		break;
+		case 2: 	uiArp = &ui_arp_rightleft;	break;
+		case 3: 	uiArp = &ui_arp_leftright;	break;
+		default:	uiArp = &ui_arp_right;		break; 	
 	};
 	
 	uiArp->initialise(nPitches, freeRunning);
