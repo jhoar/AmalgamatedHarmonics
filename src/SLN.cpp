@@ -1,6 +1,8 @@
 #include "util/common.hpp"
 #include "dsp/digital.hpp"
 
+#include "dsp/noise.hpp"
+
 #include "AH.hpp"
 #include "Core.hpp"
 #include "UI.hpp"
@@ -18,7 +20,7 @@ struct SLN : AHModule {
 	};
 	enum OutputIds {
 		OUT_OUTPUT,
-		DIAG_OUTPUT,
+		NOISE_OUTPUT,
 		NUM_OUTPUTS
 	};
 	enum LightIds {
@@ -77,6 +79,8 @@ struct SLN : AHModule {
 
 	SchmittTrigger inTrigger;
 
+    bogaudio::dsp::PinkNoiseGenerator pink;
+
 	float in = 0.0f;
 	float out = 0.0f;
 	
@@ -86,10 +90,11 @@ void SLN::step() {
 	
 	AHModule::step();
 	
-	float noise = 2.0 * randomNormal();
-				
+	float wnoise = 2.0 * randomNormal();
+	float pnoise = pink.next() * 11.6; // scale to -10 to 10
+	
 	if (inTrigger.process(inputs[TRIG_INPUT].value / 0.7)) {
-		in = noise;
+		in = pnoise;
 	} 
 				
 	float shape = params[SLOPE_PARAM].value;
@@ -97,30 +102,28 @@ void SLN::step() {
 	// minimum and maximum slopes in volts per second
 	const float slewMin = 0.1;
 	const float slewMax = 10000.0;
+	
 	// Amount of extra slew per voltage difference
 	const float shapeScale = 1.0/10.0;
 
 	float speed = params[SPEED_PARAM].value;
+	float slew = slewMax * powf(slewMin / slewMax, speed);
 
 	// Rise
 	if (in > out) {
-//		float rise = speed;
-		float slew = slewMax * powf(slewMin / slewMax, speed);
 		out += slew * crossfade(1.0f, shapeScale * (in - out), shape) * engineGetSampleTime();
 		if (out > in)
 			out = in;
 	}
 	// Fall
 	else if (in < out) {
-//		float fall = speed;
-		float slew = slewMax * powf(slewMin / slewMax, speed);
 		out -= slew * crossfade(1.0f, shapeScale * (out - in), shape) * engineGetSampleTime();
 		if (out < in)
 			out = in;
 	}
 
 	outputs[OUT_OUTPUT].value = out;
-	outputs[DIAG_OUTPUT].value = noise;
+	outputs[NOISE_OUTPUT].value = pnoise;
 	
 }
 
@@ -140,15 +143,10 @@ SLNWidget::SLNWidget(SLN *module) : ModuleWidget(module) {
 		panel->setBackground(SVG::load(assetPlugin(plugin, "res/SLN.svg")));
 		addChild(panel);
 	}
-
-	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
-			
+		
 	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 0, false, false), Port::INPUT, module, SLN::TRIG_INPUT));
 	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 3, false, false), Port::OUTPUT, module, SLN::OUT_OUTPUT));
-	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 4, false, false), Port::OUTPUT, module, SLN::DIAG_OUTPUT));
+	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 4, false, false), Port::OUTPUT, module, SLN::NOISE_OUTPUT));
 		
 	AHKnobNoSnap *speedW = ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::PORT, 0, 1, false, false), module, SLN::SPEED_PARAM, 0.0, 1.0, 0.0);
 	addParam(speedW);
