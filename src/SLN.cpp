@@ -12,6 +12,7 @@ struct SLN : AHModule {
 	enum ParamIds {
 		SPEED_PARAM,
 		SLOPE_PARAM,
+		NOISE_PARAM,
 		NUM_PARAMS
 	};
 	enum InputIds {
@@ -78,8 +79,9 @@ struct SLN : AHModule {
 	Core core;
 
 	SchmittTrigger inTrigger;
-
-    bogaudio::dsp::PinkNoiseGenerator pink;
+	bogaudio::dsp::WhiteNoiseGenerator white;
+	bogaudio::dsp::PinkNoiseGenerator pink;
+	bogaudio::dsp::RedNoiseGenerator brown;
 
 	float in = 0.0f;
 	float out = 0.0f;
@@ -90,11 +92,26 @@ void SLN::step() {
 	
 	AHModule::step();
 	
-	float wnoise = 2.0 * randomNormal();
-	float pnoise = pink.next() * 11.6; // scale to -10 to 10
+	float noise;
+	int noiseType = params[NOISE_PARAM].value;
 	
+	switch(noiseType) {
+		case 0:
+			noise = white.next() * 10.0;;
+			break;
+		case 1:
+			noise = pink.next() * 10.8; // scale to -10 to 10;
+			break;
+		case 2:
+			noise = brown.next() * 23.4; // scale to -10 to 10;
+			break;
+		default:
+			noise = white.next() * 10.0;
+	}
+	
+	// Capture noise
 	if (inTrigger.process(inputs[TRIG_INPUT].value / 0.7)) {
-		in = pnoise;
+		in = noise;
 	} 
 				
 	float shape = params[SLOPE_PARAM].value;
@@ -123,7 +140,7 @@ void SLN::step() {
 	}
 
 	outputs[OUT_OUTPUT].value = out;
-	outputs[NOISE_OUTPUT].value = pnoise;
+	outputs[NOISE_OUTPUT].value = noise;	
 	
 }
 
@@ -145,14 +162,17 @@ SLNWidget::SLNWidget(SLN *module) : ModuleWidget(module) {
 	}
 		
 	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 0, false, false), Port::INPUT, module, SLN::TRIG_INPUT));
-	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 3, false, false), Port::OUTPUT, module, SLN::OUT_OUTPUT));
-	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 4, false, false), Port::OUTPUT, module, SLN::NOISE_OUTPUT));
+	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 4, false, false), Port::OUTPUT, module, SLN::OUT_OUTPUT));
+	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 5, false, false), Port::OUTPUT, module, SLN::NOISE_OUTPUT));
 		
 	AHKnobNoSnap *speedW = ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::PORT, 0, 1, false, false), module, SLN::SPEED_PARAM, 0.0, 1.0, 0.0);
 	addParam(speedW);
 
 	AHKnobNoSnap *slopeW = ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::PORT, 0, 2, false, false), module, SLN::SLOPE_PARAM, 0.0, 1.0, 0.0);
 	addParam(slopeW);
+
+	AHKnobSnap *noiseW = ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::PORT, 0, 3, false, false), module, SLN::NOISE_PARAM, 0.0, 2.0, 0.0);
+	addParam(noiseW);
 		
 
 }

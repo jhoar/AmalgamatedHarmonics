@@ -68,7 +68,7 @@ namespace bogaudio {
 
 		template<typename G>
 		struct BasePinkNoiseGenerator : NoiseGenerator {
-			static const int _n = 7;
+			static const int _n = 6;
 			G _g;
 			G _gs[_n];
 			uint32_t _count = _g.next();
