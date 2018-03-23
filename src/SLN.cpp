@@ -160,18 +160,40 @@ SLNWidget::SLNWidget(SLN *module) : ModuleWidget(module) {
 		panel->setBackground(SVG::load(assetPlugin(plugin, "res/SLN.svg")));
 		addChild(panel);
 	}
-		
-	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 0, false, false), Port::INPUT, module, SLN::TRIG_INPUT));
-	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 4, false, false), Port::OUTPUT, module, SLN::OUT_OUTPUT));
-	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 5, false, false), Port::OUTPUT, module, SLN::NOISE_OUTPUT));
-		
-	AHKnobNoSnap *speedW = ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::PORT, 0, 1, false, false), module, SLN::SPEED_PARAM, 0.0, 1.0, 0.0);
+
+	float panelwidth = 45.0;
+	float portwidth = 25.0;
+	float knobwidth = 23.0;
+	
+	float portX = (panelwidth - portwidth) / 2.0;
+	float knobX = (panelwidth - knobwidth) / 2.0;
+
+	Vec p1 = ui.getPosition(UI::PORT, 0, 0, false, false);
+	p1.x = portX;
+	addInput(Port::create<PJ301MPort>(p1, Port::INPUT, module, SLN::TRIG_INPUT));
+	
+	Vec p2 = ui.getPosition(UI::PORT, 0, 4, false, false);
+	p2.x = portX;	
+	addOutput(Port::create<PJ301MPort>(p2, Port::OUTPUT, module, SLN::OUT_OUTPUT));
+	
+	Vec p3 = ui.getPosition(UI::PORT, 0, 5, false, false);
+	p3.x = portX;		
+	addOutput(Port::create<PJ301MPort>(p3, Port::OUTPUT, module, SLN::NOISE_OUTPUT));
+	
+	
+	Vec k1 = ui.getPosition(UI::PORT, 0, 1, false, false);
+	k1.x = knobX;
+	AHKnobNoSnap *speedW = ParamWidget::create<AHKnobNoSnap>(k1, module, SLN::SPEED_PARAM, 0.0, 1.0, 0.0);
 	addParam(speedW);
 
-	AHKnobNoSnap *slopeW = ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::PORT, 0, 2, false, false), module, SLN::SLOPE_PARAM, 0.0, 1.0, 0.0);
+	Vec k2 = ui.getPosition(UI::PORT, 0, 2, false, false);
+	k2.x = knobX;
+	AHKnobNoSnap *slopeW = ParamWidget::create<AHKnobNoSnap>(k2, module, SLN::SLOPE_PARAM, 0.0, 1.0, 0.0);
 	addParam(slopeW);
 
-	AHKnobSnap *noiseW = ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::PORT, 0, 3, false, false), module, SLN::NOISE_PARAM, 0.0, 2.0, 0.0);
+	Vec k3 = ui.getPosition(UI::PORT, 0, 3, false, false);
+	k3.x = knobX;
+	AHKnobSnap *noiseW = ParamWidget::create<AHKnobSnap>(k3, module, SLN::NOISE_PARAM, 0.0, 2.0, 0.0);
 	addParam(noiseW);
 		
 
