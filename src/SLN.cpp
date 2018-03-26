@@ -34,48 +34,6 @@ struct SLN : AHModule {
 	
 	void step() override;
 
-	json_t *toJson() override {
-		json_t *rootJ = json_object();
-
-		// // gates
-		// json_t *xMutesJ = json_array();
-		// json_t *yMutesJ = json_array();
-		//
-		// for (int i = 0; i < 4; i++) {
-		// 	json_t *xMuteJ = json_integer((int) xMute[i]);
-		// 	json_array_append_new(xMutesJ, xMuteJ);
-		//
-		// 	json_t *yMuteJ = json_integer((int) yMute[i]);
-		// 	json_array_append_new(yMutesJ, yMuteJ);
-		// }
-		//
-		// json_object_set_new(rootJ, "xMutes", xMutesJ);
-		// json_object_set_new(rootJ, "yMutes", yMutesJ);
-
-		return rootJ;
-	}
-	
-	void fromJson(json_t *rootJ) override {
-		// gates
-		// json_t *xMutesJ = json_object_get(rootJ, "xMutes");
-		// if (xMutesJ) {
-		// 	for (int i = 0; i < 4; i++) {
-		// 		json_t *xMuteJ = json_array_get(xMutesJ, i);
-		// 		if (xMuteJ)
-		// 			xMute[i] = !!json_integer_value(xMuteJ);
-		// 	}
-		// }
-		//
-		// json_t *yMutesJ = json_object_get(rootJ, "yMutes");
-		// if (yMutesJ) {
-		// 	for (int i = 0; i < 4; i++) {
-		// 		json_t *yMuteJ = json_array_get(yMutesJ, i);
-		// 		if (yMuteJ)
-		// 			yMute[i] = !!json_integer_value(yMuteJ);
-		// 	}
-		// }
-	}
-	
 	Core core;
 
 	SchmittTrigger inTrigger;
@@ -83,8 +41,8 @@ struct SLN : AHModule {
 	bogaudio::dsp::PinkNoiseGenerator pink;
 	bogaudio::dsp::RedNoiseGenerator brown;
 
-	float in = 0.0f;
-	float out = 0.0f;
+	float target = 0.0f;
+	float current = 0.0f;
 	
 };
 
@@ -111,7 +69,7 @@ void SLN::step() {
 	
 	// Capture noise
 	if (inTrigger.process(inputs[TRIG_INPUT].value / 0.7)) {
-		in = noise;
+		target = noise;
 	} 
 				
 	float shape = params[SLOPE_PARAM].value;
@@ -127,19 +85,19 @@ void SLN::step() {
 	float slew = slewMax * powf(slewMin / slewMax, speed);
 
 	// Rise
-	if (in > out) {
-		out += slew * crossfade(1.0f, shapeScale * (in - out), shape) * engineGetSampleTime();
-		if (out > in)
-			out = in;
+	if (target > current) {
+		current += slew * crossfade(1.0f, shapeScale * (target - current), shape) * engineGetSampleTime();
+		if (current > target) // Trap overshoot
+			current = target;
 	}
 	// Fall
-	else if (in < out) {
-		out -= slew * crossfade(1.0f, shapeScale * (out - in), shape) * engineGetSampleTime();
-		if (out < in)
-			out = in;
+	else if (target < current) {
+		current -= slew * crossfade(1.0f, shapeScale * (current - target), shape) * engineGetSampleTime();
+		if (current < target) // Trap overshoot
+			current = target;
 	}
 
-	outputs[OUT_OUTPUT].value = out;
+	outputs[OUT_OUTPUT].value = current;
 	outputs[NOISE_OUTPUT].value = noise;	
 	
 }
