@@ -1,6 +1,6 @@
 Welcome to the Amalgamated Harmonics; your one-stop shop for barely usable modules for [VCVRack](www.vcvrack.com).
 
-[[https://github.com/jhoar/AmalgamatedHarmonics/blob/master/doc/all.jpg|alt=AH Modules]]
+![All](./doc/all.jpg)
 
 * [Scale Quantizer](https://github.com/jhoar/AmalgamatedHarmonics/wiki/Scale-Quantizer), a scale-aware quantizer with multiple input and outputs.
 * [Arpeggiator](https://github.com/jhoar/AmalgamatedHarmonics/wiki/Arpeggiator), a multi-input arpeggiator.
