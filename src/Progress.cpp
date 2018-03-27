@@ -43,16 +43,8 @@ struct Progress : AHModule {
 		NUM_LIGHTS
 	};
 
-	float sampleRate;
-		
-	Progress() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
-		sampleRate = engineGetSampleRate();
-	}
+	Progress() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) { }
 	
-	void onSampleRateChange() override { 
-		sampleRate = engineGetSampleRate();
-	}
-
 	void step() override;
 	
 	enum ParamType {
@@ -228,7 +220,7 @@ void Progress::step() {
 		else {
 			// Internal clock
 			float clockTime = powf(2.0f, params[CLOCK_PARAM].value + inputs[CLOCK_INPUT].value);
-			phase += clockTime * engineGetSampleTime();
+			phase += clockTime * delta;
 			if (phase >= 1.0f) {
 				setIndex(index + 1, numSteps);
 			}

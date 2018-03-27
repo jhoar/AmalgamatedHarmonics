@@ -44,6 +44,16 @@ struct SLN : AHModule {
 	float target = 0.0f;
 	float current = 0.0f;
 	
+	// minimum and maximum slopes in volts per second
+	const float slewMin = 0.1;
+	const float slewMax = 10000.0;
+	
+	const float slewRatio = slewMin / slewMax;
+	
+	// Amount of extra slew per voltage difference
+	const float shapeScale = 1.0/10.0;
+	
+	
 };
 
 void SLN::step() {
@@ -73,26 +83,19 @@ void SLN::step() {
 	} 
 				
 	float shape = params[SLOPE_PARAM].value;
-
-	// minimum and maximum slopes in volts per second
-	const float slewMin = 0.1;
-	const float slewMax = 10000.0;
-	
-	// Amount of extra slew per voltage difference
-	const float shapeScale = 1.0/10.0;
-
 	float speed = params[SPEED_PARAM].value;
-	float slew = slewMax * powf(slewMin / slewMax, speed);
+	
+	float slew = slewMax * powf(slewRatio, speed);
 
 	// Rise
 	if (target > current) {
-		current += slew * crossfade(1.0f, shapeScale * (target - current), shape) * engineGetSampleTime();
+		current += slew * crossfade(1.0f, shapeScale * (target - current), shape) * delta;
 		if (current > target) // Trap overshoot
 			current = target;
 	}
 	// Fall
 	else if (target < current) {
-		current -= slew * crossfade(1.0f, shapeScale * (current - target), shape) * engineGetSampleTime();
+		current -= slew * crossfade(1.0f, shapeScale * (current - target), shape) * delta;
 		if (current < target) // Trap overshoot
 			current = target;
 	}

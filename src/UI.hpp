@@ -18,13 +18,16 @@ struct ParamEvent {
 struct AHModule : Module {
 
 	float delta;
+	float rho;
 
 	AHModule(int numParams, int numInputs, int numOutputs, int numLights = 0) : Module(numParams, numInputs, numOutputs, numLights) {
-		delta = 1.0 / engineGetSampleRate();
+		delta = engineGetSampleTime();
+		rho = engineGetSampleRate();
 	}
 
 	void onSampleRateChange() override { 
-		delta = 1.0 / engineGetSampleRate();
+		delta = engineGetSampleTime();
+		rho = engineGetSampleRate();
 	}
 
 	int stepX = 0;
