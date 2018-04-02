@@ -39,7 +39,7 @@ struct Progress : AHModule {
 		RUNNING_LIGHT,
 		RESET_LIGHT,
 		GATES_LIGHT,
-		ENUMS(GATE_LIGHTS,8),
+		ENUMS(GATE_LIGHTS,16),
 		NUM_LIGHTS
 	};
 
@@ -396,8 +396,30 @@ void Progress::step() {
 			gateOn = gateOn && !pulse;
 		}
 		
-		outputs[GATE_OUTPUT + i].value = gateOn ? 10.0f : 0.0f;
-		lights[GATE_LIGHTS + i].setBrightnessSmooth((pulse && i == index) ? (gates[i] ? 1.f : 0.33) : (gates[i] ? 0.66 : 0.0));
+		outputs[GATE_OUTPUT + i].value = gateOn ? 10.0f : 0.0f;	
+		
+		if (gateOn && i == index) {
+			if (gates[i]) {
+				// Gate is on and active = flash green
+				lights[GATE_LIGHTS + i * 2].setBrightnessSmooth(1.0f);
+				lights[GATE_LIGHTS + i * 2 + 1].setBrightnessSmooth(0.0f);
+			} else {
+				// Gate is off and active = flash red - this seems to not have any effect :(
+				lights[GATE_LIGHTS + i * 2].setBrightnessSmooth(0.0);
+				lights[GATE_LIGHTS + i * 2 + 1].setBrightnessSmooth(0.33f);
+			}
+		} else {
+			if (gates[i]) {
+				// Gate is on and not active = red
+				lights[GATE_LIGHTS + i * 2].setBrightnessSmooth(0.0f);
+				lights[GATE_LIGHTS + i * 2 + 1].setBrightnessSmooth(1.0f);
+			} else {
+				// Gate is off and not active = black
+				lights[GATE_LIGHTS + i * 2].setBrightnessSmooth(0.0f);
+				lights[GATE_LIGHTS + i * 2 + 1].setBrightnessSmooth(0.0f);
+			}			
+		}
+		
 	}
 
 	bool gatesOn = (running && gates[index]);
@@ -490,7 +512,8 @@ ProgressWidget::ProgressWidget(Progress *module) : ModuleWidget(module) {
 		addParam(invW);
 
 		addParam(ParamWidget::create<AHButton>(ui.getPosition(UI::BUTTON, i + 1, 7, true, true), module, Progress::GATE_PARAM + i, 0.0, 1.0, 0.0));
-		addChild(ModuleLightWidget::create<MediumLight<GreenLight>>(ui.getPosition(UI::LIGHT, i + 1, 7, true, true), module, Progress::GATE_LIGHTS + i));
+		addChild(ModuleLightWidget::create<MediumLight<GreenRedLight>>(ui.getPosition(UI::LIGHT, i + 1, 7, true, true), module, Progress::GATE_LIGHTS + i * 2));
+				
 		addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, i + 1, 5, true, false), Port::OUTPUT, module, Progress::GATE_OUTPUT + i));
 	}
 
