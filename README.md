@@ -10,5 +10,5 @@ Welcome to the Amalgamated Harmonics; your one-stop shop for barely usable modul
 * [Ruckus](https://github.com/jhoar/AmalgamatedHarmonics/wiki/Ruckus), a trigger sequencer based on summed clock-dividers, inspired by the excellent Trigger Riot from Tiptop Audio.
 * [SLN](https://github.com/jhoar/AmalgamatedHarmonics/wiki/SLN), Slew-Limited Noise -  a MODULE MASHUP of the Befaco Slew Limiter, Audible Instruments Utilities and Bogaudio Noise modules.
 
-The latest release is [0.6.1](https://github.com/jhoar/AmalgamatedHarmonics/releases/tag/v0.6.1). It is available through the [Plugin Manager](https://vcvrack.com/plugins.html).
+The latest release is [0.6.1](https://github.com/jhoar/AmalgamatedHarmonics/releases/tag/v0.6.1). It is available through the [Plugin Manager](https://vcvrack.com/plugins.html). You can contact us at amalgamatedharmonics@outlook.com
 
