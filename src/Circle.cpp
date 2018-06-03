@@ -112,7 +112,7 @@ void Circle::step() {
 	bool rotRStatus		= rotRTrigger.process(rotRInput);
 		
 	if (rotLStatus) {
-		if (debug()) { std::cout << stepX << " Rotate left: " << curKeyIndex; }
+		if (debugEnabled()) { std::cout << stepX << " Rotate left: " << curKeyIndex; }
 		if (voltScale == FIFTHS) {
 			if (curKeyIndex == 0) {
 				curKeyIndex = 11;
@@ -126,11 +126,11 @@ void Circle::step() {
 			}
 		}
 		
-		if (debug()) { std::cout << " -> " << curKeyIndex << std::endl;	}
+		if (debugEnabled()) { std::cout << " -> " << curKeyIndex << std::endl;	}
 	} 
 	
 	if (rotRStatus) {
-		if (debug()) { std::cout << stepX << " Rotate right: " << curKeyIndex; }
+		if (debugEnabled()) { std::cout << stepX << " Rotate right: " << curKeyIndex; }
 		if (voltScale == FIFTHS) {
 			if (curKeyIndex == 11) {
 				curKeyIndex = 0;
@@ -143,17 +143,17 @@ void Circle::step() {
 				curKeyIndex = curKeyIndex + 12;
 			}
 		}
-		if (debug()) { std::cout << " -> " << curKeyIndex << std::endl;	}
+		if (debugEnabled()) { std::cout << " -> " << curKeyIndex << std::endl;	}
 	} 
 	
 	if (rotLStatus && rotRStatus) {
-		if (debug()) { std::cout << stepX << " Reset " << curKeyIndex << std::endl;	}
+		if (debugEnabled()) { std::cout << stepX << " Reset " << curKeyIndex << std::endl;	}
 		curKeyIndex = baseKeyIndex;
 	}
 	
 	
 	if (newKeyIndex != baseKeyIndex) {
-		if (debug()) { std::cout << stepX << " New base: " << newKeyIndex << std::endl;}
+		if (debugEnabled()) { std::cout << stepX << " New base: " << newKeyIndex << std::endl;}
 		baseKeyIndex = newKeyIndex;
 		curKeyIndex = newKeyIndex;
 	}

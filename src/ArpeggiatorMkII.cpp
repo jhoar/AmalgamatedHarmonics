@@ -631,7 +631,7 @@ void Arpeggiator2::step() {
 		}
 	}
 
-	// if (debug()) {
+	// if (debugEnabled()) {
 	// 	for (int p = 0; p < nValidPitches; p++) {
 	// 		std::cout << inputPitches[p] << std::endl;
 	// 	}
@@ -639,13 +639,13 @@ void Arpeggiator2::step() {
 	
 	// Always play something
 	if (nValidPitches == 0) {
-		if (debug()) { std::cout << stepX << " " << id  << " No inputs, assume single 0V pitch" << std::endl; }
+		if (debugEnabled()) { std::cout << stepX << " " << id  << " No inputs, assume single 0V pitch" << std::endl; }
 		nValidPitches = 1;
 	}
 	
 	// Need to understand why this happens
 	if (inputLen == 0) {
-		if (debug()) { std::cout << stepX << " " << id  << " InputLen == 0, aborting" << std::endl; }
+		if (debugEnabled()) { std::cout << stepX << " " << id  << " InputLen == 0, aborting" << std::endl; }
 		return; // No inputs, no music
 	}
 	
@@ -657,12 +657,12 @@ void Arpeggiator2::step() {
 	// Has the trigger input been fired
 	if (triggerStatus) {
 		triggerPulse.trigger(5e-5);
-		if (debug()) { std::cout << stepX << " " << id  << " Triggered" << std::endl; }
+		if (debugEnabled()) { std::cout << stepX << " " << id  << " Triggered" << std::endl; }
 	}
 	
 	// Update the trigger pulse and determine if it is still high
 	bool triggerHigh = triggerPulse.process(delta);
-	if (debug()) { 
+	if (debugEnabled()) { 
 		if (triggerHigh) {
 			std::cout << stepX << " " << id  << " Trigger is high" << std::endl;
 		}
@@ -670,18 +670,18 @@ void Arpeggiator2::step() {
 	
 	// Update lock
 	if (lockStatus) {
-		if (debug()) { std::cout << "Toggling lock: " << locked << std::endl; }
+		if (debugEnabled()) { std::cout << "Toggling lock: " << locked << std::endl; }
 		locked = !locked;
 	}
 	
 	if (newSequence) {
 		newSequence--;
-		if (debug()) { std::cout << stepX << " " << id  << " Countdown newSequence: " << newSequence << std::endl; }
+		if (debugEnabled()) { std::cout << stepX << " " << id  << " Countdown newSequence: " << newSequence << std::endl; }
 	}
 	
 	if (newCycle) {
 		newCycle--;
-		if (debug()) { std::cout << stepX << " " << id  << " Countdown newCycle: " << newCycle << std::endl; }
+		if (debugEnabled()) { std::cout << stepX << " " << id  << " Countdown newCycle: " << newCycle << std::endl; }
 	}
 	
 	// OK so the problem here might be that the clock gate is still high right after the trigger gate fired on the previous step
@@ -689,13 +689,13 @@ void Arpeggiator2::step() {
 	// Has the clock input been fired
 	bool isClocked = false;
 	if (clockStatus && !triggerHigh) {
-		if (debug()) { std::cout << stepX << " " << id  << " Clocked" << std::endl; }
+		if (debugEnabled()) { std::cout << stepX << " " << id  << " Clocked" << std::endl; }
 		isClocked = true;
 	}
 	
 	// Has the trigger input been fired, either on the input or button
 	if (triggerStatus || buttonStatus) {
-		if (debug()) { std::cout << stepX << " " << id  << " Start countdown " << clockActive <<std::endl; }
+		if (debugEnabled()) { std::cout << stepX << " " << id  << " Start countdown " << clockActive <<std::endl; }
 		if (clockActive) {
 			newSequence = COUNTDOWN;
 			newCycle = COUNTDOWN;
@@ -705,19 +705,19 @@ void Arpeggiator2::step() {
 	// So this is where the free-running could be triggered
 	if (isClocked && !isRunning) { // Must have a clock and not be already running
 		if (!trigActive) { // If nothing plugged into the TRIG input
-			if (debug()) { std::cout << stepX << " " << id  << " Free running sequence; starting" << std::endl; }
+			if (debugEnabled()) { std::cout << stepX << " " << id  << " Free running sequence; starting" << std::endl; }
 			freeRunning = true; // We're free-running
 			newSequence = COUNTDOWN;
 			newCycle = LAUNCH;
 		} else {
-			if (debug()) { std::cout << stepX << " " << id  << " Triggered sequence; wait for trigger" << std::endl; }
+			if (debugEnabled()) { std::cout << stepX << " " << id  << " Triggered sequence; wait for trigger" << std::endl; }
 			freeRunning = false;
 		}
 	}
 	
 	// Detect cable being plugged in when free-running, stop free-running
 	if (freeRunning && trigActive && isRunning) {
-		if (debug()) { std::cout << stepX << " " << id  << " TRIG input re-connected" << std::endl; }
+		if (debugEnabled()) { std::cout << stepX << " " << id  << " TRIG input re-connected" << std::endl; }
 		freeRunning = false;
 	}	
 	
@@ -729,7 +729,7 @@ void Arpeggiator2::step() {
 		
 		// Pulse the EOC gate
 		eocPulse.trigger(Core::TRIGGER);
-		if (debug()) { std::cout << stepX << " " << id  << " Finished Cycle" << std::endl; }
+		if (debugEnabled()) { std::cout << stepX << " " << id  << " Finished Cycle" << std::endl; }
 		
 		// Reached the end of the sequence
 		if (isRunning && currPatt->isPatternFinished()) {
@@ -744,11 +744,11 @@ void Arpeggiator2::step() {
 			
 			// Pulse the EOS gate
 			eosPulse.trigger(Core::TRIGGER);
-			if (debug()) { std::cout << stepX << " " << id  << " Finished Sequence, flag: " << isRunning << std::endl; }
+			if (debugEnabled()) { std::cout << stepX << " " << id  << " Finished Sequence, flag: " << isRunning << std::endl; }
 
 		} else {
 			newCycle = LAUNCH;
-			if (debug()) { std::cout << stepX << " " << id  << " Flagging new cycle" << std::endl; }
+			if (debugEnabled()) { std::cout << stepX << " " << id  << " Flagging new cycle" << std::endl; }
 		}
 		
 	}
@@ -777,7 +777,7 @@ void Arpeggiator2::step() {
 			
 		}
 
-		if (debug()) { std::cout << stepX << " " << id  << " Initiatise new Sequence: Pattern: " << currPatt->getName() << 
+		if (debugEnabled()) { std::cout << stepX << " " << id  << " Initiatise new Sequence: Pattern: " << currPatt->getName() << 
 			" Length: " << inputLen <<
 			" Locked: " << locked << std::endl; }
 		
@@ -812,7 +812,7 @@ void Arpeggiator2::step() {
 				
 		}
 
-		if (debug()) { std::cout << stepX << " " << id  << " Initiatise new Cycle: " << nPitches << " " << currArp->getName() << std::endl; }
+		if (debugEnabled()) { std::cout << stepX << " " << id  << " Initiatise new Cycle: " << nPitches << " " << currArp->getName() << std::endl; }
 
 		currArp->initialise(nPitches, freeRunning);
 		
@@ -823,15 +823,15 @@ void Arpeggiator2::step() {
 	// Only advance from the clock
 	if (isRunning && (isClocked || newCycle == LAUNCH)) {
 
-		if (debug()) { std::cout << stepX << " " << id  << " Advance Cycle: " << currArp->getPitch() << std::endl; }
+		if (debugEnabled()) { std::cout << stepX << " " << id  << " Advance Cycle: " << currArp->getPitch() << std::endl; }
 
-		if (debug()) { std::cout << stepX << " " << id  << " Advance Cycle: " << pitches[currArp->getPitch()] << " " << (float)currPatt->getOffset() << std::endl; }
+		if (debugEnabled()) { std::cout << stepX << " " << id  << " Advance Cycle: " << pitches[currArp->getPitch()] << " " << (float)currPatt->getOffset() << std::endl; }
 
 				
 		// Finally set the out voltage
 		outVolts = clamp(pitches[currArp->getPitch()] + semiTone * (float)currPatt->getOffset(), -10.0f, 10.0f);
 		
-		if (debug()) { std::cout << stepX << " " << id  << " Output V = " << outVolts << std::endl; }
+		if (debugEnabled()) { std::cout << stepX << " " << id  << " Output V = " << outVolts << std::endl; }
 		
 		// Update counters
 		currArp->advance();
