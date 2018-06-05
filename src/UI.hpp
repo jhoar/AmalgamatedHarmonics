@@ -34,7 +34,7 @@ struct AHModule : Module {
 	
 	bool debugFlag = false;
 	
-	inline bool debug() {
+	inline bool debugEnabled() {
 		return debugFlag;
 	}
 	

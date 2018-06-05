@@ -105,7 +105,7 @@ void Imperfect2::step() {
 			lastValidInput = -1;
 	
 			if (haveTrigger) {
-				if (debug()) { std::cout << stepX << " " << i << " has active input and has received trigger" << std::endl; }
+				if (debugEnabled()) { std::cout << stepX << " " << i << " has active input and has received trigger" << std::endl; }
 				generateSignal = true;
 				lastValidInput = i; // Row i has a valid input
 			}
@@ -113,7 +113,7 @@ void Imperfect2::step() {
 		} else {
 			// We have an output plugged in this row and previously seen a trigger on previous row
 			if (outputActive && lastValidInput > -1) {
-				if (debug()) { std::cout << stepX << " " << i << " has active out and has seen trigger on " << lastValidInput << std::endl; }
+				if (debugEnabled()) { std::cout << stepX << " " << i << " has active out and has seen trigger on " << lastValidInput << std::endl; }
 				generateSignal = true;
 			}
 			
@@ -157,7 +157,7 @@ void Imperfect2::step() {
 			counter[i]++;
 			int target = division[i];
 		
-			if (debug()) { 
+			if (debugEnabled()) { 
 				std::cout << stepX << " Div: " << i << ": Target: " << target << " Cnt: " << counter[lastValidInput] << " Exp: " << counter[lastValidInput] % division[i] << std::endl; 
 			}
 
@@ -174,7 +174,7 @@ void Imperfect2::step() {
 					double rndG = clamp(core.gaussrand(), -2.0f, 2.0f);
 					gateTime[i] = clamp(gateLen + gateSpr * rndG, Core::TRIGGER, 100.0f);
 
-					if (debug()) { 
+					if (debugEnabled()) { 
 						std::cout << stepX << " Delay: " << i << ": Len: " << dlyLen << " Spr: " << dlySpr << " r: " << rndD << " = " << delayTime[i] << std::endl; 
 						std::cout << stepX << " Gate: " << i << ": Len: " << gateLen << ", Spr: " << gateSpr << " r: " << rndG << " = " << gateTime[i] << std::endl; 
 					}
