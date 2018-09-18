@@ -12,7 +12,7 @@ struct Ruckus : AHModule {
 		ENUMS(PROB_PARAM,16),
 		ENUMS(SHIFT_PARAM,16),
 		ENUMS(XMUTE_PARAM,16), 
-		ENUMS(YMUTE_PARAM,4), 
+		ENUMS(YMUTE_PARAM,4),
 		NUM_PARAMS
 	};
 	enum InputIds {
@@ -28,6 +28,8 @@ struct Ruckus : AHModule {
 	enum LightIds {
 		ENUMS(XMUTE_LIGHT,4), 
 		ENUMS(YMUTE_LIGHT,4), 
+		ENUMS(ACTIVE_LIGHT,16),
+		ENUMS(TRIG_LIGHT,16),
 		NUM_LIGHTS
 	};
 
@@ -129,7 +131,8 @@ struct Ruckus : AHModule {
 	int division[16];
 	int shift[16];
 	float prob[16];
-	
+	int state[16];
+
 	unsigned int beatCounter = 0;
 	
 };
@@ -165,9 +168,11 @@ void Ruckus::step() {
 		for (int y = 0; y < 4; y++) {
 			for (int x = 0; x < 4; x++) {
 				int i = y * 4 + x;
-						
+				state[i] = 0;
 				if(division[i] == 0) { // 0 == skip
-					continue; 
+					continue;
+				} else {
+					state[i] = 1;
 				}
 				
 				int target = beatCounter + shift[i];
@@ -180,11 +185,38 @@ void Ruckus::step() {
 					if (randomUniform() < prob[i]) {
 						xGate[x].trigger(Core::TRIGGER);
 						yGate[y].trigger(Core::TRIGGER);
+						state[i] = 2;
 					}
-				} 
+				}
 			}
 		}
 	}
+
+	for (int y = 0; y < 4; y++) {
+		for (int x = 0; x < 4; x++) {
+			int i = y * 4 + x;
+
+			switch (state[i]) {
+			case 0: 
+				lights[ACTIVE_LIGHT + i].value = 0.0f;
+				lights[TRIG_LIGHT + i].value = 0.0f;
+				break;
+			case 1:
+				lights[ACTIVE_LIGHT + i].value = 1.0f;
+				lights[TRIG_LIGHT + i].value = 0.0f;
+				break;
+			case 2:
+				lights[ACTIVE_LIGHT + i].value = 1.0f;
+				lights[TRIG_LIGHT + i].value = 1.0f;
+				break;
+			default:
+				lights[ACTIVE_LIGHT + i].value = 0.0f;
+				lights[TRIG_LIGHT + i].value = 0.0f;
+			}
+
+		}
+	}
+
 
 	for (int i = 0; i < 4; i++) {
 
@@ -268,6 +300,10 @@ RuckusWidget::RuckusWidget(Ruckus *module) : ModuleWidget(module) {
 			AHTrimpotSnap *shiftW = ParamWidget::create<AHTrimpotSnap>(Vec(v.x - xd + 4, v.y + yd), module, Ruckus::SHIFT_PARAM + i, -64.0f, 64.0f, 0.0f);
 			AHParamWidget::set<AHTrimpotSnap>(shiftW, Ruckus::SHIFT_TYPE, i);
 			addParam(shiftW);
+
+			addChild(ModuleLightWidget::create<MediumLight<GreenLight>>(Vec(v.x - xd + 5, v.y - yd + 12), module, Ruckus::ACTIVE_LIGHT + i));
+			addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(v.x + xd + 7, v.y - yd + 12), module, Ruckus::TRIG_LIGHT + i));
+
 		}
 	}
 
