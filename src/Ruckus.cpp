@@ -160,7 +160,20 @@ void Ruckus::step() {
 	if (resetTrigger.process(inputs[RESET_INPUT].value)) {
 		beatCounter = 0;
 	}
-	
+
+	for (int y = 0; y < 4; y++) {
+		for (int x = 0; x < 4; x++) {
+			int i = y * 4 + x;
+
+			if (division[i] == 0) {
+				state[i] = 0;
+			} else {
+				state[i] = 1;
+			}
+
+		}
+	}
+
 	if (inTrigger.process(inputs[TRIG_INPUT].value)) {
 
 		beatCounter++;
@@ -168,11 +181,9 @@ void Ruckus::step() {
 		for (int y = 0; y < 4; y++) {
 			for (int x = 0; x < 4; x++) {
 				int i = y * 4 + x;
-				state[i] = 0;
+
 				if(division[i] == 0) { // 0 == skip
 					continue;
-				} else {
-					state[i] = 1;
 				}
 				
 				int target = beatCounter + shift[i];
@@ -198,20 +209,20 @@ void Ruckus::step() {
 
 			switch (state[i]) {
 			case 0: 
-				lights[ACTIVE_LIGHT + i].value = 0.0f;
-				lights[TRIG_LIGHT + i].value = 0.0f;
+				lights[ACTIVE_LIGHT + i].setBrightnessSmooth(0.0f);
+				lights[TRIG_LIGHT + i].setBrightnessSmooth(0.0f);
 				break;
 			case 1:
-				lights[ACTIVE_LIGHT + i].value = 1.0f;
-				lights[TRIG_LIGHT + i].value = 0.0f;
+				lights[ACTIVE_LIGHT + i].setBrightnessSmooth(1.0f);
+				lights[TRIG_LIGHT + i].setBrightnessSmooth(0.0f);
 				break;
 			case 2:
-				lights[ACTIVE_LIGHT + i].value = 1.0f;
-				lights[TRIG_LIGHT + i].value = 1.0f;
+				lights[ACTIVE_LIGHT + i].setBrightnessSmooth(1.0f);
+				lights[TRIG_LIGHT + i].setBrightnessSmooth(1.0f);
 				break;
 			default:
-				lights[ACTIVE_LIGHT + i].value = 0.0f;
-				lights[TRIG_LIGHT + i].value = 0.0f;
+				lights[ACTIVE_LIGHT + i].setBrightnessSmooth(0.0f);
+				lights[TRIG_LIGHT + i].setBrightnessSmooth(0.0f);
 			}
 
 		}
