@@ -65,18 +65,18 @@ void SLN::step() {
 	
 	switch(noiseType) {
 		case 0:
-			noise = white.next() * 10.0;;
+			noise = clamp(white.next() * 10.0f, -10.0f, 10.f);
 			break;
 		case 1:
-			noise = pink.next() * 10.8; // scale to -10 to 10;
+			noise = clamp(pink.next() * 15.0f, -10.0f, 10.f);
 			break;
 		case 2:
-			noise = brown.next() * 23.4; // scale to -10 to 10;
+			noise = clamp(brown.next() * 35.0f, -10.0f, 10.f);
 			break;
 		default:
-			noise = white.next() * 10.0;
+			noise = clamp(white.next() * 10.0f, -10.0f, 10.f);
 	}
-	
+
 	// Capture noise
 	if (inTrigger.process(inputs[TRIG_INPUT].value / 0.7)) {
 		target = noise;
