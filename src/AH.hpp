@@ -30,3 +30,5 @@ extern Model *modelScaleQuantizer2;
 
 extern Model *modelSLN;
 
+extern Model *modelGenerative;
+
