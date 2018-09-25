@@ -62,6 +62,7 @@ struct Generative : AHModule {
 		SLOPE_PARAM,
 		SPEED_PARAM,
 		RANGE_PARAM,
+		JITTER_PARAM,
 		NUM_PARAMS
 	};
 	enum InputIds {
@@ -96,11 +97,13 @@ struct Generative : AHModule {
 	SchmittTrigger holdTrigger;
 	bogaudio::dsp::PinkNoiseGenerator pink;
 	LowFrequencyOscillator oscillator;
-	PulseGenerator tossPulse;
+	AHPulseGenerator tossPulse;
+	AHPulseGenerator delayPhase;
 
 	float target = 0.0f;
 	float current = 0.0f;
 	bool quantise = false;
+	bool delayState = false;
 	
 	// minimum and maximum slopes in volts per second
 	const float slewMin = 0.1;
@@ -112,6 +115,7 @@ struct Generative : AHModule {
 	const float shapeScale = 1.0/10.0;
 	
 };
+
 
 void Generative::step() {
 	
@@ -141,25 +145,46 @@ void Generative::step() {
 	float curve = (noise * blend + (1.0f - blend) * interp) * 5.0 * range;
 
 	// Process gate
+	bool sampleActive = inputs[SAMPLE_INPUT].active;
 	float sample = inputs[SAMPLE_INPUT].value;
-	float hold = inputs[HOLD_INPUT].value;
+	bool hold = inputs[HOLD_INPUT].value > 0.000001f;
 
 	// Curve calc
 	float shape = params[SLOPE_PARAM].value;
 	float speed = params[SPEED_PARAM].value;	
 	float slew = slewMax * powf(slewRatio, speed);
 
-	if (!(hold > 1.0f)) {
-		if (sampleTrigger.process(sample)) {
-			float threshold = clamp(params[PROB_PARAM].value + inputs[PROB_INPUT].value / 10.f, 0.f, 1.f);
-			toss = randomUniform() < threshold;
+	if (!sampleActive || sampleTrigger.process(sample)) {
+		if (!delayPhase.ishigh()) {
 
-			if (toss) {
-				target = curve;
-				tossPulse.trigger(Core::TRIGGER);
-			}
+			float dlySpr = log2(params[JITTER_PARAM].value);
+
+			// Determine delay time
+			double rndD = fabs(clamp(core.gaussrand(), -2.0f, 2.0f));
+			float delayTime = clamp(dlySpr * rndD, 0.0f, 100.0f);
+		
+			// Trigger the respective delay pulse generator
+
+			delayState = true;
+			delayPhase.trigger(delayTime);
+
+		} 
+	}
+
+	if (delayState && !delayPhase.process(delta)) {
+		delayState = false;
+
+		float threshold = clamp(params[PROB_PARAM].value + inputs[PROB_INPUT].value / 10.f, 0.f, 1.f);
+		toss = randomUniform() < threshold;
+
+		if (toss) {
+			target = curve;
+			tossPulse.trigger(Core::TRIGGER);
 		}
+	}
 
+
+	if (!hold) {
 		// Rise
 		if (target > current) {
 			current += slew * crossfade(1.0f, shapeScale * (target - current), shape) * delta;
@@ -172,7 +197,7 @@ void Generative::step() {
 			if (current < target) // Trap overshoot
 				current = target;
 		}
-	} 
+	}
 
 	float out;
 	if (quantise) {
@@ -182,7 +207,6 @@ void Generative::step() {
 	} else {
 		out = current;
 	}
-
 
 	bool tPulse = tossPulse.process(delta);
 
@@ -213,6 +237,7 @@ struct GenerativeWidget : ModuleWidget {
 		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 1, 0, false, false), module, Generative::WAVE_PARAM, 0.0f, 3.0f, 1.5f));
 		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 2, 0, false, false), module, Generative::FM_PARAM, 0.0f, 1.0f, 0.5f));
 		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 4, 0, false, false), module, Generative::PROB_PARAM, 0.0, 1.0, 0.5));
+		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 5, 0, false, false), module, Generative::JITTER_PARAM, 1.0f, 2.0f, 1.0f));
 		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 6, 0, false, false), module, Generative::BLEND_PARAM, 0.0, 1.0, 0.5)); 
 		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 8, 0, false, false), module, Generative::SLOPE_PARAM, 0.0, 1.0, 0.0));
 		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 9, 0, false, false), module, Generative::SPEED_PARAM, 0.0, 1.0, 0.0));
@@ -243,7 +268,7 @@ struct GenerativeWidget : ModuleWidget {
 					gen->quantise ^= 1;
 				}
 				void step() override {
-					rightText = gen->quantise ? "Quantise" : "Unquantised";
+					rightText = gen->quantise ? "Quantised" : "Unquantised";
 					MenuItem::step();
 				}
 			};
