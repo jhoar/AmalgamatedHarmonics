@@ -81,7 +81,8 @@ struct Generative : AHModule {
 		SLOPE_PARAM,
 		SPEED_PARAM,
 		RANGE_PARAM,
-		JITTER_PARAM,
+		DELAY_PARAM,
+		GATE_PARAM,
 		NUM_PARAMS
 	};
 	enum InputIds {
@@ -115,14 +116,16 @@ struct Generative : AHModule {
 	SchmittTrigger holdTrigger;
 	bogaudio::dsp::PinkNoiseGenerator pink;
 	LowFrequencyOscillator oscillator;
-	AHPulseGenerator tossPulse;
 	AHPulseGenerator delayPhase;
+	AHPulseGenerator gatePhase;
 
 	float target = 0.0f;
 	float current = 0.0f;
 	bool quantise = false;
 	bool offset = false;
+	bool gate = false;
 	bool delayState = false;
+	bool gateState = false;
 	
 	// minimum and maximum slopes in volts per second
 	const float slewMin = 0.1;
@@ -131,6 +134,9 @@ struct Generative : AHModule {
 	
 	// Amount of extra slew per voltage difference
 	const float shapeScale = 1.0 / 10.0;
+
+	float delayTime;
+	float gateTime;
 	
 };
 
@@ -155,17 +161,19 @@ void Generative::step() {
 		interp = crossfade(oscillator.saw(), oscillator.sqr(), wave - 2.0f) * 5.0;
 
 	// Capture (pink) noise
-	float noise = clamp(pink.next() * 7.5f, -5.0f, 5.0f); // SCALING
+	float noise = clamp(pink.next() * 7.5f, -5.0f, 5.0f);
 	float range = params[RANGE_PARAM].value;
 
 	// Mix AM (noise if no AM input) with LFO and scale
 	float mixedSignal;
 	float noiseOffset = 0.0f;
 
+	// Shift the noise floor
 	if (offset) {
 		noiseOffset = 5.0f;
 	} 
 
+	// Mixed the input AM signal or noise
 	if (inputs[AM_INPUT].active) {
 	 	mixedSignal = crossfade(interp, inputs[AM_INPUT].value, params[AM_PARAM].value) * range;
 	} else {
@@ -182,15 +190,31 @@ void Generative::step() {
 	float speed = params[SPEED_PARAM].value;	
 	float slew = slewMax * powf(slewRatio, speed);
 
+	// If we have no input or we have been a trigger on the sample input
 	if (!sampleActive || sampleTrigger.process(sample)) {
+
+		// If we are not in a delay state
 		if (!delayPhase.ishigh()) {
 
-			float dlySpr = log2(params[JITTER_PARAM].value);
+			float dlySpr = log2(params[DELAY_PARAM].value);
+			float gateSpr = log2(params[GATE_PARAM].value);
 
 			// Determine delay time
 			double rndD = fabs(clamp(core.gaussrand(), -2.0f, 2.0f));
-			float delayTime = clamp(dlySpr * rndD, 0.0f, 100.0f);
-		
+			if (sampleActive) {
+				delayTime = clamp(dlySpr * rndD, 0.0f, 100.0f);
+			} else {
+				delayTime = clamp(dlySpr * rndD, Core::TRIGGER, 100.0f); // Have a minumum delay time if no input on SAMPLE
+			}
+			
+			// Determine gate time
+			if (gate) {
+				double rndG = clamp(core.gaussrand(), -2.0f, 2.0f);
+				gateTime = clamp(gateSpr * rndG, Core::TRIGGER, 100.0f);
+			} else {
+				gateTime = Core::TRIGGER;
+			}
+
 			// Trigger the respective delay pulse generator
 			delayState = true;
 			delayPhase.trigger(delayTime);
@@ -198,18 +222,23 @@ void Generative::step() {
 		} 
 	}
 
+	// In delay state and finished waiting
 	if (delayState && !delayPhase.process(delta)) {
-		delayState = false;
-
 		float threshold = clamp(params[PROB_PARAM].value + inputs[PROB_INPUT].value / 10.f, 0.f, 1.f);
 		toss = (randomUniform() < threshold);
 
 		if (toss) {
 			target = mixedSignal;
-			tossPulse.trigger(Core::TRIGGER);
+			gatePhase.trigger(gateTime);
+			gateState = true;
 		}
+
+		// Whatever happens, end delay phase
+		delayState = false;			
+
 	}
 
+	// If not held slew voltages
 	if (!hold) {
 		// Rise
 		if (target > current) {
@@ -225,6 +254,7 @@ void Generative::step() {
 		}
 	}
 
+	// Quantise or not
 	float out;
 	if (quantise) {
 		int i;
@@ -234,12 +264,17 @@ void Generative::step() {
 		out = current;
 	}
 
-	bool tPulse = tossPulse.process(delta);
+	// If the gate is open, set output to high
+	if (gatePhase.process(delta)) {
+		outputs[GATE_OUTPUT].value = 10.0f;
+	} else {
+		outputs[GATE_OUTPUT].value = 0.0f;
+		gateState = false;
+	}
 
 	outputs[CURVE_OUTPUT].value = out;
-	outputs[NOISE_OUTPUT].value = noise * 2.0; // SCALING
+	outputs[NOISE_OUTPUT].value = noise * 2.0;
 	outputs[LFO_OUTPUT].value = interp;
-	outputs[GATE_OUTPUT].value = tPulse ? 10.0f : 0.0f;
 	outputs[BLEND_OUTPUT].value = mixedSignal;
 	
 }
@@ -264,7 +299,8 @@ struct GenerativeWidget : ModuleWidget {
 		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 2, 0, false, false), module, Generative::FM_PARAM, 0.0f, 1.0f, 0.5f));
 		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 3, 0, false, false), module, Generative::AM_PARAM, 0.0f, 1.0f, 0.5f));
 		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 5, 0, false, false), module, Generative::PROB_PARAM, 0.0, 1.0, 0.5));
-		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 6, 0, false, false), module, Generative::JITTER_PARAM, 1.0f, 2.0f, 1.0f));
+		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 6, 0, false, false), module, Generative::DELAY_PARAM, 1.0f, 2.0f, 1.0f));
+		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 7, 0, false, false), module, Generative::GATE_PARAM, 1.0f, 2.0f, 1.0f));
 		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 8, 0, false, false), module, Generative::SLOPE_PARAM, 0.0, 1.0, 0.0));
 		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 9, 0, false, false), module, Generative::SPEED_PARAM, 0.0, 1.0, 0.0));
 		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 10, 0, false, false), module, Generative::RANGE_PARAM, 0.0, 1.0, 1.0)); 
@@ -311,9 +347,21 @@ struct GenerativeWidget : ModuleWidget {
 				}
 			};
 
+			struct GenGateItem : MenuItem {
+				Generative *gen;
+				void onAction(EventAction &e) override {
+					gen->gate ^= 1;
+				}
+				void step() override {
+					rightText = gen->gate ? "Gate" : "Trigger";
+					MenuItem::step();
+				}
+			};
+
 			menu->addChild(construct<MenuLabel>());
 			menu->addChild(construct<GenModeItem>(&MenuItem::text, "Quantise", &GenModeItem::gen, gen));
 			menu->addChild(construct<GenOffsetItem>(&MenuItem::text, "CV Offset", &GenOffsetItem::gen, gen));
+			menu->addChild(construct<GenGateItem>(&MenuItem::text, "Gate", &GenGateItem::gen, gen));
 	}
 };
 
