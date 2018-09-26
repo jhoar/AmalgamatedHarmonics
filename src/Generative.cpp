@@ -7,7 +7,7 @@
 #include "Core.hpp"
 #include "UI.hpp"
 
-// TODO delay control, UI, random gate length, wave range map to -5-5v
+// TODO wave range map to -5-5v
 
 // Andrew Belt's LFO-2 code
 struct LowFrequencyOscillator {
@@ -285,7 +285,7 @@ struct GenerativeWidget : ModuleWidget {
 		
 		UI ui;
 		
-		box.size = Vec(525, 380);
+		box.size = Vec(240, 380);
 
 		{
 			SVGPanel *panel = new SVGPanel();
@@ -294,30 +294,32 @@ struct GenerativeWidget : ModuleWidget {
 			addChild(panel);
 		}
 
-		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 0, 0, false, false), module, Generative::FREQ_PARAM, -8.0f, 10.0f, 1.0f));
-		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 1, 0, false, false), module, Generative::WAVE_PARAM, 0.0f, 3.0f, 1.5f));
-		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 2, 0, false, false), module, Generative::FM_PARAM, 0.0f, 1.0f, 0.5f));
-		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 3, 0, false, false), module, Generative::AM_PARAM, 0.0f, 1.0f, 0.5f));
-		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 5, 0, false, false), module, Generative::PROB_PARAM, 0.0, 1.0, 0.5));
-		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 6, 0, false, false), module, Generative::DELAY_PARAM, 1.0f, 2.0f, 1.0f));
-		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 7, 0, false, false), module, Generative::GATE_PARAM, 1.0f, 2.0f, 1.0f));
-		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 8, 0, false, false), module, Generative::SLOPE_PARAM, 0.0, 1.0, 0.0));
-		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 9, 0, false, false), module, Generative::SPEED_PARAM, 0.0, 1.0, 0.0));
-		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 10, 0, false, false), module, Generative::RANGE_PARAM, 0.0, 1.0, 1.0)); 
-
-		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 1, 1, false, false), Port::INPUT, module, Generative::WAVE_INPUT));
-		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 2, 1, false, false), Port::INPUT, module, Generative::FM_INPUT));
-		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 3, 1, false, false), Port::INPUT, module, Generative::AM_INPUT));
-		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 5, 1, false, false), Port::INPUT, module, Generative::PROB_INPUT));
-
-		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 2, false, false), Port::INPUT, module, Generative::SAMPLE_INPUT));
-		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 1, 2, false, false), Port::INPUT, module, Generative::HOLD_INPUT));
-		
+		// LFO section
+		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 1, 0, false, false), module, Generative::FREQ_PARAM, -8.0f, 10.0f, 1.0f));
+		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 0, 1, false, false), module, Generative::WAVE_PARAM, 0.0f, 3.0f, 1.5f));
+		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 1, 1, false, false), module, Generative::FM_PARAM, 0.0f, 1.0f, 0.5f));
+		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 2, 1, false, false), module, Generative::AM_PARAM, 0.0f, 1.0f, 0.5f));
+		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 2, false, false), Port::INPUT, module, Generative::WAVE_INPUT));
+		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 1, 2, false, false), Port::INPUT, module, Generative::FM_INPUT));
+		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 2, 2, false, false), Port::INPUT, module, Generative::AM_INPUT));
 		addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 3, false, false), Port::OUTPUT, module, Generative::LFO_OUTPUT));
 		addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 1, 3, false, false), Port::OUTPUT, module, Generative::BLEND_OUTPUT));
 		addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 2, 3, false, false), Port::OUTPUT, module, Generative::NOISE_OUTPUT));
-		addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 5, 3, false, false), Port::OUTPUT, module, Generative::GATE_OUTPUT));
-		addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 10, 3, false, false), Port::OUTPUT, module, Generative::CURVE_OUTPUT));
+
+		// Gate Section
+		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 5, false, false), Port::INPUT, module, Generative::PROB_INPUT));
+		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 0, 4, false, false), module, Generative::PROB_PARAM, 0.0, 1.0, 0.5));
+		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 1, 4, false, false), module, Generative::DELAY_PARAM, 1.0f, 2.0f, 1.0f));
+		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 2, 4, false, false), module, Generative::GATE_PARAM, 1.0f, 2.0f, 1.0f));
+		addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 2, 5, false, false), Port::OUTPUT, module, Generative::GATE_OUTPUT));
+
+		// Curve Section
+		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 3, 0, false, false), Port::INPUT, module, Generative::SAMPLE_INPUT));
+		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 4, 0, false, false), Port::INPUT, module, Generative::HOLD_INPUT));
+		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 3, 1, false, false), module, Generative::SLOPE_PARAM, 0.0, 1.0, 0.0));
+		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 4, 1, false, false), module, Generative::SPEED_PARAM, 0.0, 1.0, 0.0));
+		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 3, 5, false, false), module, Generative::RANGE_PARAM, 0.0, 1.0, 1.0)); 
+		addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 4, 5, false, false), Port::OUTPUT, module, Generative::CURVE_OUTPUT));
 
 	}
 
