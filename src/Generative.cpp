@@ -7,8 +7,6 @@
 #include "Core.hpp"
 #include "UI.hpp"
 
-// TODO wave range map to -5-5v
-
 // Andrew Belt's LFO-2 code
 struct LowFrequencyOscillator {
 	float phase = 0.0f;
@@ -148,17 +146,21 @@ void Generative::step() {
 	oscillator.offset = offset;
 	oscillator.step(delta);
 
+	float wavem = fabs(fmodf(params[WAVE_PARAM].value + inputs[WAVE_INPUT].value, 4.0f));
 	float wave = clamp(params[WAVE_PARAM].value + inputs[WAVE_INPUT].value, 0.0f, 3.0f);
 
 	float interp = 0.0f;
 	bool toss = false;
 
-	if (wave < 1.0f)
-		interp = crossfade(oscillator.sin(), oscillator.tri(), wave) * 5.0; 
-	else if (wave < 2.0f)
-		interp = crossfade(oscillator.tri(), oscillator.saw(), wave - 1.0f) * 5.0;
-	else
-		interp = crossfade(oscillator.saw(), oscillator.sqr(), wave - 2.0f) * 5.0;
+	if (wavem < 1.0f)
+		interp = crossfade(oscillator.sin(), oscillator.tri(), wavem) * 5.0; 
+	else if (wavem < 2.0f)
+		interp = crossfade(oscillator.tri(), oscillator.saw(), wavem - 1.0f) * 5.0;
+	else if (wavem < 3.0f)
+		interp = crossfade(oscillator.saw(), oscillator.sqr(), wavem - 2.0f) * 5.0;
+	else 
+		interp = crossfade(oscillator.sqr(), oscillator.sin(), wavem - 3.0f) * 5.0;
+
 
 	// Capture (pink) noise
 	float noise = clamp(pink.next() * 7.5f, -5.0f, 5.0f);
@@ -296,7 +298,7 @@ struct GenerativeWidget : ModuleWidget {
 
 		// LFO section
 		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 1, 0, false, false), module, Generative::FREQ_PARAM, -8.0f, 10.0f, 1.0f));
-		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 0, 1, false, false), module, Generative::WAVE_PARAM, 0.0f, 3.0f, 1.5f));
+		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 0, 1, false, false), module, Generative::WAVE_PARAM, 0.0f, 4.0f, 1.5f));
 		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 1, 1, false, false), module, Generative::FM_PARAM, 0.0f, 1.0f, 0.5f));
 		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 2, 1, false, false), module, Generative::AM_PARAM, 0.0f, 1.0f, 0.5f));
 		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 2, false, false), Port::INPUT, module, Generative::WAVE_INPUT));
