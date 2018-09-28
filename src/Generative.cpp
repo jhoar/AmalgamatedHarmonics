@@ -257,7 +257,7 @@ void Generative::step() {
 			float gateSpr = log2(params[GATES_PARAM].value);
 
 			// Determine delay time
-			double rndD = fabs(clamp(core.gaussrand(), -2.0f, 2.0f));
+			double rndD = clamp(core.gaussrand(), -2.0f, 2.0f);
 			delayTime = clamp(dlyLen + dlySpr * rndD, 0.0f, 100.0f);
 			
 			// Determine gate time
