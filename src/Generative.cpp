@@ -117,6 +117,39 @@ struct Generative : AHModule {
 	
 	void step() override;
 
+		json_t *toJson() override {
+		json_t *rootJ = json_object();
+
+		// quantise
+		json_t *quantiseJ = json_boolean(quantise);
+		json_object_set_new(rootJ, "quantise", quantiseJ);
+
+		// offset
+		json_t *offsetJ = json_boolean(offset);
+		json_object_set_new(rootJ, "offset", offsetJ);
+
+
+		return rootJ;
+	}
+	
+	void fromJson(json_t *rootJ) override {
+		// quantise
+		json_t *quantiseJ = json_object_get(rootJ, "quantise");
+		
+		if (quantiseJ) {
+			quantise = json_boolean_value(quantiseJ);
+		}
+
+		// offset
+		json_t *offsetJ = json_object_get(rootJ, "offset");
+		
+		if (offsetJ) {
+			offset = json_boolean_value(offsetJ);
+		}
+
+	}
+
+
 	Core core;
 
 	SchmittTrigger sampleTrigger;
