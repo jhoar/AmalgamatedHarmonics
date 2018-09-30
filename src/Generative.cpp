@@ -248,52 +248,57 @@ void Generative::step() {
 	// If we have no input or we have been a trigger on the sample input
 	if (isClocked) {
 
-		// If we are not in a delay or gate state
+		// If we are not in a delay or gate state process the tick, otherwise eat it
 		if (!delayPhase.ishigh() && !gatePhase.ishigh()) {
 
-			float dlyLen = log2(params[DELAYL_PARAM].value);
-			float dlySpr = log2(params[DELAYS_PARAM].value);
-			float gateLen = log2(params[GATEL_PARAM].value);
-			float gateSpr = log2(params[GATES_PARAM].value);
+			// Check against prob control
+			float threshold = clamp(params[PROB_PARAM].value + inputs[PROB_INPUT].value / 10.f, 0.f, 1.f);
+			toss = (randomUniform() < threshold);
 
-			// Determine delay time
-			double rndD = clamp(core.gaussrand(), -2.0f, 2.0f);
-			delayTime = clamp(dlyLen + dlySpr * rndD, 0.0f, 100.0f);
-			
-			// Determine gate time
-			double rndG = clamp(core.gaussrand(), -2.0f, 2.0f);
-			gateTime = clamp(gateLen + gateSpr * rndG, Core::TRIGGER, 100.0f);
+			// Tick is valid
+			if (toss) {
 
-			// Trigger the respective delay pulse generator
-			delayState = true;
-			delayPhase.trigger(delayTime);
+				// Determine delay time
+				float dlyLen = log2(params[DELAYL_PARAM].value);
+				float dlySpr = log2(params[DELAYS_PARAM].value);
 
+				double rndD = clamp(core.gaussrand(), -2.0f, 2.0f);
+				delayTime = clamp(dlyLen + dlySpr * rndD, 0.0f, 100.0f);
+				
+				// Trigger the respective delay pulse generator
+				delayState = true;
+				delayPhase.trigger(delayTime);
+			}
 		} 
 	}
 
 	// In delay state and finished waiting
 	if (delayState && !delayPhase.process(delta)) {
-		float threshold = clamp(params[PROB_PARAM].value + inputs[PROB_INPUT].value / 10.f, 0.f, 1.f);
-		toss = (randomUniform() < threshold);
 
-		if (toss) {
-			target = mixedSignal;
-			gatePhase.trigger(gateTime);
-			gateState = true;
-		}
+		// set the target voltage
+		target = mixedSignal;
 
-		// Whatever happens, end delay phase
+		// Determine gate time
+		float gateLen = log2(params[GATEL_PARAM].value);
+		float gateSpr = log2(params[GATES_PARAM].value);
+
+		double rndG = clamp(core.gaussrand(), -2.0f, 2.0f);
+		gateTime = clamp(gateLen + gateSpr * rndG, Core::TRIGGER, 100.0f);
+
+		// Open the gate and set flags
+		gatePhase.trigger(gateTime);
+		gateState = true;
 		delayState = false;			
-
 	}
-
-	// Curve calc
-	float shape = params[SLOPE_PARAM].value;
-	float speed = params[SPEED_PARAM].value;	
-	float slew = slewMax * powf(slewRatio, speed);
 
 	// If not held slew voltages
 	if (!hold) {
+
+		// Curve calc
+		float shape = params[SLOPE_PARAM].value;
+		float speed = params[SPEED_PARAM].value;	
+		float slew = slewMax * powf(slewRatio, speed);
+
 		// Rise
 		if (target > current) {
 			current += slew * crossfade(1.0f, shapeScale * (target - current), shape) * delta;
@@ -318,9 +323,6 @@ void Generative::step() {
 		out = current;
 	}
 
-	lights[GATE_LIGHT].value = 0.0f;
-	lights[GATE_LIGHT + 1].value = 0.0f;
-
 	// If the gate is open, set output to high
 	if (gatePhase.process(delta)) {
 		outputs[GATE_OUTPUT].value = 10.0f;
@@ -335,7 +337,10 @@ void Generative::step() {
 		if (delayState) {
 			lights[GATE_LIGHT].value = 0.0f;
 			lights[GATE_LIGHT + 1].value = 1.0f;
-		} 
+		} else {
+			lights[GATE_LIGHT].value = 0.0f;
+			lights[GATE_LIGHT + 1].value = 0.0f;
+		}
 
 	}
 

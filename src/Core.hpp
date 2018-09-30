@@ -102,7 +102,7 @@ struct ChordDef {
 
 struct Core {
 
-	static constexpr float TRIGGER = 5e-4;
+	static constexpr float TRIGGER = 1e-3f;
 
  	static constexpr float SEMITONE = 1.0 / 12.0;
 
