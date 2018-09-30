@@ -327,19 +327,19 @@ void Generative::step() {
 	if (gatePhase.process(delta)) {
 		outputs[GATE_OUTPUT].value = 10.0f;
 
-		lights[GATE_LIGHT].value = 1.0f;
-		lights[GATE_LIGHT + 1].value = 0.0f;
+		lights[GATE_LIGHT].setBrightnessSmooth(1.0f);
+		lights[GATE_LIGHT + 1].setBrightnessSmooth(0.0f);
 
 	} else {
 		outputs[GATE_OUTPUT].value = 0.0f;
 		gateState = false;
 
 		if (delayState) {
-			lights[GATE_LIGHT].value = 0.0f;
-			lights[GATE_LIGHT + 1].value = 1.0f;
+			lights[GATE_LIGHT].setBrightnessSmooth(0.0f);
+			lights[GATE_LIGHT + 1].setBrightnessSmooth(1.0f);
 		} else {
-			lights[GATE_LIGHT].value = 0.0f;
-			lights[GATE_LIGHT + 1].value = 0.0f;
+			lights[GATE_LIGHT].setBrightnessSmooth(0.0f);
+			lights[GATE_LIGHT + 1].setBrightnessSmooth(0.0f);
 		}
 
 	}
