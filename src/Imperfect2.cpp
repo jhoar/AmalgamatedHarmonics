@@ -404,5 +404,5 @@ Imperfect2Widget::Imperfect2Widget(Imperfect2 *module) : ModuleWidget(module) {
 	
 }
 
-Model *modelImperfect2 = Model::create<Imperfect2, Imperfect2Widget>( "Amalgamated Harmonics", "Imperfect2", "Imperfect MkII", UTILITY_TAG);
+Model *modelImperfect2 = Model::create<Imperfect2, Imperfect2Widget>( "Amalgamated Harmonics", "Imperfect2", "Imperfect MkII", CLOCK_MODULATOR_TAG);
 

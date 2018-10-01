@@ -160,5 +160,5 @@ SLNWidget::SLNWidget(SLN *module) : ModuleWidget(module) {
 
 }
 
-Model *modelSLN = Model::create<SLN, SLNWidget>( "Amalgamated Harmonics", "SLN", "SLN", NOISE_TAG);
+Model *modelSLN = Model::create<SLN, SLNWidget>( "Amalgamated Harmonics", "SLN", "SLN", SAMPLE_AND_HOLD_TAG, NOISE_TAG);
 

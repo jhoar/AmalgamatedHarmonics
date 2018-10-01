@@ -439,4 +439,4 @@ struct GenerativeWidget : ModuleWidget {
 	}
 };
 
-Model *modelGenerative = Model::create<Generative, GenerativeWidget>( "Amalgamated Harmonics", "Generative", "Generative", NOISE_TAG);
+Model *modelGenerative = Model::create<Generative, GenerativeWidget>( "Amalgamated Harmonics", "Random", "Random", NOISE_TAG, SAMPLE_AND_HOLD_TAG, LFO_TAG, RANDOM_TAG);
