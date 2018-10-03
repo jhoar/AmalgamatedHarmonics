@@ -32,3 +32,4 @@ extern Model *modelSLN;
 
 extern Model *modelGenerative;
 
+extern Model *modelGalaxy;
