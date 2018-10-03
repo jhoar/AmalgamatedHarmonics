@@ -5,10 +5,10 @@
 
 #include <iostream>
 
+const double PI = 3.14159265358979323846264338327950288;
+
 struct Circle : AHModule {
 
-	const static int NUM_PITCHES = 6;
-	
 	enum ParamIds {
 		KEY_PARAM,
 		MODE_PARAM,
@@ -64,8 +64,6 @@ struct Circle : AHModule {
 	SchmittTrigger rotRTrigger;
 	
 	PulseGenerator stepPulse;
-	
-	float outVolts[NUM_PITCHES];
 	
 	int baseKeyIndex = 0;
 	int curKeyIndex = 0;
@@ -221,7 +219,7 @@ CircleWidget::CircleWidget(Circle *module) : ModuleWidget(module) {
 	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 2, 5, true, false), Port::INPUT, module, Circle::MODE_INPUT));
 	addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 3, 5, true, false), module, Circle::MODE_PARAM, 0.0, 6.0, 0.0)); 
 
-	float div = (M_PI * 2) / 12.0;
+	float div = (PI * 2) / 12.0;
 
 	for (int i = 0; i < 12; i++) {
 
