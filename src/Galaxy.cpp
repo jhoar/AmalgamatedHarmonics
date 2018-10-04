@@ -5,7 +5,8 @@
 
 #include <iostream>
 
-const double PI = 3.14159265358979323846264338327950288;
+// TODO switchable chromatic vs fifths,  add root input (from 5/4), transition probabilities, 
+// note offset switchable (upper vs lower octave), UI
 
 struct Galaxy : AHModule {
 
@@ -35,9 +36,6 @@ struct Galaxy : AHModule {
 		
 	Core core;
 
-	int offset = 12; 	// Repeated notes in chord and expressed in the chord definition as being transposed 2 octaves lower. 
-						// When played this offset needs to be removed (or the notes removed, or the notes transposed to an octave higher)
-
 	int ChordTable[N_QUALITIES] = { 1, 31, 78, 25, 71 };
 	float outVolts[NUM_PITCHES];
 	
@@ -47,9 +45,13 @@ struct Galaxy : AHModule {
 	PulseGenerator triggerPulse;
 
 	int quality = 0;
-	int noteIndex = 0; // radially outwards
+	int noteIndex = 0; 
 	int note;
 	int light = 0;
+
+	// These should be changable through context menu
+	bool chromatic = true; // false = fifths
+	int offset = 12; 	   // 12 = lower octave, 24 = repeat, 36 = upper octave
 
 };
 
@@ -62,6 +64,7 @@ void Galaxy::step() {
 
 	if (move) {
 
+		// TODO Implement selection function
 		int rotateInput = (rand() % 5) - 2; // -2 to 2
 		int radialInput = (rand() % 5) - 2; // -2 to 2
 
@@ -82,8 +85,11 @@ void Galaxy::step() {
 		}
 
 		// Get root note from FIFTHs
-//		note = CoreUtil().CIRCLE_FIFTHS[noteIndex];
-		note = noteIndex;
+		if (chromatic) { 
+			note = noteIndex;
+		} else {
+			note = CoreUtil().CIRCLE_FIFTHS[noteIndex];
+		}
 
 		// Determine which chord corresponds to the grid position
 		int chord = ChordTable[quality];

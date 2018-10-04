@@ -7,8 +7,6 @@
 #include "Core.hpp"
 #include "UI.hpp"
 
-const double PI = 3.14159265358979323846264338327950288;
-
 // Andrew Belt's LFO-2 code
 struct LowFrequencyOscillator {
 	float phase = 0.0f;

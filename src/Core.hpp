@@ -6,6 +6,7 @@
 
 #include "AH.hpp"
 
+const double PI = 3.14159265358979323846264338327950288;
 
 struct AHPulseGenerator {
 	float time = 0.f;
