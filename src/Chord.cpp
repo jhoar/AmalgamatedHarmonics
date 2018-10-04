@@ -8,7 +8,7 @@
 
 #include <iostream>
 
-// TODO Detune spread and movement, per osc pw(m), UI, left/right odd/even split, UI
+// TODO Detune spread and movement, per osc pw(m), UI
 
 struct Chord : AHModule {
 
@@ -16,14 +16,14 @@ struct Chord : AHModule {
 
 	enum ParamIds {
 		ENUMS(WAVE_PARAM,6),
-		DETUNE_PARAM,
-		PW_PARAM,
-		PWM_PARAM,
+		ENUMS(DETUNE_PARAM,6),
+		ENUMS(PW_PARAM,6),
+		ENUMS(PWM_PARAM,6),
 		NUM_PARAMS
 	};
 	enum InputIds {
 		ENUMS(PITCH_INPUT,6),
-		PW_INPUT,
+		ENUMS(PW_INPUT,6),
 		NUM_INPUTS
 	};
 	enum OutputIds {
@@ -72,9 +72,9 @@ void Chord::step() {
 			nPitches[side]++;
 
 			float pitchCv = inputs[index].value;
-			float pitchFine = params[DETUNE_PARAM].value / 12.0; // +- 1V
+			float pitchFine = params[DETUNE_PARAM + i].value / 12.0; // +- 1V
 
-			oscillator[i].pw = params[PW_PARAM].value + params[PWM_PARAM].value * inputs[PW_INPUT].value / 10.0f;
+			oscillator[i].pw = params[PW_PARAM + i].value + params[PWM_PARAM + i].value * inputs[PW_INPUT + i].value / 10.0f;
 			oscillator[i].step(engineGetSampleTime(), pitchFine + pitchCv); // 1V/OCT
 
 			int wave = params[WAVE_PARAM + i].value;
@@ -132,16 +132,16 @@ ChordWidget::ChordWidget(Chord *module) : ModuleWidget(module) {
 
 	for (int n = 0; n < 6; n++) {
 		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, n, 0, false, false), Port::INPUT, module, Chord::PITCH_INPUT + n));
-		addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, n, 1, false, false), module, Chord::WAVE_PARAM + n, 0.0f, 4.0f, 0.0f));
+		addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, n, 2, false, true), module, Chord::WAVE_PARAM + n, 0.0f, 4.0f, 0.0f));
+		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, n, 3, false, true), module, Chord::DETUNE_PARAM + n, -1.0f, 1.0f, 0.0f));
+		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, n, 4, false, true), module, Chord::PW_PARAM + n, -1.0f, 1.0f, 0.0f));
+		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, n, 5, false, true), Port::INPUT, module, Chord::PW_INPUT + n));
+		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, n, 6, false, true), module, Chord::PWM_PARAM + n, 0.0f, 1.0f, 0.0f));
 	}
 
-	addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 0, 2, false, false), module, Chord::DETUNE_PARAM, -1.0f, 1.0f, 0.0f));
-	addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 1, 2, false, false), module, Chord::PW_PARAM, -1.0f, 1.0f, 0.0f));
-	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 2, 2, false, false), Port::INPUT, module, Chord::PW_INPUT));
-	addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 1, 2, false, false), module, Chord::PWM_PARAM, 0.0f, 1.0f, 0.0f));
 
-	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 4, 3, false, false), Port::OUTPUT, module, Chord::OUT_OUTPUT));
-	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 5, 3, false, false), Port::OUTPUT, module, Chord::OUT_OUTPUT + 1));
+	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 4, 5, false, false), Port::OUTPUT, module, Chord::OUT_OUTPUT));
+	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 5, 5, false, false), Port::OUTPUT, module, Chord::OUT_OUTPUT + 1));
 
 }
 
