@@ -130,57 +130,56 @@ void Galaxy::step() {
 }
 
 struct GalaxyWidget : ModuleWidget {
-	GalaxyWidget(Galaxy *module);
-};
 
-GalaxyWidget::GalaxyWidget(Galaxy *module) : ModuleWidget(module) {
+	GalaxyWidget(Galaxy *module) : ModuleWidget(module) {
 	
-	UI ui;
-	
-	box.size = Vec(285, 380);
+		UI ui;
+		
+		box.size = Vec(240, 380);
 
-	{
-		SVGPanel *panel = new SVGPanel();
-		panel->box.size = box.size;
-		panel->setBackground(SVG::load(assetPlugin(plugin, "res/Galaxy.svg")));
-		addChild(panel);
-	}
-
-	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
-
-	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 0, true, false), Port::INPUT, module, Galaxy::MOVE_INPUT));
-
-	float div = (PI * 2) / (float)Galaxy::N_QUALITIES;
-	float div2 = (PI * 2) / (float)(Galaxy::N_QUALITIES * Galaxy::N_QUALITIES);
-
-	for (int q = 0; q < Galaxy::N_QUALITIES; q++) {
-
-		for (int n = 0; n < Galaxy::N_NOTES; n++) {
-
-			float cosDiv = cos(div * q + div2 * n);
-			float sinDiv = sin(div * q + div2 * n);
-
-			float xPos  = sinDiv * (32.5 + (7.5 * n));
-			float yPos  = cosDiv * (32.5 + (7.5 * n));
-
-			int l = n + (q * Galaxy::N_NOTES);
-
-			addChild(ModuleLightWidget::create<SmallLight<GreenLight>>(Vec(xPos + 136.5, 149.5 - yPos), module, Galaxy::NOTE_LIGHT + l));
-
+		{
+			SVGPanel *panel = new SVGPanel();
+			panel->box.size = box.size;
+			panel->setBackground(SVG::load(assetPlugin(plugin, "res/Galaxy.svg")));
+			addChild(panel);
 		}
 
+		addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
+		addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
+		addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
+		addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
+
+		float div = (PI * 2) / (float)Galaxy::N_QUALITIES;
+		float div2 = (PI * 2) / (float)(Galaxy::N_QUALITIES * Galaxy::N_QUALITIES);
+
+		for (int q = 0; q < Galaxy::N_QUALITIES; q++) {
+
+			for (int n = 0; n < Galaxy::N_NOTES; n++) {
+
+				float cosDiv = cos(div * q + div2 * n);
+				float sinDiv = sin(div * q + div2 * n);
+
+				float xPos  = sinDiv * (32.5 + (7.5 * n));
+				float yPos  = cosDiv * (32.5 + (7.5 * n));
+
+				int l = n + (q * Galaxy::N_NOTES);
+
+				addChild(ModuleLightWidget::create<SmallLight<GreenLight>>(Vec(xPos + 110.5, 149.5 - yPos), module, Galaxy::NOTE_LIGHT + l));
+
+			}
+
+		}
+		
+		for (int i = 0; i < 6; i++) {
+			addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, i, 5, true, false), Port::OUTPUT, module, Galaxy::PITCH_OUTPUT + i));
+		}	
+
+		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 4, true, false), Port::INPUT, module, Galaxy::MOVE_INPUT));
+		addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 5, 4, true, false), Port::OUTPUT, module, Galaxy::GATE_OUTPUT));
+
 	}
-	
-	for (int i = 0; i < 6; i++) {
-		addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, i, 5, false, false), Port::OUTPUT, module, Galaxy::PITCH_OUTPUT + i));
-	}	
 
-	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 5, 0, false, false), Port::OUTPUT, module, Galaxy::GATE_OUTPUT));
-
-}
+};
 
 Model *modelGalaxy = Model::create<Galaxy, GalaxyWidget>( "Amalgamated Harmonics", "Galaxy", "Chord Galaxy", SEQUENCER_TAG);
 
