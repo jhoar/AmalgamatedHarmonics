@@ -8,8 +8,6 @@
 
 #include <iostream>
 
-// TODO Detune spread and movement, per osc pw(m), UI
-
 struct Chord : AHModule {
 
 	const static int NUM_PITCHES = 6;
@@ -46,7 +44,6 @@ struct Chord : AHModule {
 	PulseGenerator triggerPulse;
 
 	EvenVCO oscillator[6];
-	float detune[6];
 
 };
 
@@ -75,7 +72,7 @@ void Chord::step() {
 			float pitchFine = params[DETUNE_PARAM + i].value / 12.0; // +- 1V
 
 			oscillator[i].pw = params[PW_PARAM + i].value + params[PWM_PARAM + i].value * inputs[PW_INPUT + i].value / 10.0f;
-			oscillator[i].step(engineGetSampleTime(), pitchFine + pitchCv); // 1V/OCT
+			oscillator[i].step(delta, pitchFine + pitchCv); // 1V/OCT
 
 			int wave = params[WAVE_PARAM + i].value;
 			switch(wave) {
@@ -109,41 +106,40 @@ void Chord::step() {
 }
 
 struct ChordWidget : ModuleWidget {
-	ChordWidget(Chord *module);
+
+	ChordWidget(Chord *module) : ModuleWidget(module) {
+		
+		UI ui;
+		
+		box.size = Vec(270, 380);
+
+		{
+			SVGPanel *panel = new SVGPanel();
+			panel->box.size = box.size;
+			panel->setBackground(SVG::load(assetPlugin(plugin, "res/Chord.svg")));
+			addChild(panel);
+		}
+
+		addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
+		addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
+		addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
+		addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
+
+		for (int n = 0; n < 6; n++) {
+			addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, n, 0, true, false), Port::INPUT, module, Chord::PITCH_INPUT + n));
+			addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, n, 2, true, true), module, Chord::WAVE_PARAM + n, 0.0f, 4.0f, 0.0f));
+			addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, n, 3, true, true), module, Chord::DETUNE_PARAM + n, -1.0f, 1.0f, 0.0f));
+			addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, n, 4, true, true), module, Chord::PW_PARAM + n, -1.0f, 1.0f, 0.0f));
+			addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, n, 5, true, true), Port::INPUT, module, Chord::PW_INPUT + n));
+			addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, n, 6, true, true), module, Chord::PWM_PARAM + n, 0.0f, 1.0f, 0.0f));
+		}
+
+
+		addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 4, 5, true, false), Port::OUTPUT, module, Chord::OUT_OUTPUT));
+		addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 5, 5, true, false), Port::OUTPUT, module, Chord::OUT_OUTPUT + 1));
+
+	}
 };
-
-ChordWidget::ChordWidget(Chord *module) : ModuleWidget(module) {
-	
-	UI ui;
-	
-	box.size = Vec(285, 380);
-
-	{
-		SVGPanel *panel = new SVGPanel();
-		panel->box.size = box.size;
-		panel->setBackground(SVG::load(assetPlugin(plugin, "res/Chord.svg")));
-		addChild(panel);
-	}
-
-	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
-
-	for (int n = 0; n < 6; n++) {
-		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, n, 0, false, false), Port::INPUT, module, Chord::PITCH_INPUT + n));
-		addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, n, 2, false, true), module, Chord::WAVE_PARAM + n, 0.0f, 4.0f, 0.0f));
-		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, n, 3, false, true), module, Chord::DETUNE_PARAM + n, -1.0f, 1.0f, 0.0f));
-		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, n, 4, false, true), module, Chord::PW_PARAM + n, -1.0f, 1.0f, 0.0f));
-		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, n, 5, false, true), Port::INPUT, module, Chord::PW_INPUT + n));
-		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, n, 6, false, true), module, Chord::PWM_PARAM + n, 0.0f, 1.0f, 0.0f));
-	}
-
-
-	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 4, 5, false, false), Port::OUTPUT, module, Chord::OUT_OUTPUT));
-	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 5, 5, false, false), Port::OUTPUT, module, Chord::OUT_OUTPUT + 1));
-
-}
 
 Model *modelChord = Model::create<Chord, ChordWidget>( "Amalgamated Harmonics", "Chord", "D'acchord", OSCILLATOR_TAG);
 
