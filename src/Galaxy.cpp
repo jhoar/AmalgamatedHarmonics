@@ -19,6 +19,7 @@ struct Galaxy : AHModule {
 	};
 	enum InputIds {
 		MOVE_INPUT,
+		KEY_INPUT,
 		NUM_INPUTS
 	};
 	enum OutputIds {
@@ -46,8 +47,16 @@ struct Galaxy : AHModule {
 
 	int quality = 0;
 	int noteIndex = 0; 
-	int note;
-	int light = 0;
+	int inversion = 0;
+	int light;
+
+	int lastQuality = 0;
+	int lastNoteIndex = 0; 
+	int lastInversion = 0;
+
+	int note = 0;
+	int degree = 0;
+	int currRoot = -1;
 
 	// These should be changable through context menu
 	bool chromatic = true; // false = fifths
@@ -64,8 +73,17 @@ void Galaxy::step() {
 
 	if (move) {
 
+		bool changed = false;
+
+		if (inputs[KEY_INPUT].active) {
+			float fRoot = inputs[KEY_INPUT].value;
+			currRoot = CoreUtil().getKeyFromVolts(fRoot);
+		} else {
+			currRoot = -1;
+		}
+
 		// TODO Implement selection function
-		int rotateInput = (rand() % 5) - 2; // -2 to 2
+		int rotateInput = (rand() % 3) - 1; // -2 to 2
 		int radialInput = (rand() % 5) - 2; // -2 to 2
 
 		// Determine move around the grid
@@ -76,12 +94,38 @@ void Galaxy::step() {
 			quality -= N_QUALITIES;
 		}
 
+		if (quality != lastQuality) {
+			changed = true;
+			lastQuality = quality;
+		}
+
 		// Determine move in/out of the grid
-		noteIndex += radialInput;
-		if (noteIndex < 0) {
-			noteIndex += N_NOTES;
-		} else if (noteIndex >= N_NOTES) {
-			noteIndex -= N_NOTES;
+		if (currRoot > -1) {
+
+			// Here noteIndex is the degree of the scale
+
+			int *curScaleArr = CoreUtil().ASCALE_IONIAN;
+			int notesInScale = LENGTHOF(CoreUtil().ASCALE_IONIAN);
+
+			degree += radialInput; // Next degree of the scale
+			degree = degree % (notesInScale - 1); // Ensure wrap
+			noteIndex = (currRoot + curScaleArr[degree]) % 12;
+
+		} else {
+
+			noteIndex += radialInput;
+
+			if (noteIndex < 0) {
+				noteIndex += N_NOTES;
+			} else if (noteIndex >= N_NOTES) {
+				noteIndex -= N_NOTES;
+			}
+
+		}
+
+		if (noteIndex != lastNoteIndex) {
+			changed = true;
+			lastNoteIndex = noteIndex;
 		}
 
 		// Get root note from FIFTHs
@@ -93,7 +137,20 @@ void Galaxy::step() {
 
 		// Determine which chord corresponds to the grid position
 		int chord = ChordTable[quality];
-		int *chordArray = CoreUtil().ChordTable[chord].root;
+		int inversion = rand() % 3;
+		int *chordArray;
+
+		switch(inversion) {
+			case Core::ROOT:  		chordArray = CoreUtil().ChordTable[chord].root; 	break;
+			case Core::FIRST_INV:  	chordArray = CoreUtil().ChordTable[chord].first; 	break;
+			case Core::SECOND_INV:  chordArray = CoreUtil().ChordTable[chord].second;	break;
+			default: 				chordArray = CoreUtil().ChordTable[chord].root;
+		}
+
+		if (inversion != lastInversion) {
+			changed = true;
+			lastInversion = inversion;
+		}
 
 		// Determine which notes corresponds to the chord
 		for (int j = 0; j < NUM_PITCHES; j++) {
@@ -110,7 +167,7 @@ void Galaxy::step() {
 		}
 
 		int newlight = noteIndex + (quality * N_NOTES);
-		if (newlight != light) {
+		if (changed) {
 			triggerPulse.trigger(Core::TRIGGER);
 			lights[NOTE_LIGHT + light].value = 0.0f;
 			lights[NOTE_LIGHT + newlight].value = 1.0f;
@@ -175,6 +232,8 @@ struct GalaxyWidget : ModuleWidget {
 		}	
 
 		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 4, true, false), Port::INPUT, module, Galaxy::MOVE_INPUT));
+		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 1, 4, true, false), Port::INPUT, module, Galaxy::KEY_INPUT));
+
 		addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 5, 4, true, false), Port::OUTPUT, module, Galaxy::GATE_OUTPUT));
 
 	}
