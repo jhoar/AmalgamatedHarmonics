@@ -238,8 +238,51 @@ struct GalaxyWidget : ModuleWidget {
 
 	}
 
+	void appendContextMenu(Menu *menu) override {
+			Galaxy *gal = dynamic_cast<Galaxy*>(module);
+			assert(gal);
+
+			struct GalModeItem : MenuItem {
+				Galaxy *gal;
+				void onAction(EventAction &e) override {
+					gal->chromatic^= 1;
+				}
+				void step() override {
+					rightText = gal->chromatic ? "Chromatic" : "Fifths";
+					MenuItem::step();
+				}
+			};
+
+			struct GalOffsetItem : MenuItem {
+				Galaxy *gal;
+				void onAction(EventAction &e) override {
+					gal->offset += 12;
+					if(gal->offset == 48) {
+						gal->offset = 12;
+					}
+				}
+				void step() override {
+					if (gal->offset == 12) {
+						rightText = "Lower";
+					} else if (gal->offset == 24) {
+						rightText = "Repeat";	
+					} else if (gal->offset == 36) {
+						rightText = "Upper";	
+					} else {
+						rightText = "Error!";	
+					}
+					MenuItem::step();
+				}
+			};
+
+			menu->addChild(construct<MenuLabel>());
+			menu->addChild(construct<GalModeItem>(&MenuItem::text, "Scale", &GalModeItem::gal, gal));
+			menu->addChild(construct<GalOffsetItem>(&MenuItem::text, "Repeat Notes", &GalOffsetItem::gal, gal));
+	}
+
+
 };
 
-Model *modelGalaxy = Model::create<Galaxy, GalaxyWidget>( "Amalgamated Harmonics", "Galaxy", "Chord Galaxy", SEQUENCER_TAG);
+Model *modelGalaxy = Model::create<Galaxy, GalaxyWidget>( "Amalgamated Harmonics", "Galaxy", "Galaxy", SEQUENCER_TAG);
 
 // ♯♭
