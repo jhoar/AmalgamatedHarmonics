@@ -15,16 +15,15 @@ struct Galaxy : AHModule {
 	const static int N_NOTES = 12;
 
 	enum ParamIds {
+		KEY_PARAM,
 		NUM_PARAMS
 	};
 	enum InputIds {
 		MOVE_INPUT,
-		KEY_INPUT,
 		NUM_INPUTS
 	};
 	enum OutputIds {
 		ENUMS(PITCH_OUTPUT,6),
-		GATE_OUTPUT,
 		NUM_OUTPUTS
 	};
 	enum LightIds {
@@ -43,7 +42,6 @@ struct Galaxy : AHModule {
 	int poll = 50000;
 
 	SchmittTrigger moveTrigger;
-	PulseGenerator triggerPulse;
 
 	int quality = 0;
 	int noteIndex = 0; 
@@ -74,17 +72,17 @@ void Galaxy::step() {
 	if (move) {
 
 		bool changed = false;
-
-		if (inputs[KEY_INPUT].active) {
-			float fRoot = inputs[KEY_INPUT].value;
-			currRoot = CoreUtil().getKeyFromVolts(fRoot);
-		} else {
-			currRoot = -1;
-		}
+		currRoot = params[KEY_PARAM].value;
 
 		// TODO Implement selection function
-		int rotateInput = (rand() % 3) - 1; // -2 to 2
-		int radialInput = (rand() % 5) - 2; // -2 to 2
+		int rotSign = rand() % 2 ? 1 : -1;
+		int rotateInput = rotSign * (rand() % 1 + 1); // -2 to 2
+
+		int radSign = rand() % 2 ? 1 : -1;
+		int radialInput = radSign * (rand() % 2 + 1); // -2 to 2
+
+		// std::cout << rotSign << " " << rotateInput << std::endl;
+		// std::cout << radSign << " " << radialInput << std::endl;
 
 		// Determine move around the grid
 		quality += rotateInput;
@@ -100,28 +98,12 @@ void Galaxy::step() {
 		}
 
 		// Determine move in/out of the grid
-		if (currRoot > -1) {
+		int *curScaleArr = CoreUtil().ASCALE_IONIAN;
+		int notesInScale = LENGTHOF(CoreUtil().ASCALE_IONIAN);
 
-			// Here noteIndex is the degree of the scale
-
-			int *curScaleArr = CoreUtil().ASCALE_IONIAN;
-			int notesInScale = LENGTHOF(CoreUtil().ASCALE_IONIAN);
-
-			degree += radialInput; // Next degree of the scale
-			degree = degree % (notesInScale - 1); // Ensure wrap
-			noteIndex = (currRoot + curScaleArr[degree]) % 12;
-
-		} else {
-
-			noteIndex += radialInput;
-
-			if (noteIndex < 0) {
-				noteIndex += N_NOTES;
-			} else if (noteIndex >= N_NOTES) {
-				noteIndex -= N_NOTES;
-			}
-
-		}
+		degree += radialInput; // Next degree of the scale
+		degree = degree % (notesInScale - 1); // Ensure wrap
+		noteIndex = (currRoot + curScaleArr[degree]) % 12;
 
 		if (noteIndex != lastNoteIndex) {
 			changed = true;
@@ -160,7 +142,11 @@ void Galaxy::step() {
 		// offset. We correct for that offset now, pitching thaem back into the original octave.
 		// They could be pitched into the octave above (or below)
 			if (chordArray[j] < 0) {
-				outVolts[j] = CoreUtil().getVoltsFromPitch(chordArray[j] + offset, note);			
+				int off = offset;
+				if (off == 0) {
+					off = (rand() % 3 + 1) * 12;
+				}
+				outVolts[j] = CoreUtil().getVoltsFromPitch(chordArray[j] + off, note);			
 			} else {
 				outVolts[j] = CoreUtil().getVoltsFromPitch(chordArray[j], note);			
 			}	
@@ -168,7 +154,6 @@ void Galaxy::step() {
 
 		int newlight = noteIndex + (quality * N_NOTES);
 		if (changed) {
-			triggerPulse.trigger(Core::TRIGGER);
 			lights[NOTE_LIGHT + light].value = 0.0f;
 			lights[NOTE_LIGHT + newlight].value = 1.0f;
 			light = newlight;
@@ -180,9 +165,6 @@ void Galaxy::step() {
 	for (int i = 0; i < NUM_PITCHES; i++) {
 		outputs[PITCH_OUTPUT + i].value = outVolts[i];
 	}
-
-	bool gPulse = triggerPulse.process(delta);
-	outputs[GATE_OUTPUT].value = gPulse ? 10.0 : 0.0;
 
 }
 
@@ -231,10 +213,8 @@ struct GalaxyWidget : ModuleWidget {
 			addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, i, 5, true, false), Port::OUTPUT, module, Galaxy::PITCH_OUTPUT + i));
 		}	
 
-		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 4, true, false), Port::INPUT, module, Galaxy::MOVE_INPUT));
-		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 1, 4, true, false), Port::INPUT, module, Galaxy::KEY_INPUT));
-
-		addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 5, 4, true, false), Port::OUTPUT, module, Galaxy::GATE_OUTPUT));
+		addInput(Port::create<PJ301MPort>(Vec(102, 140), Port::INPUT, module, Galaxy::MOVE_INPUT));
+		addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 1, 4, true, false), module, Galaxy::KEY_PARAM, 0.0, 11.0, 0.0)); 
 
 	}
 
@@ -258,7 +238,7 @@ struct GalaxyWidget : ModuleWidget {
 				void onAction(EventAction &e) override {
 					gal->offset += 12;
 					if(gal->offset == 48) {
-						gal->offset = 12;
+						gal->offset = 0;
 					}
 				}
 				void step() override {
@@ -268,7 +248,9 @@ struct GalaxyWidget : ModuleWidget {
 						rightText = "Repeat";	
 					} else if (gal->offset == 36) {
 						rightText = "Upper";	
-					} else {
+					} else if (gal->offset == 0) {
+						rightText = "Random";	
+					}else {
 						rightText = "Error!";	
 					}
 					MenuItem::step();
