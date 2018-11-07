@@ -14,6 +14,7 @@ struct Chord : AHModule {
 
 	enum ParamIds {
 		ENUMS(WAVE_PARAM,6),
+		ENUMS(OCTAVE_PARAM,6),
 		ENUMS(DETUNE_PARAM,6),
 		ENUMS(PW_PARAM,6),
 		ENUMS(PWM_PARAM,6),
@@ -68,9 +69,8 @@ void Chord::step() {
 
 			nPitches[side]++;
 
-			float pitchCv = inputs[index].value;
+			float pitchCv = inputs[index].value + params[OCTAVE_PARAM + i].value;
 			float pitchFine = params[DETUNE_PARAM + i].value / 12.0; // +- 1V
-
 			oscillator[i].pw = params[PW_PARAM + i].value + params[PWM_PARAM + i].value * inputs[PW_INPUT + i].value / 10.0f;
 			oscillator[i].step(delta, pitchFine + pitchCv); // 1V/OCT
 
@@ -128,10 +128,11 @@ struct ChordWidget : ModuleWidget {
 		for (int n = 0; n < 6; n++) {
 			addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, n, 0, true, false), Port::INPUT, module, Chord::PITCH_INPUT + n));
 			addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, n, 2, true, true), module, Chord::WAVE_PARAM + n, 0.0f, 4.0f, 0.0f));
-			addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, n, 3, true, true), module, Chord::DETUNE_PARAM + n, -1.0f, 1.0f, 0.0f));
-			addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, n, 4, true, true), module, Chord::PW_PARAM + n, -1.0f, 1.0f, 0.0f));
-			addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, n, 5, true, true), Port::INPUT, module, Chord::PW_INPUT + n));
-			addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, n, 6, true, true), module, Chord::PWM_PARAM + n, 0.0f, 1.0f, 0.0f));
+			addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, n, 3, true, true), module, Chord::OCTAVE_PARAM + n, -3.0f, 3.0f, 0.0f));
+			addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, n, 4, true, true), module, Chord::DETUNE_PARAM + n, -1.0f, 1.0f, 0.0f));
+			addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, n, 5, true, true), module, Chord::PW_PARAM + n, -1.0f, 1.0f, 0.0f));
+			addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, n, 6, true, true), Port::INPUT, module, Chord::PW_INPUT + n));
+			addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, n, 7, true, true), module, Chord::PWM_PARAM + n, 0.0f, 1.0f, 0.0f));
 		}
 
 

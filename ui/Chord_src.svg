@@ -968,15 +968,15 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="2.3962963"
-     inkscape:cx="135"
+     inkscape:cx="104.11901"
      inkscape:cy="190"
      inkscape:current-layer="layer2"
      showgrid="false"
      units="mm"
-     inkscape:window-width="1160"
-     inkscape:window-height="1090"
-     inkscape:window-x="723"
-     inkscape:window-y="161"
+     inkscape:window-width="1634"
+     inkscape:window-height="1602"
+     inkscape:window-x="253"
+     inkscape:window-y="247"
      inkscape:window-maximized="0"
      showguides="false"
      inkscape:guide-bbox="true"
@@ -1312,6 +1312,14 @@
      inkscape:label="Graficos"
      style="display:inline"
      transform="translate(0.01175524,-74.386765)">
+    <rect
+       style="opacity:0.97000002;fill:#000000;fill-opacity:1;stroke:#d4af37;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect1611"
+       width="270.4173"
+       height="380.83463"
+       x="0.82286608"
+       y="74.386765"
+       ry="0" />
     <rect
        style="fill:#000000;fill-opacity:1;stroke-width:17.19280815"
        id="rect7953"
@@ -2023,9 +2031,9 @@
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1">AM MIX</tspan></text>
     <rect
        transform="rotate(90)"
-       style="opacity:1;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:2.02016473;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="opacity:1;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:2.15431881;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect1734"
-       width="197.66966"
+       width="224.79486"
        height="2.7279999"
        x="134.19803"
        y="-33.852245" />
@@ -2033,15 +2041,15 @@
        y="-68.852242"
        x="134.19803"
        height="2.7279999"
-       width="197.66966"
+       width="224.79486"
        id="rect1740"
-       style="opacity:1;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:2.02016473;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="opacity:1;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:2.15431881;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        transform="rotate(90)" />
     <rect
        transform="rotate(90)"
-       style="opacity:1;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:2.02016473;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="opacity:1;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:2.15431881;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect1498"
-       width="197.66966"
+       width="224.79486"
        height="2.7279999"
        x="134.19803"
        y="-103.85224" />
@@ -2091,25 +2099,17 @@
        y="-138.85225"
        x="134.19803"
        height="2.7279999"
-       width="197.66966"
+       width="224.79486"
        id="rect1500"
-       style="opacity:1;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:2.02016473;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="opacity:1;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:2.15431881;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        transform="rotate(90)" />
-    <rect
-       transform="rotate(90)"
-       style="opacity:1;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:2.02016473;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       id="rect4245"
-       width="197.66966"
-       height="2.7279999"
-       x="134.19803"
-       y="-173.85225" />
     <rect
        y="-208.85225"
        x="134.19803"
        height="2.7279999"
-       width="197.66966"
+       width="224.79486"
        id="rect4247"
-       style="opacity:1;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:2.02016473;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="opacity:1;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:2.15431881;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        transform="rotate(90)" />
     <text
        id="text10853"
@@ -2132,7 +2132,7 @@
          id="tspan10855"
          x="225.8372"
          y="224.14244"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">DETUNE</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">OCTAVE</tspan></text>
     <text
        id="text10861"
        y="260.14246"
@@ -2143,7 +2143,7 @@
          y="260.14246"
          x="225.8372"
          id="tspan10859"
-         sodipodi:role="line">PW</tspan></text>
+         sodipodi:role="line">DETUNE</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none"
@@ -2154,7 +2154,7 @@
          id="tspan10863"
          x="225.8372"
          y="294.14246"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">PWM</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">PW</tspan></text>
     <text
        id="text13242"
        y="330.14246"
@@ -2165,7 +2165,7 @@
          y="330.14246"
          x="225.8372"
          sodipodi:role="line"
-         id="tspan13244">PWM CV</tspan></text>
+         id="tspan13244">PWM</tspan></text>
     <path
        id="path7411"
        d="m 25.556901,167.4035 3.520939,-3.0853 6.859137,6.10546 3.460252,-3.02016"
@@ -2258,5 +2258,24 @@
          x="203.9622"
          y="396.32935"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1">R</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none"
+       x="225.8372"
+       y="364.08228"
+       id="text1609"><tspan
+         id="tspan1607"
+         sodipodi:role="line"
+         x="225.8372"
+         y="364.08228"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">PWM CV</tspan></text>
+    <rect
+       transform="rotate(90)"
+       style="opacity:1;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:2.15431881;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4245"
+       width="224.79486"
+       height="2.7279999"
+       x="134.19803"
+       y="-173.85225" />
   </g>
 </svg>
