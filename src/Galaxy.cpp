@@ -214,7 +214,7 @@ struct GalaxyWidget : ModuleWidget {
 		}	
 
 		addInput(Port::create<PJ301MPort>(Vec(102, 140), Port::INPUT, module, Galaxy::MOVE_INPUT));
-		addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 1, 4, true, false), module, Galaxy::KEY_PARAM, 0.0, 11.0, 0.0)); 
+		addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 0, 4, true, false), module, Galaxy::KEY_PARAM, 0.0, 11.0, 0.0)); 
 
 	}
 
