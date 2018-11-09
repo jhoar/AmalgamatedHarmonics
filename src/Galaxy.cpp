@@ -5,9 +5,6 @@
 
 #include <iostream>
 
-// TODO switchable chromatic vs fifths,  add root input (from 5/4), transition probabilities, 
-// note offset switchable (upper vs lower octave), UI
-
 struct Galaxy : AHModule {
 
 	const static int NUM_PITCHES = 6;
@@ -43,22 +40,20 @@ struct Galaxy : AHModule {
 
 	SchmittTrigger moveTrigger;
 
+	int degree = 0;
 	int quality = 0;
 	int noteIndex = 0; 
 	int inversion = 0;
-	int light;
 
 	int lastQuality = 0;
 	int lastNoteIndex = 0; 
 	int lastInversion = 0;
 
-	int note = 0;
-	int degree = 0;
 	int currRoot = -1;
+	int light;
 
-	// These should be changable through context menu
-	bool chromatic = true; // false = fifths
-	int offset = 12; 	   // 12 = lower octave, 24 = repeat, 36 = upper octave
+	int offset = 12; 	   // 0 = random, 12 = lower octave, 24 = repeat, 36 = upper octave
+	int mode = 0; 	   // 0 = random chords in scale, 1 = random progressions
 
 };
 
@@ -81,8 +76,12 @@ void Galaxy::step() {
 		int radSign = rand() % 2 ? 1 : -1;
 		int radialInput = radSign * (rand() % 2 + 1); // -2 to 2
 
-		// std::cout << rotSign << " " << rotateInput << std::endl;
-		// std::cout << radSign << " " << radialInput << std::endl;
+		// std::cout << "Rotate: " << rotateInput << "  Radial: " << radialInput << std::endl;
+
+		// std::cout << "Str position: Root: " << currRoot << 
+		// 	" degree: " << degree << 
+		// 	" quality: " << quality <<
+		// 	" noteIndex: " << noteIndex << std::endl;
 
 		// Determine move around the grid
 		quality += rotateInput;
@@ -102,19 +101,22 @@ void Galaxy::step() {
 		int notesInScale = LENGTHOF(CoreUtil().ASCALE_IONIAN);
 
 		degree += radialInput; // Next degree of the scale
-		degree = degree % (notesInScale - 1); // Ensure wrap
+		if (degree < 0) {
+			degree += notesInScale;
+		} else if (degree >= notesInScale) {
+			degree -= notesInScale;
+		}
+
 		noteIndex = (currRoot + curScaleArr[degree]) % 12;
+
+		// std::cout << "End position: Root: " << currRoot << 
+		// 	" degree: " << degree << 
+		// 	" quality: " << quality <<
+		// 	" noteIndex: " << noteIndex << std::endl << std::endl;
 
 		if (noteIndex != lastNoteIndex) {
 			changed = true;
 			lastNoteIndex = noteIndex;
-		}
-
-		// Get root note from FIFTHs
-		if (chromatic) { 
-			note = noteIndex;
-		} else {
-			note = CoreUtil().CIRCLE_FIFTHS[noteIndex];
 		}
 
 		// Determine which chord corresponds to the grid position
@@ -146,9 +148,9 @@ void Galaxy::step() {
 				if (off == 0) {
 					off = (rand() % 3 + 1) * 12;
 				}
-				outVolts[j] = CoreUtil().getVoltsFromPitch(chordArray[j] + off, note);			
+				outVolts[j] = CoreUtil().getVoltsFromPitch(chordArray[j] + off, noteIndex);			
 			} else {
-				outVolts[j] = CoreUtil().getVoltsFromPitch(chordArray[j], note);			
+				outVolts[j] = CoreUtil().getVoltsFromPitch(chordArray[j], noteIndex);			
 			}	
 		}
 
@@ -225,10 +227,10 @@ struct GalaxyWidget : ModuleWidget {
 			struct GalModeItem : MenuItem {
 				Galaxy *gal;
 				void onAction(EventAction &e) override {
-					gal->chromatic^= 1;
+					gal->mode^= 1;
 				}
 				void step() override {
-					rightText = gal->chromatic ? "Chromatic" : "Fifths";
+					rightText = gal->mode ? "Scale" : "Progression";
 					MenuItem::step();
 				}
 			};
@@ -258,7 +260,6 @@ struct GalaxyWidget : ModuleWidget {
 			};
 
 			menu->addChild(construct<MenuLabel>());
-			menu->addChild(construct<GalModeItem>(&MenuItem::text, "Scale", &GalModeItem::gal, gal));
 			menu->addChild(construct<GalOffsetItem>(&MenuItem::text, "Repeat Notes", &GalOffsetItem::gal, gal));
 	}
 
