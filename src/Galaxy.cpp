@@ -17,6 +17,7 @@ struct Galaxy : AHModule {
 	};
 	enum InputIds {
 		MOVE_INPUT,
+		KEY_INPUT,
 		NUM_INPUTS
 	};
 	enum OutputIds {
@@ -67,7 +68,13 @@ void Galaxy::step() {
 	if (move) {
 
 		bool changed = false;
-		currRoot = params[KEY_PARAM].value;
+
+		if (inputs[KEY_INPUT].active) {
+			float fRoot = inputs[KEY_INPUT].value;
+			currRoot = CoreUtil().getKeyFromVolts(fRoot);
+		} else {
+			currRoot = params[KEY_PARAM].value;
+		}
 
 		// TODO Implement selection function
 		int rotSign = rand() % 2 ? 1 : -1;
@@ -216,7 +223,9 @@ struct GalaxyWidget : ModuleWidget {
 		}	
 
 		addInput(Port::create<PJ301MPort>(Vec(102, 140), Port::INPUT, module, Galaxy::MOVE_INPUT));
+
 		addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 0, 4, true, false), module, Galaxy::KEY_PARAM, 0.0, 11.0, 0.0)); 
+		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 1, 4, true, false), Port::INPUT, module, Galaxy::KEY_INPUT));
 
 	}
 
