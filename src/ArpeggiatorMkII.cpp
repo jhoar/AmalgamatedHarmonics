@@ -701,7 +701,15 @@ void Arpeggiator2::step() {
 			newCycle = COUNTDOWN;
 		}
 	}
-	
+
+	// Received trigger before EOS, fire EOS gate anyway
+	if (triggerStatus && isRunning && !currPatt->isPatternFinished()) {
+			// Pulse the EOS gate
+		eosPulse.trigger(Core::TRIGGER);
+		if (debugEnabled()) { std::cout << stepX << " " << id  << " Short sequence" << std::endl; }
+	}
+
+
 	// So this is where the free-running could be triggered
 	if (isClocked && !isRunning) { // Must have a clock and not be already running
 		if (!trigActive) { // If nothing plugged into the TRIG input
