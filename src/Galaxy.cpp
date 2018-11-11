@@ -8,7 +8,7 @@
 struct Galaxy : AHModule {
 
 	const static int NUM_PITCHES = 6;
-	const static int N_QUALITIES = 5;
+	const static int N_QUALITIES = 6;
 	const static int N_NOTES = 12;
 
 	enum ParamIds {
@@ -25,7 +25,7 @@ struct Galaxy : AHModule {
 		NUM_OUTPUTS
 	};
 	enum LightIds {
-		ENUMS(NOTE_LIGHT,60),
+		ENUMS(NOTE_LIGHT,72),
 		NUM_LIGHTS
 	};
 	
@@ -34,7 +34,7 @@ struct Galaxy : AHModule {
 		
 	Core core;
 
-	int ChordTable[N_QUALITIES] = { 1, 31, 78, 25, 71 };
+	int ChordTable[N_QUALITIES] = { 1, 31, 78, 25, 71, 91 };
 	float outVolts[NUM_PITCHES];
 	
 	int poll = 50000;
@@ -54,7 +54,6 @@ struct Galaxy : AHModule {
 	int light;
 
 	int offset = 12; 	   // 0 = random, 12 = lower octave, 24 = repeat, 36 = upper octave
-	int mode = 0; 	   // 0 = random chords in scale, 1 = random progressions
 
 };
 
@@ -232,17 +231,6 @@ struct GalaxyWidget : ModuleWidget {
 	void appendContextMenu(Menu *menu) override {
 			Galaxy *gal = dynamic_cast<Galaxy*>(module);
 			assert(gal);
-
-			struct GalModeItem : MenuItem {
-				Galaxy *gal;
-				void onAction(EventAction &e) override {
-					gal->mode^= 1;
-				}
-				void step() override {
-					rightText = gal->mode ? "Scale" : "Progression";
-					MenuItem::step();
-				}
-			};
 
 			struct GalOffsetItem : MenuItem {
 				Galaxy *gal;
