@@ -14,6 +14,7 @@ struct Galaxy : AHModule {
 	enum ParamIds {
 		KEY_PARAM,
 		MODE_PARAM,
+		BAD_PARAM,
 		NUM_PARAMS
 	};
 	enum InputIds {
@@ -137,9 +138,25 @@ void Galaxy::step() {
 		if (mode == 0) {
 			getFromRandom();
 		} else if (mode == 1) {
-			getFromKey();
+
+			if (randomUniform() < params[BAD_PARAM].value) {
+				getFromRandom();
+			} else {
+				getFromKey();
+			}
+
 		} else if (mode == 2) {
-			getFromKeyMode();
+
+			float excess = params[BAD_PARAM].value - randomUniform();
+
+			if (excess > 0.5) {
+				getFromRandom();
+			} else if (excess > 0.2) {
+				getFromKey();
+			} else {
+				getFromKeyMode();
+			}
+
 		}
 
 		// Determine which chord corresponds to the grid position
@@ -411,6 +428,12 @@ struct GalaxyWidget : ModuleWidget {
 
 		addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 4, 4, true, false), module, Galaxy::MODE_PARAM, 0.0, 6.0, 0.0)); 
 		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 5, 4, true, false), Port::INPUT, module, Galaxy::MODE_INPUT));
+
+		Vec trim = ui.getPosition(UI::TRIMPOT, 5, 3, true, false);
+		trim.x += 15;
+		trim.y += 25;
+
+		addParam(ParamWidget::create<AHTrimpotNoSnap>(trim, module, Galaxy::BAD_PARAM, 0.0, 1.0, 0.0)); 
 
 	}
 
