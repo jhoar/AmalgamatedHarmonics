@@ -41,6 +41,7 @@ struct Galaxy : AHModule {
 	Core core;
 
 	int ChordTable[N_QUALITIES] = { 1, 31, 78, 25, 71, 91 };
+	int Quality2Quality[3] = {0, 4, 5};
 	float outVolts[NUM_PITCHES];
 	
 	int poll = 50000;
@@ -65,6 +66,12 @@ struct Galaxy : AHModule {
 
 	int offset = 12; 	   // 0 = random, 12 = lower octave, 24 = repeat, 36 = upper octave
 	int mode = 0; 	   // 0 = random chord, 1 = chord in key, 2 = chord in mode
+
+	std::string rootName;
+	std::string modeName;
+
+	std::string chordName;
+	std::string chordExtName;
 };
 
 void Galaxy::step() {
@@ -108,20 +115,19 @@ void Galaxy::step() {
 
 		// Determine which chord corresponds to the grid position
 		int chord = ChordTable[quality];
-		int inversion = rand() % 10;
 		int *chordArray;
 
-		switch(inversion) {
+		switch(rand() % 10) {
 			case 0: 
 			case 1: 
 			case 2: 
 			case 3: 
 			case 4: 	
-			case 5: 	chordArray = CoreUtil().ChordTable[chord].root; 	break;
+			case 5: 	inversion = 0; chordArray = CoreUtil().ChordTable[chord].root; 	break;
 			case 6: 
-			case 7: 	chordArray = CoreUtil().ChordTable[chord].first; 	break;
-			case 8: 
-			case 9: 	chordArray = CoreUtil().ChordTable[chord].second;	break;
+			case 7: 	
+			case 8: 	inversion = 1; chordArray = CoreUtil().ChordTable[chord].first; 	break;
+			case 9: 	inversion = 2; chordArray = CoreUtil().ChordTable[chord].second;	break;
 			default: 	chordArray = CoreUtil().ChordTable[chord].root;
 		}
 
@@ -168,6 +174,28 @@ void Galaxy::step() {
 		int newlight = noteIndex + (quality * N_NOTES);
 
 		if (changed) {
+
+			int chordIndex = ChordTable[quality];
+
+			if (mode == 2) {
+				rootName = CoreUtil().noteNames[currRoot];
+				modeName = CoreUtil().modeNames[currMode];
+				chordName = 
+					CoreUtil().noteNames[noteIndex] + 
+					CoreUtil().ChordTable[chordIndex].quality;
+				chordExtName = 
+					CoreUtil().inversionNames[inversion] + "[" +
+					CoreUtil().degreeNames[degree * 3 + quality] + "]"; 
+			} else {
+				rootName = "";
+				modeName = "";
+				chordName = 
+					CoreUtil().noteNames[noteIndex] + 
+					CoreUtil().ChordTable[chordIndex].quality;
+				chordExtName = 
+					CoreUtil().inversionNames[inversion];
+			}
+
 			lights[NOTE_LIGHT + light].value = 0.0f;
 			lights[NOTE_LIGHT + newlight].value = 1.0f;
 			light = newlight;
@@ -207,7 +235,6 @@ void Galaxy::getFromRandom() {
 		noteIndex -= N_NOTES;
 	}
 
-
 }
 
 void Galaxy::getFromKey() {
@@ -228,11 +255,12 @@ void Galaxy::getFromKey() {
 		quality -= N_QUALITIES;
 	}
 
-	// Determine move in/out of the grid
+	// Just major scale
 	int *curScaleArr = CoreUtil().ASCALE_IONIAN;
 	int notesInScale = LENGTHOF(CoreUtil().ASCALE_IONIAN);
 
-	degree += radialInput; // Next degree of the scale
+	// Determine move through the scale
+	degree += radialInput; 
 	if (degree < 0) {
 		degree += notesInScale;
 	} else if (degree >= notesInScale) {
@@ -248,7 +276,7 @@ void Galaxy::getFromKeyMode() {
 	int rotSign = rand() % 2 ? 1 : -1;
 	int rotateInput = rotSign * (rand() % 1 + 1); // -2 to 2
 
-	// Determine move around the grid
+	// Determine move through the scale
 	degree += rotateInput;
 	if (degree < 0) {
 		degree += Core::NUM_DEGREES;
@@ -257,9 +285,48 @@ void Galaxy::getFromKeyMode() {
 	}
 
 	// From the input root, mode and degree, we can get the root chord note and quality (Major,Minor,Diminshed)
-	CoreUtil().getRootFromMode(currMode,currRoot,degree,&noteIndex,&quality);
+	int mainQ;
+	CoreUtil().getRootFromMode(currMode,currRoot,degree,&noteIndex,&mainQ);
+	quality = Quality2Quality[mainQ];
 
 }
+
+struct GalaxyDisplay : TransparentWidget {
+	
+	Galaxy *module;
+	int frame = 0;
+	std::shared_ptr<Font> font;
+
+	GalaxyDisplay() {
+		font = Font::load(assetPlugin(plugin, "res/EurostileBold.ttf"));
+	}
+
+	void draw(NVGcontext *vg) override {
+	
+		nvgFontSize(vg, 12);
+		nvgFontFaceId(vg, font->handle);
+		nvgFillColor(vg, nvgRGBA(255, 0, 0, 0xff));
+		nvgTextLetterSpacing(vg, -1);
+
+		char text[128];
+
+		snprintf(text, sizeof(text), "%s", module->chordName.c_str());
+		nvgText(vg, box.pos.x + 5, box.pos.y, text, NULL);
+
+		snprintf(text, sizeof(text), "%s", module->chordExtName.c_str());
+		nvgText(vg, box.pos.x + 5, box.pos.y + 11, text, NULL);
+
+		nvgTextAlign(vg, NVG_ALIGN_RIGHT);
+		snprintf(text, sizeof(text), "%s", module->rootName.c_str());
+		nvgText(vg, box.size.x - 5, box.pos.y, text, NULL);
+
+		snprintf(text, sizeof(text), "%s", module->modeName.c_str());
+		nvgText(vg, box.size.x - 5, box.pos.y + 11, text, NULL);
+
+
+	}
+	
+};
 
 struct GalaxyWidget : ModuleWidget {
 
@@ -280,6 +347,14 @@ struct GalaxyWidget : ModuleWidget {
 		addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
 		addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
 		addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
+
+		{
+			GalaxyDisplay *display = new GalaxyDisplay();
+			display->module = module;
+			display->box.pos = Vec(0, 20);
+			display->box.size = Vec(240, 230);
+			addChild(display);
+		}
 
 		float div = (PI * 2) / (float)Galaxy::N_QUALITIES;
 		float div2 = (PI * 2) / (float)(Galaxy::N_QUALITIES * Galaxy::N_QUALITIES);
@@ -311,8 +386,8 @@ struct GalaxyWidget : ModuleWidget {
 		addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 0, 4, true, false), module, Galaxy::KEY_PARAM, 0.0, 11.0, 0.0)); 
 		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 1, 4, true, false), Port::INPUT, module, Galaxy::KEY_INPUT));
 
-		addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 5, 4, true, false), module, Galaxy::MODE_PARAM, 0.0, 6.0, 0.0)); 
-		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 4, 4, true, false), Port::INPUT, module, Galaxy::MODE_INPUT));
+		addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 4, 4, true, false), module, Galaxy::MODE_PARAM, 0.0, 6.0, 0.0)); 
+		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 5, 4, true, false), Port::INPUT, module, Galaxy::MODE_INPUT));
 
 	}
 
@@ -370,7 +445,6 @@ struct GalaxyWidget : ModuleWidget {
 			menu->addChild(construct<GalOffsetItem>(&MenuItem::text, "Repeat Notes", &GalOffsetItem::gal, gal));
 			menu->addChild(construct<GalModeItem>(&MenuItem::text, "Chord Selection", &GalModeItem::gal, gal));
 	}
-
 
 };
 

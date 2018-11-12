@@ -242,12 +242,12 @@ struct Core {
 	};
 	
 	std::string modeNames[7] {
-		"Ionian (Major)",
+		"Ionian (M)",
 		"Dorian",
 		"Phrygian",
 		"Lydian",
 		"Mixolydian",
-		"Aeolian (Natural Minor)",
+		"Aeolian (m)",
 		"Locrian"
 	};
 
