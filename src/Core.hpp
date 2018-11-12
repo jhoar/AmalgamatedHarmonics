@@ -332,7 +332,7 @@ struct Core {
 	/*
  	 * Convert a root note (relative to C, C=0) and positive semi-tone offset from that root to a voltage (1V/OCT, 0V = C4 (or 3??))
 	 */
-	float getVoltsFromPitch(int inNote, int inRoot){	
+	float getVoltsFromPitch(int inRoot, int inNote){	
 		return (inRoot + inNote) * SEMITONE;
 	}
 	

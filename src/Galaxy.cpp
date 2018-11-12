@@ -13,11 +13,13 @@ struct Galaxy : AHModule {
 
 	enum ParamIds {
 		KEY_PARAM,
+		MODE_PARAM,
 		NUM_PARAMS
 	};
 	enum InputIds {
 		MOVE_INPUT,
 		KEY_INPUT,
+		MODE_INPUT,
 		NUM_INPUTS
 	};
 	enum OutputIds {
@@ -31,6 +33,10 @@ struct Galaxy : AHModule {
 	
 	Galaxy() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
 	void step() override;
+
+	void getFromRandom();
+	void getFromKey();
+	void getFromKeyMode();
 		
 	Core core;
 
@@ -50,11 +56,15 @@ struct Galaxy : AHModule {
 	int lastNoteIndex = 0; 
 	int lastInversion = 0;
 
-	int currRoot = -1;
+	int currRoot = 1;
+	int currMode = 1;
 	int light;
 
-	int offset = 12; 	   // 0 = random, 12 = lower octave, 24 = repeat, 36 = upper octave
+	bool haveRoot = false;
+	bool haveMode = false;
 
+	int offset = 12; 	   // 0 = random, 12 = lower octave, 24 = repeat, 36 = upper octave
+	int mode = 0; 	   // 0 = random chord, 1 = chord in key, 2 = chord in mode
 };
 
 void Galaxy::step() {
@@ -68,6 +78,13 @@ void Galaxy::step() {
 
 		bool changed = false;
 
+		if (inputs[MODE_INPUT].active) {
+			float fMode = inputs[MODE_INPUT].value;
+			currMode = round(rescale(fabs(fMode), 0.0f, 10.0f, 0.0f, 6.0f)); 
+		} else {
+			currMode = params[MODE_PARAM].value;
+		}
+
 		if (inputs[KEY_INPUT].active) {
 			float fRoot = inputs[KEY_INPUT].value;
 			currRoot = CoreUtil().getKeyFromVolts(fRoot);
@@ -75,66 +92,54 @@ void Galaxy::step() {
 			currRoot = params[KEY_PARAM].value;
 		}
 
-		// TODO Implement selection function
-		int rotSign = rand() % 2 ? 1 : -1;
-		int rotateInput = rotSign * (rand() % 1 + 1); // -2 to 2
-
-		int radSign = rand() % 2 ? 1 : -1;
-		int radialInput = radSign * (rand() % 2 + 1); // -2 to 2
-
-		// std::cout << "Rotate: " << rotateInput << "  Radial: " << radialInput << std::endl;
-
 		// std::cout << "Str position: Root: " << currRoot << 
+		// 	" Mode: " << currMode << 
 		// 	" degree: " << degree << 
 		// 	" quality: " << quality <<
 		// 	" noteIndex: " << noteIndex << std::endl;
 
-		// Determine move around the grid
-		quality += rotateInput;
-		if (quality < 0) {
-			quality += N_QUALITIES;
-		} else if (quality >= N_QUALITIES) {
-			quality -= N_QUALITIES;
+		if (mode == 0) {
+			getFromRandom();
+		} else if (mode == 1) {
+			getFromKey();
+		} else if (mode == 2) {
+			getFromKeyMode();
 		}
+
+		// Determine which chord corresponds to the grid position
+		int chord = ChordTable[quality];
+		int inversion = rand() % 10;
+		int *chordArray;
+
+		switch(inversion) {
+			case 0: 
+			case 1: 
+			case 2: 
+			case 3: 
+			case 4: 	
+			case 5: 	chordArray = CoreUtil().ChordTable[chord].root; 	break;
+			case 6: 
+			case 7: 	chordArray = CoreUtil().ChordTable[chord].first; 	break;
+			case 8: 
+			case 9: 	chordArray = CoreUtil().ChordTable[chord].second;	break;
+			default: 	chordArray = CoreUtil().ChordTable[chord].root;
+		}
+
+		// std::cout << "End position: Root: " << currRoot << 
+		// 	" Mode: " << currMode << 
+		// 	" Degree: " << degree << 
+		// 	" Quality: " << quality <<
+		// 	" Inversion: " << inversion << " " << chordArray <<
+		// 	" NoteIndex: " << noteIndex << std::endl << std::endl;
 
 		if (quality != lastQuality) {
 			changed = true;
 			lastQuality = quality;
 		}
 
-		// Determine move in/out of the grid
-		int *curScaleArr = CoreUtil().ASCALE_IONIAN;
-		int notesInScale = LENGTHOF(CoreUtil().ASCALE_IONIAN);
-
-		degree += radialInput; // Next degree of the scale
-		if (degree < 0) {
-			degree += notesInScale;
-		} else if (degree >= notesInScale) {
-			degree -= notesInScale;
-		}
-
-		noteIndex = (currRoot + curScaleArr[degree]) % 12;
-
-		// std::cout << "End position: Root: " << currRoot << 
-		// 	" degree: " << degree << 
-		// 	" quality: " << quality <<
-		// 	" noteIndex: " << noteIndex << std::endl << std::endl;
-
 		if (noteIndex != lastNoteIndex) {
 			changed = true;
 			lastNoteIndex = noteIndex;
-		}
-
-		// Determine which chord corresponds to the grid position
-		int chord = ChordTable[quality];
-		int inversion = rand() % 3;
-		int *chordArray;
-
-		switch(inversion) {
-			case Core::ROOT:  		chordArray = CoreUtil().ChordTable[chord].root; 	break;
-			case Core::FIRST_INV:  	chordArray = CoreUtil().ChordTable[chord].first; 	break;
-			case Core::SECOND_INV:  chordArray = CoreUtil().ChordTable[chord].second;	break;
-			default: 				chordArray = CoreUtil().ChordTable[chord].root;
 		}
 
 		if (inversion != lastInversion) {
@@ -161,6 +166,7 @@ void Galaxy::step() {
 		}
 
 		int newlight = noteIndex + (quality * N_NOTES);
+
 		if (changed) {
 			lights[NOTE_LIGHT + light].value = 0.0f;
 			lights[NOTE_LIGHT + newlight].value = 1.0f;
@@ -173,6 +179,85 @@ void Galaxy::step() {
 	for (int i = 0; i < NUM_PITCHES; i++) {
 		outputs[PITCH_OUTPUT + i].value = outVolts[i];
 	}
+
+}
+
+void Galaxy::getFromRandom() {
+
+	int rotSign = rand() % 2 ? 1 : -1;
+	int rotateInput = rotSign * (rand() % 1 + 1); // -2 to 2
+
+	int radSign = rand() % 2 ? 1 : -1;
+	int radialInput = radSign * (rand() % 2 + 1); // -2 to 2
+
+	// std::cout << "Rotate: " << rotateInput << "  Radial: " << radialInput << std::endl;
+
+	// Determine move around the grid
+	quality += rotateInput;
+	if (quality < 0) {
+		quality += N_QUALITIES;
+	} else if (quality >= N_QUALITIES) {
+		quality -= N_QUALITIES;
+	}
+
+	noteIndex += radialInput;
+	if (noteIndex < 0) {
+		noteIndex += N_NOTES;
+	} else if (noteIndex >= N_NOTES) {
+		noteIndex -= N_NOTES;
+	}
+
+
+}
+
+void Galaxy::getFromKey() {
+
+	int rotSign = rand() % 2 ? 1 : -1;
+	int rotateInput = rotSign * (rand() % 1 + 1); // -2 to 2
+
+	int radSign = rand() % 2 ? 1 : -1;
+	int radialInput = radSign * (rand() % 2 + 1); // -2 to 2
+
+	// std::cout << "Rotate: " << rotateInput << "  Radial: " << radialInput << std::endl;
+
+	// Determine move around the grid
+	quality += rotateInput;
+	if (quality < 0) {
+		quality += N_QUALITIES;
+	} else if (quality >= N_QUALITIES) {
+		quality -= N_QUALITIES;
+	}
+
+	// Determine move in/out of the grid
+	int *curScaleArr = CoreUtil().ASCALE_IONIAN;
+	int notesInScale = LENGTHOF(CoreUtil().ASCALE_IONIAN);
+
+	degree += radialInput; // Next degree of the scale
+	if (degree < 0) {
+		degree += notesInScale;
+	} else if (degree >= notesInScale) {
+		degree -= notesInScale;
+	}
+
+	noteIndex = (currRoot + curScaleArr[degree]) % 12;
+
+}
+
+void Galaxy::getFromKeyMode() {
+
+	int rotSign = rand() % 2 ? 1 : -1;
+	int rotateInput = rotSign * (rand() % 1 + 1); // -2 to 2
+
+	// Determine move around the grid
+	degree += rotateInput;
+	if (degree < 0) {
+		degree += Core::NUM_DEGREES;
+	} else if (degree >= Core::NUM_DEGREES) {
+		degree -= Core::NUM_DEGREES;
+	}
+
+	// From the input root, mode and degree, we can get the root chord note and quality (Major,Minor,Diminshed)
+	CoreUtil().getRootFromMode(currMode,currRoot,degree,&noteIndex,&quality);
 
 }
 
@@ -226,6 +311,9 @@ struct GalaxyWidget : ModuleWidget {
 		addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 0, 4, true, false), module, Galaxy::KEY_PARAM, 0.0, 11.0, 0.0)); 
 		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 1, 4, true, false), Port::INPUT, module, Galaxy::KEY_INPUT));
 
+		addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 5, 4, true, false), module, Galaxy::MODE_PARAM, 0.0, 6.0, 0.0)); 
+		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 4, 4, true, false), Port::INPUT, module, Galaxy::MODE_INPUT));
+
 	}
 
 	void appendContextMenu(Menu *menu) override {
@@ -256,8 +344,31 @@ struct GalaxyWidget : ModuleWidget {
 				}
 			};
 
+			struct GalModeItem : MenuItem {
+				Galaxy *gal;
+				void onAction(EventAction &e) override {
+					gal->mode++;
+					if(gal->mode == 3) {
+						gal->mode = 0;
+					}
+				}
+				void step() override {
+					if (gal->mode == 0) {
+						rightText = "Random";
+					} else if (gal->mode == 1) {
+						rightText = "in Key";	
+					} else if (gal->mode == 2) {
+						rightText = "in Mode";
+					} else {
+						rightText = "Error!";	
+					}
+					MenuItem::step();
+				}
+			};
+
 			menu->addChild(construct<MenuLabel>());
 			menu->addChild(construct<GalOffsetItem>(&MenuItem::text, "Repeat Notes", &GalOffsetItem::gal, gal));
+			menu->addChild(construct<GalModeItem>(&MenuItem::text, "Chord Selection", &GalModeItem::gal, gal));
 	}
 
 
