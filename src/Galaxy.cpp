@@ -29,6 +29,7 @@ struct Galaxy : AHModule {
 	};
 	enum LightIds {
 		ENUMS(NOTE_LIGHT,72),
+		ENUMS(BAD_LIGHT,2),
 		NUM_LIGHTS
 	};
 	
@@ -118,6 +119,8 @@ void Galaxy::step() {
 	
 	AHModule::step();
 
+	int badLight = 0;
+
 	// Get inputs from Rack
 	bool move = moveTrigger.process(inputs[MOVE_INPUT].value);
 
@@ -151,6 +154,7 @@ void Galaxy::step() {
 		} else if (mode == 1) {
 
 			if (randomUniform() < params[BAD_PARAM].value) {
+				badLight = 2;
 				getFromRandom();
 			} else {
 				getFromKey();
@@ -160,13 +164,17 @@ void Galaxy::step() {
 
 			float excess = params[BAD_PARAM].value - randomUniform();
 
-			if (excess > 0.5) {
-				getFromRandom();
-			} else if (excess > 0.2) {
-				getFromKey();
-			} else {
+			if (excess < 0.0) {
 				getFromKeyMode();
 				haveMode = true;
+			} else {
+				if (excess < 0.2) {
+					badLight = 1;
+					getFromKey();
+				} else {
+					badLight = 2;
+					getFromRandom();
+				}
 			}
 
 		}
@@ -280,8 +288,21 @@ void Galaxy::step() {
 			lights[NOTE_LIGHT + light].value = 0.0f;
 			lights[NOTE_LIGHT + newlight].value = 1.0f;
 			light = newlight;
+
 		}
 
+
+	}
+
+	if (badLight == 1) { // Green (scale->key)
+		lights[BAD_LIGHT].setBrightnessSmooth(1.0f);
+		lights[BAD_LIGHT + 1].setBrightnessSmooth(0.0f);
+	} else if (badLight == 2) { // Red (->random)
+		lights[BAD_LIGHT].setBrightnessSmooth(0.0f);
+		lights[BAD_LIGHT + 1].setBrightnessSmooth(1.0f);
+	} else { // No change
+		lights[BAD_LIGHT].setBrightnessSmooth(0.0f);
+		lights[BAD_LIGHT + 1].setBrightnessSmooth(0.0f);
 	}
 
 	// Set the output pitches and lights
@@ -409,6 +430,8 @@ struct GalaxyDisplay : TransparentWidget {
 
 struct GalaxyWidget : ModuleWidget {
 
+	Menu *createContextMenu() override;
+
 	GalaxyWidget(Galaxy *module) : ModuleWidget(module) {
 	
 		UI ui;
@@ -474,87 +497,130 @@ struct GalaxyWidget : ModuleWidget {
 
 		addParam(ParamWidget::create<AHTrimpotNoSnap>(trim, module, Galaxy::BAD_PARAM, 0.0, 1.0, 0.0)); 
 
-	}
+		trim.x += 15;
+		trim.y += 20;
+		addChild(ModuleLightWidget::create<SmallLight<GreenRedLight>>(trim, module, Galaxy::BAD_LIGHT));
 
-	void appendContextMenu(Menu *menu) override {
-			Galaxy *gal = dynamic_cast<Galaxy*>(module);
-			assert(gal);
-
-			struct GalOffsetItem : MenuItem {
-				Galaxy *gal;
-				void onAction(EventAction &e) override {
-					gal->offset += 12;
-					if(gal->offset == 48) {
-						gal->offset = 0;
-					}
-				}
-				void step() override {
-					if (gal->offset == 12) {
-						rightText = "Lower";
-					} else if (gal->offset == 24) {
-						rightText = "Repeat";	
-					} else if (gal->offset == 36) {
-						rightText = "Upper";	
-					} else if (gal->offset == 0) {
-						rightText = "Random";	
-					}else {
-						rightText = "Error!";	
-					}
-					MenuItem::step();
-				}
-			};
-
-			struct GalModeItem : MenuItem {
-				Galaxy *gal;
-				void onAction(EventAction &e) override {
-					gal->mode++;
-					if(gal->mode == 3) {
-						gal->mode = 0;
-					}
-				}
-				void step() override {
-					if (gal->mode == 0) {
-						rightText = "Random";
-					} else if (gal->mode == 1) {
-						rightText = "in Key";	
-					} else if (gal->mode == 2) {
-						rightText = "in Mode";
-					} else {
-						rightText = "Error!";	
-					}
-					MenuItem::step();
-				}
-			};
-
-			struct GalInversionsItem : MenuItem {
-				Galaxy *gal;
-				void onAction(EventAction &e) override {
-					gal->allowedInversions++;
-					if(gal->allowedInversions == 3) {
-						gal->allowedInversions = 0;
-					}
-				}
-				void step() override {
-					if (gal->allowedInversions == 0) {
-						rightText = "Root only";
-					} else if (gal->allowedInversions == 1) {
-						rightText = "Root and First";	
-					} else if (gal->allowedInversions == 2) {
-						rightText = "Root, First and Second";
-					} else {
-						rightText = "Error!";	
-					}
-					MenuItem::step();
-				}
-			};
-
-			menu->addChild(construct<MenuLabel>());
-			menu->addChild(construct<GalOffsetItem>(&MenuItem::text, "Repeat Notes", &GalOffsetItem::gal, gal));
-			menu->addChild(construct<GalModeItem>(&MenuItem::text, "Chord Selection", &GalModeItem::gal, gal));
-			menu->addChild(construct<GalInversionsItem>(&MenuItem::text, "Allowed Chord Inversions", &GalInversionsItem::gal, gal));
 	}
 
 };
+
+struct GalOffsetItem : MenuItem {
+	Galaxy *gal;
+	int offset;
+	void onAction(EventAction &e) override {
+		gal->offset = offset;
+	}
+	void step() override {
+		rightText = (gal->offset == offset) ? "✔" : "";
+	}
+};
+
+struct GalModeItem : MenuItem {
+	Galaxy *gal;
+	int mode;
+	void onAction(EventAction &e) override {
+		gal->mode = mode;
+	}
+	void step() override {
+		rightText = (gal->mode == mode) ? "✔" : "";
+	}
+};
+
+struct GalInversionsItem : MenuItem {
+	Galaxy *gal;
+	int allowedInversions;
+	void onAction(EventAction &e) override {
+		gal->allowedInversions = allowedInversions;
+	}
+	void step() override {
+		rightText = (gal->allowedInversions == allowedInversions) ? "✔" : "";
+	}
+};
+
+Menu *GalaxyWidget::createContextMenu() {
+	Menu *menu = ModuleWidget::createContextMenu();
+
+	MenuLabel *spacerLabel = new MenuLabel();
+	menu->addChild(spacerLabel);
+
+	Galaxy *gal = dynamic_cast<Galaxy*>(module);
+	assert(gal);
+
+	MenuLabel *offsetLabel = new MenuLabel();
+	offsetLabel->text = "Repeat Notes";
+	menu->addChild(offsetLabel);
+
+	GalOffsetItem *offsetLowerItem = new GalOffsetItem();
+	offsetLowerItem->text = "Lower";
+	offsetLowerItem->gal = gal;
+	offsetLowerItem->offset = 12;
+	menu->addChild(offsetLowerItem);
+
+	GalOffsetItem *offsetRepeatItem = new GalOffsetItem();
+	offsetRepeatItem->text = "Repeat";
+	offsetRepeatItem->gal = gal;
+	offsetRepeatItem->offset = 24;
+	menu->addChild(offsetRepeatItem);
+
+	GalOffsetItem *offsetUpperItem = new GalOffsetItem();
+	offsetUpperItem->text = "Upper";
+	offsetUpperItem->gal = gal;
+	offsetUpperItem->offset = 36;
+	menu->addChild(offsetUpperItem);
+
+	GalOffsetItem *offsetRandomItem = new GalOffsetItem();
+	offsetRandomItem->text = "Random";
+	offsetRandomItem->gal = gal;
+	offsetRandomItem->offset = 0;
+	menu->addChild(offsetRandomItem);
+
+	MenuLabel *modeLabel = new MenuLabel();
+	modeLabel->text = "Chord Selection";
+	menu->addChild(modeLabel);
+
+	GalModeItem *modeRandomItem = new GalModeItem();
+	modeRandomItem->text = "Random";
+	modeRandomItem->gal = gal;
+	modeRandomItem->mode = 0;
+	menu->addChild(modeRandomItem);
+
+	GalModeItem *modeKeyItem = new GalModeItem();
+	modeKeyItem->text = "in Key";
+	modeKeyItem->gal = gal;
+	modeKeyItem->mode = 1;
+	menu->addChild(modeKeyItem);
+
+	GalModeItem *modeModeItem = new GalModeItem();
+	modeModeItem->text = "in Mode";
+	modeModeItem->gal = gal;
+	modeModeItem->mode = 2;
+	menu->addChild(modeModeItem);
+
+	MenuLabel *invLabel = new MenuLabel();
+	invLabel->text = "Allowed Chord Inversions";
+	menu->addChild(invLabel);
+
+	GalInversionsItem *invRootItem = new GalInversionsItem();
+	invRootItem->text = "Root only";
+	invRootItem->gal = gal;
+	invRootItem->allowedInversions = 0;
+	menu->addChild(invRootItem);
+
+	GalInversionsItem *invFirstItem = new GalInversionsItem();
+	invFirstItem->text = "Root and First";
+	invFirstItem->gal = gal;
+	invFirstItem->allowedInversions = 1;
+	menu->addChild(invFirstItem);
+
+	GalInversionsItem *invSecondItem = new GalInversionsItem();
+	invSecondItem->text = "Root, First and Second";
+	invSecondItem->gal = gal;
+	invSecondItem->allowedInversions = 2;
+	menu->addChild(invSecondItem);
+
+	return menu;
+}
 
 Model *modelGalaxy = Model::create<Galaxy, GalaxyWidget>( "Amalgamated Harmonics", "Galaxy", "Galaxy", SEQUENCER_TAG);
 
