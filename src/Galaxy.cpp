@@ -37,7 +37,35 @@ struct Galaxy : AHModule {
 	void getFromRandom();
 	void getFromKey();
 	void getFromKeyMode();
-		
+
+	json_t *toJson() override {
+		json_t *rootJ = json_object();
+
+		// offset
+		json_t *offsetJ = json_integer((int) offset);
+		json_object_set_new(rootJ, "offset", offsetJ);
+
+		// mode
+		json_t *modeJ = json_integer((int) mode);
+		json_object_set_new(rootJ, "mode", modeJ);
+
+		return rootJ;
+	}
+	
+	void fromJson(json_t *rootJ) override {
+
+		// offset
+		json_t *offsetJ = json_object_get(rootJ, "offset");
+		if (offsetJ)
+			offset = json_integer_value(offsetJ);
+
+		// mode
+		json_t *modeJ = json_object_get(rootJ, "mode");
+		if (modeJ)
+			mode = json_integer_value(modeJ);
+
+	}
+
 	Core core;
 
 	int ChordTable[N_QUALITIES] = { 1, 31, 78, 25, 71, 91 };
