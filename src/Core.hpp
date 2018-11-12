@@ -293,7 +293,7 @@ struct Core {
 		NUM_INV
 	};
 	
-	std::string inversionNames[5] {
+	std::string inversionNames[3] {
 		"",
 		"(1)",
 		"(2)"

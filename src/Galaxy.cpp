@@ -50,6 +50,7 @@ struct Galaxy : AHModule {
 
 	int degree = 0;
 	int quality = 0;
+	int qualityIndex = 0;
 	int noteIndex = 0; 
 	int inversion = 0;
 
@@ -185,7 +186,7 @@ void Galaxy::step() {
 					CoreUtil().ChordTable[chordIndex].quality;
 				chordExtName = 
 					CoreUtil().inversionNames[inversion] + "[" +
-					CoreUtil().degreeNames[degree * 3 + quality] + "]"; 
+					CoreUtil().degreeNames[degree * 3 + qualityIndex] + "]"; 
 			} else {
 				rootName = "";
 				modeName = "";
@@ -285,9 +286,8 @@ void Galaxy::getFromKeyMode() {
 	}
 
 	// From the input root, mode and degree, we can get the root chord note and quality (Major,Minor,Diminshed)
-	int mainQ;
-	CoreUtil().getRootFromMode(currMode,currRoot,degree,&noteIndex,&mainQ);
-	quality = Quality2Quality[mainQ];
+	CoreUtil().getRootFromMode(currMode,currRoot,degree,&noteIndex,&qualityIndex);
+	quality = Quality2Quality[qualityIndex];
 
 }
 
@@ -322,7 +322,6 @@ struct GalaxyDisplay : TransparentWidget {
 
 		snprintf(text, sizeof(text), "%s", module->modeName.c_str());
 		nvgText(vg, box.size.x - 5, box.pos.y + 11, text, NULL);
-
 
 	}
 	
