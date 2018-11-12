@@ -206,23 +206,19 @@ void Galaxy::step() {
 
 			int chordIndex = ChordTable[quality];
 
+			chordName = 
+				CoreUtil().noteNames[noteIndex] + 
+				CoreUtil().ChordTable[chordIndex].quality + " " + 
+				CoreUtil().inversionNames[inversion];
+
 			if (mode == 2) {
 				rootName = CoreUtil().noteNames[currRoot];
 				modeName = CoreUtil().modeNames[currMode];
-				chordName = 
-					CoreUtil().noteNames[noteIndex] + 
-					CoreUtil().ChordTable[chordIndex].quality;
-				chordExtName = 
-					CoreUtil().inversionNames[inversion] + "[" +
-					CoreUtil().degreeNames[degree * 3 + qualityIndex] + "]"; 
+				chordExtName = CoreUtil().degreeNames[degree * 3 + qualityIndex]; 
 			} else {
 				rootName = "";
 				modeName = "";
-				chordName = 
-					CoreUtil().noteNames[noteIndex] + 
-					CoreUtil().ChordTable[chordIndex].quality;
-				chordExtName = 
-					CoreUtil().inversionNames[inversion];
+				chordExtName = "";
 			}
 
 			lights[NOTE_LIGHT + light].value = 0.0f;
