@@ -50,6 +50,10 @@ struct Galaxy : AHModule {
 		json_t *modeJ = json_integer((int) mode);
 		json_object_set_new(rootJ, "mode", modeJ);
 
+		// inversions
+		json_t *inversionsJ = json_integer((int) allowedInversions);
+		json_object_set_new(rootJ, "inversions", inversionsJ);
+
 		return rootJ;
 	}
 	
@@ -64,6 +68,11 @@ struct Galaxy : AHModule {
 		json_t *modeJ = json_object_get(rootJ, "mode");
 		if (modeJ)
 			mode = json_integer_value(modeJ);
+
+		// mode
+		json_t *inversionsJ = json_object_get(rootJ, "inversions");
+		if (inversionsJ)
+			allowedInversions = json_integer_value(inversionsJ);
 
 	}
 
@@ -96,6 +105,7 @@ struct Galaxy : AHModule {
 
 	int offset = 12; 	   // 0 = random, 12 = lower octave, 24 = repeat, 36 = upper octave
 	int mode = 0; 	   // 0 = random chord, 1 = chord in key, 2 = chord in mode
+	int allowedInversions = 0; // 0 = root only, 1 = root + first, 2 = root, first, second
 
 	std::string rootName;
 	std::string modeName;
@@ -114,6 +124,7 @@ void Galaxy::step() {
 	if (move) {
 
 		bool changed = false;
+		bool haveMode = false;
 
 		if (inputs[MODE_INPUT].active) {
 			float fMode = inputs[MODE_INPUT].value;
@@ -155,6 +166,7 @@ void Galaxy::step() {
 				getFromKey();
 			} else {
 				getFromKeyMode();
+				haveMode = true;
 			}
 
 		}
@@ -163,18 +175,41 @@ void Galaxy::step() {
 		int chord = ChordTable[quality];
 		int *chordArray;
 
-		switch(rand() % 10) {
-			case 0: 
-			case 1: 
-			case 2: 
-			case 3: 
-			case 4: 	
-			case 5: 	inversion = 0; chordArray = CoreUtil().ChordTable[chord].root; 	break;
-			case 6: 
-			case 7: 	
-			case 8: 	inversion = 1; chordArray = CoreUtil().ChordTable[chord].first; 	break;
-			case 9: 	inversion = 2; chordArray = CoreUtil().ChordTable[chord].second;	break;
-			default: 	chordArray = CoreUtil().ChordTable[chord].root;
+		if (allowedInversions == 0) {
+			inversion = 0; 
+			chordArray = CoreUtil().ChordTable[chord].root;
+		} else if (allowedInversions == 1) {
+
+			switch(rand() % 10) {
+				case 0: 
+				case 1: 
+				case 2: 
+				case 3: 
+				case 4: 	
+				case 5: 	
+				case 6: 	inversion = 0; chordArray = CoreUtil().ChordTable[chord].root; 	break;
+				case 7: 	
+				case 8: 	
+				case 9: 	inversion = 1; chordArray = CoreUtil().ChordTable[chord].first; break;
+				default: 	chordArray = CoreUtil().ChordTable[chord].root;
+			}
+
+		} else {
+
+			switch(rand() % 10) {
+				case 0: 
+				case 1: 
+				case 2: 
+				case 3: 
+				case 4: 	
+				case 5: 	inversion = 0; chordArray = CoreUtil().ChordTable[chord].root; 	break;
+				case 6: 
+				case 7: 	
+				case 8: 	inversion = 1; chordArray = CoreUtil().ChordTable[chord].first; 	break;
+				case 9: 	inversion = 2; chordArray = CoreUtil().ChordTable[chord].second;	break;
+				default: 	chordArray = CoreUtil().ChordTable[chord].root;
+			}
+
 		}
 
 		// std::cout << "End position: Root: " << currRoot << 
@@ -231,7 +266,11 @@ void Galaxy::step() {
 			if (mode == 2) {
 				rootName = CoreUtil().noteNames[currRoot];
 				modeName = CoreUtil().modeNames[currMode];
-				chordExtName = CoreUtil().degreeNames[degree * 3 + qualityIndex]; 
+				if (haveMode) {
+					chordExtName = CoreUtil().degreeNames[degree * 3 + qualityIndex];
+				} else {
+					chordExtName = "";
+				} 
 			} else {
 				rootName = "";
 				modeName = "";
@@ -487,9 +526,32 @@ struct GalaxyWidget : ModuleWidget {
 				}
 			};
 
+			struct GalInversionsItem : MenuItem {
+				Galaxy *gal;
+				void onAction(EventAction &e) override {
+					gal->allowedInversions++;
+					if(gal->allowedInversions == 3) {
+						gal->allowedInversions = 0;
+					}
+				}
+				void step() override {
+					if (gal->allowedInversions == 0) {
+						rightText = "Root only";
+					} else if (gal->allowedInversions == 1) {
+						rightText = "Root and First";	
+					} else if (gal->allowedInversions == 2) {
+						rightText = "Root, First and Second";
+					} else {
+						rightText = "Error!";	
+					}
+					MenuItem::step();
+				}
+			};
+
 			menu->addChild(construct<MenuLabel>());
 			menu->addChild(construct<GalOffsetItem>(&MenuItem::text, "Repeat Notes", &GalOffsetItem::gal, gal));
 			menu->addChild(construct<GalModeItem>(&MenuItem::text, "Chord Selection", &GalModeItem::gal, gal));
+			menu->addChild(construct<GalInversionsItem>(&MenuItem::text, "Allowed Chord Inversions", &GalInversionsItem::gal, gal));
 	}
 
 };
