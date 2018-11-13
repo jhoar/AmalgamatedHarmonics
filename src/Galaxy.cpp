@@ -11,6 +11,51 @@ struct Galaxy : AHModule {
 	const static int N_QUALITIES = 6;
 	const static int N_NOTES = 12;
 
+	std::string degNames[42] { // Degree * 3 + Quality
+		"I",
+		"I7",
+		"im7",
+		"IM7",
+		"i",
+		"i°",
+		"II",
+		"II7",
+		"iim7",
+		"IIM7",
+		"ii",
+		"ii°",
+		"III",
+		"III7",
+		"iiim7",
+		"IIIM7",
+		"iii",
+		"iii°",
+		"IV",
+		"IV7",
+		"ivm7",
+		"IVM7",
+		"iv",
+		"iv°",
+		"V",
+		"V7",
+		"vm7",
+		"VM7",
+		"v",
+		"v°",
+		"VI",
+		"VI7",
+		"vim7",
+		"VIM7",
+		"vi",
+		"vi°",
+		"VII",
+		"VII7",
+		"viim7",
+		"VIIM7",
+		"vii",
+		"vii°"
+	};
+
 	enum ParamIds {
 		KEY_PARAM,
 		MODE_PARAM,
@@ -79,7 +124,7 @@ struct Galaxy : AHModule {
 
 	Core core;
 
-	int ChordTable[N_QUALITIES] = { 1, 31, 78, 25, 71, 91 };
+	int ChordTable[N_QUALITIES] = { 1, 31, 78, 25, 71, 91 }; // M, 7, m7, M7, m, dim
 	int Quality2Quality[3] = {0, 4, 5};
 	float outVolts[NUM_PITCHES];
 	
@@ -89,7 +134,7 @@ struct Galaxy : AHModule {
 
 	int degree = 0;
 	int quality = 0;
-	int qualityIndex = 0;
+//	int qualityIndex = 0;
 	int noteIndex = 0; 
 	int inversion = 0;
 
@@ -131,7 +176,7 @@ void Galaxy::step() {
 
 		if (inputs[MODE_INPUT].active) {
 			float fMode = inputs[MODE_INPUT].value;
-			currMode = round(rescale(fabs(fMode), 0.0f, 10.0f, 0.0f, 6.0f)); 
+			currMode = CoreUtil().getModeFromVolts(fMode);
 		} else {
 			currMode = params[MODE_PARAM].value;
 		}
@@ -275,7 +320,7 @@ void Galaxy::step() {
 				rootName = CoreUtil().noteNames[currRoot];
 				modeName = CoreUtil().modeNames[currMode];
 				if (haveMode) {
-					chordExtName = CoreUtil().degreeNames[degree * 3 + qualityIndex];
+					chordExtName = degNames[degree * 6 + quality];
 				} else {
 					chordExtName = "";
 				} 
@@ -387,8 +432,40 @@ void Galaxy::getFromKeyMode() {
 	}
 
 	// From the input root, mode and degree, we can get the root chord note and quality (Major,Minor,Diminshed)
-	CoreUtil().getRootFromMode(currMode,currRoot,degree,&noteIndex,&qualityIndex);
-	quality = Quality2Quality[qualityIndex];
+	int q;
+	CoreUtil().getRootFromMode(currMode,currRoot,degree,&noteIndex,&q);
+
+	if (q == 0) { // Maj
+		switch(rand() % 10) {
+			case 0: 
+			case 1: 
+			case 2: 
+			case 3: 
+			case 4: 	
+			case 5: 	
+			case 6: 	quality = 0; break; 
+			case 7: 	
+			case 8: 	quality = 3; break; // M --> Maj7
+			case 9: 	quality = 1; break; // M --> 7
+			default: 	quality = 0;
+		}
+	} else if (q == 1) { // Min
+		switch(rand() % 10) {
+			case 0: 
+			case 1: 
+			case 2: 
+			case 3: 
+			case 4: 	
+			case 5: 	
+			case 6: 	quality = 4; break; 
+			case 7: 	
+			case 8: 	quality = 2; break; // m --> Min7
+			case 9: 	quality = 1; break; // m --> 7
+			default: 	quality = 0;
+		}
+	} else {
+		quality = 5; // Dim --> Dim
+	}
 
 }
 
