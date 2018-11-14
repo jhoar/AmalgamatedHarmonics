@@ -10,6 +10,7 @@ struct Galaxy : AHModule {
 	const static int NUM_PITCHES = 6;
 	const static int N_QUALITIES = 6;
 	const static int N_NOTES = 12;
+	const static int QMAP_SIZE = 20;
 
 	std::string degNames[42] { // Degree * 3 + Quality
 		"I",
@@ -125,7 +126,12 @@ struct Galaxy : AHModule {
 	Core core;
 
 	int ChordTable[N_QUALITIES] = { 1, 31, 78, 25, 71, 91 }; // M, 7, m7, M7, m, dim
-	int Quality2Quality[3] = {0, 4, 5};
+	int QualityMap[3][QMAP_SIZE] = { 
+		{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,1},
+		{4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,2,2,2,1},
+		{5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5}
+	};
+
 	float outVolts[NUM_PITCHES];
 	
 	int poll = 50000;
@@ -434,38 +440,7 @@ void Galaxy::getFromKeyMode() {
 	// From the input root, mode and degree, we can get the root chord note and quality (Major,Minor,Diminshed)
 	int q;
 	CoreUtil().getRootFromMode(currMode,currRoot,degree,&noteIndex,&q);
-
-	if (q == 0) { // Maj
-		switch(rand() % 10) {
-			case 0: 
-			case 1: 
-			case 2: 
-			case 3: 
-			case 4: 	
-			case 5: 	
-			case 6: 	quality = 0; break; 
-			case 7: 	
-			case 8: 	quality = 3; break; // M --> Maj7
-			case 9: 	quality = 1; break; // M --> 7
-			default: 	quality = 0;
-		}
-	} else if (q == 1) { // Min
-		switch(rand() % 10) {
-			case 0: 
-			case 1: 
-			case 2: 
-			case 3: 
-			case 4: 	
-			case 5: 	
-			case 6: 	quality = 4; break; 
-			case 7: 	
-			case 8: 	quality = 2; break; // m --> Min7
-			case 9: 	quality = 1; break; // m --> 7
-			default: 	quality = 0;
-		}
-	} else {
-		quality = 5; // Dim --> Dim
-	}
+	quality = QualityMap[q][rand() % QMAP_SIZE];
 
 }
 
