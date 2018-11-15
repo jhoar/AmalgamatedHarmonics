@@ -174,24 +174,36 @@ void Galaxy::step() {
 	// Get inputs from Rack
 	bool move = moveTrigger.process(inputs[MOVE_INPUT].value);
 
+	if (inputs[MODE_INPUT].active) {
+		float fMode = inputs[MODE_INPUT].value;
+		currMode = CoreUtil().getModeFromVolts(fMode);
+	} else {
+		currMode = params[MODE_PARAM].value;
+	}
+
+	if (inputs[KEY_INPUT].active) {
+		float fRoot = inputs[KEY_INPUT].value;
+		currRoot = CoreUtil().getKeyFromVolts(fRoot);
+	} else {
+		currRoot = params[KEY_PARAM].value;
+	}
+
+	if (mode == 1) {
+		rootName = CoreUtil().noteNames[currRoot];
+		modeName = "";
+	} else if (mode == 2) {
+		rootName = CoreUtil().noteNames[currRoot];
+		modeName = CoreUtil().modeNames[currMode];
+	} else {
+		rootName = "";
+		modeName = "";
+		chordExtName = "";
+	}
+
 	if (move) {
 
 		bool changed = false;
 		bool haveMode = false;
-
-		if (inputs[MODE_INPUT].active) {
-			float fMode = inputs[MODE_INPUT].value;
-			currMode = CoreUtil().getModeFromVolts(fMode);
-		} else {
-			currMode = params[MODE_PARAM].value;
-		}
-
-		if (inputs[KEY_INPUT].active) {
-			float fRoot = inputs[KEY_INPUT].value;
-			currRoot = CoreUtil().getKeyFromVolts(fRoot);
-		} else {
-			currRoot = params[KEY_PARAM].value;
-		}
 
 		// std::cout << "Str position: Root: " << currRoot << 
 		// 	" Mode: " << currMode << 
@@ -322,17 +334,11 @@ void Galaxy::step() {
 				CoreUtil().inversionNames[inversion];
 
 			if (mode == 2) {
-				rootName = CoreUtil().noteNames[currRoot];
-				modeName = CoreUtil().modeNames[currMode];
 				if (haveMode) {
 					chordExtName = degNames[degree * 6 + quality];
 				} else {
 					chordExtName = "";
 				} 
-			} else {
-				rootName = "";
-				modeName = "";
-				chordExtName = "";
 			}
 
 			lights[NOTE_LIGHT + light].value = 0.0f;
