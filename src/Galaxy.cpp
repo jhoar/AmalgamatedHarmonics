@@ -140,7 +140,6 @@ struct Galaxy : AHModule {
 
 	int degree = 0;
 	int quality = 0;
-//	int qualityIndex = 0;
 	int noteIndex = 0; 
 	int inversion = 0;
 
@@ -150,7 +149,7 @@ struct Galaxy : AHModule {
 
 	int currRoot = 1;
 	int currMode = 1;
-	int light;
+	int light = 0;
 
 	bool haveRoot = false;
 	bool haveMode = false;
@@ -159,11 +158,11 @@ struct Galaxy : AHModule {
 	int mode = 0; 	   // 0 = random chord, 1 = chord in key, 2 = chord in mode
 	int allowedInversions = 0; // 0 = root only, 1 = root + first, 2 = root, first, second
 
-	std::string rootName;
-	std::string modeName;
+	std::string rootName = "";
+	std::string modeName = "";
 
-	std::string chordName;
-	std::string chordExtName;
+	std::string chordName = "";
+	std::string chordExtName = "";
 };
 
 void Galaxy::step() {
