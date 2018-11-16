@@ -155,7 +155,7 @@ struct Galaxy : AHModule {
 	bool haveMode = false;
 
 	int offset = 12; 	   // 0 = random, 12 = lower octave, 24 = repeat, 36 = upper octave
-	int mode = 0; 	   // 0 = random chord, 1 = chord in key, 2 = chord in mode
+	int mode = 1; 	   // 0 = random chord, 1 = chord in key, 2 = chord in mode
 	int allowedInversions = 0; // 0 = root only, 1 = root + first, 2 = root, first, second
 
 	std::string rootName = "";
