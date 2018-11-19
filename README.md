@@ -13,5 +13,5 @@ Welcome to the Amalgamated Harmonics; your one-stop shop for barely usable modul
 * [D'acchord](https://github.com/jhoar/AmalgamatedHarmonics/wiki/Chord), Six voice VCO based on the Befaco VCO implementation.
 * [Galaxy](https://github.com/jhoar/AmalgamatedHarmonics/wiki/Galaxy), Semi-random chord generation.
 
-The latest release is [0.6.2](https://github.com/jhoar/AmalgamatedHarmonics/releases/tag/v0.6.2). It is available through the [Plugin Manager](https://vcvrack.com/plugins.html). You can contact us at amalgamatedharmonics@outlook.com. We do not post on Facebook.
+The latest release is [0.6.3.1](https://github.com/jhoar/AmalgamatedHarmonics/releases/tag/v0.6.3.1). It is available through the [Plugin Manager](https://vcvrack.com/plugins.html). You can contact us at amalgamatedharmonics@outlook.com. We do not post on Facebook.
 
