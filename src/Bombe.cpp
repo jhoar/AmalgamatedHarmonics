@@ -39,6 +39,8 @@ struct Bombe : AHModule {
 		CLOCK_INPUT,
 		KEY_INPUT,
 		MODE_INPUT,
+		FREEZE_INPUT,
+		Y_INPUT,
 		NUM_INPUTS
 	};
 	enum OutputIds {
@@ -231,10 +233,10 @@ void Bombe::step() {
 	}
 
 	float x = params[X_PARAM].value;
-	float y = params[Y_PARAM].value;
+	float y = params[Y_PARAM].value + inputs[Y_PARAM].value * 0.1f;
 	length = params[LENGTH_PARAM].value;
 
-	if (x >= 1.0f) {
+	if ((x >= 1.0f) || (inputs[FREEZE_INPUT].value > 0.000001f)) {
 		locked = true;
 	}
 
@@ -462,9 +464,11 @@ struct BombeWidget : ModuleWidget {
 		addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 5, 4, true, false), module, Bombe::LENGTH_PARAM, 2.0, 16.0, 0.0)); 
 
 		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 0, 3, true, false), module, Bombe::X_PARAM, 0.0, 1.0001, 0.5)); 
-		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 5, 3, true, false), module, Bombe::Y_PARAM, 0.0, 1.0001, 0.5)); 
+		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 1, 3, true, false), Port::INPUT, module, Bombe::FREEZE_INPUT));
+		addChild(ModuleLightWidget::create<SmallLight<GreenRedLight>>(ui.getPosition(UI::LIGHT, 2, 3, true, false), module, Bombe::LOCK_LIGHT));
 
-		addChild(ModuleLightWidget::create<MediumLight<GreenRedLight>>(ui.getPosition(UI::LIGHT, 1, 3, true, false), module, Bombe::LOCK_LIGHT));
+		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 4, 3, true, false), module, Bombe::Y_PARAM, 0.0, 1.0001, 0.5)); 
+		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 5, 3, true, false), Port::INPUT, module, Bombe::Y_INPUT));
 
 	}
 
