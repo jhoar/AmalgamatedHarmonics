@@ -9,9 +9,14 @@ struct BombeChord {
 	int rootNote;
 	int quality;
 	int chord;
-	int modeDegree; // -1 no mode
+	int modeDegree;
 	int inversion;
 	float outVolts[6];
+	BombeChord() : rootNote(0), quality(0), chord(0), modeDegree(0), inversion(0) {
+		for (int j = 0; j < 6; j++) {
+			outVolts[j] = 0.0f;
+		}
+	}
 };
 
 struct Bombe : AHModule {
@@ -41,23 +46,17 @@ struct Bombe : AHModule {
 		NUM_OUTPUTS
 	};
 	enum LightIds {
-		LOCK_LIGHT,
+		ENUMS(LOCK_LIGHT,2),
 		NUM_LIGHTS
 	};
 	
 	Bombe() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
 		for(int i = 0; i < BUFFERSIZE; i++) {
-			buffer[i].modeDegree = 0;
-			buffer[i].rootNote = 0;
-			buffer[i].chord = 0;
-			buffer[i].quality = 0;
-			buffer[i].inversion = 0;
-			for (int j = 0; j < NUM_PITCHES; j++) {
-				buffer[i].outVolts[j] = 0.0f;
-			}
+			buffer[i].chord = 1;
 		}
 	}
 	void step() override;
+	void mode1(BombeChord lastValue, float x, float y);
 
 	json_t *toJson() override {
 		json_t *rootJ = json_object();
@@ -113,6 +112,7 @@ struct Bombe : AHModule {
 	int currRoot = 1;
 	int currMode = 1;
 	int currInversion = 0;
+	int length = 16;
 
 	int offset = 12; 	   // 0 = random, 12 = lower octave, 24 = repeat, 36 = upper octave
 	int mode = 1; 	   // 0 = random chord, 1 = chord in key, 2 = chord in mode
@@ -123,8 +123,25 @@ struct Bombe : AHModule {
 
 	const static int BUFFERSIZE = 16;
 	BombeChord buffer[BUFFERSIZE];
+	BombeChord displayBuffer[BUFFERSIZE];
 
 };
+
+void Bombe::mode1(BombeChord lastValue, float x, float y) {
+
+		// Recalculate new value of buffer[0].outVolts from lastValue
+	int shift = (rand() % (N_DEGREES - 1)) + 1; // 1 - 6 - always new chord
+	buffer[0].modeDegree = (lastValue.modeDegree + shift) % N_DEGREES;
+
+	int q;
+	int n;
+	CoreUtil().getRootFromMode(currMode,currRoot,buffer[0].modeDegree,&n,&q);
+	buffer[0].rootNote = n;
+	buffer[0].quality = q; // 0 = Maj, 1 = Min, 2 = Dim
+	buffer[0].chord = Quality2Chord[q]; // Get the index into the main chord table
+	buffer[0].inversion = InversionMap[allowedInversions][rand() % QMAP_SIZE];
+
+}
 
 void Bombe::step() {
 	
@@ -132,6 +149,8 @@ void Bombe::step() {
 
 	// Get inputs from Rack
 	bool clocked = clockTrigger.process(inputs[CLOCK_INPUT].value);
+	bool locked = false;
+	bool updated = false;
 
 	if (inputs[MODE_INPUT].active) {
 		float fMode = inputs[MODE_INPUT].value;
@@ -149,9 +168,11 @@ void Bombe::step() {
 
 	float x = params[X_PARAM].value;
 	float y = params[Y_PARAM].value;
-	int length = params[LENGTH_PARAM].value;
+	length = params[LENGTH_PARAM].value;
 
-	bool locked = (x >= 1.0f);
+	if (x >= 1.0f) {
+		locked = true;
+	}
 
 	if (mode == 1) {
 		rootName = CoreUtil().noteNames[currRoot];
@@ -170,7 +191,7 @@ void Bombe::step() {
 		BombeChord lastValue = buffer[length - 1];
 
 		// Shift buffer
-		for(int i = length; i > 0; i--) {
+		for(int i = length - 1; i > 0; i--) {
 			buffer[i] = buffer[i-1];
 		}
 
@@ -179,46 +200,70 @@ void Bombe::step() {
 			// Buffer is locked, so just copy last value
 			buffer[0] = lastValue;
 		} else {
-			// Recalculate new value of buffer[0].outVolts
-			int shift = (rand() % (N_DEGREES - 1)) + 1; // 1 - 6 - always new chord
-			buffer[0].modeDegree = (buffer[0].modeDegree + shift) % N_DEGREES;
 
-			int q;
-			int n;
-			CoreUtil().getRootFromMode(currMode,currRoot,buffer[0].modeDegree,&n,&q);
-			buffer[0].rootNote = n;
-			buffer[0].quality = q; // 0 = Maj, 1 = Min, 2 = Dim
-			buffer[0].chord = Quality2Chord[q]; // Get the index into the main chord table
-			buffer[0].inversion = InversionMap[allowedInversions][rand() % QMAP_SIZE];
+			if (randomUniform() < x) {
+				// Buffer update skipped, so just copy last value
+				buffer[0] = lastValue;
+			} else {
+				
+				// We are going to update this entry 
+				updated = true;
 
-			// Determine which chord corresponds to the grid position
-			int *chordArray;
-			switch(buffer[0].inversion) {
-				case 0: 	chordArray = CoreUtil().ChordTable[buffer[0].chord].root; 	break;
-				case 1: 	chordArray = CoreUtil().ChordTable[buffer[0].chord].first; 	break;
-				case 2: 	chordArray = CoreUtil().ChordTable[buffer[0].chord].second;	break;
-				default: 	chordArray = CoreUtil().ChordTable[buffer[0].chord].root;
-			}
+				switch(mode) {
+					case 0:	mode1(lastValue, x, y); break;
+					default: mode1(lastValue, x, y);
+				}
 
-			// Determine which notes corresponds to the chord
-			for (int j = 0; j < NUM_PITCHES; j++) {
-				if (chordArray[j] < 0) {
-					int off = offset;
-					if (offset == 0) { // if offset = 0, randomise offset per note
-						off = (rand() % 3 + 1) * 12;
-					}
-					buffer[0].outVolts[j] = CoreUtil().getVoltsFromPitch(chordArray[j] + off, buffer[0].rootNote);			
-				} else {
-					buffer[0].outVolts[j] = CoreUtil().getVoltsFromPitch(chordArray[j], buffer[0].rootNote);			
-				}	
+				// Determine which chord corresponds to the grid position
+				int *chordArray;
+				switch(buffer[0].inversion) {
+					case 0: 	chordArray = CoreUtil().ChordTable[buffer[0].chord].root; 	break;
+					case 1: 	chordArray = CoreUtil().ChordTable[buffer[0].chord].first; 	break;
+					case 2: 	chordArray = CoreUtil().ChordTable[buffer[0].chord].second;	break;
+					default: 	chordArray = CoreUtil().ChordTable[buffer[0].chord].root;
+				}
+
+				// Determine which notes corresponds to the chord
+				for (int j = 0; j < NUM_PITCHES; j++) {
+					if (chordArray[j] < 0) {
+						int off = offset;
+						if (offset == 0) { // if offset = 0, randomise offset per note
+							off = (rand() % 3 + 1) * 12;
+						}
+						buffer[0].outVolts[j] = CoreUtil().getVoltsFromPitch(chordArray[j] + off, buffer[0].rootNote);			
+					} else {
+						buffer[0].outVolts[j] = CoreUtil().getVoltsFromPitch(chordArray[j], buffer[0].rootNote);			
+					}	
+				}
 			}
 		}
+
+		for(int i = BUFFERSIZE - 1; i > 0; i--) {
+			displayBuffer[i] = displayBuffer[i-1];
+		}
+		displayBuffer[0] = buffer[0];
+
+		// for(int i = 0; i < BUFFERSIZE; i++) {
+		// 	std::cout << buffer[i].rootNote;
+		// }
+		// std::cout << std::endl;
+
+		// for(int i = 0; i < BUFFERSIZE; i++) {
+		// 	std::cout << displayBuffer[i].rootNote;
+		// }
+		// std::cout << std::endl << std::endl;
+		
 	}
 
-	if (locked) {
+	if (updated) { // Green Update
 		lights[LOCK_LIGHT].setBrightnessSmooth(1.0f);
-	} else {
+		lights[LOCK_LIGHT + 1].setBrightnessSmooth(0.0f);
+	} else if (locked) { // Yellow locked
 		lights[LOCK_LIGHT].setBrightnessSmooth(0.0f);
+		lights[LOCK_LIGHT + 1].setBrightnessSmooth(1.0f);
+	} else { // No change
+		lights[LOCK_LIGHT].setBrightnessSmooth(0.0f);
+		lights[LOCK_LIGHT + 1].setBrightnessSmooth(0.0f);
 	}
 
 	// Set the output pitches and lights
@@ -247,23 +292,31 @@ struct BombeDisplay : TransparentWidget {
 
 		char text[128];
 
-		std::string chordName = 
-			CoreUtil().noteNames[module->buffer[0].rootNote] + 
-			CoreUtil().ChordTable[module->buffer[0].chord].quality + " " + 
-			CoreUtil().inversionNames[module->buffer[0].inversion];
+		for (int i = 0; i < 7; i++)  {
 
-		std::string chordExtName = "";
+			std::string chordName = "";
+			std::string chordExtName = "";
 
-		if (module->mode == 2) {
-			int index = module->buffer[0].modeDegree * 3 + module->buffer[0].quality;
-			chordExtName = CoreUtil().degreeNames[index];
+			if (module->displayBuffer[i].chord != 0) {
+
+				chordName = 
+					CoreUtil().noteNames[module->displayBuffer[i].rootNote] + 
+					CoreUtil().ChordTable[module->displayBuffer[i].chord].quality + " " + 
+					CoreUtil().inversionNames[module->displayBuffer[i].inversion];
+
+				if (module->mode == 2) {
+					int index = module->displayBuffer[i].modeDegree * 3 + module->displayBuffer[i].quality;
+					chordExtName = CoreUtil().degreeNames[index];
+				}
+			}
+
+			snprintf(text, sizeof(text), "%s %s", chordName.c_str(), chordExtName.c_str());
+			nvgText(vg, box.pos.x + 5, box.pos.y + i * 12, text, NULL);
+			nvgFillColor(vg, nvgRGBA(255 - i * 35, 0, 0, 0xff));
+
 		}
 
-		snprintf(text, sizeof(text), "%s", chordName.c_str());
-		nvgText(vg, box.pos.x + 5, box.pos.y, text, NULL);
-
-		snprintf(text, sizeof(text), "%s", chordExtName.c_str());
-		nvgText(vg, box.pos.x + 5, box.pos.y + 11, text, NULL);
+		nvgFillColor(vg, nvgRGBA(255, 0, 0, 0xff));
 
 		nvgTextAlign(vg, NVG_ALIGN_RIGHT);
 		snprintf(text, sizeof(text), "%s", module->rootName.c_str());
@@ -319,10 +372,10 @@ struct BombeWidget : ModuleWidget {
 		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 4, 4, true, false), Port::INPUT, module, Bombe::CLOCK_INPUT));
 		addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 5, 4, true, false), module, Bombe::LENGTH_PARAM, 2.0, 16.0, 0.0)); 
 
-		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 0, 3, true, false), module, Bombe::X_PARAM, 0.0, 1.001, 0.0)); 
-		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 5, 3, true, false), module, Bombe::Y_PARAM, 0.0, 1.001, 0.0)); 
+		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 0, 3, true, false), module, Bombe::X_PARAM, 0.0, 1.0001, 0.5)); 
+		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 5, 3, true, false), module, Bombe::Y_PARAM, 0.0, 1.0001, 0.5)); 
 
-		addChild(ModuleLightWidget::create<MediumLight<RedLight>>(ui.getPosition(UI::LIGHT, 1, 3, true, false), module, Bombe::LOCK_LIGHT));
+		addChild(ModuleLightWidget::create<MediumLight<GreenRedLight>>(ui.getPosition(UI::LIGHT, 1, 3, true, false), module, Bombe::LOCK_LIGHT));
 
 	}
 
@@ -399,26 +452,14 @@ Menu *BombeWidget::createContextMenu() {
 	menu->addChild(offsetRandomItem);
 
 	MenuLabel *modeLabel = new MenuLabel();
-	modeLabel->text = "Chord Selection";
+	modeLabel->text = "Mode";
 	menu->addChild(modeLabel);
 
 	BombeModeItem *modeRandomItem = new BombeModeItem();
-	modeRandomItem->text = "Random";
+	modeRandomItem->text = "Mode 1";
 	modeRandomItem->bombe = bombe;
 	modeRandomItem->mode = 0;
 	menu->addChild(modeRandomItem);
-
-	BombeModeItem *modeKeyItem = new BombeModeItem();
-	modeKeyItem->text = "in Key";
-	modeKeyItem->bombe = bombe;
-	modeKeyItem->mode = 1;
-	menu->addChild(modeKeyItem);
-
-	BombeModeItem *modeModeItem = new BombeModeItem();
-	modeModeItem->text = "in Mode";
-	modeModeItem->bombe = bombe;
-	modeModeItem->mode = 2;
-	menu->addChild(modeModeItem);
 
 	MenuLabel *invLabel = new MenuLabel();
 	invLabel->text = "Allowed Chord Inversions";
