@@ -56,7 +56,11 @@ struct Bombe : AHModule {
 		}
 	}
 	void step() override;
-	void mode1(BombeChord lastValue, float x, float y);
+	void modeRandom(BombeChord lastValue, float y);
+	void modeSimple(BombeChord lastValue, float y);
+	void modeKey(BombeChord lastValue, float y);
+	void modeGalaxy(BombeChord lastValue, float y);
+	void modeComplex(BombeChord lastValue, float y);
 
 	json_t *toJson() override {
 		json_t *rootJ = json_object();
@@ -99,6 +103,12 @@ struct Bombe : AHModule {
 
 	int Quality2Chord[N_QUALITIES] = { 1, 71, 91 }; // M, m, dim
 
+	int QualityMap[3][QMAP_SIZE] = { 
+		{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,25,25,25,31},
+		{71,71,71,71,71,71,71,71,71,71,71,71,71,71,71,71,78,78,78,31},
+		{91,91,91,91,91,91,91,91,91,91,91,91,91,91,91,91,91,91,91,91}
+	};
+
 	int InversionMap[3][QMAP_SIZE] = { 
 		{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
 		{0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1},
@@ -127,20 +137,74 @@ struct Bombe : AHModule {
 
 };
 
-void Bombe::mode1(BombeChord lastValue, float x, float y) {
+void Bombe::modeSimple(BombeChord lastValue, float y) {
 
-		// Recalculate new value of buffer[0].outVolts from lastValue
+	// Recalculate new value of buffer[0].outVolts from lastValue
 	int shift = (rand() % (N_DEGREES - 1)) + 1; // 1 - 6 - always new chord
-	buffer[0].modeDegree = (lastValue.modeDegree + shift) % N_DEGREES;
+	buffer[0].modeDegree = (lastValue.modeDegree + shift) % N_DEGREES; // FIXME, come from mode2 modeDeg == -1!
 
 	int q;
 	int n;
 	CoreUtil().getRootFromMode(currMode,currRoot,buffer[0].modeDegree,&n,&q);
 	buffer[0].rootNote = n;
 	buffer[0].quality = q; // 0 = Maj, 1 = Min, 2 = Dim
-	buffer[0].chord = Quality2Chord[q]; // Get the index into the main chord table
+
+	if (randomUniform() < y) {
+		buffer[0].chord = QualityMap[q][rand() % QMAP_SIZE]; // Get the index into the main chord table
+	} else {
+		buffer[0].chord = Quality2Chord[q]; // Get the index into the main chord table
+	}
+
 	buffer[0].inversion = InversionMap[allowedInversions][rand() % QMAP_SIZE];
 
+}
+
+void Bombe::modeRandom(BombeChord lastValue, float y) {
+
+	// Recalculate new value of buffer[0].outVolts from lastValue
+	int shift = (rand() % (N_NOTES - 1)) + 1; // 1 - 12 - always new chord
+	buffer[0].rootNote = (lastValue.rootNote + shift) % N_NOTES;
+	buffer[0].modeDegree = -1; // FIXME
+	buffer[0].quality = -1; // FIXME
+	buffer[0].chord = (rand() % (CoreUtil().NUM_CHORDS - 1)) + 1; // Get the index into the main chord table
+	buffer[0].inversion = InversionMap[allowedInversions][rand() % QMAP_SIZE];
+
+}
+
+void Bombe::modeKey(BombeChord lastValue, float y) {
+
+	int shift = (rand() % (N_DEGREES - 1)) + 1; // 1 - 6 - always new chord
+	buffer[0].modeDegree = (lastValue.modeDegree + shift) % N_DEGREES; // FIXME, come from mode2 modeDeg == -1!
+
+	int q;
+	int n;
+	CoreUtil().getRootFromMode(currMode,currRoot,buffer[0].modeDegree,&n,&q);
+
+	buffer[0].rootNote = n;
+	buffer[0].quality = -1; // FIXME
+	buffer[0].chord = (rand() % (CoreUtil().NUM_CHORDS - 1)) + 1; // Get the index into the main chord table
+	buffer[0].inversion = InversionMap[allowedInversions][rand() % QMAP_SIZE];
+
+}
+
+void Bombe::modeGalaxy(BombeChord lastValue, float y) {
+
+	float excess = y - randomUniform();
+
+	if (excess < 0.0) {
+		modeSimple(lastValue, y);
+	} else {
+		if (excess < 0.2) {
+			modeKey(lastValue, y);
+		} else {
+			modeRandom(lastValue, y);
+		}
+	}
+
+}
+
+void Bombe::modeComplex(BombeChord lastValue, float y) {
+	modeGalaxy(lastValue, y); // Default to Galaxy
 }
 
 void Bombe::step() {
@@ -174,15 +238,26 @@ void Bombe::step() {
 		locked = true;
 	}
 
-	if (mode == 1) {
-		rootName = CoreUtil().noteNames[currRoot];
-		modeName = "";
-	} else if (mode == 2) {
-		rootName = CoreUtil().noteNames[currRoot];
-		modeName = CoreUtil().modeNames[currMode];
-	} else {
-		rootName = "";
-		modeName = "";
+	switch(mode) {
+		case 0: // Random
+			rootName = "";
+			modeName = "";
+			break;
+		case 1: // Simple
+			rootName = CoreUtil().noteNames[currRoot];
+			modeName = CoreUtil().modeNames[currMode];
+			break;
+		case 2: // Galaxy
+			rootName = CoreUtil().noteNames[currRoot];
+			modeName = CoreUtil().modeNames[currMode];
+			break;
+		case 3: // Complex
+			rootName = CoreUtil().noteNames[currRoot];
+			modeName = CoreUtil().modeNames[currMode];
+			break;
+		default:
+			rootName = "";
+			modeName = "";
 	}
 
 	if (clocked) {
@@ -210,8 +285,11 @@ void Bombe::step() {
 				updated = true;
 
 				switch(mode) {
-					case 0:	mode1(lastValue, x, y); break;
-					default: mode1(lastValue, x, y);
+					case 0:	modeRandom(lastValue, y); break;
+					case 1:	modeSimple(lastValue, y); break;
+					case 2:	modeGalaxy(lastValue, y); break;
+					case 3:	modeComplex(lastValue, y); break;
+					default: modeSimple(lastValue, y);
 				}
 
 				// Determine which chord corresponds to the grid position
@@ -304,9 +382,20 @@ struct BombeDisplay : TransparentWidget {
 					CoreUtil().ChordTable[module->displayBuffer[i].chord].quality + " " + 
 					CoreUtil().inversionNames[module->displayBuffer[i].inversion];
 
-				if (module->mode == 2) {
-					int index = module->displayBuffer[i].modeDegree * 3 + module->displayBuffer[i].quality;
-					chordExtName = CoreUtil().degreeNames[index];
+				switch(module->mode) {
+					case 0:
+						chordExtName = "";
+						break;
+					case 1:
+					case 2:
+					case 3:
+						if (module->displayBuffer[i].modeDegree != -1 && module->displayBuffer[i].quality != -1) { // FIXME
+							int index = module->displayBuffer[i].modeDegree * 3 + module->displayBuffer[i].quality;
+							chordExtName = CoreUtil().degreeNames[index];
+						}
+						break;
+					default:
+						chordExtName = "";
 				}
 			}
 
@@ -456,10 +545,28 @@ Menu *BombeWidget::createContextMenu() {
 	menu->addChild(modeLabel);
 
 	BombeModeItem *modeRandomItem = new BombeModeItem();
-	modeRandomItem->text = "Mode 1";
+	modeRandomItem->text = "Random";
 	modeRandomItem->bombe = bombe;
 	modeRandomItem->mode = 0;
 	menu->addChild(modeRandomItem);
+
+	BombeModeItem *modeSimpleItem = new BombeModeItem();
+	modeSimpleItem->text = "Simple";
+	modeSimpleItem->bombe = bombe;
+	modeSimpleItem->mode = 1;
+	menu->addChild(modeSimpleItem);
+
+	BombeModeItem *modeGalaxyItem = new BombeModeItem();
+	modeGalaxyItem->text = "Galaxy";
+	modeGalaxyItem->bombe = bombe;
+	modeGalaxyItem->mode = 2;
+	menu->addChild(modeGalaxyItem);
+
+	BombeModeItem *modeComplexItem = new BombeModeItem();
+	modeComplexItem->text = "Complex";
+	modeComplexItem->bombe = bombe;
+	modeComplexItem->mode = 3;
+	menu->addChild(modeComplexItem);
 
 	MenuLabel *invLabel = new MenuLabel();
 	invLabel->text = "Allowed Chord Inversions";
