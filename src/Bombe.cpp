@@ -566,7 +566,7 @@ Menu *BombeWidget::createContextMenu() {
 	modeComplexItem->text = "Complex";
 	modeComplexItem->bombe = bombe;
 	modeComplexItem->mode = 3;
-	menu->addChild(modeComplexItem);
+	// menu->addChild(modeComplexItem);
 
 	MenuLabel *invLabel = new MenuLabel();
 	invLabel->text = "Allowed Chord Inversions";
