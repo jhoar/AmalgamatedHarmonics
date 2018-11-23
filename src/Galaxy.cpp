@@ -131,6 +131,12 @@ struct Galaxy : AHModule {
 		{4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,2,2,2,1},
 		{5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5}
 	};
+	int InversionMap[3][QMAP_SIZE] = { 
+		{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+		{0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1},
+		{0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,2,2},
+	};
+
 
 	float outVolts[NUM_PITCHES];
 	
@@ -241,45 +247,16 @@ void Galaxy::step() {
 
 		}
 
-		// Determine which chord corresponds to the grid position
+		inversion = InversionMap[allowedInversions][rand() % QMAP_SIZE];
 		int chord = ChordTable[quality];
+
+		// Determine which chord corresponds to the grid position
 		int *chordArray;
-
-		if (allowedInversions == 0) {
-			inversion = 0; 
-			chordArray = CoreUtil().ChordTable[chord].root;
-		} else if (allowedInversions == 1) {
-
-			switch(rand() % 10) {
-				case 0: 
-				case 1: 
-				case 2: 
-				case 3: 
-				case 4: 	
-				case 5: 	
-				case 6: 	inversion = 0; chordArray = CoreUtil().ChordTable[chord].root; 	break;
-				case 7: 	
-				case 8: 	
-				case 9: 	inversion = 1; chordArray = CoreUtil().ChordTable[chord].first; break;
-				default: 	chordArray = CoreUtil().ChordTable[chord].root;
-			}
-
-		} else {
-
-			switch(rand() % 10) {
-				case 0: 
-				case 1: 
-				case 2: 
-				case 3: 
-				case 4: 	
-				case 5: 	inversion = 0; chordArray = CoreUtil().ChordTable[chord].root; 	break;
-				case 6: 
-				case 7: 	
-				case 8: 	inversion = 1; chordArray = CoreUtil().ChordTable[chord].first; 	break;
-				case 9: 	inversion = 2; chordArray = CoreUtil().ChordTable[chord].second;	break;
-				default: 	chordArray = CoreUtil().ChordTable[chord].root;
-			}
-
+		switch(inversion) {
+			case 0: 	chordArray = CoreUtil().ChordTable[chord].root; 	break;
+			case 1: 	chordArray = CoreUtil().ChordTable[chord].first; 	break;
+			case 2: 	chordArray = CoreUtil().ChordTable[chord].second;	break;
+			default: 	chordArray = CoreUtil().ChordTable[chord].root;
 		}
 
 		// std::cout << "End position: Root: " << currRoot << 
