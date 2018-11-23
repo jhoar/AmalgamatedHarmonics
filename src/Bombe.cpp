@@ -103,8 +103,11 @@ struct Bombe : AHModule {
 
 	Core core;
 
-	int Quality2Chord[N_QUALITIES] = { 1, 71, 91 }; // M, m, dim
+	const static int N_CHORDS = 98;
 
+	int ChordMap[N_CHORDS] = {1,2,26,29,71,28,72,91,31,97,25,44,54,61,78,95,10,14,15,17,48,79,81,85,11,30,89,94,24,3,90,98,96,60,55,86,5,93,7,56,92,16,32,46,62,77,18,49,65,68,70,82,20,22,23,45,83,87,6,21,27,42,80,9,52,69,76,13,37,88,53,58,8,41,57,47,64,73,19,50,59,66,74,12,35,38,63,33,34,51,4,36,40,43,84,67,39,75};
+ 	int MajorScale[7] = {0,2,4,5,7,9,11};
+	int Quality2Chord[N_QUALITIES] = { 1, 71, 91 }; // M, m, dim
 	int QualityMap[3][QMAP_SIZE] = { 
 		{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,25,25,25,31},
 		{71,71,71,71,71,71,71,71,71,71,71,71,71,71,71,71,78,78,78,31},
@@ -164,11 +167,18 @@ void Bombe::modeSimple(BombeChord lastValue, float y) {
 void Bombe::modeRandom(BombeChord lastValue, float y) {
 
 	// Recalculate new value of buffer[0].outVolts from lastValue
-	int shift = (rand() % (N_NOTES - 1)) + 1; // 1 - 12 - always new chord
-	buffer[0].rootNote = (lastValue.rootNote + shift) % N_NOTES;
+	float p = randomUniform();
+	if (p < y) {
+		buffer[0].rootNote = rand() % 12; 
+	} else {
+		buffer[0].rootNote = MajorScale[rand() % 7]; 
+	}
+
 	buffer[0].modeDegree = -1; // FIXME
 	buffer[0].quality = -1; // FIXME
-	buffer[0].chord = (rand() % (CoreUtil().NUM_CHORDS - 1)) + 1; // Get the index into the main chord table
+
+	int maxChord = (int)((float)N_CHORDS * y) + 1;
+	buffer[0].chord = ChordMap[rand() % maxChord]; 
 	buffer[0].inversion = InversionMap[allowedInversions][rand() % QMAP_SIZE];
 
 }
@@ -233,7 +243,7 @@ void Bombe::step() {
 	}
 
 	float x = params[X_PARAM].value;
-	float y = params[Y_PARAM].value + inputs[Y_PARAM].value * 0.1f;
+	float y = clamp(params[Y_PARAM].value + inputs[Y_PARAM].value * 0.1f, 0.0, 1.0);
 	length = params[LENGTH_PARAM].value;
 
 	if ((x >= 1.0f) || (inputs[FREEZE_INPUT].value > 0.000001f)) {
@@ -264,7 +274,7 @@ void Bombe::step() {
 
 	if (clocked) {
 
-		// Grab value from last element of sub-array
+		// Grab value from last element of sub-array, which will be the new head value
 		BombeChord lastValue = buffer[length - 1];
 
 		// Shift buffer
@@ -274,12 +284,12 @@ void Bombe::step() {
 
 		// Set first element
 		if (locked) {
-			// Buffer is locked, so just copy last value
+			// Buffer is locked
 			buffer[0] = lastValue;
 		} else {
 
 			if (randomUniform() < x) {
-				// Buffer update skipped, so just copy last value
+				// Buffer update skipped
 				buffer[0] = lastValue;
 			} else {
 				
@@ -365,7 +375,7 @@ struct BombeDisplay : TransparentWidget {
 
 	void draw(NVGcontext *vg) override {
 	
-		nvgFontSize(vg, 12);
+		nvgFontSize(vg, 14);
 		nvgFontFaceId(vg, font->handle);
 		nvgFillColor(vg, nvgRGBA(255, 0, 0, 0xff));
 		nvgTextLetterSpacing(vg, -1);
@@ -380,7 +390,7 @@ struct BombeDisplay : TransparentWidget {
 			if (module->displayBuffer[i].chord != 0) {
 
 				chordName = 
-					CoreUtil().noteNames[module->displayBuffer[i].rootNote] + 
+					CoreUtil().noteNames[module->displayBuffer[i].rootNote] + " " + 
 					CoreUtil().ChordTable[module->displayBuffer[i].chord].quality + " " + 
 					CoreUtil().inversionNames[module->displayBuffer[i].inversion];
 
@@ -402,8 +412,8 @@ struct BombeDisplay : TransparentWidget {
 			}
 
 			snprintf(text, sizeof(text), "%s %s", chordName.c_str(), chordExtName.c_str());
-			nvgText(vg, box.pos.x + 5, box.pos.y + i * 12, text, NULL);
-			nvgFillColor(vg, nvgRGBA(255 - i * 35, 0, 0, 0xff));
+			nvgText(vg, box.pos.x + 5, box.pos.y + i * 14, text, NULL);
+			nvgFillColor(vg, nvgRGBA(255 - i * 32, 0, 0, 0xff));
 
 		}
 
