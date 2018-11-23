@@ -35,3 +35,5 @@ extern Model *modelGenerative;
 extern Model *modelGalaxy;
 
 extern Model *modelChord;
+
+extern Model *modelBombe;
