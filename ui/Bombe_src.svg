@@ -980,16 +980,16 @@
      borderopacity="1.0"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:zoom="3.5473684"
-     inkscape:cx="136.94626"
+     inkscape:zoom="1.9263158"
+     inkscape:cx="68.203556"
      inkscape:cy="190"
      inkscape:current-layer="layer2"
      showgrid="false"
      units="mm"
-     inkscape:window-width="2269"
-     inkscape:window-height="1570"
-     inkscape:window-x="330"
-     inkscape:window-y="190"
+     inkscape:window-width="1541"
+     inkscape:window-height="955"
+     inkscape:window-x="135"
+     inkscape:window-y="51"
      inkscape:window-maximized="0"
      showguides="false"
      inkscape:guide-bbox="true"
@@ -1669,13 +1669,13 @@
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;display:inline;fill:#d4af37;fill-opacity:1;stroke:none"
-       x="204.24606"
-       y="281.82422"
+       x="169.25258"
+       y="226.38676"
        id="text4108"><tspan
          sodipodi:role="line"
          id="tspan4106"
-         x="204.24606"
-         y="281.82422"
+         x="169.25258"
+         y="226.38676"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">Y</tspan></text>
     <rect
        style="display:inline;fill:#000000;fill-opacity:1;stroke-width:0.78504759"
@@ -1689,13 +1689,13 @@
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;display:inline;fill:#d4af37;fill-opacity:1;stroke:none"
-       x="29.126266"
-       y="281.82422"
+       x="64.126266"
+       y="226.38676"
        id="text4118"><tspan
          sodipodi:role="line"
          id="tspan4116"
-         x="29.126266"
-         y="281.82422"
+         x="64.126266"
+         y="226.38676"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">X</tspan></text>
     <rect
        transform="matrix(0.97359181,0,0,-0.97888701,-26.058561,-107.84096)"

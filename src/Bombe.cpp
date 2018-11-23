@@ -473,12 +473,30 @@ struct BombeWidget : ModuleWidget {
 		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 4, 4, true, false), Port::INPUT, module, Bombe::CLOCK_INPUT));
 		addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 5, 4, true, false), module, Bombe::LENGTH_PARAM, 2.0, 16.0, 0.0)); 
 
-		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 0, 3, true, false), module, Bombe::X_PARAM, 0.0, 1.0001, 0.5)); 
-		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 1, 3, true, false), Port::INPUT, module, Bombe::FREEZE_INPUT));
-		addChild(ModuleLightWidget::create<SmallLight<GreenRedLight>>(ui.getPosition(UI::LIGHT, 2, 3, true, false), module, Bombe::LOCK_LIGHT));
+		Vec XParamPos;
+		XParamPos.x = 33;
+		XParamPos.y = 160;
+		addParam(ParamWidget::create<AHBigKnobNoSnap>(XParamPos, module, Bombe::X_PARAM, 0.0, 1.0001, 0.5)); 
 
-		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 4, 3, true, false), module, Bombe::Y_PARAM, 0.0, 1.0001, 0.5)); 
-		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 5, 3, true, false), Port::INPUT, module, Bombe::Y_INPUT));
+		Vec XFreezePos;
+		XFreezePos.x = XParamPos.x - 12;
+		XFreezePos.y = XParamPos.y + 60;
+		addInput(Port::create<PJ301MPort>(XFreezePos, Port::INPUT, module, Bombe::FREEZE_INPUT));
+
+		Vec XLightPos;
+		XLightPos.x = XParamPos.x + 63;
+		XLightPos.y = XParamPos.y + 68;
+		addChild(ModuleLightWidget::create<MediumLight<GreenRedLight>>(XLightPos, module, Bombe::LOCK_LIGHT));
+
+		Vec YParamPos;
+		YParamPos.x = 137;
+		YParamPos.y = 160;
+		addParam(ParamWidget::create<AHBigKnobNoSnap>(YParamPos, module, Bombe::Y_PARAM, 0.0, 1.0001, 0.5)); 
+
+		Vec YInputPos;
+		YInputPos.x = YParamPos.x - 12;
+		YInputPos.y = YParamPos.y + 60;
+		addInput(Port::create<PJ301MPort>(YInputPos, Port::INPUT, module, Bombe::Y_INPUT));
 
 	}
 
