@@ -36,6 +36,7 @@ struct Chord : AHModule {
 	};
 	
 	Chord() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
+		float PI_180 = PI / 180.0;
 		for(int i = 0; i < 6; i++) {
 			voicePosRad[i] = voicePosDeg[i] * 0.5 * PI_180;
 		}
@@ -68,7 +69,6 @@ void Chord::step() {
 
 	float spread = params[SPREAD_PARAM].value;
 	float SQRT2_2 = sqrt(2.0) / 2.0;
-	float PI_180 = PI / 180.0;
 
 	for (int i = 0; i < NUM_PITCHES; i++) {
 
