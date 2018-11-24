@@ -66,17 +66,16 @@ void Chord::step() {
 		int index = PITCH_INPUT + i;
 		int side = i % 2;
 
+		float pitchCv = inputs[index].value + params[OCTAVE_PARAM + i].value;
+		float pitchFine = params[DETUNE_PARAM + i].value / 12.0; // +- 1V
+		float attn = params[ATTN_PARAM + i].value;
+		oscillator[i].pw = params[PW_PARAM + i].value + params[PWM_PARAM + i].value * inputs[PW_INPUT + i].value / 10.0f;
+		oscillator[i].step(delta, pitchFine + pitchCv); // 1V/OCT
+
 		if (inputs[index].active) {
 
 			nPitches[side]++;
-
-			float pitchCv = inputs[index].value + params[OCTAVE_PARAM + i].value;
-			float pitchFine = params[DETUNE_PARAM + i].value / 12.0; // +- 1V
-			float attn = params[ATTN_PARAM + i].value;
-			oscillator[i].pw = params[PW_PARAM + i].value + params[PWM_PARAM + i].value * inputs[PW_INPUT + i].value / 10.0f;
-			oscillator[i].step(delta, pitchFine + pitchCv); // 1V/OCT
 			
-
 			int wave = params[WAVE_PARAM + i].value;
 			switch(wave) {
 				case 0:		out[side] += oscillator[i].sine * attn;			break;
@@ -89,10 +88,14 @@ void Chord::step() {
 		}
 	}
 
-	for (int i = 0; i < 2; i++) {
-		if (nPitches[i] > 0) {
-			out[i] = (out[i] / nPitches[i]) * 5.0;
-		}
+	// Left
+	if (nPitches[0] > 0) {
+		out[0] = (out[0] / nPitches[0]) * 5.0;
+	}
+
+	// Right
+	if (nPitches[1] > 0) {
+		out[1] = (out[1] / nPitches[1]) * 5.0;
 	}
 
 	if (outputs[OUT_OUTPUT].active && outputs[OUT_OUTPUT + 1].active) {
@@ -100,9 +103,9 @@ void Chord::step() {
 		outputs[OUT_OUTPUT + 1].value 	= out[1];
 	} else if (!outputs[OUT_OUTPUT].active && outputs[OUT_OUTPUT + 1].active) {
 		outputs[OUT_OUTPUT].value 		= 0.0f;
-		outputs[OUT_OUTPUT + 1].value 	= (out[0] + out[1]) / 2.0;
+		outputs[OUT_OUTPUT + 1].value 	= out[0] + out[1];
 	} else if (outputs[OUT_OUTPUT].active && !outputs[OUT_OUTPUT + 1].active) {
-		outputs[OUT_OUTPUT].value 		= (out[0] + out[1]) / 2.0;
+		outputs[OUT_OUTPUT].value 		= out[0] + out[1];
 		outputs[OUT_OUTPUT + 1].value 	= 0.0f;
 	}
 
