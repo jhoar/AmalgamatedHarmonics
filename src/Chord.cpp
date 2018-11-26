@@ -19,6 +19,7 @@ struct Chord : AHModule {
 		ENUMS(PW_PARAM,6),
 		ENUMS(PWM_PARAM,6),
 		ENUMS(ATTN_PARAM,6),
+		ENUMS(PAN_PARAM,6),
 		SPREAD_PARAM,
 		NUM_PARAMS
 	};
@@ -35,12 +36,7 @@ struct Chord : AHModule {
 		NUM_LIGHTS
 	};
 	
-	Chord() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
-		float PI_180 = PI / 180.0;
-		for(int i = 0; i < 6; i++) {
-			voicePosRad[i] = voicePosDeg[i] * 0.5 * PI_180;
-		}
-	}
+	Chord() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
 
 	void step() override;
 		
@@ -53,8 +49,6 @@ struct Chord : AHModule {
 
 	EvenVCO oscillator[6];
 
-	float voicePosDeg[6] = {-90.0f, 90.0f, -54.0f, 54.0f, -18.0f, 18.0f};
-	float voicePosRad[6];	
 };
 
 void Chord::step() {
@@ -95,7 +89,7 @@ void Chord::step() {
 				default:	amp = oscillator[i].sine * attn;		break;
 			};
 
-			float angle = spread * voicePosRad[i];
+			float angle = spread * params[PAN_PARAM + i].value;
 			float left = SQRT2_2 * (cos(angle) - sin(angle));
     		float right = SQRT2_2 * (cos(angle) + sin(angle));
 
@@ -107,6 +101,8 @@ void Chord::step() {
 
 	out[0] = (out[0] * 5.0f) / nPitches;
 	out[1] = (out[1] * 5.0f) / nPitches;
+
+	// std::cout << nPitches << " " << out[0] << " " << out[1] << std::endl;
 
 	if (outputs[OUT_OUTPUT].active && outputs[OUT_OUTPUT + 1].active) {
 		outputs[OUT_OUTPUT].value 		= out[0];
@@ -127,6 +123,14 @@ struct ChordWidget : ModuleWidget {
 		
 		UI ui;
 		
+		float PI_180 = PI / 180.0;
+		float posMax = 90.0 * 0.5 * PI_180;
+		float voicePosDeg[6] = {-90.0f, 90.0f, -54.0f, 54.0f, -18.0f, 18.0f};
+		float voicePosRad[6];	
+		for(int i = 0; i < 6; i++) {
+			voicePosRad[i] = voicePosDeg[i] * 0.5 * PI_180;
+		}
+
 		box.size = Vec(270, 380);
 
 		{
@@ -150,12 +154,13 @@ struct ChordWidget : ModuleWidget {
 			addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, n, 5, true, true), Port::INPUT, module, Chord::PW_INPUT + n));
 			addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, n, 6, true, true), module, Chord::PWM_PARAM + n, 0.0f, 1.0f, 0.0f));
 			addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, n, 7, true, true), module, Chord::ATTN_PARAM + n, 0.0f, 1.0f, 1.0f));
+			addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, n, 8, true, true), module, Chord::PAN_PARAM + n, -posMax, posMax, voicePosRad[n]));
 		}
 
-		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 0, 5, true, false), module, Chord::SPREAD_PARAM, 0.0f, 1.0f, 1.0f));
+		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 0, 9, true, true), module, Chord::SPREAD_PARAM, 0.0f, 1.0f, 1.0f));
 
-		addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 4, 5, true, false), Port::OUTPUT, module, Chord::OUT_OUTPUT));
-		addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 5, 5, true, false), Port::OUTPUT, module, Chord::OUT_OUTPUT + 1));
+		addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 4, 9, true, true), Port::OUTPUT, module, Chord::OUT_OUTPUT));
+		addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 5, 9, true, true), Port::OUTPUT, module, Chord::OUT_OUTPUT + 1));
 
 	}
 };

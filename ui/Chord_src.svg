@@ -967,17 +967,17 @@
      borderopacity="1.0"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.3962963"
-     inkscape:cx="26.290567"
-     inkscape:cy="151.56667"
+     inkscape:zoom="3.3888747"
+     inkscape:cx="115.78635"
+     inkscape:cy="91.406477"
      inkscape:current-layer="layer2"
      showgrid="false"
      units="mm"
-     inkscape:window-width="1780"
-     inkscape:window-height="1046"
-     inkscape:window-x="129"
-     inkscape:window-y="-11"
-     inkscape:window-maximized="1"
+     inkscape:window-width="1838"
+     inkscape:window-height="1417"
+     inkscape:window-x="3064"
+     inkscape:window-y="307"
+     inkscape:window-maximized="0"
      showguides="false"
      inkscape:guide-bbox="true"
      inkscape:showpageshadow="false"
@@ -1381,14 +1381,14 @@
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:39.76836014px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.99420899"
-       x="13.057385"
-       y="394.09116"
+       x="49.267063"
+       y="431.26428"
        id="text2688"
        transform="scale(0.99420903,1.0058247)"><tspan
          sodipodi:role="line"
          id="tspan2686"
-         x="13.057385"
-         y="394.09116"
+         x="49.267063"
+         y="431.26428"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.60489655px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1;stroke-width:0.99420899">SPREAD</tspan></text>
     <text
        id="text7961"
@@ -2031,9 +2031,9 @@
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1">AM MIX</tspan></text>
     <rect
        transform="rotate(90)"
-       style="opacity:1;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:2.24249816;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="opacity:1;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:2.3987031;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect1734"
-       width="243.57384"
+       width="278.68875"
        height="2.7279999"
        x="115.41905"
        y="-33.852245" />
@@ -2041,15 +2041,15 @@
        y="-68.852242"
        x="115.41905"
        height="2.7279999"
-       width="243.57384"
+       width="278.68875"
        id="rect1740"
-       style="opacity:1;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:2.24249816;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="opacity:1;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:2.3987031;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        transform="rotate(90)" />
     <rect
        transform="rotate(90)"
-       style="opacity:1;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:2.24249816;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="opacity:1;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:2.3987031;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect1498"
-       width="243.57384"
+       width="278.68875"
        height="2.7279999"
        x="115.41905"
        y="-103.85224" />
@@ -2099,17 +2099,17 @@
        y="-138.85225"
        x="115.41905"
        height="2.7279999"
-       width="243.57384"
+       width="278.68875"
        id="rect1500"
-       style="opacity:1;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:2.24249816;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="opacity:1;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:2.3987031;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        transform="rotate(90)" />
     <rect
        y="-208.85225"
        x="115.41905"
        height="2.7279999"
-       width="243.57384"
+       width="278.68875"
        id="rect4247"
-       style="opacity:1;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:2.24249816;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="opacity:1;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:2.3987031;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        transform="rotate(90)" />
     <text
        id="text10853"
@@ -2228,35 +2228,35 @@
        ry="4.2187495"
        transform="matrix(0.97322123,0,0,-0.97911468,4.4970307,-47.439454)" />
     <rect
-       style="fill:#d4af37;fill-opacity:1;stroke-width:1.11022496"
+       style="fill:#d4af37;fill-opacity:1;stroke-width:1.01842952"
        id="rect5096"
-       width="70"
-       height="45"
+       width="75.804001"
+       height="34.966999"
        x="155.98825"
-       y="-432.38678"
-       ry="4.2187495"
+       y="-447.73077"
+       ry="3.2781558"
        transform="scale(1,-1)" />
     <text
        id="text2696"
-       y="396.38663"
-       x="169.52061"
+       y="424.38663"
+       x="185.52061"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
        xml:space="preserve"><tspan
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1"
-         y="396.38663"
-         x="169.52061"
+         y="424.38663"
+         x="185.52061"
          id="tspan2694"
          sodipodi:role="line">L</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
-       x="203.9622"
-       y="396.32935"
+       x="219.9622"
+       y="424.32935"
        id="text2704"><tspan
          sodipodi:role="line"
          id="tspan2702"
-         x="203.9622"
-         y="396.32935"
+         x="219.9622"
+         y="424.32935"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1">R</tspan></text>
     <text
        xml:space="preserve"
@@ -2271,9 +2271,9 @@
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">ATTN</tspan></text>
     <rect
        transform="rotate(90)"
-       style="opacity:1;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:2.24249816;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="opacity:1;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:2.3987031;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect4245"
-       width="243.57384"
+       width="278.68875"
        height="2.7279999"
        x="115.41905"
        y="-173.85225" />
@@ -2288,5 +2288,17 @@
          x="226.4622"
          y="160.08076"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">WAVE</tspan></text>
+    <text
+       id="text1218"
+       y="397.96176"
+       x="225.83664"
+       style="font-style:normal;font-weight:normal;font-size:40.00009918px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none;stroke-width:1.0000025"
+       xml:space="preserve"
+       transform="scale(1.0000025,0.99999753)"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66669369px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1;stroke-width:1.0000025"
+         y="397.96176"
+         x="225.83664"
+         sodipodi:role="line"
+         id="tspan1216">PAN</tspan></text>
   </g>
 </svg>
