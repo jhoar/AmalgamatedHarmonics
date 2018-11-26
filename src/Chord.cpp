@@ -55,11 +55,8 @@ void Chord::step() {
 	
 	AHModule::step();
 
-	float out[2];
-	int nPitches = 0;
-
-	out[0] = 0.0f;
-	out[1] = 0.0f;
+	float out[2] = {0.0f, 0.0f};
+	int nP[2] = {0, 0};
 
 	float spread = params[SPREAD_PARAM].value;
 	float SQRT2_2 = sqrt(2.0) / 2.0;
@@ -67,6 +64,7 @@ void Chord::step() {
 	for (int i = 0; i < NUM_PITCHES; i++) {
 
 		int index = PITCH_INPUT + i;
+		int side = i % 2;
 
 		float pitchCv = inputs[index].value + params[OCTAVE_PARAM + i].value;
 		float pitchFine = params[DETUNE_PARAM + i].value / 12.0; // +- 1V
@@ -77,7 +75,7 @@ void Chord::step() {
 		if (inputs[index].active) {
 
 			float amp = 0.0;
-			nPitches++;
+			nP[side]++;
 
 			int wave = params[WAVE_PARAM + i].value;
 			switch(wave) {
@@ -98,9 +96,14 @@ void Chord::step() {
 
 		}
 	}
+	
+	if (nP[0] > 0) {
+		out[0] = (out[0] * 5.0f) / (float)nP[0];
+	} 
 
-	out[0] = (out[0] * 5.0f) / nPitches;
-	out[1] = (out[1] * 5.0f) / nPitches;
+	if (nP[1] > 0) {
+		out[1] = (out[1] * 5.0f) / (float)nP[1];
+	} 
 
 	// std::cout << nPitches << " " << out[0] << " " << out[1] << std::endl;
 
@@ -109,9 +112,9 @@ void Chord::step() {
 		outputs[OUT_OUTPUT + 1].value 	= out[1];
 	} else if (!outputs[OUT_OUTPUT].active && outputs[OUT_OUTPUT + 1].active) {
 		outputs[OUT_OUTPUT].value 		= 0.0f;
-		outputs[OUT_OUTPUT + 1].value 	= out[0] + out[1];
+		outputs[OUT_OUTPUT + 1].value 	= (out[0] + out[1]) / 2.0f;
 	} else if (outputs[OUT_OUTPUT].active && !outputs[OUT_OUTPUT + 1].active) {
-		outputs[OUT_OUTPUT].value 		= out[0] + out[1];
+		outputs[OUT_OUTPUT].value 		= (out[0] + out[1]) / 2.0f;
 		outputs[OUT_OUTPUT + 1].value 	= 0.0f;
 	}
 
