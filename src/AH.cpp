@@ -15,20 +15,22 @@ void init(rack::Plugin *p) {
 
 	// For each module, specify the ModuleWidget subclass, manufacturer slug (for saving in patches), manufacturer human-readable name, module slug, 
 	// and module name
-	p->addModel(modelArpeggiator);
 	p->addModel(modelArpeggiator2);
+	p->addModel(modelBombe);
+	p->addModel(modelChord);
 	p->addModel(modelCircle);
-	p->addModel(modelImperfect);
+	p->addModel(modelGalaxy);
+	p->addModel(modelGenerative);
 	p->addModel(modelImperfect2);
 	p->addModel(modelProgress);
 	p->addModel(modelRuckus);
-	p->addModel(modelScaleQuantizer);
 	p->addModel(modelScaleQuantizer2);
 	p->addModel(modelSLN);
-	p->addModel(modelGenerative);
-	p->addModel(modelGalaxy);
-	p->addModel(modelChord);
-	p->addModel(modelBombe);
+
+	p->addModel(modelScaleQuantizer);
+	p->addModel(modelImperfect);
+	p->addModel(modelArpeggiator);
+
 
 	// Any other plugin initialization may go here.
 	// As an alternative, consider lazy-loading assets and lookup tables when your module is created to reduce startup times of Rack.
