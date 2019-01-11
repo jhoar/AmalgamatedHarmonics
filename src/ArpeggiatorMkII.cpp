@@ -957,11 +957,6 @@ Arpeggiator2Widget::Arpeggiator2Widget(Arpeggiator2 *module) : ModuleWidget(modu
 		addChild(panel);
 	}
 
-	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
-
 	{
 		Arpeggiator2Display *display = new Arpeggiator2Display();
 		display->module = module;

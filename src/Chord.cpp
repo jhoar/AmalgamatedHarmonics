@@ -143,11 +143,6 @@ struct ChordWidget : ModuleWidget {
 			addChild(panel);
 		}
 
-		addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
-		addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
-		addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
-		addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
-
 		for (int n = 0; n < 6; n++) {
 			addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, n, 0, true, true), Port::INPUT, module, Chord::PITCH_INPUT + n));
 			addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, n, 1, true, true), module, Chord::WAVE_PARAM + n, 0.0f, 4.0f, 0.0f));

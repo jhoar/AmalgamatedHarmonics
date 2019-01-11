@@ -205,11 +205,6 @@ CircleWidget::CircleWidget(Circle *module) : ModuleWidget(module) {
 		addChild(panel);
 	}
 
-	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
-
 	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 0, true, false), Port::INPUT, module, Circle::ROTL_INPUT));
 	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 5, 0, true, false), Port::INPUT, module, Circle::ROTR_INPUT));
 	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 5, true, false), Port::INPUT, module, Circle::KEY_INPUT));

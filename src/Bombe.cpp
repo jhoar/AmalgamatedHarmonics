@@ -447,11 +447,6 @@ struct BombeWidget : ModuleWidget {
 			addChild(panel);
 		}
 
-		addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
-		addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
-		addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
-		addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
-
 		{
 			BombeDisplay *display = new BombeDisplay();
 			display->module = module;

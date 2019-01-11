@@ -479,11 +479,6 @@ struct GalaxyWidget : ModuleWidget {
 			addChild(panel);
 		}
 
-		addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
-		addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
-		addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
-		addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
-
 		{
 			GalaxyDisplay *display = new GalaxyDisplay();
 			display->module = module;
