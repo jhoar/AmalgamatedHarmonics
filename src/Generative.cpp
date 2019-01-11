@@ -309,7 +309,7 @@ struct GenerativeWidget : ModuleWidget {
 		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 1, 0, false, false), module, Generative::WAVE_PARAM, 0.0f, 4.0f, 1.5f));
 		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 2, 0, false, false), module, Generative::FM_PARAM, 0.0f, 1.0f, 0.5f));
 		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 3, 0, false, false), module, Generative::AM_PARAM, 0.0f, 1.0f, 0.5f));
-		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 4, 0, false, false), module, Generative::NOISE_PARAM, 0.0f, 1.0f, 0.0f));
+		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 4, 0, false, false), module, Generative::NOISE_PARAM, 0.0f, 1.0f, 0.5f));
 		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 1, 1, false, false), Port::INPUT, module, Generative::WAVE_INPUT));
 		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 2, 1, false, false), Port::INPUT, module, Generative::FM_INPUT));
 		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 3, 1, false, false), Port::INPUT, module, Generative::AM_INPUT));
@@ -318,7 +318,7 @@ struct GenerativeWidget : ModuleWidget {
 		// Gate Section
 		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 2, false, false), Port::INPUT, module, Generative::SAMPLE_INPUT));
 		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 1, 2, false, false), module, Generative::CLOCK_PARAM, -2.0, 6.0, 1.0));
-		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 2, 2, false, false), module, Generative::PROB_PARAM, 0.0, 1.0, 0.5));
+		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 2, 2, false, false), module, Generative::PROB_PARAM, 0.0, 1.0, 1.0));
 		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 3, 2, false, false), module, Generative::DELAYL_PARAM, 1.0f, 2.0f, 1.0f));
 		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 4, 2, false, false), module, Generative::GATEL_PARAM, 1.0f, 2.0f, 1.0f));
 
