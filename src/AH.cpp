@@ -15,7 +15,7 @@ void init(rack::Plugin *p) {
 
 	// For each module, specify the ModuleWidget subclass, manufacturer slug (for saving in patches), manufacturer human-readable name, module slug, 
 	// and module name
-	p->addModel(modelArpeggiator2);
+	p->addModel(modelArp32);
 	p->addModel(modelBombe);
 	p->addModel(modelChord);
 	p->addModel(modelCircle);
@@ -30,6 +30,7 @@ void init(rack::Plugin *p) {
 	p->addModel(modelScaleQuantizer);
 	p->addModel(modelImperfect);
 	p->addModel(modelArpeggiator);
+	p->addModel(modelArpeggiator2);
 
 
 	// Any other plugin initialization may go here.
