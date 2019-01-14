@@ -293,7 +293,6 @@ struct Arp32 : AHModule {
 		reset();
 		id = rand();
         debugFlag = false;
-
 	}
 
 	void step() override;
@@ -385,7 +384,7 @@ void Arp32::step() {
 	
 	// Get inputs from Rack
 	float clockInput	= inputs[CLOCK_INPUT].value;
-	bool  clockActive	= inputs[CLOCK_INPUT].active;
+	float clockActive	= inputs[CLOCK_INPUT].active;
 	
 	// Read param section	
 	if (inputs[PATT_INPUT].active) {
@@ -432,30 +431,50 @@ void Arp32::step() {
 				
 	bool restart = false;
 
-	// Are we running and been clocked
-	if (isRunning && clockActive) {
+	// Have we been clocked?
+	if (clockStatus) {
 		
-		// Completed 1 step
-		currPatt->advance();
-		
-		// Reached the end of the pattern?
-		if (currPatt->isPatternFinished()) {
+		// If we are already running, process cycle
+		if (isRunning) {
 
-			// Pulse the EOC gate
-			eocPulse.trigger(Core::TRIGGER);
-			if (debugEnabled()) { std::cout << stepX << " " << id  << " Finished Cycle" << std::endl; }
+			// Completed 1 step
+			currPatt->advance();
+
+			if (debugEnabled()) { std::cout << stepX << " " << id  << " Advance Cycle: " << currPatt->getOffset() << " " << (float)currPatt->getOffset() << std::endl; }
+
+			// Reached the end of the pattern?
+			if (currPatt->isPatternFinished()) {
+
+				// Pulse the EOC gate
+				eocPulse.trigger(Core::TRIGGER);
+
+				if (debugEnabled()) { std::cout << stepX << " " << id  << " Finished Cycle" << std::endl; }
+				restart = true;
+
+			} 
+							
+			// Finally set the out voltage
+			outVolts = clamp(rootPitch + semiTone * (float)currPatt->getOffset(), -10.0f, 10.0f);
+			
+			if (debugEnabled()) { std::cout << stepX << " " << id  << " Output V = " << outVolts << std::endl; }
+					
+			// Pulse the output gate
+			gatePulse.trigger(Core::TRIGGER);
+
+		} else {
+
+			// Start a cycle
 			restart = true;
-			isRunning = false;
-		} 
-		
+
+		}
+
 	}
 	
 	// If we have been triggered, start a new sequence
 	if (restart) {
 		
-		// At the first step of the sequence
-		// So this is where we tweak the sequence parameters
-		
+		// At the first step of the cycle
+		// So this is where we tweak the cycle parameters
 		pattern = inputPat;
 		length = inputLen;
 		trans = inputTrans;
@@ -471,37 +490,20 @@ void Arp32::step() {
 			default:	currPatt = &patt_up;		break;
 		};
 
+		// Save pitch
 		rootPitch = inputPitch;
 
-		if (debugEnabled()) { std::cout << stepX << " " << id  << " Initiatise new Sequence: Pattern: " << currPatt->getName() << 
-			" Length: " << inputLen << std::endl; }
+		if (debugEnabled()) { std::cout << stepX << " " << id  << 
+			" Initiatise new Cycle: Pattern: " << currPatt->getName() << 
+			" Length: " << inputLen << std::endl; 
+		}
 		
 		currPatt->initialise(length, scale, trans);
-		
-		// We're running now
+
+		// Start
 		isRunning = true;
 		
 	} 
-	
-	// Advance the sequence
-	// Are we starting a sequence or are running and have been clocked; if so advance the sequence
-	// Only advance from the clock
-	if (isRunning && (isClocked || newCycle == LAUNCH)) {
-
-		if (debugEnabled()) { std::cout << stepX << " " << id  << " Advance Cycle: " << pitches[currArp->getPitch()] << " " << (float)currPatt->getOffset() << std::endl; }
-				
-		// Finally set the out voltage
-		outVolts = clamp(pitches[currArp->getPitch()] + semiTone * (float)currPatt->getOffset(), -10.0f, 10.0f);
-		
-		if (debugEnabled()) { std::cout << stepX << " " << id  << " Output V = " << outVolts << std::endl; }
-		
-		// Update counters
-		currArp->advance();
-		
-		// Pulse the output gate
-		gatePulse.trigger(Core::TRIGGER);
-		
-	}
 	
 	// Update UI
 	switch(inputPat) {
@@ -514,6 +516,7 @@ void Arp32::step() {
 		default:	uiPatt = &ui_patt_up;			break;
 	};
 
+	// Initialise the pattern
 	uiPatt->initialise(inputLen, inputScale, inputTrans);
 
 	// Set the value
