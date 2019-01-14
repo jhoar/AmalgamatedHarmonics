@@ -14,6 +14,8 @@ extern Model *modelArpeggiator;
 
 extern Model *modelArpeggiator2;
 
+extern Model *modelArp31;
+
 extern Model *modelArp32;
 
 extern Model *modelCircle;

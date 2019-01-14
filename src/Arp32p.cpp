@@ -440,7 +440,7 @@ void Arp32::step() {
 			// Completed 1 step
 			currPatt->advance();
 
-			if (debugEnabled()) { std::cout << stepX << " " << id  << " Advance Cycle: " << currPatt->getOffset() << " " << (float)currPatt->getOffset() << std::endl; }
+			if (debugEnabled()) { std::cout << stepX << " " << id  << " Advance Cycle: " << currPatt->getOffset() << std::endl; }
 
 			// Reached the end of the pattern?
 			if (currPatt->isPatternFinished()) {
