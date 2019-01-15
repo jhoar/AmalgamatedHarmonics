@@ -43,7 +43,7 @@ struct RightArp : Arpeggio {
 	}
 	
 	bool isArpeggioFinished() override {
-		return (index == nPitches);
+		return (index >= nPitches - 1);
 	}
 	
 };
@@ -71,7 +71,7 @@ struct LeftArp : Arpeggio {
 	}
 
 	bool isArpeggioFinished() override {
-		return (index < 0);
+		return (index == 0);
 	}
 	
 };
@@ -79,16 +79,27 @@ struct LeftArp : Arpeggio {
 struct RightLeftArp : Arpeggio {
 
 	int currSt = 0;
-	int mag = 0;
-	int end = 0;
+	int mag = 0; // index of last pitch
+	int end = 0; // index of end of arp
 	
 	std::string getName() override {
 		return "RightLeft";
 	};	
 
-	void initialise(int l) override {
-		mag = l - 1;
-		end = 2 * l - 1;
+	void initialise(int np) override {
+		mag = np - 1;
+		end = 2 * np - 3; // Convert from npitch (1-6) to index (0 -> 5, but do no repeat first note)
+		// 1,2,3,4,5,6 (6) -> 
+		// 0 (1)
+		// 1 (2)
+		// 2 (3)
+		// 3 (4)
+		// 4 (5)
+		// 5 (6)
+		// 6 (5)
+		// 7 (3)
+		// 8 (2)
+		// 9 (END, do not repeat 1)
 
 		if (end < 1) {
 			end = 1;
@@ -122,7 +133,7 @@ struct LeftRightArp : Arpeggio {
 
 	void initialise(int l) override {
 		mag = l - 1;
-		end = 2 * l - 2;
+		end = 2 * l - 3;
 
 		if (end < 1) {
 			end = 1;
@@ -179,7 +190,7 @@ struct Arp31 : AHModule {
 	Arp31() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
 		reset();
 		id = rand();
-        debugFlag = true;
+        debugFlag = false;
 
 	}
 
@@ -341,9 +352,6 @@ void Arp31::step() {
 		// If we are already running, process cycle
 		if (isRunning) {
 
-			// Completed 1 step
-			currArp->advance();
-
 			if (debugEnabled()) { std::cout << stepX << " " << id  << " Advance Cycle: " << currArp->getPitch() << " " << pitches[currArp->getPitch()] << std::endl; }
 
 			// Reached the end of the pattern?
@@ -360,10 +368,13 @@ void Arp31::step() {
 			// Finally set the out voltage
 			outVolts = clamp(pitches[currArp->getPitch()], -10.0f, 10.0f);
 
-			if (debugEnabled()) { std::cout << stepX << " " << id  << " Output V = " << outVolts << std::endl; }
+//			if (debugEnabled()) { std::cout << stepX << " " << id  << " Output V = " << outVolts << std::endl; }
 					
 			// Pulse the output gate
 			gatePulse.trigger(Core::TRIGGER);
+
+			// Completed 1 step
+			currArp->advance();
 
 		} else {
 
