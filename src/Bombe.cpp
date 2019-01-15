@@ -55,8 +55,13 @@ struct Bombe : AHModule {
 	Bombe() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
 		for(int i = 0; i < BUFFERSIZE; i++) {
 			buffer[i].chord = 1;
+			int *chordArray = CoreUtil().ChordTable[buffer[i].chord].root;
+			for (int j = 0; j < 6; j++) {
+				buffer[i].outVolts[j] = CoreUtil().getVoltsFromPitch(chordArray[j], buffer[i].rootNote);			
+			}
 		}
 	}
+
 	void step() override;
 	void modeRandom(BombeChord lastValue, float y);
 	void modeSimple(BombeChord lastValue, float y);
