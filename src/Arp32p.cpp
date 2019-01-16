@@ -573,21 +573,22 @@ Arp32Widget::Arp32Widget(Arp32 *module) : ModuleWidget(module) {
 		addChild(display);
 	}
 
-	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 0, false, false), Port::OUTPUT, module, Arp32::OUT_OUTPUT));
-	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 1, 0, false, false), Port::OUTPUT, module, Arp32::GATE_OUTPUT));
-	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 3, 0, false, false), Port::OUTPUT, module, Arp32::EOC_OUTPUT));
+	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 2, 5, false, false), Port::OUTPUT, module, Arp32::OUT_OUTPUT));
+	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 3, 5, false, false), Port::OUTPUT, module, Arp32::GATE_OUTPUT));
+	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 4, 5, false, false), Port::OUTPUT, module, Arp32::EOC_OUTPUT));
 		
-	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 5, true, false), Port::INPUT, module, Arp32::PITCH_INPUT));
+	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 0, false, false), Port::INPUT, module, Arp32::PITCH_INPUT));
 	
-	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 1, 4, true, false), Port::INPUT, module, Arp32::CLOCK_INPUT));
 	addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 3, 4, true, false), module, Arp32::SCALE_PARAM, 0, 2, 0)); 
-
 	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 3, true, false), Port::INPUT, module, Arp32::PATT_INPUT));
 	addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 1, 3, true, false), module, Arp32::PATT_PARAM, 0.0, 4.0, 0.0)); 
 	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 2, 3, true, false), Port::INPUT, module, Arp32::TRANS_INPUT)); 
 	addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 3, 3, true, false), module, Arp32::TRANS_PARAM, -24, 24, 0)); 
 	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 4, 3, true, false), Port::INPUT, module, Arp32::LENGTH_INPUT));
 	addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 5, 3, true, false), module, Arp32::LENGTH_PARAM, 1.0, 16.0, 1.0)); 
+
+	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 5, false, false), Port::INPUT, module, Arp32::CLOCK_INPUT));
+
 
 }
 
