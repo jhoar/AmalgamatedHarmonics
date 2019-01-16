@@ -48,12 +48,12 @@ struct Pattern {
 
 };
 
-struct UpPattern : Pattern {
+struct DivergePattern : Pattern {
 
 	int end;
 
 	std::string getName() override {
-		return "Up";
+		return "Diverge";
 	};
 
 	void initialise(int l, int sc, int tr) override {
@@ -79,44 +79,13 @@ struct UpPattern : Pattern {
 	
 };
 
-struct DownPattern : Pattern {
-
-	int end;
-
-	std::string getName() override {
-		return "Down";
-	};
-
-	void initialise(int l, int sc, int tr) override {
-		Pattern::initialise(l,sc,tr);
-		end = length - 1;
-	}
-	
-	int getOffset() override {
-		
-		switch(scale) {
-			case 0: return -count * trans; break;
-			case 1: return getMajor(-count * trans); break;
-			case 2: return getMinor(-count * trans); break;
-			default:
-				return -count * trans; break;
-		}
-	
-	}
-
-	bool isPatternFinished() override {
-		return(count == end);
-	}
-	
-};
-
-struct ConvergeUpPattern : Pattern {
+struct ConvergePattern : Pattern {
 
 	int end;
 	int currSt = 0;
 	
 	std::string getName() override {
-		return "ConvergeUp";
+		return "Converge";
 	};	
 
 	void initialise(int l, int sc, int tr) override {
@@ -146,50 +115,13 @@ struct ConvergeUpPattern : Pattern {
 	
 };
 
-struct ConvergeDownPattern : Pattern {
-
-	int end;
-	int currSt = 0;
-	
-	std::string getName() override {
-		return "ConvergeDown";
-	};	
-
-	void initialise(int l, int sc, int tr) override {
-		Pattern::initialise(l,sc,tr);
-		end = 0;
-		currSt = length - 1;
-	} 
-	
-	void advance() override {
-		Pattern::advance();
-		currSt--;
-	}
-	
-	int getOffset() override {
-		switch(scale) {
-			case 0: return currSt * trans; break;
-			case 1: return getMajor(currSt * trans); break;
-			case 2: return getMinor(currSt * trans); break;
-			default:
-				return currSt * trans; break;
-		}
-	}
-
-	bool isPatternFinished() override {
-		return (currSt == 0);
-	}
-	
-};
-
-
-struct UpDownPattern : Pattern {
+struct ReturnPattern : Pattern {
 
 	int mag = 0;
 	int end = 0;
 	
 	std::string getName() override {
-		return "UpDown";
+		return "Return";
 	};	
 
 	void initialise(int l, int sc, int tr) override {
@@ -218,49 +150,6 @@ struct UpDownPattern : Pattern {
 				return note * trans; break;
 		}
 
-	}
-
-	bool isPatternFinished() override {
-		return(count == end);
-	}
-	
-};
-
-struct DownUpPattern : Pattern {
-
-	int mag = 0;
-	int end = 0;
-	
-	std::string getName() override {
-		return "DownUp";
-	};	
-
-	void initialise(int l, int sc, int tr) override {
-		Pattern::initialise(l,sc,tr);
-		mag = l - 1;
-		end = 2 * l - 3;
-
-		if (end < 1) {
-			end = 1;
-		}
-	}
-	
-	int getOffset() override {
-
-		if (length == 1) {
-			return 0;
-		}
-
-		int note = -(mag - abs(mag - count));
-		
-		switch(scale) {
-			case 0: return note * trans; break;
-			case 1: return getMajor(note * trans); break;
-			case 2: return getMinor(note * trans); break;
-			default:
-				return note * trans; break;
-		}
-		
 	}
 
 	bool isPatternFinished() override {
@@ -432,26 +321,20 @@ struct Arp32 : AHModule {
 	
 	float semiTone = 1.0 / 12.0;
 
-	UpPattern				patt_up; 
-	DownPattern 			patt_down; 
-	ConvergeUpPattern 		patt_convergeup; 
-	ConvergeDownPattern 	patt_convergedown; 
-	UpDownPattern 			patt_updown;
-	DownUpPattern 			patt_downup;
+	DivergePattern			patt_diverge; 
+	ConvergePattern 		patt_converge; 
+	ReturnPattern 			patt_return;
 	RezPattern 				patt_rez;
 	OnTheRunPattern			patt_ontherun;
 
-	UpPattern				ui_patt_up; 
-	DownPattern 			ui_patt_down; 
-	ConvergeUpPattern 		ui_patt_convergeup; 
-	ConvergeDownPattern 	ui_patt_convergedown; 
-	UpDownPattern 			ui_patt_updown;
-	DownUpPattern 			ui_patt_downup;
+	DivergePattern			ui_patt_diverge; 
+	ConvergePattern 		ui_patt_converge; 
+	ReturnPattern 			ui_patt_return;
 	RezPattern 				ui_patt_rez;
 	OnTheRunPattern			ui_patt_ontherun;
 
-	Pattern *currPatt = &patt_up;
-	Pattern *uiPatt = &patt_up;
+	Pattern *currPatt = &patt_diverge;
+	Pattern *uiPatt = &ui_patt_diverge;
 	
 	int id = 0;
 
@@ -566,15 +449,12 @@ void Arp32::step() {
 		scale = inputScale;
 		
 		switch(pattern) {
-			case 0:		currPatt = &patt_up; 				break;
-			case 1:		currPatt = &patt_down;				break;
-			case 2:		currPatt = &patt_updown;			break;
-			case 3:		currPatt = &patt_downup;			break;
-			case 4:		currPatt = &patt_convergeup;		break;
-			case 5:		currPatt = &patt_convergedown;		break;
-			case 6:		currPatt = &patt_rez;				break;
-			case 7:		currPatt = &patt_ontherun;			break;
-			default:	currPatt = &patt_up;				break;
+			case 0:		currPatt = &patt_diverge; 		break;
+			case 1:		currPatt = &patt_converge;		break;
+			case 2:		currPatt = &patt_return;		break;
+			case 3:		currPatt = &patt_rez;			break;
+			case 4:		currPatt = &patt_ontherun;		break;
+			default:	currPatt = &patt_diverge;		break;
 		};
 
 		// Save pitch
@@ -594,15 +474,12 @@ void Arp32::step() {
 	
 	// Update UI
 	switch(inputPat) {
-		case 0:		uiPatt = &ui_patt_up; 			break;
-		case 1:		uiPatt = &ui_patt_down;			break;
-		case 2:		uiPatt = &ui_patt_updown;		break;
-		case 3:		uiPatt = &ui_patt_downup;		break;
-		case 4:		uiPatt = &ui_patt_convergeup;		break;
-		case 5:		uiPatt = &ui_patt_convergedown;		break;
-		case 6:		uiPatt = &ui_patt_rez;			break;
-		case 7:		uiPatt = &ui_patt_ontherun;		break;
-		default:	uiPatt = &ui_patt_up;			break;
+		case 0:		uiPatt = &ui_patt_diverge; 		break;
+		case 1:		uiPatt = &ui_patt_converge;		break;
+		case 2:		uiPatt = &ui_patt_return;		break;
+		case 3:		uiPatt = &ui_patt_rez;			break;
+		case 4:		uiPatt = &ui_patt_ontherun;		break;
+		default:	uiPatt = &ui_patt_diverge;		break;
 	};
 
 	// Initialise the pattern
@@ -706,7 +583,7 @@ Arp32Widget::Arp32Widget(Arp32 *module) : ModuleWidget(module) {
 	addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 3, 4, true, false), module, Arp32::SCALE_PARAM, 0, 2, 0)); 
 
 	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 3, true, false), Port::INPUT, module, Arp32::PATT_INPUT));
-	addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 1, 3, true, false), module, Arp32::PATT_PARAM, 0.0, 7.0, 0.0)); 
+	addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 1, 3, true, false), module, Arp32::PATT_PARAM, 0.0, 4.0, 0.0)); 
 	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 2, 3, true, false), Port::INPUT, module, Arp32::TRANS_INPUT)); 
 	addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 3, 3, true, false), module, Arp32::TRANS_PARAM, -24, 24, 0)); 
 	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 4, 3, true, false), Port::INPUT, module, Arp32::LENGTH_INPUT));
