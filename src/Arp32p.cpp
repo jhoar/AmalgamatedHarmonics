@@ -561,7 +561,7 @@ Arp32Widget::Arp32Widget(Arp32 *module) : ModuleWidget(module) {
 	{
 		SVGPanel *panel = new SVGPanel();
 		panel->box.size = box.size;
-		panel->setBackground(SVG::load(assetPlugin(plugin, "res/Arp32.svg")));
+		panel->setBackground(SVG::load(assetPlugin(plugin, "res/Arp32p.svg")));
 		addChild(panel);
 	}
 
