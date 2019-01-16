@@ -469,7 +469,7 @@ Arp31Widget::Arp31Widget(Arp31 *module) : ModuleWidget(module) {
 	{
 		SVGPanel *panel = new SVGPanel();
 		panel->box.size = box.size;
-		panel->setBackground(SVG::load(assetPlugin(plugin, "res/Arp31.svg")));
+		panel->setBackground(SVG::load(assetPlugin(plugin, "res/Arp31c.svg")));
 		addChild(panel);
 	}
 
