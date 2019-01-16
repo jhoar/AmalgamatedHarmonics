@@ -187,6 +187,7 @@ struct Arp31 : AHModule {
 		NUM_OUTPUTS
 	};
 	enum LightIds {
+		ENUMS(CURR_LIGHT,6),
 		NUM_LIGHTS
 	};
 	
@@ -194,7 +195,6 @@ struct Arp31 : AHModule {
 		reset();
 		id = rand();
         debugFlag = false;
-
 	}
 
 	void step() override;
@@ -263,6 +263,7 @@ struct Arp31 : AHModule {
 	float pitches[6];
 	int nPitches = 0;
 	int id = 0;
+	int currLight = 0;
 
 };
 
@@ -291,10 +292,12 @@ void Arp31::step() {
 	// Read input pitches and assign to pitch array
 	int nValidPitches = 0;
 	float inputPitches[NUM_PITCHES];
+	int pitchIndex[NUM_PITCHES];
 	for (int p = 0; p < NUM_PITCHES; p++) {
 		int index = PITCH_INPUT + p;
 		if (inputs[index].active) {
 			inputPitches[nValidPitches] = inputs[index].value;
+			pitchIndex[nValidPitches] = p;
 			nValidPitches++;
 		} else {
 			inputPitches[nValidPitches] = 0.0;
@@ -319,7 +322,7 @@ void Arp31::step() {
 	}
 
 	bool restart = false;
-
+	int oldLight = 0;
 	// Have we been clocked?
 	if (clockStatus) {
 		
@@ -341,6 +344,10 @@ void Arp31::step() {
 							
 			// Finally set the out voltage
 			outVolts = clamp(pitches[currArp->getPitch()], -10.0f, 10.0f);
+			oldLight = currLight;
+			currLight = pitchIndex[currArp->getPitch()];
+			if (debugEnabled()) { std::cout << stepX << " " << id  << " Light: " << currLight << std::endl; }
+
 
 			// Pulse the output gate
 			gatePulse.trigger(Core::TRIGGER);
@@ -378,9 +385,7 @@ void Arp31::step() {
 		}
 		nPitches = nValidPitches;
 
-		if (debugEnabled()) { std::cout << stepX << " " << id  << 
-			" Initiatise new Cycle: Pattern: " << currArp->getName() << std::endl; 
-		}
+		if (debugEnabled()) { std::cout << stepX << " " << id  << " Initiatise new Cycle: Pattern: " << currArp->getName() << std::endl; }
 		
 		currArp->initialise(nPitches);
 
@@ -402,6 +407,10 @@ void Arp31::step() {
 	
 	// Set the value
 	outputs[OUT_OUTPUT].value = outVolts;
+
+	// Set the light
+	lights[CURR_LIGHT + oldLight].value = 0.0;
+	lights[CURR_LIGHT + currLight].value = 1.0;
 	
 	bool gPulse = gatePulse.process(delta);
 	bool cPulse = eocPulse.process(delta);
@@ -477,13 +486,14 @@ Arp31Widget::Arp31Widget(Arp31 *module) : ModuleWidget(module) {
 	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 3, 0, false, false), Port::OUTPUT, module, Arp31::EOC_OUTPUT));
 		
 	for (int i = 0; i < Arp31::NUM_PITCHES; i++) {
-		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, i, 5, true, false), Port::INPUT, module, Arp31::PITCH_INPUT + i));
+		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, i, 4, true, false), Port::INPUT, module, Arp31::PITCH_INPUT + i));
+		addChild(ModuleLightWidget::create<SmallLight<GreenLight>>(ui.getPosition(UI::LIGHT, i, 5, true, false), module, Arp31::CURR_LIGHT + i));
 	}
 	
-	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 4, 4, true, false), Port::INPUT, module, Arp31::ARP_INPUT));
-	addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 5, 4, true, false), module, Arp31::ARP_PARAM, 0.0, 3.0, 0.0)); 
+	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 4, 3, true, false), Port::INPUT, module, Arp31::ARP_INPUT));
+	addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 5, 3, true, false), module, Arp31::ARP_PARAM, 0.0, 3.0, 0.0)); 
 	
-	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 1, 4, true, false), Port::INPUT, module, Arp31::CLOCK_INPUT));
+	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 1, 3, true, false), Port::INPUT, module, Arp31::CLOCK_INPUT));
 
 }
 
