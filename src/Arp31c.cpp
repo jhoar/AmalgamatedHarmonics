@@ -481,19 +481,24 @@ Arp31Widget::Arp31Widget(Arp31 *module) : ModuleWidget(module) {
 		addChild(display);
 	}
 
-	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 0, false, false), Port::OUTPUT, module, Arp31::OUT_OUTPUT));
-	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 1, 0, false, false), Port::OUTPUT, module, Arp31::GATE_OUTPUT));
-	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 3, 0, false, false), Port::OUTPUT, module, Arp31::EOC_OUTPUT));
-		
+	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 2, 5, false, false), Port::OUTPUT, module, Arp31::OUT_OUTPUT));
+	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 3, 5, false, false), Port::OUTPUT, module, Arp31::GATE_OUTPUT));
+	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 4, 5, false, false), Port::OUTPUT, module, Arp31::EOC_OUTPUT));
+
+
+
 	for (int i = 0; i < Arp31::NUM_PITCHES; i++) {
-		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, i, 4, true, false), Port::INPUT, module, Arp31::PITCH_INPUT + i));
-		addChild(ModuleLightWidget::create<SmallLight<GreenLight>>(ui.getPosition(UI::LIGHT, i, 5, true, false), module, Arp31::CURR_LIGHT + i));
+		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, i, 0, true, false), Port::INPUT, module, Arp31::PITCH_INPUT + i));
+		Vec v = ui.getPosition(UI::LIGHT, i, 1, true, false);
+		v.x = v.x + 2;
+		v.y = 75;
+		addChild(ModuleLightWidget::create<SmallLight<GreenLight>>(v, module, Arp31::CURR_LIGHT + i));
 	}
 	
-	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 4, 3, true, false), Port::INPUT, module, Arp31::ARP_INPUT));
-	addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 5, 3, true, false), module, Arp31::ARP_PARAM, 0.0, 3.0, 0.0)); 
+	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 3, 4, false, false), Port::INPUT, module, Arp31::ARP_INPUT));
+	addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 4, 4, false, false), module, Arp31::ARP_PARAM, 0.0, 3.0, 0.0)); 
 	
-	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 1, 3, true, false), Port::INPUT, module, Arp31::CLOCK_INPUT));
+	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 5, false, false), Port::INPUT, module, Arp31::CLOCK_INPUT));
 
 }
 
