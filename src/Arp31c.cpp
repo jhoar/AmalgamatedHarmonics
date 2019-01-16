@@ -18,6 +18,20 @@ struct Arpeggio {
 	
 	virtual bool isArpeggioFinished() = 0;
 
+	// For RL and LR arps we have the following logic
+	// Convert from npitch (1-6) to index (0 -> 9), but do no repeat first note
+	// 1,2,3,4,5,6 (6) -> 
+	// 0 (1)
+	// 1 (2)
+	// 2 (3)
+	// 3 (4)
+	// 4 (5)
+	// 5 (6)
+	// 6 (5)
+	// 7 (3)
+	// 8 (2)
+	// 9 (END, do not repeat 1)
+
 };
 
 struct RightArp : Arpeggio {
@@ -88,18 +102,7 @@ struct RightLeftArp : Arpeggio {
 
 	void initialise(int np) override {
 		mag = np - 1;
-		end = 2 * np - 3; // Convert from npitch (1-6) to index (0 -> 5, but do no repeat first note)
-		// 1,2,3,4,5,6 (6) -> 
-		// 0 (1)
-		// 1 (2)
-		// 2 (3)
-		// 3 (4)
-		// 4 (5)
-		// 5 (6)
-		// 6 (5)
-		// 7 (3)
-		// 8 (2)
-		// 9 (END, do not repeat 1)
+		end = 2 * np - 3; 
 
 		if (end < 1) {
 			end = 1;
