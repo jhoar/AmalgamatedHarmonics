@@ -240,20 +240,11 @@ struct Arp31 : AHModule {
 	bool isRunning = false;
 	int error = 0;
 	
-	int inputPat = 0;
 	int inputArp = 0;
-	int inputLen = 0;
-	int inputTrans = 0;
-	int inputScale = 0;
+	int arp = 0;
 	
 	int poll = 5000;
 		
-	int pattern = 0;
-	int arp = 0;
-	int length = 0;
-	float trans = 0;
-	float scale = 0;
-	
 	float semiTone = 1.0 / 12.0;
 
 	RightArp 		arp_right;
@@ -294,20 +285,6 @@ void Arp31::step() {
 		inputArp = params[ARP_PARAM].value;
 	}	
 
-	if (inputs[LENGTH_INPUT].active) {
-		inputLen = inputs[LENGTH_INPUT].value;
-	} else {
-		inputLen = params[LENGTH_PARAM].value;
-	}	
-	
-	if (inputs[TRANS_INPUT].active) {
-		inputTrans = inputs[TRANS_INPUT].value;
-	} else {
-		inputTrans = params[TRANS_PARAM].value;
-	}	
-
-	inputScale = params[SCALE_PARAM].value;
-
 	// Process inputs
 	bool clockStatus	= clockTrigger.process(clockInput);
 	
@@ -334,12 +311,6 @@ void Arp31::step() {
 	if (nValidPitches == 0) {
 		if (debugEnabled()) { std::cout << stepX << " " << id  << " No inputs, assume single 0V pitch" << std::endl; }
 		nValidPitches = 1;
-	}
-	
-	// Need to understand why this happens
-	if (inputLen == 0) {
-		if (debugEnabled()) { std::cout << stepX << " " << id  << " InputLen == 0, aborting" << std::endl; }
-		return; // No inputs, no music
 	}
 	
 	// If there is no clock input, then force that we are not running
@@ -371,8 +342,6 @@ void Arp31::step() {
 			// Finally set the out voltage
 			outVolts = clamp(pitches[currArp->getPitch()], -10.0f, 10.0f);
 
-//			if (debugEnabled()) { std::cout << stepX << " " << id  << " Output V = " << outVolts << std::endl; }
-					
 			// Pulse the output gate
 			gatePulse.trigger(Core::TRIGGER);
 
@@ -410,8 +379,7 @@ void Arp31::step() {
 		nPitches = nValidPitches;
 
 		if (debugEnabled()) { std::cout << stepX << " " << id  << 
-			" Initiatise new Cycle: Pattern: " << currArp->getName() << 
-			" Length: " << inputLen << std::endl; 
+			" Initiatise new Cycle: Pattern: " << currArp->getName() << std::endl; 
 		}
 		
 		currArp->initialise(nPitches);
@@ -471,13 +439,9 @@ struct Arp31Display : TransparentWidget {
 		nvgFillColor(vg, nvgRGBA(255, 0, 0, 0xff));
 	
 		char text[128];
-		if (module->inputLen == 0) {
-			snprintf(text, sizeof(text), "Error: inputLen == 0");
-			nvgText(vg, pos.x + 10, pos.y + 5, text, NULL);			
-		} else {
-			snprintf(text, sizeof(text), "Arpeggio: %s", module->uiArp->getName().c_str());
-			nvgText(vg, pos.x + 10, pos.y + 65, text, NULL);
-		}
+		snprintf(text, sizeof(text), "Arpeggio: %s", module->uiArp->getName().c_str());
+		nvgText(vg, pos.x + 10, pos.y + 65, text, NULL);
+
 	}
 	
 };
@@ -520,13 +484,6 @@ Arp31Widget::Arp31Widget(Arp31 *module) : ModuleWidget(module) {
 	addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 5, 4, true, false), module, Arp31::ARP_PARAM, 0.0, 3.0, 0.0)); 
 	
 	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 1, 4, true, false), Port::INPUT, module, Arp31::CLOCK_INPUT));
-	addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 3, 4, true, false), module, Arp31::SCALE_PARAM, 0, 2, 0)); 
-
-	
-	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 2, 3, true, false), Port::INPUT, module, Arp31::TRANS_INPUT)); 
-	addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 3, 3, true, false), module, Arp31::TRANS_PARAM, -24, 24, 0)); 
-	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 4, 3, true, false), Port::INPUT, module, Arp31::LENGTH_INPUT));
-	addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 5, 3, true, false), module, Arp31::LENGTH_PARAM, 1.0, 16.0, 1.0)); 
 
 }
 
