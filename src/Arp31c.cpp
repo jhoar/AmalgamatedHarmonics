@@ -167,17 +167,12 @@ struct Arp31 : AHModule {
 
 	enum ParamIds {
 		ARP_PARAM,
-		LENGTH_PARAM,
-		TRANS_PARAM,
-		SCALE_PARAM,
 		NUM_PARAMS
 	};
 	enum InputIds {
 		CLOCK_INPUT,
 		ENUMS(PITCH_INPUT,6),
 		ARP_INPUT,
-		LENGTH_INPUT,
-		TRANS_INPUT,
 		NUM_INPUTS
 	};
 	enum OutputIds {
@@ -313,6 +308,8 @@ void Arp31::step() {
 	// Always play something
 	if (nValidPitches == 0) {
 		if (debugEnabled()) { std::cout << stepX << " " << id  << " No inputs, assume single 0V pitch" << std::endl; }
+		inputPitches[0] = 0.0;
+		pitchIndex[0] = 0;
 		nValidPitches = 1;
 	}
 	
@@ -484,8 +481,6 @@ Arp31Widget::Arp31Widget(Arp31 *module) : ModuleWidget(module) {
 	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 2, 5, false, false), Port::OUTPUT, module, Arp31::OUT_OUTPUT));
 	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 3, 5, false, false), Port::OUTPUT, module, Arp31::GATE_OUTPUT));
 	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 4, 5, false, false), Port::OUTPUT, module, Arp31::EOC_OUTPUT));
-
-
 
 	for (int i = 0; i < Arp31::NUM_PITCHES; i++) {
 		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, i, 0, true, false), Port::INPUT, module, Arp31::PITCH_INPUT + i));
