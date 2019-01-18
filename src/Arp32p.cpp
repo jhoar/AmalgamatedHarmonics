@@ -526,21 +526,25 @@ struct Arp32Display : TransparentWidget {
 		char text[128];
 		if (module->inputLen == 0) {
 			snprintf(text, sizeof(text), "Error: inputLen == 0");
-			nvgText(vg, pos.x + 10, pos.y + 5, text, NULL);			
+			nvgText(vg, pos.x + 10, pos.y, text, NULL);			
 		} else {
+			snprintf(text, sizeof(text), "%s", module->uiPatt->getName().c_str()); 
+			nvgText(vg, pos.x + 10, pos.y, text, NULL);			
+			snprintf(text, sizeof(text), "L : %d", module->uiPatt->length); 
+			nvgText(vg, pos.x + 10, pos.y + 15, text, NULL);
 			switch(module->uiPatt->scale) {
 				case 0: 
-					snprintf(text, sizeof(text), "%s %d %dst", module->uiPatt->getName().c_str(), module->uiPatt->length, module->uiPatt->trans); 
+					snprintf(text, sizeof(text), "S : %dst", module->uiPatt->trans); 
 					break;
 				case 1: 
-					snprintf(text, sizeof(text), "%s %d %dM", module->uiPatt->getName().c_str(), module->uiPatt->length, module->uiPatt->trans); 
+					snprintf(text, sizeof(text), "S : %dM", module->uiPatt->trans); 
 					break;
 				case 2: 
-					snprintf(text, sizeof(text), "%s %d %dm", module->uiPatt->getName().c_str(), module->uiPatt->length, module->uiPatt->trans); 
+					snprintf(text, sizeof(text), "S : %dm", module->uiPatt->trans); 
 					break;
 				default: snprintf(text, sizeof(text), "Error..."); break;
 			}
-			nvgText(vg, pos.x + 10, pos.y + 5, text, NULL);
+			nvgText(vg, pos.x + 60, pos.y + 15, text, NULL);
 
 		}
 	}
@@ -568,7 +572,7 @@ Arp32Widget::Arp32Widget(Arp32 *module) : ModuleWidget(module) {
 	{
 		Arp32Display *display = new Arp32Display();
 		display->module = module;
-		display->box.pos = Vec(10, 95);
+		display->box.pos = Vec(10, 90);
 		display->box.size = Vec(100, 140);
 		addChild(display);
 	}
@@ -577,7 +581,7 @@ Arp32Widget::Arp32Widget(Arp32 *module) : ModuleWidget(module) {
 	
 	addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 0, 2, true, false), module, Arp32::PATT_PARAM, 0.0, 4.0, 0.0)); 
 	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 3, true, false), Port::INPUT, module, Arp32::PATT_INPUT));
-	addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 1, 2, true, false), module, Arp32::TRANS_PARAM, -24, 24, 0)); 
+	addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 1, 2, true, false), module, Arp32::TRANS_PARAM, -24, 24, 1)); 
 	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 1, 3, true, false), Port::INPUT, module, Arp32::TRANS_INPUT)); 
 	addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 2, 2, true, false), module, Arp32::LENGTH_PARAM, 1.0, 16.0, 1.0)); 
 	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 2, 3, true, false), Port::INPUT, module, Arp32::LENGTH_INPUT));
