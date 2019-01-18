@@ -445,7 +445,7 @@ struct Arp31Display : TransparentWidget {
 		nvgFillColor(vg, nvgRGBA(255, 0, 0, 0xff));
 	
 		char text[128];
-		snprintf(text, sizeof(text), "Arpeggio: %s", module->uiArp->getName().c_str());
+		snprintf(text, sizeof(text), "%s", module->uiArp->getName().c_str());
 		nvgText(vg, pos.x + 10, pos.y + 65, text, NULL);
 
 	}
@@ -461,7 +461,7 @@ Arp31Widget::Arp31Widget(Arp31 *module) : ModuleWidget(module) {
 	
 	UI ui;
 	
-	box.size = Vec(240, 380);
+	box.size = Vec(135, 380);
 
 	{
 		SVGPanel *panel = new SVGPanel();
@@ -473,28 +473,36 @@ Arp31Widget::Arp31Widget(Arp31 *module) : ModuleWidget(module) {
 	{
 		Arp31Display *display = new Arp31Display();
 		display->module = module;
-		display->box.pos = Vec(10, 95);
-		display->box.size = Vec(100, 140);
+		display->box.pos = Vec(40, 100);
+		display->box.size = Vec(100, 70);
 		addChild(display);
 	}
 
-	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 2, 5, false, false), Port::OUTPUT, module, Arp31::OUT_OUTPUT));
-	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 3, 5, false, false), Port::OUTPUT, module, Arp31::GATE_OUTPUT));
-	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 4, 5, false, false), Port::OUTPUT, module, Arp31::EOC_OUTPUT));
+	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 5, true, false), Port::OUTPUT, module, Arp31::OUT_OUTPUT));
+	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 1, 5, true, false), Port::OUTPUT, module, Arp31::GATE_OUTPUT));
+	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 2, 5, true, false), Port::OUTPUT, module, Arp31::EOC_OUTPUT));
 
-	for (int i = 0; i < Arp31::NUM_PITCHES; i++) {
+	for (int i = 0; i < 3; i++) {
 		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, i, 0, true, false), Port::INPUT, module, Arp31::PITCH_INPUT + i));
 		Vec v = ui.getPosition(UI::LIGHT, i, 1, true, false);
 		v.x = v.x + 2;
 		v.y = 75;
 		addChild(ModuleLightWidget::create<SmallLight<GreenLight>>(v, module, Arp31::CURR_LIGHT + i));
 	}
-	
-	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 3, 4, false, false), Port::INPUT, module, Arp31::ARP_INPUT));
-	addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 4, 4, false, false), module, Arp31::ARP_PARAM, 0.0, 3.0, 0.0)); 
-	
-	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 5, false, false), Port::INPUT, module, Arp31::CLOCK_INPUT));
 
+	for (int i = 3; i < 6; i++) {
+		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, i - 3, 1, true, false), Port::INPUT, module, Arp31::PITCH_INPUT + i));
+		Vec v = ui.getPosition(UI::LIGHT, i - 3, 2, true, false);
+		v.x = v.x + 2;
+		v.y = 131;
+		addChild(ModuleLightWidget::create<SmallLight<GreenLight>>(v, module, Arp31::CURR_LIGHT + i));
+	}
+
+	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 4, true, false), Port::INPUT, module, Arp31::CLOCK_INPUT));
+
+	addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 0, 2, true, false), module, Arp31::ARP_PARAM, 0.0, 3.0, 0.0)); 
+	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 3, true, false), Port::INPUT, module, Arp31::ARP_INPUT));
+	
 }
 
 struct ArpGateModeItem : MenuItem {
