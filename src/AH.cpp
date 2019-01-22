@@ -28,10 +28,11 @@ void init(rack::Plugin *p) {
 	p->addModel(modelScaleQuantizer2);
 	p->addModel(modelSLN);
 
+	p->addModel(modelArpeggiator2);
+
+	p->addModel(modelArpeggiator);
 	p->addModel(modelScaleQuantizer);
 	p->addModel(modelImperfect);
-	p->addModel(modelArpeggiator);
-	p->addModel(modelArpeggiator2);
 
 	// Any other plugin initialization may go here.
 	// As an alternative, consider lazy-loading assets and lookup tables when your module is created to reduce startup times of Rack.

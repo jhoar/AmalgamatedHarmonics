@@ -200,5 +200,5 @@ ImperfectWidget::ImperfectWidget(Imperfect *module) : ModuleWidget(module) {
 	
 }
 
-Model *modelImperfect = Model::create<Imperfect, ImperfectWidget>( "Amalgamated Harmonics", "Imperfect", "Imperfect (deprecated)", CLOCK_MODULATOR_TAG);
+Model *modelImperfect = Model::create<Imperfect, ImperfectWidget>( "Amalgamated Harmonics", "Imperfect", "Imperfect (to be deleted)", CLOCK_MODULATOR_TAG);
 

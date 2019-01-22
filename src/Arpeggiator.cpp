@@ -568,6 +568,6 @@ ArpeggiatorWidget::ArpeggiatorWidget(Arpeggiator *module) : ModuleWidget(module)
 
 }
 
-Model *modelArpeggiator = Model::create<Arpeggiator, ArpeggiatorWidget>( "Amalgamated Harmonics", "Arpeggiator", "Arpeggiator (deprecated)", ARPEGGIATOR_TAG);
+Model *modelArpeggiator = Model::create<Arpeggiator, ArpeggiatorWidget>( "Amalgamated Harmonics", "Arpeggiator", "Arpeggiator (to be deleted)", ARPEGGIATOR_TAG);
 
 
