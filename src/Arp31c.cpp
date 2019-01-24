@@ -10,7 +10,7 @@ struct Arpeggio {
 
 	virtual std::string getName() = 0;
 
-	virtual void initialise(int nPitches) = 0;
+	virtual void initialise(int nPitches, int offset) = 0;
 	
 	virtual void advance() = 0;
 	
@@ -43,9 +43,18 @@ struct RightArp : Arpeggio {
 		return "Right";
 	};
 
-	void initialise(int np) override {
-		index = 0;
+	void initialise(int np, int offset) override {
+
+		if (offset != 0) {
+			index = offset % np;
+		} else {
+			index = 0;
+		}
+
 		nPitches = np;
+
+//		std::cout << nPitches << " " << offset << " " << index << std::endl;
+
 	}
 	
 	void advance() override {
@@ -71,9 +80,19 @@ struct LeftArp : Arpeggio {
 		return "Left";
 	};
 	
-	void initialise(int np) override {
+	void initialise(int np, int offset) override {
+
+		if (offset != 0) {
+			offset = offset % np;
+			index = np - offset - 1;
+		} else {
+			index = np - 1;
+		}
+
 		nPitches = np;
-		index = nPitches - 1;
+
+//		std::cout << nPitches << " " << offset << " " << index << std::endl;
+
 	}
 	
 	void advance() override {
@@ -95,19 +114,32 @@ struct RightLeftArp : Arpeggio {
 	int currSt = 0;
 	int mag = 0; // index of last pitch
 	int end = 0; // index of end of arp
+	int nPitches = 0;
 	
 	std::string getName() override {
 		return "RightLeft";
 	};	
 
-	void initialise(int np) override {
+	void initialise(int np, int offset) override {
+
+		nPitches = np;
 		mag = np - 1;
-		end = 2 * np - 3; 
+		end = 2 * mag - 1; 
 
 		if (end < 1) {
 			end = 1;
 		}
-		currSt = 0;
+
+		currSt = offset;
+
+		if (end < currSt) {
+			end = currSt;
+		} else {
+			if (offset > 0) {
+				end++;
+			}
+		}
+
 	}
 	
 	void advance() override {
@@ -115,7 +147,9 @@ struct RightLeftArp : Arpeggio {
 	}
 	
 	int getPitch() override {
-		return mag - abs(mag - currSt);
+
+		int p = abs((mag - abs(mag - currSt)) % nPitches);
+		return p;
 	}
 
 	bool isArpeggioFinished() override {
@@ -129,19 +163,32 @@ struct LeftRightArp : Arpeggio {
 	int currSt = 0;
 	int mag = 0;
 	int end = 0;
+	int nPitches = 0;
 	
 	std::string getName() override {
 		return "LeftRight";
 	};	
 
-	void initialise(int l) override {
-		mag = l - 1;
-		end = 2 * l - 3;
+	void initialise(int np, int offset) override {
+
+		nPitches = np;
+		mag = np - 1;
+		end = 2 * mag - 1;
 
 		if (end < 1) {
 			end = 1;
 		}
-		currSt = 0;
+
+		currSt = offset;
+
+		if (end < currSt) {
+			end = currSt;
+		} else {
+			if (offset > 0) {
+				end++;
+			}
+		}
+
 	}
 	
 	void advance() override {
@@ -149,7 +196,10 @@ struct LeftRightArp : Arpeggio {
 	}
 	
 	int getPitch() override {
-		return abs(mag - currSt);
+
+		int p = abs(abs(mag - currSt) % nPitches);
+		return p;
+
 	}
 
 	bool isArpeggioFinished() override {
@@ -167,6 +217,7 @@ struct Arp31 : AHModule {
 
 	enum ParamIds {
 		ARP_PARAM,
+		OFFSET_PARAM,
 		NUM_PARAMS
 	};
 	enum InputIds {
@@ -189,7 +240,7 @@ struct Arp31 : AHModule {
 	Arp31() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
 		reset();
 		id = rand();
-        debugFlag = false;
+        debugFlag = true;
 	}
 
 	void step() override;
@@ -256,6 +307,7 @@ struct Arp31 : AHModule {
 	Arpeggio *uiArp = &arp_right;
 	
 	float pitches[6];
+	int pitchIndex[NUM_PITCHES];
 	int nPitches = 0;
 	int id = 0;
 	int currLight = 0;
@@ -281,37 +333,10 @@ void Arp31::step() {
 		inputArp = params[ARP_PARAM].value;
 	}	
 
+	int offset = params[OFFSET_PARAM].value;
+
 	// Process inputs
 	bool clockStatus	= clockTrigger.process(clockInput);
-	
-	// Read input pitches and assign to pitch array
-	int nValidPitches = 0;
-	float inputPitches[NUM_PITCHES];
-	int pitchIndex[NUM_PITCHES];
-	for (int p = 0; p < NUM_PITCHES; p++) {
-		int index = PITCH_INPUT + p;
-		if (inputs[index].active) {
-			inputPitches[nValidPitches] = inputs[index].value;
-			pitchIndex[nValidPitches] = p;
-			nValidPitches++;
-		} else {
-			inputPitches[nValidPitches] = 0.0;
-		}
-	}
-
-	// if (debugEnabled()) {
-	// 	for (int p = 0; p < nValidPitches; p++) {
-	// 		std::cout << inputPitches[p] << std::endl;
-	// 	}
-	// }
-	
-	// Always play something
-	if (nValidPitches == 0) {
-		if (debugEnabled()) { std::cout << stepX << " " << id  << " No inputs, assume single 0V pitch" << std::endl; }
-		inputPitches[0] = 0.0;
-		pitchIndex[0] = 0;
-		nValidPitches = 1;
-	}
 	
 	// If there is no clock input, then force that we are not running
 	if (!clockActive) {
@@ -321,8 +346,9 @@ void Arp31::step() {
 	bool restart = false;
 	int oldLight = 0;
 	// Have we been clocked?
+
 	if (clockStatus) {
-		
+
 		// If we are already running, process cycle
 		if (isRunning) {
 
@@ -340,11 +366,12 @@ void Arp31::step() {
 			} 
 							
 			// Finally set the out voltage
-			outVolts = clamp(pitches[currArp->getPitch()], -10.0f, 10.0f);
+			int i = currArp->getPitch();
+			outVolts = clamp(pitches[i], -10.0f, 10.0f);
 			oldLight = currLight;
-			currLight = pitchIndex[currArp->getPitch()];
-			if (debugEnabled()) { std::cout << stepX << " " << id  << " Light: " << currLight << std::endl; }
+			currLight = pitchIndex[i];
 
+			if (debugEnabled()) { std::cout << stepX << " " << id  << " Index: " << i << " V: " << outVolts << " Light: " << currLight << std::endl; }
 
 			// Pulse the output gate
 			gatePulse.trigger(Core::TRIGGER);
@@ -363,7 +390,36 @@ void Arp31::step() {
 	
 	// If we have been triggered, start a new sequence
 	if (restart) {
+
+		// Read input pitches and assign to pitch array
+		int nValidPitches = 0;
+		float inputPitches[NUM_PITCHES];
+		for (int p = 0; p < NUM_PITCHES; p++) {
+			int index = PITCH_INPUT + p;
+			if (inputs[index].active) {
+				inputPitches[nValidPitches] = inputs[index].value;
+				pitchIndex[nValidPitches] = p;
+				nValidPitches++;
+			} else {
+				inputPitches[nValidPitches] = 0.0;
+				pitchIndex[nValidPitches] = 0;
+			}
+		}
+
+		// if (debugEnabled()) {
+		// 	for (int p = 0; p < nValidPitches; p++) {
+		// 		std::cout << inputPitches[p] << std::endl;
+		// 	}
+		// }
 		
+		// Always play something
+		if (nValidPitches == 0) {
+			if (debugEnabled()) { std::cout << stepX << " " << id  << " No inputs, assume single 0V pitch" << std::endl; }
+			inputPitches[0] = 0.0;
+			pitchIndex[0] = 0;
+			nValidPitches = 1;
+		}
+
 		// At the first step of the cycle
 		// So this is where we tweak the cycle parameters
 		arp = inputArp;
@@ -382,9 +438,9 @@ void Arp31::step() {
 		}
 		nPitches = nValidPitches;
 
-		if (debugEnabled()) { std::cout << stepX << " " << id  << " Initiatise new Cycle: Pattern: " << currArp->getName() << std::endl; }
+		if (debugEnabled()) { std::cout << stepX << " " << id  << " Initiatise new Cycle: Pattern: " << currArp->getName() << " nPitches: " << nPitches << std::endl; }
 		
-		currArp->initialise(nPitches);
+		currArp->initialise(nPitches, offset);
 
 		// Start
 		isRunning = true;
@@ -400,7 +456,7 @@ void Arp31::step() {
 		default:	uiArp = &ui_arp_right;		break; 	
 	};
 	
-	uiArp->initialise(nPitches);
+//	uiArp->initialise(nValidPitches, 1);
 	
 	// Set the value
 	outputs[OUT_OUTPUT].value = outVolts;
@@ -499,6 +555,7 @@ Arp31Widget::Arp31Widget(Arp31 *module) : ModuleWidget(module) {
 	}
 
 	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 4, true, false), Port::INPUT, module, Arp31::CLOCK_INPUT));
+	addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 1, 4, true, false), module, Arp31::OFFSET_PARAM, 0.0, 10.0, 0.0)); 
 
 	addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 0, 2, true, false), module, Arp31::ARP_PARAM, 0.0, 3.0, 0.0)); 
 	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 3, true, false), Port::INPUT, module, Arp31::ARP_INPUT));

@@ -15,7 +15,7 @@
    id="svg11791"
    version="1.1"
    inkscape:version="0.92.3 (2405546, 2018-03-11)"
-   sodipodi:docname="Arp31c.svg"
+   sodipodi:docname="Arp31c_src.svg"
    inkscape:export-filename="/home/vortico/src/cpp/VCV/Rack/plugins/Befaco/res/Rampage.png"
    inkscape:export-xdpi="80.124367"
    inkscape:export-ydpi="80.124367">
@@ -958,19 +958,6 @@
          stdDeviation="0.2"
          id="feGaussianBlur3935" />
     </filter>
-    <filter
-       inkscape:collect="always"
-       style="color-interpolation-filters:sRGB"
-       id="filter4464"
-       x="-1.3714286"
-       width="3.7428572"
-       y="-1.0666667"
-       height="3.1333332">
-      <feGaussianBlur
-         inkscape:collect="always"
-         stdDeviation="20"
-         id="feGaussianBlur4466" />
-    </filter>
   </defs>
   <sodipodi:namedview
      inkscape:document-units="mm"
@@ -980,16 +967,16 @@
      borderopacity="1.0"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.6921053"
-     inkscape:cx="211.68794"
-     inkscape:cy="220.7403"
+     inkscape:zoom="2.3552632"
+     inkscape:cx="67.5"
+     inkscape:cy="190"
      inkscape:current-layer="layer2"
      showgrid="false"
      units="mm"
      inkscape:window-width="1401"
      inkscape:window-height="1118"
-     inkscape:window-x="119"
-     inkscape:window-y="26"
+     inkscape:window-x="366"
+     inkscape:window-y="42"
      inkscape:window-maximized="0"
      showguides="false"
      inkscape:guide-bbox="true"
@@ -1315,7 +1302,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -1517,14 +1504,14 @@
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none"
-       x="16.081995"
+       x="22.842411"
        y="337.82428"
        id="text10554"><tspan
          sodipodi:role="line"
          id="tspan10552"
-         x="16.081995"
+         x="22.842411"
          y="337.82428"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">CLOCK</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">CLK</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:40px;line-height:1.25;font-family:Eurostile;-inkscape-font-specification:Eurostile;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
@@ -1555,15 +1542,6 @@
          x="95.877396"
          id="tspan1125"
          sodipodi:role="line">P6</tspan></text>
-    <rect
-       transform="scale(1,-1)"
-       ry="4.2187495"
-       y="-190.38676"
-       x="189.98825"
-       height="45"
-       width="35"
-       id="rect3872"
-       style="fill:#00b200;fill-opacity:0;stroke-width:0.78504759;filter:url(#filter4464)" />
     <rect
        transform="scale(1,-1)"
        ry="4.2187495"
@@ -1635,7 +1613,7 @@
            height="137.1073"
            x="-35.458786"
            y="108.74029" /></flowRegion><flowPara
-         id="flowPara8893"></flowPara></flowRoot>    <rect
+         id="flowPara8893" /></flowRoot>    <rect
        style="opacity:1;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:1.0123781;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect1152"
        width="49.642303"
@@ -1670,5 +1648,16 @@
            y="450.72498"
            style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:18.66666603px;font-family:'Cooper Black';-inkscape-font-specification:'Cooper Black, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">H</tspan></text>
     </g>
+    <text
+       id="text1443"
+       y="337.82428"
+       x="49.470013"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1"
+         y="337.82428"
+         x="49.470013"
+         id="tspan1441"
+         sodipodi:role="line">OFFSET</tspan></text>
   </g>
 </svg>
