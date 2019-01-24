@@ -13,17 +13,19 @@ struct Pattern {
 	int trans = 0;
 	int scale = 0;
 	int count = 0;
-		
+	int offset = 0;
+	int end = 0;
+
 	int MAJOR[7] = {0,2,4,5,7,9,11};
 	int MINOR[7] = {0,2,3,5,7,8,10};
 		
 	virtual std::string getName() = 0;
 
-	virtual void initialise(int l, int sc, int tr) {
+	virtual void initialise(int l, int sc, int tr, int off) {
 		length = l;
 		trans = tr;
 		scale = sc;
-		count = 0;
+		offset = off;
 	};
 
 	virtual void advance() {
@@ -50,15 +52,18 @@ struct Pattern {
 
 struct DivergePattern : Pattern {
 
-	int end;
-
 	std::string getName() override {
 		return "Diverge";
 	};
 
-	void initialise(int l, int sc, int tr) override {
-		Pattern::initialise(l,sc,tr);
+	void initialise(int l, int sc, int tr, int off) override {
+		Pattern::initialise(l, sc, tr, off);
 		end = length - 1;
+		if (offset >= length - 1) {
+			count = end;
+		} else {
+			count = offset;
+		}
 	}
 	
 	int getOffset() override {
@@ -81,36 +86,36 @@ struct DivergePattern : Pattern {
 
 struct ConvergePattern : Pattern {
 
-	int end;
-	int currSt = 0;
-	
 	std::string getName() override {
 		return "Converge";
 	};	
 
-	void initialise(int l, int sc, int tr) override {
-		Pattern::initialise(l,sc,tr);
+	void initialise(int l, int sc, int tr, int off) override {
+		Pattern::initialise(l, sc, tr, off);
 		end = 0;
-		currSt = length - 1;
+		if (offset >= length) {
+			count = 0;
+		} else {
+			count = length - offset - 1;
+		}
 	} 
 	
 	void advance() override {
-		Pattern::advance();
-		currSt--;
+		count--;
 	}
 	
 	int getOffset() override {
 		switch(scale) {
-			case 0: return -currSt * trans; break;
-			case 1: return getMajor(-currSt * trans); break;
-			case 2: return getMinor(-currSt * trans); break;
+			case 0: return -count * trans; break;
+			case 1: return getMajor(-count * trans); break;
+			case 2: return getMinor(-count * trans); break;
 			default:
-				return -currSt * trans; break;
+				return -count * trans; break;
 		}
 	}
 
 	bool isPatternFinished() override {
-		return (currSt == 0);
+		return (count == 0);
 	}
 	
 };
@@ -118,20 +123,26 @@ struct ConvergePattern : Pattern {
 struct ReturnPattern : Pattern {
 
 	int mag = 0;
-	int end = 0;
 	
 	std::string getName() override {
 		return "Return";
 	};	
 
-	void initialise(int l, int sc, int tr) override {
-		Pattern::initialise(l,sc,tr);
+	void initialise(int l, int sc, int tr, int off) override {
+		Pattern::initialise(l, sc, tr, off);
 		mag = length - 1;
-		end = 2 * length - 3;
+		end = 2 * mag - 1;
 
 		if (end < 1) {
 			end = 1;
 		}
+
+		count = offset;
+
+		if (count >= end) {
+			count = end;
+		}
+
 	}
 	
 	int getOffset() override {
@@ -162,22 +173,22 @@ struct NotePattern : Pattern {
 
 	std::vector<int> notes;
 	
-	void initialise(int l, int sc, int tr) override {
-		Pattern::initialise(l,sc,tr);
+	void initialise(int l, int sc, int tr, int off) override {
+		Pattern::initialise(l, sc, tr, off);
+		count = off;
+		if (count >= (int)notes.size()) {
+			count = (int)notes.size();
+		}
 	}
 	
 	int getOffset() override {
-		return getNote(count);
+		return notes[count];
 	}
 
 	bool isPatternFinished() override {
-		return (count == (int)notes.size());
+		return (count >= (int)notes.size());
 	}
-	
-	int getNote(int i) {
-		return notes[i];
-	}
-	
+		
 };
 
 struct RezPattern : NotePattern {
@@ -239,6 +250,7 @@ struct Arp32 : AHModule {
 		LENGTH_PARAM,
 		TRANS_PARAM,
 		SCALE_PARAM,
+		OFFSET_PARAM,
 		NUM_PARAMS
 	};
 	enum InputIds {
@@ -375,17 +387,11 @@ void Arp32::step() {
 
 	inputScale = params[SCALE_PARAM].value;
 
+	int offset = params[OFFSET_PARAM].value;
+
 	// Process inputs
 	bool clockStatus	= clockTrigger.process(clockInput);
 	
-	// Read input pitches and assign to pitch array
-	float inputPitch;
-	if (inputs[PITCH_INPUT].active) {
-		inputPitch = inputs[PITCH_INPUT].value;
-	} else {
-		inputPitch = 0.0;
-	}
-
 	// Need to understand why this happens
 	if (inputLen == 0) {
 		if (debugEnabled()) { std::cout << stepX << " " << id  << " InputLen == 0, aborting" << std::endl; }
@@ -441,6 +447,14 @@ void Arp32::step() {
 	// If we have been triggered, start a new sequence
 	if (restart) {
 		
+		// Read input pitches and assign to pitch array
+		float inputPitch;
+		if (inputs[PITCH_INPUT].active) {
+			inputPitch = inputs[PITCH_INPUT].value;
+		} else {
+			inputPitch = 0.0;
+		}
+
 		// At the first step of the cycle
 		// So this is where we tweak the cycle parameters
 		pattern = inputPat;
@@ -465,7 +479,7 @@ void Arp32::step() {
 			" Length: " << inputLen << std::endl; 
 		}
 		
-		currPatt->initialise(length, scale, trans);
+		currPatt->initialise(length, scale, trans, offset);
 
 		// Start
 		isRunning = true;
@@ -483,7 +497,7 @@ void Arp32::step() {
 	};
 
 	// Initialise the pattern
-	uiPatt->initialise(inputLen, inputScale, inputTrans);
+	uiPatt->initialise(inputLen, inputScale, inputTrans, offset);
 
 	// Set the value
 	outputs[OUT_OUTPUT].value = outVolts;
@@ -587,6 +601,7 @@ Arp32Widget::Arp32Widget(Arp32 *module) : ModuleWidget(module) {
 	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 2, 3, true, false), Port::INPUT, module, Arp32::LENGTH_INPUT));
 
 	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 4, true, false), Port::INPUT, module, Arp32::CLOCK_INPUT));
+	addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 1, 4, true, false), module, Arp32::OFFSET_PARAM, 0.0, 10.0, 0.0)); 
 	addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 2, 4, true, false), module, Arp32::SCALE_PARAM, 0, 2, 0)); 
 
 	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 5, true, false), Port::OUTPUT, module, Arp32::OUT_OUTPUT));

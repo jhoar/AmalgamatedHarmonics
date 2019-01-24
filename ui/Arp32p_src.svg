@@ -15,7 +15,7 @@
    id="svg11791"
    version="1.1"
    inkscape:version="0.92.3 (2405546, 2018-03-11)"
-   sodipodi:docname="Arp32p.svg"
+   sodipodi:docname="Arp32p_src.svg"
    inkscape:export-filename="/home/vortico/src/cpp/VCV/Rack/plugins/Befaco/res/Rampage.png"
    inkscape:export-xdpi="80.124367"
    inkscape:export-ydpi="80.124367">
@@ -981,15 +981,15 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.6921053"
-     inkscape:cx="53.300424"
+     inkscape:cx="8.3859615"
      inkscape:cy="246.73224"
      inkscape:current-layer="layer2"
      showgrid="false"
      units="mm"
-     inkscape:window-width="1180"
-     inkscape:window-height="684"
-     inkscape:window-x="89"
-     inkscape:window-y="1"
+     inkscape:window-width="1787"
+     inkscape:window-height="1581"
+     inkscape:window-x="717"
+     inkscape:window-y="279"
      inkscape:window-maximized="0"
      showguides="false"
      inkscape:guide-bbox="true"
@@ -1315,7 +1315,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -1429,14 +1429,14 @@
        transform="scale(0.99420903,1.0058247)"
        id="text1119"
        y="335.86789"
-       x="16.366236"
+       x="23.087505"
        style="font-style:normal;font-weight:normal;font-size:39.76836014px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none;stroke-width:0.99420899"
        xml:space="preserve"><tspan
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.60489655px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1;stroke-width:0.99420899"
          y="335.86789"
-         x="16.366236"
+         x="23.087505"
          id="tspan1117"
-         sodipodi:role="line">CLOCK</tspan></text>
+         sodipodi:role="line">CLK</tspan></text>
     <rect
        style="fill:#000000;fill-opacity:1;stroke-width:0.78504759"
        id="rect3927"
@@ -1575,14 +1575,16 @@
     <text
        id="text10558-4"
        y="337.82425"
-       x="57.842407"
+       x="49.470013"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;display:inline;fill:#000000;fill-opacity:1;stroke:none"
        xml:space="preserve"><tspan
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1"
          y="337.82425"
-         x="57.842407"
+         x="49.470013"
          id="tspan10556-3"
-         sodipodi:role="line">CLK</tspan></text>
+         sodipodi:role="line"><tspan
+           style="fill:#d4af42;fill-opacity:1"
+           id="tspan2808">OFFSET</tspan></tspan></text>
     <rect
        style="display:inline;fill:#000000;fill-opacity:1;stroke-width:0.78504759;filter:url(#filter3933-2)"
        id="rect1129-5"
@@ -1595,14 +1597,14 @@
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;display:inline;fill:#d4af37;fill-opacity:1;stroke:none"
-       x="87.063736"
+       x="93.173111"
        y="337.82425"
        id="text1150-7"><tspan
          sodipodi:role="line"
          id="tspan1148-0"
-         x="87.063736"
+         x="93.173111"
          y="337.82425"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">SCALE</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">SCL</tspan></text>
     <rect
        transform="scale(1,-1)"
        ry="4.2187495"

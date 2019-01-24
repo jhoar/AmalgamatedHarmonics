@@ -240,7 +240,7 @@ struct Arp31 : AHModule {
 	Arp31() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
 		reset();
 		id = rand();
-        debugFlag = true;
+        debugFlag = false;
 	}
 
 	void step() override;
