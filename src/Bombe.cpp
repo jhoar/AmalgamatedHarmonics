@@ -12,9 +12,10 @@ struct BombeChord {
 	int modeDegree;
 	int inversion;
 	float outVolts[6];
-	BombeChord() : rootNote(0), quality(0), chord(0), modeDegree(0), inversion(0) {
+	BombeChord() : rootNote(0), quality(0), chord(1), modeDegree(0), inversion(0) {
+		int *chordArray = CoreUtil().ChordTable[chord].root;
 		for (int j = 0; j < 6; j++) {
-			outVolts[j] = 0.0f;
+			outVolts[j] = CoreUtil().getVoltsFromPitch(chordArray[j], rootNote);			
 		}
 	}
 };
@@ -56,12 +57,11 @@ struct Bombe : AHModule {
 
 		params[KEY_PARAM].config(0.0, 11.0, 0.0); 
 		params[MODE_PARAM].config(0.0, 6.0, 0.0); 
-		params[LENGTH_PARAM].config(2.0, 16.0, 0.0); 
+		params[LENGTH_PARAM].config(2.0, 16.0, 4.0); 
 		params[X_PARAM].config(0.0, 1.0001, 0.5); 
 		params[Y_PARAM].config(0.0, 1.0001, 0.5); 
 
 		for(int i = 0; i < BUFFERSIZE; i++) {
-			buffer[i].chord = 1;
 			int *chordArray = CoreUtil().ChordTable[buffer[i].chord].root;
 			for (int j = 0; j < 6; j++) {
 				buffer[i].outVolts[j] = CoreUtil().getVoltsFromPitch(chordArray[j], buffer[i].rootNote);			
@@ -346,12 +346,12 @@ void Bombe::step() {
 		displayBuffer[0] = buffer[0];
 
 		// for(int i = 0; i < BUFFERSIZE; i++) {
-		// 	std::cout << buffer[i].rootNote;
+		// 	std::cout << buffer[i].rootNote << ",";
 		// }
 		// std::cout << std::endl;
 
 		// for(int i = 0; i < BUFFERSIZE; i++) {
-		// 	std::cout << displayBuffer[i].rootNote;
+		// 	std::cout << displayBuffer[i].rootNote << ",";
 		// }
 		// std::cout << std::endl << std::endl;
 		
@@ -494,7 +494,6 @@ struct BombeWidget : ModuleWidget {
 			displayW->module = module;
 			addChild(displayW);
 		}
-
 
 	}
 
