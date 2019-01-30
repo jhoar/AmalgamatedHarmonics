@@ -517,8 +517,8 @@ struct GalaxyWidget : ModuleWidget {
 		addChild(createLight<SmallLight<GreenRedLight>>(trim, module, Galaxy::BAD_LIGHT));
 
 		if (module != NULL) {
-			GalaxyDisplay *displayW = createWidget<GalaxyDisplay>(mm2px(Vec(0, 20)));
-			displayW->box.size = mm2px(Vec(240, 230));
+			GalaxyDisplay *displayW = createWidget<GalaxyDisplay>(Vec(0, 20));
+			displayW->box.size = Vec(240, 230);
 			displayW->module = module;
 			addChild(displayW);
 		}

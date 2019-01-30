@@ -512,7 +512,7 @@ struct ProgressWidget : ModuleWidget {
 		addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 9, 5, true, false), module, Progress::GATES_OUTPUT));
 		
 		if (module != NULL) {
-			StateDisplay *display = createWidget<StateDisplay>(mm2px(Vec(0, 135)));
+			StateDisplay *display = createWidget<StateDisplay>(Vec(0, 135));
 			display->module = module;
 			display->box.size = Vec(100, 140);
 			addChild(display);

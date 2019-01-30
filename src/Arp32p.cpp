@@ -597,8 +597,8 @@ struct Arp32Widget : ModuleWidget {
 		addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 2, 5, true, false), module, Arp32::EOC_OUTPUT));
 
 		if (module != NULL) {
-			Arp32Display *displayW = createWidget<Arp32Display>(mm2px(Vec(10, 90)));
-			displayW->box.size = mm2px(Vec(100, 140));
+			Arp32Display *displayW = createWidget<Arp32Display>(Vec(10, 90));
+			displayW->box.size = Vec(100, 140);
 			displayW->module = module;
 			addChild(displayW);
 		}

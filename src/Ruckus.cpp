@@ -338,7 +338,7 @@ struct RuckusWidget : ModuleWidget {
 		}
 
 		if (module != NULL) {
-			StateDisplay *display = createWidget<StateDisplay>(mm2px(Vec(30, 335)));
+			StateDisplay *display = createWidget<StateDisplay>(Vec(30, 335));
 			display->module = module;
 			display->box.size = Vec(100, 140);
 			addChild(display);

@@ -985,7 +985,7 @@ struct Arpeggiator2Widget : ModuleWidget {
 		addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 5, 3, true, false), module, Arpeggiator2::LENGTH_PARAM)); 
 
 		if (module != NULL) {
-			Arpeggiator2Display *display = createWidget<Arpeggiator2Display>(mm2px(Vec(10, 95)));
+			Arpeggiator2Display *display = createWidget<Arpeggiator2Display>(Vec(10, 95));
 			display->module = module;
 			display->box.size = Vec(100, 140);
 			addChild(display);

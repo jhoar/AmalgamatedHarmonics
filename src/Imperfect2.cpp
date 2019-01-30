@@ -329,10 +329,10 @@ struct Imperfect2Widget : ModuleWidget {
 		if (module != NULL) {
 
 			{
-				Imperfect2Box *display = createWidget<Imperfect2Box>(mm2px(Vec(10, 95)));
+				Imperfect2Box *display = createWidget<Imperfect2Box>(Vec(10, 95));
 
 				display->module = module;
-				display->box.size = mm2px(Vec(200, 20));
+				display->box.size = Vec(200, 20);
 
 				display->bpm = &(module->bpm[0]);
 				display->dly = &(module->delayTimeMs[0]);
@@ -347,10 +347,10 @@ struct Imperfect2Widget : ModuleWidget {
 			}	
 
 			{
-				Imperfect2Box *display = createWidget<Imperfect2Box>(mm2px(Vec(10, 165)));
+				Imperfect2Box *display = createWidget<Imperfect2Box>(Vec(10, 165));
 
 				display->module = module;
-				display->box.size = mm2px(Vec(200, 20));
+				display->box.size = Vec(200, 20);
 
 				display->bpm = &(module->bpm[1]);
 				display->dly = &(module->delayTimeMs[1]);
@@ -365,10 +365,10 @@ struct Imperfect2Widget : ModuleWidget {
 			}	
 
 			{
-				Imperfect2Box *display = createWidget<Imperfect2Box>(mm2px(Vec(10, 235)));
+				Imperfect2Box *display = createWidget<Imperfect2Box>(Vec(10, 235));
 
 				display->module = module;
-				display->box.size = mm2px(Vec(200, 20));
+				display->box.size = Vec(200, 20);
 
 				display->bpm = &(module->bpm[2]);
 				display->dly = &(module->delayTimeMs[2]);
@@ -383,10 +383,10 @@ struct Imperfect2Widget : ModuleWidget {
 			}	
 
 			{
-				Imperfect2Box *display = createWidget<Imperfect2Box>(mm2px(Vec(10, 305)));
+				Imperfect2Box *display = createWidget<Imperfect2Box>(Vec(10, 305));
 
 				display->module = module;
-				display->box.size = mm2px(Vec(200, 20));
+				display->box.size = Vec(200, 20);
 
 				display->bpm = &(module->bpm[3]);
 				display->dly = &(module->delayTimeMs[3]);
