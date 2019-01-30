@@ -956,14 +956,6 @@ struct Arpeggiator2Widget : ModuleWidget {
 		setPanel(SVG::load(asset::plugin(plugin, "res/Arpeggiator2.svg")));
 		UI ui;
 
-		{
-			Arpeggiator2Display *display = new Arpeggiator2Display();
-			display->module = module;
-			display->box.pos = Vec(10, 95);
-			display->box.size = Vec(100, 140);
-			addChild(display);
-		}
-
 		addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 0, false, false), module, Arpeggiator2::OUT_OUTPUT));
 		addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 1, 0, false, false), module, Arpeggiator2::GATE_OUTPUT));
 		addParam(createParam<AHButton>(ui.getPosition(UI::BUTTON, 2, 0, false, false), module, Arpeggiator2::LOCK_PARAM));
@@ -991,6 +983,13 @@ struct Arpeggiator2Widget : ModuleWidget {
 		addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 3, 3, true, false), module, Arpeggiator2::TRANS_PARAM)); 
 		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 4, 3, true, false), module, Arpeggiator2::LENGTH_INPUT));
 		addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 5, 3, true, false), module, Arpeggiator2::LENGTH_PARAM)); 
+
+		if (module != NULL) {
+			Arpeggiator2Display *display = createWidget<Arpeggiator2Display>(mm2px(Vec(10, 95)));
+			display->module = module;
+			display->box.size = Vec(100, 140);
+			addChild(display);
+		}
 
 	}
 
