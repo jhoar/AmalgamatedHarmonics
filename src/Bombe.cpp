@@ -236,29 +236,29 @@ void Bombe::step() {
 	AHModule::step();
 
 	// Get inputs from Rack
-	bool clocked = clockTrigger.process(inputs[CLOCK_INPUT].value);
+	bool clocked = clockTrigger.process(inputs[CLOCK_INPUT].getVoltage());
 	bool locked = false;
 	bool updated = false;
 
-	if (inputs[MODE_INPUT].active) {
-		float fMode = inputs[MODE_INPUT].value;
+	if (inputs[MODE_INPUT].isConnected()) {
+		float fMode = inputs[MODE_INPUT].getVoltage();
 		currMode = CoreUtil().getModeFromVolts(fMode);
 	} else {
-		currMode = params[MODE_PARAM].value;
+		currMode = params[MODE_PARAM].getValue();
 	}
 
-	if (inputs[KEY_INPUT].active) {
-		float fRoot = inputs[KEY_INPUT].value;
+	if (inputs[KEY_INPUT].isConnected()) {
+		float fRoot = inputs[KEY_INPUT].getVoltage();
 		currRoot = CoreUtil().getKeyFromVolts(fRoot);
 	} else {
-		currRoot = params[KEY_PARAM].value;
+		currRoot = params[KEY_PARAM].getValue();
 	}
 
-	float x = params[X_PARAM].value;
-	float y = clamp(params[Y_PARAM].value + inputs[Y_PARAM].value * 0.1f, 0.0, 1.0);
-	length = params[LENGTH_PARAM].value;
+	float x = params[X_PARAM].getValue();
+	float y = clamp(params[Y_PARAM].getValue() + inputs[Y_INPUT].getVoltage() * 0.1f, 0.0, 1.0);
+	length = params[LENGTH_PARAM].getValue();
 
-	if ((x >= 1.0f) || (inputs[FREEZE_INPUT].value > 0.000001f)) {
+	if ((x >= 1.0f) || (inputs[FREEZE_INPUT].getVoltage() > 0.000001f)) {
 		locked = true;
 	}
 
@@ -370,7 +370,7 @@ void Bombe::step() {
 
 	// Set the output pitches and lights
 	for (int i = 0; i < NUM_PITCHES; i++) {
-		outputs[PITCH_OUTPUT + i].value = buffer[0].outVolts[i];
+		outputs[PITCH_OUTPUT + i].setVoltage(buffer[0].outVolts[i]);
 	}
 
 }

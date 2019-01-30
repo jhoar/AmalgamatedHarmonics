@@ -99,16 +99,16 @@ void Imperfect2::step() {
 		
 		bool generateSignal = false;
 		
-		bool inputActive = inputs[TRIG_INPUT + i].active;
-		bool haveTrigger = inTrigger[i].process(inputs[TRIG_INPUT + i].value);
-		bool outputActive = outputs[OUT_OUTPUT + i].active;
+		bool inputActive = inputs[TRIG_INPUT + i].isConnected();
+		bool haveTrigger = inTrigger[i].process(inputs[TRIG_INPUT + i].getVoltage());
+		bool outputActive = outputs[OUT_OUTPUT + i].isConnected();
 		
 		// This is where we manage row-chaining/normalisation, i.e a row can be active without an
 		// input by receiving the input clock from a previous (higher) row
 		// If we have an active input, we should forget about previous valid inputs
 		if (inputActive) {
 			
-			bpm[i] = bpmCalc[i].calculateBPM(delta, inputs[TRIG_INPUT + i].value);
+			bpm[i] = bpmCalc[i].calculateBPM(delta, inputs[TRIG_INPUT + i].getVoltage());
 		
 			lastValidInput = -1;
 	
@@ -129,31 +129,31 @@ void Imperfect2::step() {
 			
 		}
 		
-		if (inputs[DELAY_INPUT + i].active) {
-			dlyLen = log2(fabs(inputs[DELAY_INPUT + i].value) + 1.0f); 
+		if (inputs[DELAY_INPUT + i].isConnected()) {
+			dlyLen = log2(fabs(inputs[DELAY_INPUT + i].getVoltage()) + 1.0f); 
 		} else {
-			dlyLen = log2(params[DELAY_PARAM + i].value);
+			dlyLen = log2(params[DELAY_PARAM + i].getValue());
 		}	
 
-		if (inputs[DELAYSPREAD_INPUT + i].active) {
-			dlySpr = log2(fabs(inputs[DELAYSPREAD_INPUT + i].value) + 1.0f); 
+		if (inputs[DELAYSPREAD_INPUT + i].isConnected()) {
+			dlySpr = log2(fabs(inputs[DELAYSPREAD_INPUT + i].getVoltage()) + 1.0f); 
 		} else {
-			dlySpr = log2(params[DELAYSPREAD_PARAM + i].value);
+			dlySpr = log2(params[DELAYSPREAD_PARAM + i].getValue());
 		}	
 		
-		if (inputs[LENGTH_INPUT + i].active) {
-			gateLen = log2(fabs(inputs[LENGTH_INPUT + i].value) + 1.001f); 
+		if (inputs[LENGTH_INPUT + i].isConnected()) {
+			gateLen = log2(fabs(inputs[LENGTH_INPUT + i].getVoltage()) + 1.001f); 
 		} else {
-			gateLen = log2(params[LENGTH_PARAM + i].value);
+			gateLen = log2(params[LENGTH_PARAM + i].getValue());
 		}	
 		
-		if (inputs[LENGTHSPREAD_INPUT + i].active) {
-			gateSpr = log2(fabs(inputs[LENGTHSPREAD_INPUT + i].value) + 1.0f); 
+		if (inputs[LENGTHSPREAD_INPUT + i].isConnected()) {
+			gateSpr = log2(fabs(inputs[LENGTHSPREAD_INPUT + i].getVoltage()) + 1.0f); 
 		} else {
-			gateSpr = log2(params[LENGTHSPREAD_PARAM + i].value);
+			gateSpr = log2(params[LENGTHSPREAD_PARAM + i].getValue());
 		}	
 		
-		division[i] = params[DIVISION_PARAM + i].value;
+		division[i] = params[DIVISION_PARAM + i].getValue();
 		
 		delayTimeMs[i] = dlyLen * 1000;
 		delaySprMs[i] = dlySpr * 2000; // scaled by ±2 below
@@ -211,13 +211,13 @@ void Imperfect2::step() {
 
 		
 		if (gatePhase[i].process(delta)) {
-			outputs[OUT_OUTPUT + i].value = 10.0f;
+			outputs[OUT_OUTPUT + i].setVoltage(10.0f);
 
 			lights[OUT_LIGHT + i * 2].setBrightnessSmooth(1.0f);
 			lights[OUT_LIGHT + i * 2 + 1].setBrightnessSmooth(0.0f);
 
 		} else {
-			outputs[OUT_OUTPUT + i].value = 0.0f;
+			outputs[OUT_OUTPUT + i].setVoltage(0.0f);
 			gateState[i] = false;
 
 			if (delayState[i]) {

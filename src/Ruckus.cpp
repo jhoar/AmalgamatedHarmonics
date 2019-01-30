@@ -156,21 +156,21 @@ void Ruckus::step() {
 		
 	for (int i = 0; i < 4; i++) {
 
-		if (xLockTrigger[i].process(params[XMUTE_PARAM + i].value)) {
+		if (xLockTrigger[i].process(params[XMUTE_PARAM + i].getValue())) {
 			xMute[i] = !xMute[i];
 		}
-		if (yLockTrigger[i].process(params[YMUTE_PARAM + i].value)) {
+		if (yLockTrigger[i].process(params[YMUTE_PARAM + i].getValue())) {
 			yMute[i] = !yMute[i];
 		}
 	}
 
 	for (int i = 0; i < 16; i++) {
-		division[i] = params[DIV_PARAM + i].value;
-		prob[i] = params[PROB_PARAM + i].value;
-		shift[i] = params[SHIFT_PARAM + i].value;
+		division[i] = params[DIV_PARAM + i].getValue();
+		prob[i] = params[PROB_PARAM + i].getValue();
+		shift[i] = params[SHIFT_PARAM + i].getValue();
 	}
 
-	if (resetTrigger.process(inputs[RESET_INPUT].value)) {
+	if (resetTrigger.process(inputs[RESET_INPUT].getVoltage())) {
 		beatCounter = 0;
 	}
 
@@ -187,7 +187,7 @@ void Ruckus::step() {
 		}
 	}
 
-	if (inTrigger.process(inputs[TRIG_INPUT].value)) {
+	if (inTrigger.process(inputs[TRIG_INPUT].getVoltage())) {
 
 		beatCounter++;
 
@@ -245,20 +245,20 @@ void Ruckus::step() {
 	for (int i = 0; i < 4; i++) {
 
 		if (xGate[i].process(delta) && xMute[i]) {
-			outputs[XOUT_OUTPUT + i].value = 10.0f;		
+			outputs[XOUT_OUTPUT + i].setVoltage(10.0f);		
 		} else {
-			outputs[XOUT_OUTPUT + i].value = 0.0f;		
+			outputs[XOUT_OUTPUT + i].setVoltage(0.0f);		
 		}
 		
-		lights[XMUTE_LIGHT + i].value = xMute[i] ? 1.0 : 0.0;
+		lights[XMUTE_LIGHT + i].setBrightness(xMute[i] ? 1.0 : 0.0);
 
 		if (yGate[i].process(delta) && yMute[i]) {
-			outputs[YOUT_OUTPUT + i].value = 10.0f;		
+			outputs[YOUT_OUTPUT + i].setVoltage(10.0f);		
 		} else {
-			outputs[YOUT_OUTPUT + i].value = 0.0f;		
+			outputs[YOUT_OUTPUT + i].setVoltage(0.0f);		
 		}
 		
-		lights[YMUTE_LIGHT + i].value = yMute[i] ? 1.0 : 0.0;
+		lights[YMUTE_LIGHT + i].setBrightness(yMute[i] ? 1.0 : 0.0);
 
 	}
 	

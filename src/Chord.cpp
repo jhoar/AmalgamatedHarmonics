@@ -80,7 +80,7 @@ void Chord::step() {
 	float out[2] = {0.0f, 0.0f};
 	int nP[2] = {0, 0};
 
-	float spread = params[SPREAD_PARAM].value;
+	float spread = params[SPREAD_PARAM].getValue();
 	float SQRT2_2 = sqrt(2.0) / 2.0;
 
 	for (int i = 0; i < NUM_PITCHES; i++) {
@@ -88,18 +88,18 @@ void Chord::step() {
 		int index = PITCH_INPUT + i;
 		int side = i % 2;
 
-		float pitchCv = inputs[index].value + params[OCTAVE_PARAM + i].value;
-		float pitchFine = params[DETUNE_PARAM + i].value / 12.0; // +- 1V
-		float attn = params[ATTN_PARAM + i].value;
-		oscillator[i].pw = params[PW_PARAM + i].value + params[PWM_PARAM + i].value * inputs[PW_INPUT + i].value / 10.0f;
+		float pitchCv = inputs[index].getVoltage() + params[OCTAVE_PARAM + i].getValue();
+		float pitchFine = params[DETUNE_PARAM + i].getValue() / 12.0; // +- 1V
+		float attn = params[ATTN_PARAM + i].getValue();
+		oscillator[i].pw = params[PW_PARAM + i].getValue() + params[PWM_PARAM + i].getValue() * inputs[PW_INPUT + i].getVoltage() / 10.0f;
 		oscillator[i].step(delta, pitchFine + pitchCv); // 1V/OCT
 
-		if (inputs[index].active) {
+		if (inputs[index].isConnected()) {
 
 			float amp = 0.0;
 			nP[side]++;
 
-			int wave = params[WAVE_PARAM + i].value;
+			int wave = params[WAVE_PARAM + i].getValue();
 			switch(wave) {
 				case 0:		amp = oscillator[i].sine * attn;		break;
 				case 1:		amp = oscillator[i].saw * attn;			break;
@@ -109,7 +109,7 @@ void Chord::step() {
 				default:	amp = oscillator[i].sine * attn;		break;
 			};
 
-			float angle = spread * params[PAN_PARAM + i].value;
+			float angle = spread * params[PAN_PARAM + i].getValue();
 			float left = SQRT2_2 * (cos(angle) - sin(angle));
     		float right = SQRT2_2 * (cos(angle) + sin(angle));
 
@@ -129,15 +129,15 @@ void Chord::step() {
 
 	// std::cout << nPitches << " " << out[0] << " " << out[1] << std::endl;
 
-	if (outputs[OUT_OUTPUT].active && outputs[OUT_OUTPUT + 1].active) {
-		outputs[OUT_OUTPUT].value 		= out[0];
-		outputs[OUT_OUTPUT + 1].value 	= out[1];
-	} else if (!outputs[OUT_OUTPUT].active && outputs[OUT_OUTPUT + 1].active) {
-		outputs[OUT_OUTPUT].value 		= 0.0f;
-		outputs[OUT_OUTPUT + 1].value 	= (out[0] + out[1]) / 2.0f;
-	} else if (outputs[OUT_OUTPUT].active && !outputs[OUT_OUTPUT + 1].active) {
-		outputs[OUT_OUTPUT].value 		= (out[0] + out[1]) / 2.0f;
-		outputs[OUT_OUTPUT + 1].value 	= 0.0f;
+	if (outputs[OUT_OUTPUT].isConnected() && outputs[OUT_OUTPUT + 1].isConnected()) {
+		outputs[OUT_OUTPUT].setVoltage(out[0]);
+		outputs[OUT_OUTPUT + 1].setVoltage(out[1]);
+	} else if (!outputs[OUT_OUTPUT].isConnected() && outputs[OUT_OUTPUT + 1].isConnected()) {
+		outputs[OUT_OUTPUT].setVoltage(0.0f);
+		outputs[OUT_OUTPUT + 1].setVoltage((out[0] + out[1]) / 2.0f);
+	} else if (outputs[OUT_OUTPUT].isConnected() && !outputs[OUT_OUTPUT + 1].isConnected()) {
+		outputs[OUT_OUTPUT].setVoltage((out[0] + out[1]) / 2.0f);
+		outputs[OUT_OUTPUT + 1].setVoltage(0.0f);
 	}
 
 }

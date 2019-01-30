@@ -181,20 +181,20 @@ void Galaxy::step() {
 	int badLight = 0;
 
 	// Get inputs from Rack
-	bool move = moveTrigger.process(inputs[MOVE_INPUT].value);
+	bool move = moveTrigger.process(inputs[MOVE_INPUT].getVoltage());
 
-	if (inputs[MODE_INPUT].active) {
-		float fMode = inputs[MODE_INPUT].value;
+	if (inputs[MODE_INPUT].isConnected()) {
+		float fMode = inputs[MODE_INPUT].getVoltage();
 		currMode = CoreUtil().getModeFromVolts(fMode);
 	} else {
-		currMode = params[MODE_PARAM].value;
+		currMode = params[MODE_PARAM].getValue();
 	}
 
-	if (inputs[KEY_INPUT].active) {
-		float fRoot = inputs[KEY_INPUT].value;
+	if (inputs[KEY_INPUT].isConnected()) {
+		float fRoot = inputs[KEY_INPUT].getVoltage();
 		currRoot = CoreUtil().getKeyFromVolts(fRoot);
 	} else {
-		currRoot = params[KEY_PARAM].value;
+		currRoot = params[KEY_PARAM].getValue();
 	}
 
 	if (mode == 1) {
@@ -224,7 +224,7 @@ void Galaxy::step() {
 			getFromRandom();
 		} else if (mode == 1) {
 
-			if (random::uniform() < params[BAD_PARAM].value) {
+			if (random::uniform() < params[BAD_PARAM].getValue()) {
 				badLight = 2;
 				getFromRandom();
 			} else {
@@ -233,7 +233,7 @@ void Galaxy::step() {
 
 		} else if (mode == 2) {
 
-			float excess = params[BAD_PARAM].value - random::uniform();
+			float excess = params[BAD_PARAM].getValue() - random::uniform();
 
 			if (excess < 0.0) {
 				getFromKeyMode();
@@ -321,8 +321,8 @@ void Galaxy::step() {
 				} 
 			}
 
-			lights[NOTE_LIGHT + light].value = 0.0f;
-			lights[NOTE_LIGHT + newlight].value = 1.0f;
+			lights[NOTE_LIGHT + light].setBrightness(0.0f);
+			lights[NOTE_LIGHT + newlight].setBrightness(1.0f);
 			light = newlight;
 
 		}
@@ -343,7 +343,7 @@ void Galaxy::step() {
 
 	// Set the output pitches and lights
 	for (int i = 0; i < NUM_PITCHES; i++) {
-		outputs[PITCH_OUTPUT + i].value = outVolts[i];
+		outputs[PITCH_OUTPUT + i].setVoltage(outVolts[i]);
 	}
 
 }

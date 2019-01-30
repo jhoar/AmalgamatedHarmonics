@@ -72,7 +72,7 @@ struct BpmCalculator {
 					misses = 0;
 				}
 
-				float a = 0.5f; // params[SMOOTH_PARAM].value;
+				float a = 0.5f; 
 				seconds = ((1.0f - a) * seconds + a * new_seconds);
 				timer -= seconds;
 

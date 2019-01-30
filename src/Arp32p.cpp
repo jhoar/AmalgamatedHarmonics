@@ -369,31 +369,31 @@ void Arp32::step() {
 	}
 	
 	// Get inputs from Rack
-	float clockInput	= inputs[CLOCK_INPUT].value;
-	float clockActive	= inputs[CLOCK_INPUT].active;
+	float clockInput	= inputs[CLOCK_INPUT].getVoltage();
+	float clockActive	= inputs[CLOCK_INPUT].isConnected();
 	
 	// Read param section	
-	if (inputs[PATT_INPUT].active) {
-		inputPat = inputs[PATT_INPUT].value;
+	if (inputs[PATT_INPUT].isConnected()) {
+		inputPat = inputs[PATT_INPUT].getVoltage();
 	} else {
-		inputPat = params[PATT_PARAM].value;
+		inputPat = params[PATT_PARAM].getValue();
 	}	
 
-	if (inputs[LENGTH_INPUT].active) {
-		inputLen = inputs[LENGTH_INPUT].value;
+	if (inputs[LENGTH_INPUT].isConnected()) {
+		inputLen = inputs[LENGTH_INPUT].getVoltage();
 	} else {
-		inputLen = params[LENGTH_PARAM].value;
+		inputLen = params[LENGTH_PARAM].getValue();
 	}	
 	
-	if (inputs[TRANS_INPUT].active) {
-		inputTrans = inputs[TRANS_INPUT].value;
+	if (inputs[TRANS_INPUT].isConnected()) {
+		inputTrans = inputs[TRANS_INPUT].getVoltage();
 	} else {
-		inputTrans = params[TRANS_PARAM].value;
+		inputTrans = params[TRANS_PARAM].getValue();
 	}	
 
-	inputScale = params[SCALE_PARAM].value;
+	inputScale = params[SCALE_PARAM].getValue();
 
-	int offset = params[OFFSET_PARAM].value;
+	int offset = params[OFFSET_PARAM].getValue();
 
 	// Process inputs
 	bool clockStatus	= clockTrigger.process(clockInput);
@@ -455,8 +455,8 @@ void Arp32::step() {
 		
 		// Read input pitches and assign to pitch array
 		float inputPitch;
-		if (inputs[PITCH_INPUT].active) {
-			inputPitch = inputs[PITCH_INPUT].value;
+		if (inputs[PITCH_INPUT].isConnected()) {
+			inputPitch = inputs[PITCH_INPUT].getVoltage();
 		} else {
 			inputPitch = 0.0;
 		}
@@ -506,7 +506,7 @@ void Arp32::step() {
 	uiPatt->initialise(inputLen, inputScale, inputTrans, offset);
 
 	// Set the value
-	outputs[OUT_OUTPUT].value = outVolts;
+	outputs[OUT_OUTPUT].setVoltage(outVolts);
 	
 	bool gPulse = gatePulse.process(delta);
 	bool cPulse = eocPulse.process(delta);
@@ -518,8 +518,8 @@ void Arp32::step() {
 		gatesOn = gatesOn && !gPulse;
 	}
 	
-	outputs[GATE_OUTPUT].value = gatesOn ? 10.0 : 0.0;
-	outputs[EOC_OUTPUT].value = cPulse ? 10.0 : 0.0;
+	outputs[GATE_OUTPUT].setVoltage(gatesOn ? 10.0 : 0.0);
+	outputs[EOC_OUTPUT].setVoltage(cPulse ? 10.0 : 0.0);
 	
 }
 

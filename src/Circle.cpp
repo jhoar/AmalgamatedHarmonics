@@ -83,28 +83,28 @@ void Circle::step() {
 	AHModule::step();
 
 	// Get inputs from Rack
-	float rotLInput		= inputs[ROTL_INPUT].value;
-	float rotRInput		= inputs[ROTR_INPUT].value;
+	float rotLInput		= inputs[ROTL_INPUT].getVoltage();
+	float rotRInput		= inputs[ROTR_INPUT].getVoltage();
 	
 	int newKeyIndex = 0;
 	int deg;
-	if (inputs[KEY_INPUT].active) {
-		float fRoot = inputs[KEY_INPUT].value;
+	if (inputs[KEY_INPUT].isConnected()) {
+		float fRoot = inputs[KEY_INPUT].getVoltage();
 		if (voltScale == FIFTHS) {
 			newKeyIndex = CoreUtil().getKeyFromVolts(fRoot);
 		} else {
 			CoreUtil().getPitchFromVolts(fRoot, Core::NOTE_C, Core::SCALE_CHROMATIC, &newKeyIndex, &deg);
 		}
 	} else {
-		newKeyIndex = params[KEY_PARAM].value;
+		newKeyIndex = params[KEY_PARAM].getValue();
 	}
 
 	int newMode = 0;
-	if (inputs[MODE_INPUT].active) {
-		float fMode = inputs[MODE_INPUT].value;
+	if (inputs[MODE_INPUT].isConnected()) {
+		float fMode = inputs[MODE_INPUT].getVoltage();
 		newMode = round(rescale(fabs(fMode), 0.0f, 10.0f, 0.0f, 6.0f)); 
 	} else {
-		newMode = params[MODE_PARAM].value;
+		newMode = params[MODE_PARAM].getValue();
 	}
 
 	curMode = newMode;
@@ -176,20 +176,20 @@ void Circle::step() {
 	float modeVolts = CoreUtil().getVoltsFromMode(curMode);
 	
 	for (int i = 0; i < Core::NUM_NOTES; i++) {
-		lights[CKEY_LIGHT + i].value = 0.0;
-		lights[BKEY_LIGHT + i].value = 0.0;
+		lights[CKEY_LIGHT + i].setBrightness(0.0);
+		lights[BKEY_LIGHT + i].setBrightness(0.0);
 	}
 
-	lights[CKEY_LIGHT + curKey].value = 1.0;
-	lights[BKEY_LIGHT + baseKey].value = 1.0;
+	lights[CKEY_LIGHT + curKey].setBrightness(1.0);
+	lights[BKEY_LIGHT + baseKey].setBrightness(1.0);
 	
 	for (int i = 0; i < Core::NUM_MODES; i++) {
-		lights[MODE_LIGHT + i].value = 0.0;
+		lights[MODE_LIGHT + i].setBrightness(0.0);
 	}
-	lights[MODE_LIGHT + curMode].value = 1.0;
+	lights[MODE_LIGHT + curMode].setBrightness(1.0);
 		
-	outputs[KEY_OUTPUT].value = keyVolts;
-	outputs[MODE_OUTPUT].value = modeVolts;
+	outputs[KEY_OUTPUT].setVoltage(keyVolts);
+	outputs[MODE_OUTPUT].setVoltage(modeVolts);
 	
 }
 

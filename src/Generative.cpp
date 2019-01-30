@@ -139,14 +139,14 @@ void Generative::step() {
 	
 	AHModule::step();
 
-	oscillator.setPitch(params[FREQ_PARAM].value + params[FM_PARAM].value * inputs[FM_INPUT].value);
+	oscillator.setPitch(params[FREQ_PARAM].getValue() + params[FM_PARAM].getValue() * inputs[FM_INPUT].getVoltage());
 	oscillator.offset = offset;
 	oscillator.step(delta);
 
-	clock.setPitch(clamp(params[CLOCK_PARAM].value + inputs[CLOCK_INPUT].value, -2.0f, 6.0f));
+	clock.setPitch(clamp(params[CLOCK_PARAM].getValue() + inputs[CLOCK_INPUT].getVoltage(), -2.0f, 6.0f));
 	clock.step(delta);
 
-	float wavem = fabs(fmodf(params[WAVE_PARAM].value + inputs[WAVE_INPUT].value, 4.0f));
+	float wavem = fabs(fmodf(params[WAVE_PARAM].getValue() + inputs[WAVE_INPUT].getVoltage(), 4.0f));
 
 	float interp = 0.0f;
 	bool toss = false;
@@ -163,18 +163,18 @@ void Generative::step() {
 
 	// Capture (pink) noise
 	float noise = clamp(pink.next() * 7.5f, -5.0f, 5.0f); // -5V to 5V
-	float range = params[ATTN_PARAM].value;
+	float range = params[ATTN_PARAM].getValue();
 
 	// Shift the noise floor
 	if (offset) {
 		noise += 5.0f;
 	} 
 
-	float noiseLevel = clamp(params[NOISE_PARAM].value + inputs[NOISE_INPUT].value, 0.0f, 1.0f);
+	float noiseLevel = clamp(params[NOISE_PARAM].getValue() + inputs[NOISE_INPUT].getVoltage(), 0.0f, 1.0f);
 
 	// Mixed the input AM signal or noise
-	if (inputs[AM_INPUT].active) {
-		interp = crossfade(interp, inputs[AM_INPUT].value, params[AM_PARAM].value) * range;
+	if (inputs[AM_INPUT].isConnected()) {
+		interp = crossfade(interp, inputs[AM_INPUT].getVoltage(), params[AM_PARAM].getValue()) * range;
 	} else {
 		interp *= range;
 	}
@@ -183,9 +183,9 @@ void Generative::step() {
 	float mixedSignal = (noise * noiseLevel + interp * (1.0f - noiseLevel));
 
 	// Process gate
-	bool sampleActive = inputs[SAMPLE_INPUT].active;
-	float sample = inputs[SAMPLE_INPUT].value;
-	bool hold = inputs[HOLD_INPUT].value > 0.000001f;
+	bool sampleActive = inputs[SAMPLE_INPUT].isConnected();
+	float sample = inputs[SAMPLE_INPUT].getVoltage();
+	bool hold = inputs[HOLD_INPUT].getVoltage() > 0.000001f;
 
 	bool isClocked = false;
 
@@ -206,15 +206,15 @@ void Generative::step() {
 		if (!delayPhase.ishigh() && !gatePhase.ishigh()) {
 
 			// Check against prob control
-			float threshold = clamp(params[PROB_PARAM].value + inputs[PROB_INPUT].value / 10.f, 0.f, 1.f);
+			float threshold = clamp(params[PROB_PARAM].getValue() + inputs[PROB_INPUT].getVoltage() / 10.f, 0.f, 1.f);
 			toss = (random::uniform() < threshold);
 
 			// Tick is valid
 			if (toss) {
 
 				// Determine delay time
-				float dlyLen = log2(params[DELAYL_PARAM].value);
-				float dlySpr = log2(params[DELAYS_PARAM].value);
+				float dlyLen = log2(params[DELAYL_PARAM].getValue());
+				float dlySpr = log2(params[DELAYS_PARAM].getValue());
 
 				double rndD = clamp(core.gaussrand(), -2.0f, 2.0f);
 				delayTime = clamp(dlyLen + dlySpr * rndD, 0.0f, 100.0f);
@@ -233,8 +233,8 @@ void Generative::step() {
 		target = mixedSignal;
 
 		// Determine gate time
-		float gateLen = log2(params[GATEL_PARAM].value);
-		float gateSpr = log2(params[GATES_PARAM].value);
+		float gateLen = log2(params[GATEL_PARAM].getValue());
+		float gateSpr = log2(params[GATES_PARAM].getValue());
 
 		double rndG = clamp(core.gaussrand(), -2.0f, 2.0f);
 		gateTime = clamp(gateLen + gateSpr * rndG, Core::TRIGGER, 100.0f);
@@ -249,8 +249,8 @@ void Generative::step() {
 	if (!hold) {
 
 		// Curve calc
-		float shape = params[SLOPE_PARAM].value;
-		float speed = params[SPEED_PARAM].value;	
+		float shape = params[SLOPE_PARAM].getValue();
+		float speed = params[SPEED_PARAM].getValue();	
 		float slew = slewMax * powf(slewRatio, speed);
 
 		// Rise
@@ -279,13 +279,13 @@ void Generative::step() {
 
 	// If the gate is open, set output to high
 	if (gatePhase.process(delta)) {
-		outputs[GATE_OUTPUT].value = 10.0f;
+		outputs[GATE_OUTPUT].setVoltage(10.0f);
 
 		lights[GATE_LIGHT].setBrightnessSmooth(1.0f);
 		lights[GATE_LIGHT + 1].setBrightnessSmooth(0.0f);
 
 	} else {
-		outputs[GATE_OUTPUT].value = 0.0f;
+		outputs[GATE_OUTPUT].setVoltage(0.0f);
 		gateState = false;
 
 		if (delayState) {
@@ -298,10 +298,10 @@ void Generative::step() {
 
 	}
 
-	outputs[OUT_OUTPUT].value = out;
-	outputs[NOISE_OUTPUT].value = noise * 2.0;
-	outputs[LFO_OUTPUT].value = interp;
-	outputs[MIXED_OUTPUT].value = mixedSignal;
+	outputs[OUT_OUTPUT].setVoltage(out);
+	outputs[NOISE_OUTPUT].setVoltage(noise * 2.0);
+	outputs[LFO_OUTPUT].setVoltage(interp);
+	outputs[MIXED_OUTPUT].setVoltage(mixedSignal);
 	
 }
 

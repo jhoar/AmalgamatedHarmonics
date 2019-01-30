@@ -326,16 +326,16 @@ void Arp31::step() {
 	}
 	
 	// Get inputs from Rack
-	float clockInput	= inputs[CLOCK_INPUT].value;
-	bool  clockActive	= inputs[CLOCK_INPUT].active;
+	float clockInput	= inputs[CLOCK_INPUT].getVoltage();
+	bool  clockActive	= inputs[CLOCK_INPUT].isConnected();
 	
-	if (inputs[ARP_INPUT].active) {
-		inputArp = inputs[ARP_INPUT].value;
+	if (inputs[ARP_INPUT].isConnected()) {
+		inputArp = inputs[ARP_INPUT].getVoltage();
 	} else {
-		inputArp = params[ARP_PARAM].value;
+		inputArp = params[ARP_PARAM].getValue();
 	}	
 
-	int offset = params[OFFSET_PARAM].value;
+	int offset = params[OFFSET_PARAM].getValue();
 
 	// Process inputs
 	bool clockStatus	= clockTrigger.process(clockInput);
@@ -347,8 +347,8 @@ void Arp31::step() {
 
 	bool restart = false;
 	int oldLight = 0;
-	// Have we been clocked?
 
+	// Have we been clocked?
 	if (clockStatus) {
 
 		// If we are already running, process cycle
@@ -398,8 +398,8 @@ void Arp31::step() {
 		float inputPitches[NUM_PITCHES];
 		for (int p = 0; p < NUM_PITCHES; p++) {
 			int index = PITCH_INPUT + p;
-			if (inputs[index].active) {
-				inputPitches[nValidPitches] = inputs[index].value;
+			if (inputs[index].isConnected()) {
+				inputPitches[nValidPitches] = inputs[index].getVoltage();
 				pitchIndex[nValidPitches] = p;
 				nValidPitches++;
 			} else {
@@ -458,14 +458,15 @@ void Arp31::step() {
 		default:	uiArp = &ui_arp_right;		break; 	
 	};
 	
-//	uiArp->initialise(nValidPitches, 1);
+	// Initialise UI Arp
+	uiArp->initialise(nPitches ? nPitches : 1, offset);
 	
 	// Set the value
-	outputs[OUT_OUTPUT].value = outVolts;
+	outputs[OUT_OUTPUT].setVoltage(outVolts);
 
 	// Set the light
-	lights[CURR_LIGHT + oldLight].value = 0.0;
-	lights[CURR_LIGHT + currLight].value = 1.0;
+	lights[CURR_LIGHT + oldLight].setBrightness(0.0);
+	lights[CURR_LIGHT + currLight].setBrightness(1.0);
 	
 	bool gPulse = gatePulse.process(delta);
 	bool cPulse = eocPulse.process(delta);
@@ -477,8 +478,8 @@ void Arp31::step() {
 		gatesOn = gatesOn && !gPulse;
 	}
 	
-	outputs[GATE_OUTPUT].value = gatesOn ? 10.0 : 0.0;
-	outputs[EOC_OUTPUT].value = cPulse ? 10.0 : 0.0;
+	outputs[GATE_OUTPUT].setVoltage(gatesOn ? 10.0 : 0.0);
+	outputs[EOC_OUTPUT].setVoltage(cPulse ? 10.0 : 0.0);
 	
 }
 

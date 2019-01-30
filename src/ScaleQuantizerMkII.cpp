@@ -70,21 +70,21 @@ void ScaleQuantizer2::step() {
 	int currNote = 0;
 	int currDegree = 0;
 
-	if (inputs[KEY_INPUT].active) {
-		float fRoot = inputs[KEY_INPUT].value;
+	if (inputs[KEY_INPUT].isConnected()) {
+		float fRoot = inputs[KEY_INPUT].getVoltage();
 		currRoot = CoreUtil().getKeyFromVolts(fRoot);
 	} else {
-		currRoot = params[KEY_PARAM].value;
+		currRoot = params[KEY_PARAM].getValue();
 	}
 	
-	if (inputs[SCALE_INPUT].active) {
-		float fScale = inputs[SCALE_INPUT].value;
+	if (inputs[SCALE_INPUT].isConnected()) {
+		float fScale = inputs[SCALE_INPUT].getVoltage();
 		currScale = CoreUtil().getScaleFromVolts(fScale);
 	} else {
-		currScale = params[SCALE_PARAM].value;
+		currScale = params[SCALE_PARAM].getValue();
 	}
 
-	float trans = (inputs[TRANS_INPUT].value + params[TRANS_PARAM].value) / 12.0;
+	float trans = (inputs[TRANS_INPUT].getVoltage() + params[TRANS_PARAM].getValue()) / 12.0;
 	if (trans != 0.0) {
 		if (trans != lastTrans) {
 			int i;
@@ -97,23 +97,23 @@ void ScaleQuantizer2::step() {
 	}
 	
 	for (int i = 0; i < 8; i++) {
-		float holdInput		= inputs[HOLD_INPUT + i].value;
-		bool  holdActive	= inputs[HOLD_INPUT + i].active;
+		float holdInput		= inputs[HOLD_INPUT + i].getVoltage();
+		bool  holdActive	= inputs[HOLD_INPUT + i].isConnected();
 		bool  holdStatus	= holdTrigger[i].process(holdInput);
 
-		float volts = inputs[IN_INPUT + i].value;
-		float shift = params[SHIFT_PARAM + i].value;
+		float volts = inputs[IN_INPUT + i].getVoltage();
+		float shift = params[SHIFT_PARAM + i].getValue();
 
 		if (holdActive) { 
 			
 			// Sample the pitch
-			if (holdStatus && inputs[IN_INPUT + i].active) {
+			if (holdStatus && inputs[IN_INPUT + i].isConnected()) {
 				holdPitch[i] = CoreUtil().getPitchFromVolts(volts, currRoot, currScale, &currNote, &currDegree);
 			}
 			
 		} else {
 
-			if (inputs[IN_INPUT + i].active) { 
+			if (inputs[IN_INPUT + i].isConnected()) { 
 				holdPitch[i] = CoreUtil().getPitchFromVolts(volts, currRoot, currScale, &currNote, &currDegree);
 			} 
 			
@@ -129,27 +129,27 @@ void ScaleQuantizer2::step() {
 		} 
 			
 		if (triggerPulse[i].process(delta)) {
-			outputs[TRIG_OUTPUT + i].value = 10.0f;
+			outputs[TRIG_OUTPUT + i].setVoltage(10.0f);
 		} else {
-			outputs[TRIG_OUTPUT + i].value = 0.0f;
+			outputs[TRIG_OUTPUT + i].setVoltage(0.0f);
 		}
 
-		outputs[OUT_OUTPUT + i].value = holdPitch[i] + shift + trans;
+		outputs[OUT_OUTPUT + i].setVoltage(holdPitch[i] + shift + trans);
 
 	}
 
 	if (lastScale != currScale || firstStep) {
 		for (int i = 0; i < Core::NUM_NOTES; i++) {
-			lights[SCALE_LIGHT + i].value = 0.0f;
+			lights[SCALE_LIGHT + i].setBrightness(0.0f);
 		}
-		lights[SCALE_LIGHT + currScale].value = 1.0f;
+		lights[SCALE_LIGHT + currScale].setBrightness(1.0f);
 	} 
 
 	if (lastRoot != currRoot || firstStep) {
 		for (int i = 0; i < Core::NUM_NOTES; i++) {
-			lights[KEY_LIGHT + i].value = 0.0f;
+			lights[KEY_LIGHT + i].setBrightness(0.0f);
 		}
-		lights[KEY_LIGHT + currRoot].value = 1.0f;
+		lights[KEY_LIGHT + currRoot].setBrightness(1.0f);
 	} 
 
 	firstStep = false;

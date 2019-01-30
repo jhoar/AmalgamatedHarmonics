@@ -62,8 +62,8 @@ void SLN::step() {
 	AHModule::step();
 	
 	float noise;
-	int noiseType = params[NOISE_PARAM].value;
-	float attn = params[ATTN_PARAM].value;
+	int noiseType = params[NOISE_PARAM].getValue();
+	float attn = params[ATTN_PARAM].getValue();
 	
 	switch(noiseType) {
 		case 0:
@@ -80,12 +80,12 @@ void SLN::step() {
 	}
 
 	// Capture noise
-	if (inTrigger.process(inputs[TRIG_INPUT].value / 0.7)) {
+	if (inTrigger.process(inputs[TRIG_INPUT].getVoltage() / 0.7)) {
 		target = noise;
 	} 
 				
-	float shape = params[SLOPE_PARAM].value;
-	float speed = params[SPEED_PARAM].value;
+	float shape = params[SLOPE_PARAM].getValue();
+	float speed = params[SPEED_PARAM].getValue();
 	
 	float slew = slewMax * powf(slewRatio, speed);
 
@@ -102,8 +102,8 @@ void SLN::step() {
 			current = target;
 	}
 
-	outputs[OUT_OUTPUT].value = current * attn;
-	outputs[NOISE_OUTPUT].value = noise;	
+	outputs[OUT_OUTPUT].setVoltage(current * attn);
+	outputs[NOISE_OUTPUT].setVoltage(noise);	
 	
 }
 

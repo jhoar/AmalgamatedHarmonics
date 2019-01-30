@@ -220,22 +220,22 @@ void Progress::step() {
 	AHModule::step();
 	
 	// Run
-	if (runningTrigger.process(params[RUN_PARAM].value)) {
+	if (runningTrigger.process(params[RUN_PARAM].getValue())) {
 		running = !running;
 	}
 
-	int numSteps = (int) clamp(roundf(params[STEPS_PARAM].value + inputs[STEPS_INPUT].value), 1.0f, 8.0f);
+	int numSteps = (int) clamp(roundf(params[STEPS_PARAM].getValue() + inputs[STEPS_INPUT].getVoltage()), 1.0f, 8.0f);
 
 	if (running) {
-		if (inputs[EXT_CLOCK_INPUT].active) {
+		if (inputs[EXT_CLOCK_INPUT].isConnected()) {
 			// External clock
-			if (clockTrigger.process(inputs[EXT_CLOCK_INPUT].value)) {
+			if (clockTrigger.process(inputs[EXT_CLOCK_INPUT].getVoltage())) {
 				setIndex(index + 1, numSteps);
 			}
 		}
 		else {
 			// Internal clock
-			float clockTime = powf(2.0f, params[CLOCK_PARAM].value + inputs[CLOCK_INPUT].value);
+			float clockTime = powf(2.0f, params[CLOCK_PARAM].getValue() + inputs[CLOCK_INPUT].getVoltage());
 			phase += clockTime * delta;
 			if (phase >= 1.0f) {
 				setIndex(index + 1, numSteps);
@@ -244,7 +244,7 @@ void Progress::step() {
 	}
 
 	// Reset
-	if (resetTrigger.process(params[RESET_PARAM].value + inputs[RESET_INPUT].value)) {
+	if (resetTrigger.process(params[RESET_PARAM].getValue() + inputs[RESET_INPUT].getVoltage())) {
 		setIndex(0, numSteps);
 	}
 
@@ -252,14 +252,14 @@ void Progress::step() {
 	bool haveMode = false;
 
 	// index is our current step
-	if (inputs[KEY_INPUT].active) {
-		float fRoot = inputs[KEY_INPUT].value;
+	if (inputs[KEY_INPUT].isConnected()) {
+		float fRoot = inputs[KEY_INPUT].getVoltage();
 		currKey = CoreUtil().getKeyFromVolts(fRoot);
 		haveRoot = true;
 	}
 
-	if (inputs[MODE_INPUT].active) {
-		float fMode = inputs[MODE_INPUT].value;
+	if (inputs[MODE_INPUT].isConnected()) {
+		float fMode = inputs[MODE_INPUT].getVoltage();
 		currMode = CoreUtil().getModeFromVolts(fMode);	
 		haveMode = true;
 	}
@@ -280,21 +280,21 @@ void Progress::step() {
 	// Read inputs
 	for (int step = 0; step < 8; step++) {
 		if (modeMode) {
-			currDegreeInput[step]  = params[CHORD_PARAM + step].value;
-			currQualityInput[step] = params[ROOT_PARAM + step].value;
+			currDegreeInput[step]  = params[CHORD_PARAM + step].getValue();
+			currQualityInput[step] = params[ROOT_PARAM + step].getValue();
 			if (prevModeMode != modeMode) { // Switching mode, so reset history to ensure re-read on return
 				prevChrInput[step]  = -100.0;
 				prevRootInput[step]  = -100.0;
 			}
 		} else {
-			currChrInput[step]  = params[CHORD_PARAM + step].value;
-			currRootInput[step] = params[ROOT_PARAM + step].value;
+			currChrInput[step]  = params[CHORD_PARAM + step].getValue();
+			currRootInput[step] = params[ROOT_PARAM + step].getValue();
 			if (prevModeMode != modeMode) { // Switching mode, so reset history to ensure re-read on return
 				prevDegreeInput[step]  = -100.0;
 				prevQualityInput[step]  = -100.0;
 			}
 		}
-		currInvInput[step]  = params[INV_PARAM + step].value;
+		currInvInput[step]  = params[INV_PARAM + step].getValue();
 	}
 	
 	// Remember mode
@@ -307,8 +307,8 @@ void Progress::step() {
 		
 		if (modeMode) {			
 		
-			currDegreeInput[step]   = params[ROOT_PARAM + step].value;
-			currQualityInput[step] = params[CHORD_PARAM + step].value;
+			currDegreeInput[step]   = params[ROOT_PARAM + step].getValue();
+			currQualityInput[step] = params[CHORD_PARAM + step].getValue();
 							
 			if (prevDegreeInput[step] != currDegreeInput[step]) {
 				prevDegreeInput[step] = currDegreeInput[step];
@@ -401,7 +401,7 @@ void Progress::step() {
 	
 	// Gate buttons
 	for (int i = 0; i < 8; i++) {
-		if (gateTriggers[i].process(params[GATE_PARAM + i].value)) {
+		if (gateTriggers[i].process(params[GATE_PARAM + i].getValue())) {
 			gates[i] = !gates[i];
 		}
 		
@@ -412,7 +412,7 @@ void Progress::step() {
 			gateOn = gateOn && !pulse;
 		}
 		
-		outputs[GATE_OUTPUT + i].value = gateOn ? 10.0f : 0.0f;	
+		outputs[GATE_OUTPUT + i].setVoltage(gateOn ? 10.0f : 0.0f);	
 		
 		if (i == index) {
 			if (gates[i]) {
@@ -446,13 +446,13 @@ void Progress::step() {
 	}
 
 	// Outputs
-	outputs[GATES_OUTPUT].value = gatesOn ? 10.0f : 0.0f;
-	lights[RUNNING_LIGHT].value = (running);
+	outputs[GATES_OUTPUT].setVoltage(gatesOn ? 10.0f : 0.0f);
+	lights[RUNNING_LIGHT].setBrightness(running);
 	lights[RESET_LIGHT].setBrightnessSmooth(resetTrigger.isHigh());
 	lights[GATES_LIGHT].setBrightnessSmooth(pulse);
 
 	for (int i = 0; i < NUM_PITCHES; i++) {
-		outputs[PITCH_OUTPUT + i].value = pitches[index][i];
+		outputs[PITCH_OUTPUT + i].setVoltage(pitches[index][i]);
 	}
 	
 }

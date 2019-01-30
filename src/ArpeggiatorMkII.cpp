@@ -586,39 +586,39 @@ void Arpeggiator2::step() {
 	}
 	
 	// Get inputs from Rack
-	float clockInput	= inputs[CLOCK_INPUT].value;
-	bool  clockActive	= inputs[CLOCK_INPUT].active;
-	float trigInput		= inputs[TRIG_INPUT].value;
-	bool  trigActive	= inputs[TRIG_INPUT].active;
-	float lockInput		= params[LOCK_PARAM].value;
-	float buttonInput	= params[TRIGGER_PARAM].value;
+	float clockInput	= inputs[CLOCK_INPUT].getVoltage();
+	bool  clockActive	= inputs[CLOCK_INPUT].isConnected();
+	float trigInput		= inputs[TRIG_INPUT].getVoltage();
+	bool  trigActive	= inputs[TRIG_INPUT].isConnected();
+	float lockInput		= params[LOCK_PARAM].getValue();
+	float buttonInput	= params[TRIGGER_PARAM].getValue();
 	
 	// Read param section	
-	if (inputs[PATT_INPUT].active) {
-		inputPat = inputs[PATT_INPUT].value;
+	if (inputs[PATT_INPUT].isConnected()) {
+		inputPat = inputs[PATT_INPUT].getVoltage();
 	} else {
-		inputPat = params[PATT_PARAM].value;
+		inputPat = params[PATT_PARAM].getValue();
 	}	
 
-	if (inputs[ARP_INPUT].active) {
-		inputArp = inputs[ARP_INPUT].value;
+	if (inputs[ARP_INPUT].isConnected()) {
+		inputArp = inputs[ARP_INPUT].getVoltage();
 	} else {
-		inputArp = params[ARP_PARAM].value;
+		inputArp = params[ARP_PARAM].getValue();
 	}	
 
-	if (inputs[LENGTH_INPUT].active) {
-		inputLen = inputs[LENGTH_INPUT].value;
+	if (inputs[LENGTH_INPUT].isConnected()) {
+		inputLen = inputs[LENGTH_INPUT].getVoltage();
 	} else {
-		inputLen = params[LENGTH_PARAM].value;
+		inputLen = params[LENGTH_PARAM].getValue();
 	}	
 	
-	if (inputs[TRANS_INPUT].active) {
-		inputTrans = inputs[TRANS_INPUT].value;
+	if (inputs[TRANS_INPUT].isConnected()) {
+		inputTrans = inputs[TRANS_INPUT].getVoltage();
 	} else {
-		inputTrans = params[TRANS_PARAM].value;
+		inputTrans = params[TRANS_PARAM].getValue();
 	}	
 
-	inputScale = params[SCALE_PARAM].value;
+	inputScale = params[SCALE_PARAM].getValue();
 
 	// Process inputs
 	bool clockStatus	= clockTrigger.process(clockInput);
@@ -631,8 +631,8 @@ void Arpeggiator2::step() {
 	float inputPitches[NUM_PITCHES];
 	for (int p = 0; p < NUM_PITCHES; p++) {
 		int index = PITCH_INPUT + p;
-		if (inputs[index].active) {
-			inputPitches[nValidPitches] = inputs[index].value;
+		if (inputs[index].isConnected()) {
+			inputPitches[nValidPitches] = inputs[index].getVoltage();
 			nValidPitches++;
 		} else {
 			inputPitches[nValidPitches] = 0.0;
@@ -881,8 +881,8 @@ void Arpeggiator2::step() {
 	uiArp->initialise(nPitches, freeRunning);
 	
 	// Set the value
-	lights[LOCK_LIGHT].value = locked ? 1.0 : 0.0;
-	outputs[OUT_OUTPUT].value = outVolts;
+	lights[LOCK_LIGHT].setBrightness(locked ? 1.0 : 0.0);
+	outputs[OUT_OUTPUT].setVoltage(outVolts);
 	
 	bool gPulse = gatePulse.process(delta);
 	bool sPulse = eosPulse.process(delta);
@@ -895,9 +895,9 @@ void Arpeggiator2::step() {
 		gatesOn = gatesOn && !gPulse;
 	}
 	
-	outputs[GATE_OUTPUT].value = gatesOn ? 10.0 : 0.0;
-	outputs[EOS_OUTPUT].value = sPulse ? 10.0 : 0.0;
-	outputs[EOC_OUTPUT].value = cPulse ? 10.0 : 0.0;
+	outputs[GATE_OUTPUT].setVoltage(gatesOn ? 10.0 : 0.0);
+	outputs[EOS_OUTPUT].setVoltage(sPulse ? 10.0 : 0.0);
+	outputs[EOC_OUTPUT].setVoltage(cPulse ? 10.0 : 0.0);
 	
 }
 
