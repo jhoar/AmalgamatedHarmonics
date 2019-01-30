@@ -466,7 +466,7 @@ void Arp31::step() {
 
 	// Set the light
 	lights[CURR_LIGHT + oldLight].setBrightness(0.0);
-	lights[CURR_LIGHT + currLight].setBrightness(1.0);
+	lights[CURR_LIGHT + currLight].setBrightness(10.0);
 	
 	bool gPulse = gatePulse.process(delta);
 	bool cPulse = eocPulse.process(delta);

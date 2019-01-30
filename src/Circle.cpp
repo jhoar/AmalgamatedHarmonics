@@ -180,13 +180,13 @@ void Circle::step() {
 		lights[BKEY_LIGHT + i].setBrightness(0.0);
 	}
 
-	lights[CKEY_LIGHT + curKey].setBrightness(1.0);
-	lights[BKEY_LIGHT + baseKey].setBrightness(1.0);
+	lights[CKEY_LIGHT + curKey].setBrightness(10.0);
+	lights[BKEY_LIGHT + baseKey].setBrightness(10.0);
 	
 	for (int i = 0; i < Core::NUM_MODES; i++) {
 		lights[MODE_LIGHT + i].setBrightness(0.0);
 	}
-	lights[MODE_LIGHT + curMode].setBrightness(1.0);
+	lights[MODE_LIGHT + curMode].setBrightness(10.0);
 		
 	outputs[KEY_OUTPUT].setVoltage(keyVolts);
 	outputs[MODE_OUTPUT].setVoltage(modeVolts);

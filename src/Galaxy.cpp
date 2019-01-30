@@ -322,7 +322,7 @@ void Galaxy::step() {
 			}
 
 			lights[NOTE_LIGHT + light].setBrightness(0.0f);
-			lights[NOTE_LIGHT + newlight].setBrightness(1.0f);
+			lights[NOTE_LIGHT + newlight].setBrightness(10.0f);
 			light = newlight;
 
 		}

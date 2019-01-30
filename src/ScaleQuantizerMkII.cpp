@@ -1,5 +1,3 @@
-#include "dsp/digital.hpp"
-
 #include "AH.hpp"
 #include "Core.hpp"
 #include "UI.hpp"
@@ -35,11 +33,9 @@ struct ScaleQuantizer2 : AHModule {
 	};
 
 	ScaleQuantizer2() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
-
 		params[KEY_PARAM].config(0.0f, 11.0f, 0.0f); // 12 notes
 		params[SCALE_PARAM].config(0.0f, 11.0f, 0.0f); // 12 notes
 		params[TRANS_PARAM].config(-11.0f, 11.0f, 0.0f); // 12 notes
-
 	}
 
 	void step() override;
@@ -142,14 +138,14 @@ void ScaleQuantizer2::step() {
 		for (int i = 0; i < Core::NUM_NOTES; i++) {
 			lights[SCALE_LIGHT + i].setBrightness(0.0f);
 		}
-		lights[SCALE_LIGHT + currScale].setBrightness(1.0f);
+		lights[SCALE_LIGHT + currScale].setBrightness(10.0f);
 	} 
 
 	if (lastRoot != currRoot || firstStep) {
 		for (int i = 0; i < Core::NUM_NOTES; i++) {
 			lights[KEY_LIGHT + i].setBrightness(0.0f);
 		}
-		lights[KEY_LIGHT + currRoot].setBrightness(1.0f);
+		lights[KEY_LIGHT + currRoot].setBrightness(10.0f);
 	} 
 
 	firstStep = false;
@@ -165,11 +161,11 @@ struct ScaleQuantizer2Widget : ModuleWidget {
 		UI ui;
 
 		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 5, true, false), module, ScaleQuantizer2::KEY_INPUT));
-		addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 1, 5, true, false), module, ScaleQuantizer2::KEY_PARAM)); // 12 notes
+		addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 1, 5, true, false), module, ScaleQuantizer2::KEY_PARAM)); 
 		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 3, 5, true, false), module, ScaleQuantizer2::SCALE_INPUT));
-		addParam(createParam<AHKnobSnap>(ui.getPosition(UI::PORT, 4, 5, true, false), module, ScaleQuantizer2::SCALE_PARAM)); // 12 notes
+		addParam(createParam<AHKnobSnap>(ui.getPosition(UI::PORT, 4, 5, true, false), module, ScaleQuantizer2::SCALE_PARAM));
 		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 6, 5, true, false), module, ScaleQuantizer2::TRANS_INPUT));
-		addParam(createParam<AHKnobSnap>(ui.getPosition(UI::PORT, 7, 5, true, false), module, ScaleQuantizer2::TRANS_PARAM)); // 12 notes
+		addParam(createParam<AHKnobSnap>(ui.getPosition(UI::PORT, 7, 5, true, false), module, ScaleQuantizer2::TRANS_PARAM));
 
 		for (int i = 0; i < 8; i++) {
 			addInput(createInput<PJ301MPort>(Vec(6 + i * 29, 41), module, ScaleQuantizer2::IN_INPUT + i));
@@ -186,9 +182,8 @@ struct ScaleQuantizer2Widget : ModuleWidget {
 		int scale = 0;
 
 		for (int i = 0; i < 12; i++) {
-			addChild(createLight<SmallLight<GreenLight>>(Vec(xOffset + i * 18.0f, 280.0f), module, ScaleQuantizer2::SCALE_LIGHT + i));
-
 			ui.calculateKeyboard(i, xSpace, xOffset, 230.0f, &xPos, &yPos, &scale);
+			addChild(createLight<SmallLight<GreenLight>>(Vec(xOffset + i * 18.0f, 280.0f), module, ScaleQuantizer2::SCALE_LIGHT + i));
 			addChild(createLight<SmallLight<GreenLight>>(Vec(xPos, yPos), module, ScaleQuantizer2::KEY_LIGHT + scale));
 
 		}
@@ -198,4 +193,3 @@ struct ScaleQuantizer2Widget : ModuleWidget {
 };
 
 Model *modelScaleQuantizer2 = createModel<ScaleQuantizer2, ScaleQuantizer2Widget>("ScaleQuantizer2");
-
