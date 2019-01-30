@@ -473,14 +473,6 @@ struct GalaxyWidget : ModuleWidget {
 		setPanel(SVG::load(asset::plugin(plugin, "res/Galaxy.svg")));
 		UI ui;
 
-		{
-			GalaxyDisplay *display = new GalaxyDisplay();
-			display->module = module;
-			display->box.pos = Vec(0, 20);
-			display->box.size = Vec(240, 230);
-			addChild(display);
-		}
-
 		float div = (PI * 2) / (float)Galaxy::N_QUALITIES;
 		float div2 = (PI * 2) / (float)(Galaxy::N_QUALITIES * Galaxy::N_QUALITIES);
 
@@ -523,6 +515,13 @@ struct GalaxyWidget : ModuleWidget {
 		trim.x += 15;
 		trim.y += 20;
 		addChild(createLight<SmallLight<GreenRedLight>>(trim, module, Galaxy::BAD_LIGHT));
+
+		if (module != NULL) {
+			GalaxyDisplay *displayW = createWidget<GalaxyDisplay>(mm2px(Vec(0, 20)));
+			displayW->box.size = mm2px(Vec(240, 230));
+			displayW->module = module;
+			addChild(displayW);
+		}
 
 	}
 

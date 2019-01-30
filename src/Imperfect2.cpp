@@ -302,7 +302,6 @@ struct Imperfect2Box : TransparentWidget {
 	
 };
 
-
 struct Imperfect2Widget : ModuleWidget {
 
 	Imperfect2Widget(Imperfect2 *module) {
@@ -310,74 +309,6 @@ struct Imperfect2Widget : ModuleWidget {
 		setModule(module);
 		setPanel(SVG::load(asset::plugin(plugin, "res/Imperfect2.svg")));
 		UI ui;
-
-		{
-			Imperfect2Box *display = new Imperfect2Box();
-			display->module = module;
-			display->box.pos = Vec(10, 95);
-			display->box.size = Vec(200, 20);
-			display->bpm = &(module->bpm[0]);
-			display->dly = &(module->delayTimeMs[0]);
-			display->dlySpr = &(module->delaySprMs[0]);
-			display->gate = &(module->gateTimeMs[0]);
-			display->gateSpr = &(module->gateSprMs[0]);
-			display->division = &(module->division[0]);
-			display->actDly = &(module->actDelayMs[0]);
-			display->actGate = &(module->actGateMs[0]);
-			
-			addChild(display);
-		}	
-
-		{
-			Imperfect2Box *display = new Imperfect2Box();
-			display->module = module;
-			display->box.pos = Vec(10, 165);
-			display->box.size = Vec(200, 20);
-			display->bpm = &(module->bpm[1]);
-			display->dly = &(module->delayTimeMs[1]);
-			display->dlySpr = &(module->delaySprMs[1]);
-			display->gate = &(module->gateTimeMs[1]);
-			display->gateSpr = &(module->gateSprMs[1]);
-			display->division = &(module->division[1]);
-			display->actDly = &(module->actDelayMs[1]);
-			display->actGate = &(module->actGateMs[1]);
-				
-			addChild(display);
-		}	
-
-		{
-			Imperfect2Box *display = new Imperfect2Box();
-			display->module = module;
-			display->box.pos = Vec(10, 235);
-			display->box.size = Vec(200, 20);
-			display->bpm = &(module->bpm[2]);
-			display->dly = &(module->delayTimeMs[2]);
-			display->dlySpr = &(module->delaySprMs[2]);
-			display->gate = &(module->gateTimeMs[2]);
-			display->gateSpr = &(module->gateSprMs[2]);
-			display->division = &(module->division[2]);
-			display->actDly = &(module->actDelayMs[2]);
-			display->actGate = &(module->actGateMs[2]);
-				
-			addChild(display);
-		}	
-
-		{
-			Imperfect2Box *display = new Imperfect2Box();
-			display->module = module;
-			display->box.pos = Vec(10, 305);
-			display->box.size = Vec(200, 20);
-			display->bpm = &(module->bpm[3]);
-			display->dly = &(module->delayTimeMs[3]);
-			display->dlySpr = &(module->delaySprMs[3]);
-			display->gate = &(module->gateTimeMs[3]);
-			display->gateSpr = &(module->gateSprMs[3]);
-			display->division = &(module->division[3]);
-			display->actDly = &(module->actDelayMs[3]);
-			display->actGate = &(module->actGateMs[3]);
-				
-			addChild(display);
-		}	
 
 		for (int i = 0; i < 4; i++) {
 			addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, i * 2 + 1, true, true), module, Imperfect2::TRIG_INPUT + i));
@@ -393,7 +324,83 @@ struct Imperfect2Widget : ModuleWidget {
 			addChild(createLight<MediumLight<GreenRedLight>>(ui.getPosition(UI::LIGHT, 10, i * 2 + 1, true, true), module, Imperfect2::OUT_LIGHT + i * 2));
 			addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 11, i * 2+ 1, true, true), module, Imperfect2::OUT_OUTPUT + i));
 		}
-	}	
+
+
+		if (module != NULL) {
+
+			{
+				Imperfect2Box *display = createWidget<Imperfect2Box>(mm2px(Vec(10, 95)));
+
+				display->module = module;
+				display->box.size = mm2px(Vec(200, 20));
+
+				display->bpm = &(module->bpm[0]);
+				display->dly = &(module->delayTimeMs[0]);
+				display->dlySpr = &(module->delaySprMs[0]);
+				display->gate = &(module->gateTimeMs[0]);
+				display->gateSpr = &(module->gateSprMs[0]);
+				display->division = &(module->division[0]);
+				display->actDly = &(module->actDelayMs[0]);
+				display->actGate = &(module->actGateMs[0]);
+				
+				addChild(display);
+			}	
+
+			{
+				Imperfect2Box *display = createWidget<Imperfect2Box>(mm2px(Vec(10, 165)));
+
+				display->module = module;
+				display->box.size = mm2px(Vec(200, 20));
+
+				display->bpm = &(module->bpm[1]);
+				display->dly = &(module->delayTimeMs[1]);
+				display->dlySpr = &(module->delaySprMs[1]);
+				display->gate = &(module->gateTimeMs[1]);
+				display->gateSpr = &(module->gateSprMs[1]);
+				display->division = &(module->division[1]);
+				display->actDly = &(module->actDelayMs[1]);
+				display->actGate = &(module->actGateMs[1]);
+					
+				addChild(display);
+			}	
+
+			{
+				Imperfect2Box *display = createWidget<Imperfect2Box>(mm2px(Vec(10, 235)));
+
+				display->module = module;
+				display->box.size = mm2px(Vec(200, 20));
+
+				display->bpm = &(module->bpm[2]);
+				display->dly = &(module->delayTimeMs[2]);
+				display->dlySpr = &(module->delaySprMs[2]);
+				display->gate = &(module->gateTimeMs[2]);
+				display->gateSpr = &(module->gateSprMs[2]);
+				display->division = &(module->division[2]);
+				display->actDly = &(module->actDelayMs[2]);
+				display->actGate = &(module->actGateMs[2]);
+					
+				addChild(display);
+			}	
+
+			{
+				Imperfect2Box *display = createWidget<Imperfect2Box>(mm2px(Vec(10, 305)));
+
+				display->module = module;
+				display->box.size = mm2px(Vec(200, 20));
+
+				display->bpm = &(module->bpm[3]);
+				display->dly = &(module->delayTimeMs[3]);
+				display->dlySpr = &(module->delaySprMs[3]);
+				display->gate = &(module->gateTimeMs[3]);
+				display->gateSpr = &(module->gateSprMs[3]);
+				display->division = &(module->division[3]);
+				display->actDly = &(module->actDelayMs[3]);
+				display->actGate = &(module->actGateMs[3]);
+					
+				addChild(display);
+			}	
+		}
+	}
 };
 
 Model *modelImperfect2 = createModel<Imperfect2, Imperfect2Widget>("Imperfect2");

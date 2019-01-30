@@ -272,14 +272,6 @@ struct RuckusWidget : ModuleWidget {
 		setPanel(SVG::load(asset::plugin(plugin, "res/Ruckus.svg")));
 		UI ui;
 
-		{
-			StateDisplay *display = new StateDisplay();
-			display->module = module;
-			display->box.pos = Vec(30, 335);
-			display->box.size = Vec(100, 140);
-			addChild(display);
-		}
-		
 		//299.5 329.7
 		Vec a = ui.getPosition(UI::PORT, 6, 5, false, false);
 		a.x = 312.0;
@@ -344,6 +336,14 @@ struct RuckusWidget : ModuleWidget {
 			addChild(createLight<MediumLight<GreenLight>>(lVec, module, Ruckus::YMUTE_LIGHT + y));
 
 		}
+
+		if (module != NULL) {
+			StateDisplay *display = createWidget<StateDisplay>(mm2px(Vec(30, 335)));
+			display->module = module;
+			display->box.size = Vec(100, 140);
+			addChild(display);
+		}
+
 	}
 };
 

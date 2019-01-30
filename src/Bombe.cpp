@@ -450,14 +450,6 @@ struct BombeWidget : ModuleWidget {
 		setPanel(SVG::load(asset::plugin(plugin, "res/Bombe.svg")));
 		UI ui;
 
-		{
-			BombeDisplay *display = new BombeDisplay();
-			display->module = module;
-			display->box.pos = Vec(0, 20);
-			display->box.size = Vec(240, 230);
-			addChild(display);
-		}
-
 		for (int i = 0; i < 6; i++) {
 			addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, i, 5, true, false), module, Bombe::PITCH_OUTPUT + i));
 		}	
@@ -495,6 +487,14 @@ struct BombeWidget : ModuleWidget {
 		YInputPos.x = YParamPos.x - 12;
 		YInputPos.y = YParamPos.y + 60;
 		addInput(createInput<PJ301MPort>(YInputPos, module, Bombe::Y_INPUT));
+
+		if (module != NULL) {
+			BombeDisplay *displayW = createWidget<BombeDisplay>(mm2px(Vec(0, 20)));
+			displayW->box.size = mm2px(Vec(240, 230));
+			displayW->module = module;
+			addChild(displayW);
+		}
+
 
 	}
 

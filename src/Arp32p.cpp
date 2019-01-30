@@ -576,16 +576,8 @@ struct Arp32Widget : ModuleWidget {
 	Arp32Widget(Arp32 *module) {
 		
 		setModule(module);
-		setPanel(SVG::load(asset::plugin(plugin, "res/Arp31p.svg")));
+		setPanel(SVG::load(asset::plugin(plugin, "res/Arp32p.svg")));
 		UI ui;
-
-		{
-			Arp32Display *display = new Arp32Display();
-			display->module = module;
-			display->box.pos = Vec(10, 90);
-			display->box.size = Vec(100, 140);
-			addChild(display);
-		}
 
 		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 0, true, false), module, Arp32::PITCH_INPUT));
 		
@@ -603,6 +595,13 @@ struct Arp32Widget : ModuleWidget {
 		addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 5, true, false), module, Arp32::OUT_OUTPUT));
 		addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 1, 5, true, false), module, Arp32::GATE_OUTPUT));
 		addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 2, 5, true, false), module, Arp32::EOC_OUTPUT));
+
+		if (module != NULL) {
+			Arp32Display *displayW = createWidget<Arp32Display>(mm2px(Vec(10, 90)));
+			displayW->box.size = mm2px(Vec(100, 140));
+			displayW->module = module;
+			addChild(displayW);
+		}
 
 	}
 

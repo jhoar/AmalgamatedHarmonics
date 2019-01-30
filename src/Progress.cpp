@@ -464,14 +464,6 @@ struct ProgressWidget : ModuleWidget {
 		setModule(module);
 		setPanel(SVG::load(asset::plugin(plugin, "res/Progress.svg")));
 		UI ui;
-
-		{
-			StateDisplay *display = new StateDisplay();
-			display->module = module;
-			display->box.pos = Vec(0, 135);
-			display->box.size = Vec(100, 140);
-			addChild(display);
-		}
 		
 		addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 0, 0, true, false), module, Progress::CLOCK_PARAM));
 		addParam(createParam<AHButton>(ui.getPosition(UI::BUTTON, 1, 0, true, false), module, Progress::RUN_PARAM));
@@ -519,6 +511,13 @@ struct ProgressWidget : ModuleWidget {
 
 		addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 9, 5, true, false), module, Progress::GATES_OUTPUT));
 		
+		if (module != NULL) {
+			StateDisplay *display = createWidget<StateDisplay>(mm2px(Vec(0, 135)));
+			display->module = module;
+			display->box.size = Vec(100, 140);
+			addChild(display);
+		}
+
 	}
 
 	void appendContextMenu(Menu *menu) override {

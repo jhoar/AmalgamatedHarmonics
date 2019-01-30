@@ -505,7 +505,7 @@ struct Arp31Display : TransparentWidget {
 		char text[128];
 		snprintf(text, sizeof(text), "%s", module->uiArp->getName().c_str());
 		nvgText(ctx.vg, pos.x + 10, pos.y + 65, text, NULL);
-
+		
 	}
 	
 };
@@ -518,14 +518,6 @@ struct Arp31Widget : ModuleWidget {
 		setPanel(SVG::load(asset::plugin(plugin, "res/Arp31c.svg")));
 		UI ui;
 		
-		{
-			Arp31Display *display = new Arp31Display();
-			display->module = module;
-			display->box.pos = Vec(40, 100);
-			display->box.size = Vec(100, 70);
-			addChild(display);
-		}
-
 		addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 5, true, false), module, Arp31::OUT_OUTPUT));
 		addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 1, 5, true, false), module, Arp31::GATE_OUTPUT));
 		addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 2, 5, true, false), module, Arp31::EOC_OUTPUT));
@@ -551,6 +543,13 @@ struct Arp31Widget : ModuleWidget {
 
 		addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 0, 2, true, false), module, Arp31::ARP_PARAM)); 
 		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 3, true, false), module, Arp31::ARP_INPUT));
+
+		if (module != NULL) {
+			Arp31Display *displayW = createWidget<Arp31Display>(mm2px(Vec(40, 100)));
+			displayW->box.size = mm2px(Vec(100, 70));
+			displayW->module = module;
+			addChild(displayW);
+		}
 		
 	}
 
