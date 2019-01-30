@@ -36,6 +36,11 @@ struct ScaleQuantizer2 : AHModule {
 		params[KEY_PARAM].config(0.0f, 11.0f, 0.0f); // 12 notes
 		params[SCALE_PARAM].config(0.0f, 11.0f, 0.0f); // 12 notes
 		params[TRANS_PARAM].config(-11.0f, 11.0f, 0.0f); // 12 notes
+		
+		for (int i = 0; i < 8; i++) {
+			params[SHIFT_PARAM + i].config(-3.0f, 3.0f, 0.0f);
+		}
+
 	}
 
 	void step() override;
