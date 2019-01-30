@@ -1,7 +1,7 @@
 #include "AH.hpp"
 #include "Core.hpp"
 #include "UI.hpp"
-#include "componentlibrary.hpp"
+#include "component.hpp"
 
 #include <iostream>
 
@@ -489,7 +489,7 @@ struct Arp31Display : TransparentWidget {
 	std::shared_ptr<Font> font;
 
 	Arp31Display() {
-		font = Font::load(asset::plugin(plugin, "res/EurostileBold.ttf"));
+		font = Font::load(asset::plugin(pluginInstance, "res/EurostileBold.ttf"));
 	}
 
 	void draw(const DrawContext &ctx) override {
@@ -515,7 +515,7 @@ struct Arp31Widget : ModuleWidget {
 	Arp31Widget(Arp31 *module) {
 	
 		setModule(module);
-		setPanel(SVG::load(asset::plugin(plugin, "res/Arp31c.svg")));
+		setPanel(SVG::load(asset::plugin(pluginInstance, "res/Arp31c.svg")));
 		UI ui;
 		
 		addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 5, true, false), module, Arp31::OUT_OUTPUT));

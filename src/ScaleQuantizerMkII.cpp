@@ -161,7 +161,7 @@ struct ScaleQuantizer2Widget : ModuleWidget {
 	ScaleQuantizer2Widget(ScaleQuantizer2 *module) {
 		
 		setModule(module);
-		setPanel(SVG::load(asset::plugin(plugin, "res/ScaleQuantizerMkII.svg")));
+		setPanel(SVG::load(asset::plugin(pluginInstance, "res/ScaleQuantizerMkII.svg")));
 		UI ui;
 
 		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 5, true, false), module, ScaleQuantizer2::KEY_INPUT));

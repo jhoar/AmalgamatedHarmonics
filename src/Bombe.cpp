@@ -382,7 +382,7 @@ struct BombeDisplay : TransparentWidget {
 	std::shared_ptr<Font> font;
 
 	BombeDisplay() {
-		font = Font::load(asset::plugin(plugin, "res/EurostileBold.ttf"));
+		font = Font::load(asset::plugin(pluginInstance, "res/EurostileBold.ttf"));
 	}
 
 	void draw(const DrawContext &ctx) override {
@@ -447,7 +447,7 @@ struct BombeWidget : ModuleWidget {
 	BombeWidget(Bombe *module)  {
 	
 		setModule(module);
-		setPanel(SVG::load(asset::plugin(plugin, "res/Bombe.svg")));
+		setPanel(SVG::load(asset::plugin(pluginInstance, "res/Bombe.svg")));
 		UI ui;
 
 		for (int i = 0; i < 6; i++) {
@@ -489,8 +489,8 @@ struct BombeWidget : ModuleWidget {
 		addInput(createInput<PJ301MPort>(YInputPos, module, Bombe::Y_INPUT));
 
 		if (module != NULL) {
-			BombeDisplay *displayW = createWidget<BombeDisplay>(mm2px(Vec(0, 20)));
-			displayW->box.size = mm2px(Vec(240, 230));
+			BombeDisplay *displayW = createWidget<BombeDisplay>(Vec(0, 20));
+			displayW->box.size = Vec(240, 230);
 			displayW->module = module;
 			addChild(displayW);
 		}

@@ -310,7 +310,7 @@ struct GenerativeWidget : ModuleWidget {
 	GenerativeWidget(Generative *module) {
 		
 		setModule(module);
-		setPanel(SVG::load(asset::plugin(plugin, "res/Generative.svg")));
+		setPanel(SVG::load(asset::plugin(pluginInstance, "res/Generative.svg")));
 		UI ui;
 
 		// LFO section

@@ -4,7 +4,7 @@
 
 using namespace rack;
 
-extern Plugin *plugin;
+extern Plugin *pluginInstance;
 
 ////////////////////
 // module widgets

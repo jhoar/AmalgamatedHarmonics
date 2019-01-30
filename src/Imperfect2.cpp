@@ -249,7 +249,7 @@ struct Imperfect2Box : TransparentWidget {
 	int *actGate;
 	
 	Imperfect2Box() {
-		font = Font::load(asset::plugin(plugin, "res/DSEG14ClassicMini-BoldItalic.ttf"));
+		font = Font::load(asset::plugin(pluginInstance, "res/DSEG14ClassicMini-BoldItalic.ttf"));
 	}
 
 	void draw(const DrawContext &ctx) override {
@@ -307,7 +307,7 @@ struct Imperfect2Widget : ModuleWidget {
 	Imperfect2Widget(Imperfect2 *module) {
 	
 		setModule(module);
-		setPanel(SVG::load(asset::plugin(plugin, "res/Imperfect2.svg")));
+		setPanel(SVG::load(asset::plugin(pluginInstance, "res/Imperfect2.svg")));
 		UI ui;
 
 		for (int i = 0; i < 4; i++) {

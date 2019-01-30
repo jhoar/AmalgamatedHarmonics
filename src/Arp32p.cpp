@@ -1,8 +1,8 @@
+#include "component.hpp"
+
 #include "AH.hpp"
 #include "Core.hpp"
 #include "UI.hpp"
-#include "componentlibrary.hpp"
-#include "dsp/digital.hpp"
 
 #include <iostream>
 
@@ -530,7 +530,7 @@ struct Arp32Display : TransparentWidget {
 	std::shared_ptr<Font> font;
 
 	Arp32Display() {
-		font = Font::load(asset::plugin(plugin, "res/EurostileBold.ttf"));
+		font = Font::load(asset::plugin(pluginInstance, "res/EurostileBold.ttf"));
 	}
 
 	void draw(const DrawContext &ctx) override {
@@ -576,7 +576,7 @@ struct Arp32Widget : ModuleWidget {
 	Arp32Widget(Arp32 *module) {
 		
 		setModule(module);
-		setPanel(SVG::load(asset::plugin(plugin, "res/Arp32p.svg")));
+		setPanel(SVG::load(asset::plugin(pluginInstance, "res/Arp32p.svg")));
 		UI ui;
 
 		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 0, true, false), module, Arp32::PITCH_INPUT));

@@ -1,8 +1,7 @@
 #include "AH.hpp"
 #include "Core.hpp"
 #include "UI.hpp"
-#include "componentlibrary.hpp"
-#include "dsp/digital.hpp"
+#include "component.hpp"
 
 #include <iostream>
 
@@ -909,7 +908,7 @@ struct Arpeggiator2Display : TransparentWidget {
 	std::shared_ptr<Font> font;
 
 	Arpeggiator2Display() {
-		font = Font::load(asset::plugin(plugin, "res/EurostileBold.ttf"));
+		font = Font::load(asset::plugin(pluginInstance, "res/EurostileBold.ttf"));
 	}
 
 	void draw(const DrawContext &ctx) override {
@@ -953,7 +952,7 @@ struct Arpeggiator2Widget : ModuleWidget {
 	Arpeggiator2Widget(Arpeggiator2 *module) {
 	
 		setModule(module);
-		setPanel(SVG::load(asset::plugin(plugin, "res/Arpeggiator2.svg")));
+		setPanel(SVG::load(asset::plugin(pluginInstance, "res/Arpeggiator2.svg")));
 		UI ui;
 
 		addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 0, false, false), module, Arpeggiator2::OUT_OUTPUT));

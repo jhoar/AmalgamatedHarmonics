@@ -269,7 +269,7 @@ struct RuckusWidget : ModuleWidget {
 	RuckusWidget(Ruckus *module) {
 	
 		setModule(module);
-		setPanel(SVG::load(asset::plugin(plugin, "res/Ruckus.svg")));
+		setPanel(SVG::load(asset::plugin(pluginInstance, "res/Ruckus.svg")));
 		UI ui;
 
 		//299.5 329.7

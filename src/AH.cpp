@@ -1,10 +1,10 @@
 #include "AH.hpp"
 
 // The plugin-wide instance of the Plugin class
-Plugin *plugin;
+Plugin *pluginInstance;
 
 void init(rack::Plugin *p) {
-	plugin = p;
+	pluginInstance = p;
 
 	// For each module, specify the ModuleWidget subclass, manufacturer slug (for saving in patches), manufacturer human-readable name, module slug, 
 	// and module name
