@@ -36,7 +36,29 @@ struct Chord : AHModule {
 		NUM_LIGHTS
 	};
 	
-	Chord() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
+	Chord() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
+
+		float PI_180 = PI / 180.0;
+		float posMax = 90.0 * 0.5 * PI_180;
+		float voicePosDeg[6] = {-90.0f, 90.0f, -54.0f, 54.0f, -18.0f, 18.0f};
+		float voicePosRad[6];	
+		for(int i = 0; i < 6; i++) {
+			voicePosRad[i] = voicePosDeg[i] * 0.5 * PI_180;
+		}
+
+		for (int n = 0; n < 6; n++) {
+			params[WAVE_PARAM + n].config(0.0f, 4.0f, 0.0f);
+			params[OCTAVE_PARAM + n].config(-3.0f, 3.0f, 0.0f);
+			params[DETUNE_PARAM + n].config(-1.0f, 1.0f, 0.0f);
+			params[PW_PARAM + n].config(-1.0f, 1.0f, 0.0f);
+			params[PWM_PARAM + n].config(0.0f, 1.0f, 0.0f);
+			params[ATTN_PARAM + n].config(0.0f, 1.0f, 1.0f);
+			params[PAN_PARAM + n].config(-posMax, posMax, voicePosRad[n]);
+		}
+
+		params[SPREAD_PARAM].config(0.0f, 1.0f, 1.0f);
+
+	}
 
 	void step() override;
 		
@@ -44,8 +66,8 @@ struct Chord : AHModule {
 
 	int poll = 50000;
 
-	SchmittTrigger moveTrigger;
-	PulseGenerator triggerPulse;
+	dsp::SchmittTrigger moveTrigger;
+	dsp::PulseGenerator triggerPulse;
 
 	EvenVCO oscillator[6];
 
@@ -122,47 +144,41 @@ void Chord::step() {
 
 struct ChordWidget : ModuleWidget {
 
-	ChordWidget(Chord *module) : ModuleWidget(module) {
+	ChordWidget(Chord *module) {
+		
+		setModule(module);
 		
 		UI ui;
 		
-		float PI_180 = PI / 180.0;
-		float posMax = 90.0 * 0.5 * PI_180;
-		float voicePosDeg[6] = {-90.0f, 90.0f, -54.0f, 54.0f, -18.0f, 18.0f};
-		float voicePosRad[6];	
-		for(int i = 0; i < 6; i++) {
-			voicePosRad[i] = voicePosDeg[i] * 0.5 * PI_180;
-		}
-
 		box.size = Vec(270, 380);
 
 		{
 			SVGPanel *panel = new SVGPanel();
 			panel->box.size = box.size;
-			panel->setBackground(SVG::load(assetPlugin(plugin, "res/Chord.svg")));
+			panel->setBackground(SVG::load(asset::plugin(plugin, "res/Chord.svg")));
 			addChild(panel);
 		}
 
 		for (int n = 0; n < 6; n++) {
-			addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, n, 0, true, true), Port::INPUT, module, Chord::PITCH_INPUT + n));
-			addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, n, 1, true, true), module, Chord::WAVE_PARAM + n, 0.0f, 4.0f, 0.0f));
-			addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, n, 2, true, true), module, Chord::OCTAVE_PARAM + n, -3.0f, 3.0f, 0.0f));
-			addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, n, 3, true, true), module, Chord::DETUNE_PARAM + n, -1.0f, 1.0f, 0.0f));
-			addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, n, 4, true, true), module, Chord::PW_PARAM + n, -1.0f, 1.0f, 0.0f));
-			addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, n, 5, true, true), Port::INPUT, module, Chord::PW_INPUT + n));
-			addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, n, 6, true, true), module, Chord::PWM_PARAM + n, 0.0f, 1.0f, 0.0f));
-			addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, n, 7, true, true), module, Chord::ATTN_PARAM + n, 0.0f, 1.0f, 1.0f));
-			addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, n, 8, true, true), module, Chord::PAN_PARAM + n, -posMax, posMax, voicePosRad[n]));
+			addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, n, 0, true, true), module, Chord::PITCH_INPUT + n));
+			addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, n, 1, true, true), module, Chord::WAVE_PARAM + n));
+			addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, n, 2, true, true), module, Chord::OCTAVE_PARAM + n));
+			addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, n, 3, true, true), module, Chord::DETUNE_PARAM + n));
+			addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, n, 4, true, true), module, Chord::PW_PARAM + n));
+			addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, n, 5, true, true), module, Chord::PW_INPUT + n));
+			addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, n, 6, true, true), module, Chord::PWM_PARAM + n));
+			addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, n, 7, true, true), module, Chord::ATTN_PARAM + n));
+			addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, n, 8, true, true), module, Chord::PAN_PARAM + n));
 		}
 
-		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 0, 9, true, true), module, Chord::SPREAD_PARAM, 0.0f, 1.0f, 1.0f));
+		addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 0, 9, true, true), module, Chord::SPREAD_PARAM));
 
-		addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 4, 9, true, true), Port::OUTPUT, module, Chord::OUT_OUTPUT));
-		addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 5, 9, true, true), Port::OUTPUT, module, Chord::OUT_OUTPUT + 1));
+		addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 4, 9, true, true), module, Chord::OUT_OUTPUT));
+		addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 5, 9, true, true), module, Chord::OUT_OUTPUT + 1));
 
 	}
 };
 
-Model *modelChord = Model::create<Chord, ChordWidget>( "Amalgamated Harmonics", "Chord", "D'acchord", OSCILLATOR_TAG);
+Model *modelChord = createModel<Chord, ChordWidget>("Chord");
 
 // ♯♭

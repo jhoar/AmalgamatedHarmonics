@@ -53,6 +53,13 @@ struct Bombe : AHModule {
 	};
 	
 	Bombe() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
+
+		params[KEY_PARAM].config(0.0, 11.0, 0.0); 
+		params[MODE_PARAM].config(0.0, 6.0, 0.0); 
+		params[LENGTH_PARAM].config(2.0, 16.0, 0.0); 
+		params[X_PARAM].config(0.0, 1.0001, 0.5); 
+		params[Y_PARAM].config(0.0, 1.0001, 0.5); 
+
 		for(int i = 0; i < BUFFERSIZE; i++) {
 			buffer[i].chord = 1;
 			int *chordArray = CoreUtil().ChordTable[buffer[i].chord].root;
@@ -69,7 +76,7 @@ struct Bombe : AHModule {
 	void modeGalaxy(BombeChord lastValue, float y);
 	void modeComplex(BombeChord lastValue, float y);
 
-	json_t *toJson() override {
+	json_t *dataToJson() override {
 		json_t *rootJ = json_object();
 
 		// offset
@@ -87,7 +94,7 @@ struct Bombe : AHModule {
 		return rootJ;
 	}
 	
-	void fromJson(json_t *rootJ) override {
+	void dataFromJson(json_t *rootJ) override {
 
 		// offset
 		json_t *offsetJ = json_object_get(rootJ, "offset");
@@ -127,7 +134,7 @@ struct Bombe : AHModule {
 	
 	int poll = 50000;
 
-	SchmittTrigger clockTrigger;
+	dsp::SchmittTrigger clockTrigger;
 
 	int currRoot = 1;
 	int currMode = 1;
@@ -159,7 +166,7 @@ void Bombe::modeSimple(BombeChord lastValue, float y) {
 	buffer[0].rootNote = n;
 	buffer[0].quality = q; // 0 = Maj, 1 = Min, 2 = Dim
 
-	if (randomUniform() < y) {
+	if (random::uniform() < y) {
 		buffer[0].chord = QualityMap[q][rand() % QMAP_SIZE]; // Get the index into the main chord table
 	} else {
 		buffer[0].chord = Quality2Chord[q]; // Get the index into the main chord table
@@ -172,7 +179,7 @@ void Bombe::modeSimple(BombeChord lastValue, float y) {
 void Bombe::modeRandom(BombeChord lastValue, float y) {
 
 	// Recalculate new value of buffer[0].outVolts from lastValue
-	float p = randomUniform();
+	float p = random::uniform();
 	if (p < y) {
 		buffer[0].rootNote = rand() % 12; 
 	} else {
@@ -206,7 +213,7 @@ void Bombe::modeKey(BombeChord lastValue, float y) {
 
 void Bombe::modeGalaxy(BombeChord lastValue, float y) {
 
-	float excess = y - randomUniform();
+	float excess = y - random::uniform();
 
 	if (excess < 0.0) {
 		modeSimple(lastValue, y);
@@ -293,7 +300,7 @@ void Bombe::step() {
 			buffer[0] = lastValue;
 		} else {
 
-			if (randomUniform() < x) {
+			if (random::uniform() < x) {
 				// Buffer update skipped
 				buffer[0] = lastValue;
 			} else {
@@ -375,15 +382,15 @@ struct BombeDisplay : TransparentWidget {
 	std::shared_ptr<Font> font;
 
 	BombeDisplay() {
-		font = Font::load(assetPlugin(plugin, "res/EurostileBold.ttf"));
+		font = Font::load(asset::plugin(plugin, "res/EurostileBold.ttf"));
 	}
 
-	void draw(NVGcontext *vg) override {
+	void draw(const DrawContext &ctx) override {
 	
-		nvgFontSize(vg, 14);
-		nvgFontFaceId(vg, font->handle);
-		nvgFillColor(vg, nvgRGBA(255, 0, 0, 0xff));
-		nvgTextLetterSpacing(vg, -1);
+		nvgFontSize(ctx.vg, 14);
+		nvgFontFaceId(ctx.vg, font->handle);
+		nvgFillColor(ctx.vg, nvgRGBA(255, 0, 0, 0xff));
+		nvgTextLetterSpacing(ctx.vg, -1);
 
 		char text[128];
 
@@ -417,19 +424,19 @@ struct BombeDisplay : TransparentWidget {
 			}
 
 			snprintf(text, sizeof(text), "%s %s", chordName.c_str(), chordExtName.c_str());
-			nvgText(vg, box.pos.x + 5, box.pos.y + i * 14, text, NULL);
-			nvgFillColor(vg, nvgRGBA(255 - i * 32, 0, 0, 0xff));
+			nvgText(ctx.vg, box.pos.x + 5, box.pos.y + i * 14, text, NULL);
+			nvgFillColor(ctx.vg, nvgRGBA(255 - i * 32, 0, 0, 0xff));
 
 		}
 
-		nvgFillColor(vg, nvgRGBA(255, 0, 0, 0xff));
+		nvgFillColor(ctx.vg, nvgRGBA(255, 0, 0, 0xff));
 
-		nvgTextAlign(vg, NVG_ALIGN_RIGHT);
+		nvgTextAlign(ctx.vg, NVG_ALIGN_RIGHT);
 		snprintf(text, sizeof(text), "%s", module->rootName.c_str());
-		nvgText(vg, box.size.x - 5, box.pos.y, text, NULL);
+		nvgText(ctx.vg, box.size.x - 5, box.pos.y, text, NULL);
 
 		snprintf(text, sizeof(text), "%s", module->modeName.c_str());
-		nvgText(vg, box.size.x - 5, box.pos.y + 11, text, NULL);
+		nvgText(ctx.vg, box.size.x - 5, box.pos.y + 11, text, NULL);
 
 	}
 	
@@ -437,20 +444,11 @@ struct BombeDisplay : TransparentWidget {
 
 struct BombeWidget : ModuleWidget {
 
-	Menu *createContextMenu() override;
-
-	BombeWidget(Bombe *module) : ModuleWidget(module) {
+	BombeWidget(Bombe *module)  {
 	
+		setModule(module);
+		setPanel(SVG::load(asset::plugin(plugin, "res/Bombe.svg")));
 		UI ui;
-		
-		box.size = Vec(240, 380);
-
-		{
-			SVGPanel *panel = new SVGPanel();
-			panel->box.size = box.size;
-			panel->setBackground(SVG::load(assetPlugin(plugin, "res/Bombe.svg")));
-			addChild(panel);
-		}
 
 		{
 			BombeDisplay *display = new BombeDisplay();
@@ -461,170 +459,141 @@ struct BombeWidget : ModuleWidget {
 		}
 
 		for (int i = 0; i < 6; i++) {
-			addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, i, 5, true, false), Port::OUTPUT, module, Bombe::PITCH_OUTPUT + i));
+			addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, i, 5, true, false), module, Bombe::PITCH_OUTPUT + i));
 		}	
 
-		addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 0, 4, true, false), module, Bombe::KEY_PARAM, 0.0, 11.0, 0.0)); 
-		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 1, 4, true, false), Port::INPUT, module, Bombe::KEY_INPUT));
+		addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 0, 4, true, false), module, Bombe::KEY_PARAM)); 
+		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 1, 4, true, false), module, Bombe::KEY_INPUT));
 
-		addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 2, 4, true, false), module, Bombe::MODE_PARAM, 0.0, 6.0, 0.0)); 
-		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 3, 4, true, false), Port::INPUT, module, Bombe::MODE_INPUT));
+		addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 2, 4, true, false), module, Bombe::MODE_PARAM)); 
+		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 3, 4, true, false), module, Bombe::MODE_INPUT));
 
-		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 4, 4, true, false), Port::INPUT, module, Bombe::CLOCK_INPUT));
-		addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 5, 4, true, false), module, Bombe::LENGTH_PARAM, 2.0, 16.0, 0.0)); 
+		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 4, 4, true, false), module, Bombe::CLOCK_INPUT));
+		addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 5, 4, true, false), module, Bombe::LENGTH_PARAM)); 
 
 		Vec XParamPos;
 		XParamPos.x = 33;
 		XParamPos.y = 160;
-		addParam(ParamWidget::create<AHBigKnobNoSnap>(XParamPos, module, Bombe::X_PARAM, 0.0, 1.0001, 0.5)); 
+		addParam(createParam<AHBigKnobNoSnap>(XParamPos, module, Bombe::X_PARAM)); 
 
 		Vec XFreezePos;
 		XFreezePos.x = XParamPos.x - 12;
 		XFreezePos.y = XParamPos.y + 60;
-		addInput(Port::create<PJ301MPort>(XFreezePos, Port::INPUT, module, Bombe::FREEZE_INPUT));
+		addInput(createInput<PJ301MPort>(XFreezePos, module, Bombe::FREEZE_INPUT));
 
 		Vec XLightPos;
 		XLightPos.x = XParamPos.x + 63;
 		XLightPos.y = XParamPos.y + 68;
-		addChild(ModuleLightWidget::create<MediumLight<GreenRedLight>>(XLightPos, module, Bombe::LOCK_LIGHT));
+		addChild(createLight<MediumLight<GreenRedLight>>(XLightPos, module, Bombe::LOCK_LIGHT));
 
 		Vec YParamPos;
 		YParamPos.x = 137;
 		YParamPos.y = 160;
-		addParam(ParamWidget::create<AHBigKnobNoSnap>(YParamPos, module, Bombe::Y_PARAM, 0.0, 1.0001, 0.5)); 
+		addParam(createParam<AHBigKnobNoSnap>(YParamPos, module, Bombe::Y_PARAM)); 
 
 		Vec YInputPos;
 		YInputPos.x = YParamPos.x - 12;
 		YInputPos.y = YParamPos.y + 60;
-		addInput(Port::create<PJ301MPort>(YInputPos, Port::INPUT, module, Bombe::Y_INPUT));
+		addInput(createInput<PJ301MPort>(YInputPos, module, Bombe::Y_INPUT));
 
 	}
+
+	void appendContextMenu(Menu *menu) override {
+
+		Bombe *bombe = dynamic_cast<Bombe*>(module);
+		assert(bombe);
+
+		struct OffsetItem : MenuItem {
+			Bombe *module;
+			int offset;
+			void onAction(const event::Action &e) override {
+				module->offset = offset;
+			}
+		};
+
+		struct ModeItem : MenuItem {
+			Bombe *module;
+			int mode;
+			void onAction(const event::Action &e) override {
+				module->mode = mode;
+			}
+		};
+
+		struct InversionItem : MenuItem {
+			Bombe *module;
+			int allowedInversions;
+			void onAction(const event::Action &e) override {
+				module->allowedInversions = allowedInversions;
+			}
+		};
+
+		struct OffsetMenu : MenuItem {
+			Bombe *module;
+			Menu *createChildMenu() override {
+				Menu *menu = new Menu;
+				std::vector<int> offsets = {12, 24, 36, 0};
+				std::vector<std::string> names = {"Lower", "Repeat", "Upper", "Random"};
+				for (size_t i = 0; i < offsets.size(); i++) {
+					OffsetItem *item = createMenuItem<OffsetItem>(names[i], CHECKMARK(module->offset == offsets[i]));
+					item->module = module;
+					item->offset = offsets[i];
+					menu->addChild(item);
+				}
+				return menu;
+			}
+		};
+
+		struct ModeMenu : MenuItem {
+			Bombe *module;
+			Menu *createChildMenu() override {
+				Menu *menu = new Menu;
+				std::vector<int> modes = {0, 1, 2};
+				std::vector<std::string> names = {"Random", "Simple", "Galaxy"};
+				for (size_t i = 0; i < modes.size(); i++) {
+					ModeItem *item = createMenuItem<ModeItem>(names[i], CHECKMARK(module->mode == modes[i]));
+					item->module = module;
+					item->mode = modes[i];
+					menu->addChild(item);
+				}
+				return menu;
+			}
+		};
+
+		struct InversionMenu : MenuItem {
+			Bombe *module;
+			Menu *createChildMenu() override {
+				Menu *menu = new Menu;
+				std::vector<int> inversions = {0, 1, 2};
+				std::vector<std::string> names = {"Root only", "Root and First", "Root, First and Second"};
+				for (size_t i = 0; i < inversions.size(); i++) {
+					InversionItem *item = createMenuItem<InversionItem>(names[i], CHECKMARK(module->allowedInversions == inversions[i]));
+					item->module = module;
+					item->allowedInversions = inversions[i];
+					menu->addChild(item);
+				}
+				return menu;
+			}
+		};
+
+		menu->addChild(construct<MenuLabel>());
+		OffsetMenu *offsetItem = createMenuItem<OffsetMenu>("Repeat Notes");
+		offsetItem->module = bombe;
+		menu->addChild(offsetItem);
+
+		menu->addChild(construct<MenuLabel>());
+		ModeMenu *modeItem = createMenuItem<ModeMenu>("Chord Selection");
+		modeItem->module = bombe;
+		menu->addChild(modeItem);
+
+		menu->addChild(construct<MenuLabel>());
+		InversionMenu *invItem = createMenuItem<InversionMenu>("Allowed Chord Inversions");
+		invItem->module = bombe;
+		menu->addChild(invItem);
+
+     }
 
 };
 
-struct BombeOffsetItem : MenuItem {
-	Bombe *bombe;
-	int offset;
-	void onAction(EventAction &e) override {
-		bombe->offset = offset;
-	}
-	void step() override {
-		rightText = (bombe->offset == offset) ? "✔" : "";
-	}
-};
-
-struct BombeModeItem : MenuItem {
-	Bombe *bombe;
-	int mode;
-	void onAction(EventAction &e) override {
-		bombe->mode = mode;
-	}
-	void step() override {
-		rightText = (bombe->mode == mode) ? "✔" : "";
-	}
-};
-
-struct BombeInversionsItem : MenuItem {
-	Bombe *bombe;
-	int allowedInversions;
-	void onAction(EventAction &e) override {
-		bombe->allowedInversions = allowedInversions;
-	}
-	void step() override {
-		rightText = (bombe->allowedInversions == allowedInversions) ? "✔" : "";
-	}
-};
-
-Menu *BombeWidget::createContextMenu() {
-	Menu *menu = ModuleWidget::createContextMenu();
-
-	MenuLabel *spacerLabel = new MenuLabel();
-	menu->addChild(spacerLabel);
-
-	Bombe *bombe = dynamic_cast<Bombe*>(module);
-	assert(bombe);
-
-	MenuLabel *offsetLabel = new MenuLabel();
-	offsetLabel->text = "Repeat Notes";
-	menu->addChild(offsetLabel);
-
-	BombeOffsetItem *offsetLowerItem = new BombeOffsetItem();
-	offsetLowerItem->text = "Lower";
-	offsetLowerItem->bombe = bombe;
-	offsetLowerItem->offset = 12;
-	menu->addChild(offsetLowerItem);
-
-	BombeOffsetItem *offsetRepeatItem = new BombeOffsetItem();
-	offsetRepeatItem->text = "Repeat";
-	offsetRepeatItem->bombe = bombe;
-	offsetRepeatItem->offset = 24;
-	menu->addChild(offsetRepeatItem);
-
-	BombeOffsetItem *offsetUpperItem = new BombeOffsetItem();
-	offsetUpperItem->text = "Upper";
-	offsetUpperItem->bombe = bombe;
-	offsetUpperItem->offset = 36;
-	menu->addChild(offsetUpperItem);
-
-	BombeOffsetItem *offsetRandomItem = new BombeOffsetItem();
-	offsetRandomItem->text = "Random";
-	offsetRandomItem->bombe = bombe;
-	offsetRandomItem->offset = 0;
-	menu->addChild(offsetRandomItem);
-
-	MenuLabel *modeLabel = new MenuLabel();
-	modeLabel->text = "Mode";
-	menu->addChild(modeLabel);
-
-	BombeModeItem *modeRandomItem = new BombeModeItem();
-	modeRandomItem->text = "Random";
-	modeRandomItem->bombe = bombe;
-	modeRandomItem->mode = 0;
-	menu->addChild(modeRandomItem);
-
-	BombeModeItem *modeSimpleItem = new BombeModeItem();
-	modeSimpleItem->text = "Simple";
-	modeSimpleItem->bombe = bombe;
-	modeSimpleItem->mode = 1;
-	menu->addChild(modeSimpleItem);
-
-	BombeModeItem *modeGalaxyItem = new BombeModeItem();
-	modeGalaxyItem->text = "Galaxy";
-	modeGalaxyItem->bombe = bombe;
-	modeGalaxyItem->mode = 2;
-	menu->addChild(modeGalaxyItem);
-
-	BombeModeItem *modeComplexItem = new BombeModeItem();
-	modeComplexItem->text = "Complex";
-	modeComplexItem->bombe = bombe;
-	modeComplexItem->mode = 3;
-	// menu->addChild(modeComplexItem);
-
-	MenuLabel *invLabel = new MenuLabel();
-	invLabel->text = "Allowed Chord Inversions";
-	menu->addChild(invLabel);
-
-	BombeInversionsItem *invRootItem = new BombeInversionsItem();
-	invRootItem->text = "Root only";
-	invRootItem->bombe = bombe;
-	invRootItem->allowedInversions = 0;
-	menu->addChild(invRootItem);
-
-	BombeInversionsItem *invFirstItem = new BombeInversionsItem();
-	invFirstItem->text = "Root and First";
-	invFirstItem->bombe = bombe;
-	invFirstItem->allowedInversions = 1;
-	menu->addChild(invFirstItem);
-
-	BombeInversionsItem *invSecondItem = new BombeInversionsItem();
-	invSecondItem->text = "Root, First and Second";
-	invSecondItem->bombe = bombe;
-	invSecondItem->allowedInversions = 2;
-	menu->addChild(invSecondItem);
-
-	return menu;
-}
-
-Model *modelBombe = Model::create<Bombe, BombeWidget>( "Amalgamated Harmonics", "Bombe", "Bombe", SEQUENCER_TAG);
+Model *modelBombe = createModel<Bombe, BombeWidget>("Bombe");
 
 // ♯♭

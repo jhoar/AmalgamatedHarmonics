@@ -10,8 +10,6 @@ extern Plugin *plugin;
 // module widgets
 ////////////////////
 
-extern Model *modelArpeggiator;
-
 extern Model *modelArpeggiator2;
 
 extern Model *modelArp31;
@@ -20,15 +18,11 @@ extern Model *modelArp32;
 
 extern Model *modelCircle;
 
-extern Model *modelImperfect;
-
 extern Model *modelImperfect2;
 
 extern Model *modelProgress;
 
 extern Model *modelRuckus;
-
-extern Model *modelScaleQuantizer;
 
 extern Model *modelScaleQuantizer2;
 

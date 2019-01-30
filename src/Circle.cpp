@@ -36,10 +36,16 @@ struct Circle : AHModule {
 	};
 	Scaling voltScale = FIFTHS;
 	
-	Circle() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
+	Circle() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
+
+		params[KEY_PARAM].config(0.0, 11.0, 0.0); 
+		params[MODE_PARAM].config(0.0, 6.0, 0.0); 
+
+	}
+
 	void step() override;
 	
-	json_t *toJson() override {
+	json_t *dataToJson() override {
 		json_t *rootJ = json_object();
 
 		// gateMode
@@ -49,7 +55,7 @@ struct Circle : AHModule {
 		return rootJ;
 	}
 	
-	void fromJson(json_t *rootJ) override {
+	void dataFromJson(json_t *rootJ) override {
 		// gateMode
 		json_t *scaleModeJ = json_object_get(rootJ, "scale");
 		
@@ -58,10 +64,10 @@ struct Circle : AHModule {
 		}
 	}
 	
-	SchmittTrigger rotLTrigger;
-	SchmittTrigger rotRTrigger;
+	dsp::SchmittTrigger rotLTrigger;
+	dsp::SchmittTrigger rotRTrigger;
 	
-	PulseGenerator stepPulse;
+	dsp::PulseGenerator stepPulse;
 	
 	int baseKeyIndex = 0;
 	int curKeyIndex = 0;
@@ -188,101 +194,89 @@ void Circle::step() {
 }
 
 struct CircleWidget : ModuleWidget {
-	CircleWidget(Circle *module);
-	Menu *createContextMenu() override;
+
+	CircleWidget(Circle *module) {
+		
+		setModule(module);
+		setPanel(SVG::load(asset::plugin(plugin, "res/Circle.svg")));
+		UI ui;
+
+		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 0, true, false), module, Circle::ROTL_INPUT));
+		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 5, 0, true, false), module, Circle::ROTR_INPUT));
+		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 5, true, false), module, Circle::KEY_INPUT));
+		addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 1, 5, true, false), module, Circle::KEY_PARAM)); 
+		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 2, 5, true, false), module, Circle::MODE_INPUT));
+		addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 3, 5, true, false), module, Circle::MODE_PARAM)); 
+
+		float div = (PI * 2) / 12.0;
+
+		for (int i = 0; i < 12; i++) {
+
+			float cosDiv = cos(div * i);
+			float sinDiv = sin(div * i);
+		
+			float xPos  = sinDiv * 52.5;
+			float yPos  = cosDiv * 52.5;
+			float xxPos = sinDiv * 60.0;
+			float yyPos = cosDiv * 60.0;
+
+	//		ui.calculateKeyboard(i, xSpace, xOffset, 230.0, &xPos, &yPos, &scale);
+			addChild(createLight<SmallLight<GreenLight>>(Vec(xxPos + 116.5, 149.5 - yyPos), module, Circle::CKEY_LIGHT + CoreUtil().CIRCLE_FIFTHS[i]));
+
+	//		ui.calculateKeyboard(i, xSpace, xOffset + 72.0, 165.0, &xPos, &yPos, &scale);
+			addChild(createLight<SmallLight<RedLight>>(Vec(xPos + 116.5, 149.5 - yPos), module, Circle::BKEY_LIGHT + CoreUtil().CIRCLE_FIFTHS[i]));
+		}
+		
+		float xOffset = 18.0;
+		
+		for (int i = 0; i < 7; i++) {
+			float xPos = 2 * xOffset + i * 18.2;
+			addChild(createLight<SmallLight<GreenLight>>(Vec(xPos, 280.0), module, Circle::MODE_LIGHT + i));
+		}
+
+		addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 4, 5, true, false), module, Circle::KEY_OUTPUT));
+		addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 5, 5, true, false), module, Circle::MODE_OUTPUT));
+
+	}
+
+	void appendContextMenu(Menu *menu) override {
+
+		Circle *circle = dynamic_cast<Circle*>(module);
+		assert(circle);
+
+		struct ScalingItem : MenuItem {
+			Circle *module;
+			Circle::Scaling voltScale;
+			void onAction(const event::Action &e) override {
+				module->voltScale = voltScale;
+			}
+		};
+
+		struct ScalingMenu : MenuItem {
+			Circle *module;
+			Menu *createChildMenu() override {
+				Menu *menu = new Menu;
+				std::vector<Circle::Scaling> modes = {Circle::FIFTHS, Circle::CHROMATIC};
+				std::vector<std::string> names = {"Fifths", "Chromatic (V/OCT)"};
+				for (size_t i = 0; i < modes.size(); i++) {
+					ScalingItem *item = createMenuItem<ScalingItem>(names[i], CHECKMARK(module->voltScale == modes[i]));
+					item->module = module;
+					item->voltScale = modes[i];
+					menu->addChild(item);
+				}
+				return menu;
+			}
+		};
+
+		menu->addChild(construct<MenuLabel>());
+		ScalingMenu *item = createMenuItem<ScalingMenu>("Root Volt Scaling");
+		item->module = circle;
+		menu->addChild(item);
+
+     }
+	 
 };
 
-CircleWidget::CircleWidget(Circle *module) : ModuleWidget(module) {
-	
-	UI ui;
-	
-	box.size = Vec(240, 380);
-
-	{
-		SVGPanel *panel = new SVGPanel();
-		panel->box.size = box.size;
-		panel->setBackground(SVG::load(assetPlugin(plugin, "res/Circle.svg")));
-		addChild(panel);
-	}
-
-	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 0, true, false), Port::INPUT, module, Circle::ROTL_INPUT));
-	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 5, 0, true, false), Port::INPUT, module, Circle::ROTR_INPUT));
-	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 5, true, false), Port::INPUT, module, Circle::KEY_INPUT));
-	addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 1, 5, true, false), module, Circle::KEY_PARAM, 0.0, 11.0, 0.0)); 
-	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 2, 5, true, false), Port::INPUT, module, Circle::MODE_INPUT));
-	addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 3, 5, true, false), module, Circle::MODE_PARAM, 0.0, 6.0, 0.0)); 
-
-	float div = (PI * 2) / 12.0;
-
-	for (int i = 0; i < 12; i++) {
-
-		float cosDiv = cos(div * i);
-		float sinDiv = sin(div * i);
-	
-		float xPos  = sinDiv * 52.5;
-		float yPos  = cosDiv * 52.5;
-		float xxPos = sinDiv * 60.0;
-		float yyPos = cosDiv * 60.0;
-
-//		ui.calculateKeyboard(i, xSpace, xOffset, 230.0, &xPos, &yPos, &scale);
-		addChild(ModuleLightWidget::create<SmallLight<GreenLight>>(Vec(xxPos + 116.5, 149.5 - yyPos), module, Circle::CKEY_LIGHT + CoreUtil().CIRCLE_FIFTHS[i]));
-
-//		ui.calculateKeyboard(i, xSpace, xOffset + 72.0, 165.0, &xPos, &yPos, &scale);
-		addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(xPos + 116.5, 149.5 - yPos), module, Circle::BKEY_LIGHT + CoreUtil().CIRCLE_FIFTHS[i]));
-	}
-	
-	float xOffset = 18.0;
-	
-	for (int i = 0; i < 7; i++) {
-		float xPos = 2 * xOffset + i * 18.2;
-		addChild(ModuleLightWidget::create<SmallLight<GreenLight>>(Vec(xPos, 280.0), module, Circle::MODE_LIGHT + i));
-	}
-
-	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 4, 5, true, false), Port::OUTPUT, module, Circle::KEY_OUTPUT));
-	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 5, 5, true, false), Port::OUTPUT, module, Circle::MODE_OUTPUT));
-
-}
-
-
-struct CircleScalingItem : MenuItem {
-	Circle *circle;
-	Circle::Scaling scalingMode;
-	void onAction(EventAction &e) override {
-		circle->voltScale = scalingMode;
-	}
-	void step() override {
-		rightText = (circle->voltScale == scalingMode) ? "✔" : "";
-	}
-};
-
-Menu *CircleWidget::createContextMenu() {
-	Menu *menu = ModuleWidget::createContextMenu();
-
-	MenuLabel *spacerLabel = new MenuLabel();
-	menu->addChild(spacerLabel);
-
-	Circle *circle = dynamic_cast<Circle*>(module);
-	assert(circle);
-
-	MenuLabel *modeLabel = new MenuLabel();
-	modeLabel->text = "Root Volt Scaling";
-	menu->addChild(modeLabel);
-
-	CircleScalingItem *fifthsItem = new CircleScalingItem();
-	fifthsItem->text = "Fifths";
-	fifthsItem->circle = circle;
-	fifthsItem->scalingMode = Circle::FIFTHS;
-	menu->addChild(fifthsItem);
-
-	CircleScalingItem *chromaticItem = new CircleScalingItem();
-	chromaticItem->text = "Chromatic (V/OCT)";
-	chromaticItem->circle = circle;
-	chromaticItem->scalingMode = Circle::CHROMATIC;
-	menu->addChild(chromaticItem);
-
-	return menu;
-}
-
-Model *modelCircle = Model::create<Circle, CircleWidget>( "Amalgamated Harmonics", "Circle", "Fifths and Fourths", SEQUENCER_TAG);
+Model *modelCircle = createModel<Circle, CircleWidget>("Circle");
 
 // ♯♭

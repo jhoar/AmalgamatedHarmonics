@@ -34,7 +34,13 @@ struct ScaleQuantizer2 : AHModule {
 		NUM_LIGHTS
 	};
 
-	ScaleQuantizer2() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
+	ScaleQuantizer2() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
+
+		params[KEY_PARAM].config(0.0f, 11.0f, 0.0f); // 12 notes
+		params[SCALE_PARAM].config(0.0f, 11.0f, 0.0f); // 12 notes
+		params[TRANS_PARAM].config(-11.0f, 11.0f, 0.0f); // 12 notes
+
+	}
 
 	void step() override;
 
@@ -43,10 +49,11 @@ struct ScaleQuantizer2 : AHModule {
 	int lastRoot = 0;
 	float lastTrans = -10000.0f;
 	
-	SchmittTrigger holdTrigger[8];
+	dsp::SchmittTrigger holdTrigger[8];
+	dsp::PulseGenerator triggerPulse[8];
+
 	float holdPitch[8] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0};
 	float lastPitch[8] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0};
-	PulseGenerator triggerPulse[8];
 	
 	int currScale = 0;
 	int currRoot = 0;
@@ -150,52 +157,45 @@ void ScaleQuantizer2::step() {
 }
 
 struct ScaleQuantizer2Widget : ModuleWidget {
-	ScaleQuantizer2Widget(ScaleQuantizer2 *module);
+
+	ScaleQuantizer2Widget(ScaleQuantizer2 *module) {
+		
+		setModule(module);
+		setPanel(SVG::load(asset::plugin(plugin, "res/ScaleQuantizerMkII.svg")));
+		UI ui;
+
+		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 5, true, false), module, ScaleQuantizer2::KEY_INPUT));
+		addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 1, 5, true, false), module, ScaleQuantizer2::KEY_PARAM)); // 12 notes
+		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 3, 5, true, false), module, ScaleQuantizer2::SCALE_INPUT));
+		addParam(createParam<AHKnobSnap>(ui.getPosition(UI::PORT, 4, 5, true, false), module, ScaleQuantizer2::SCALE_PARAM)); // 12 notes
+		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 6, 5, true, false), module, ScaleQuantizer2::TRANS_INPUT));
+		addParam(createParam<AHKnobSnap>(ui.getPosition(UI::PORT, 7, 5, true, false), module, ScaleQuantizer2::TRANS_PARAM)); // 12 notes
+
+		for (int i = 0; i < 8; i++) {
+			addInput(createInput<PJ301MPort>(Vec(6 + i * 29, 41), module, ScaleQuantizer2::IN_INPUT + i));
+			addParam(createParam<AHTrimpotSnap>(Vec(9 + i * 29.1, 101), module, ScaleQuantizer2::SHIFT_PARAM + i));
+			addOutput(createOutput<PJ301MPort>(Vec(6 + i * 29, 125), module, ScaleQuantizer2::OUT_OUTPUT + i));
+			addInput(createInput<PJ301MPort>(Vec(6 + i * 29, 71), module, ScaleQuantizer2::HOLD_INPUT + i));		
+			addOutput(createOutput<PJ301MPort>(Vec(6 + i * 29, 155), module, ScaleQuantizer2::TRIG_OUTPUT + i));
+		}
+
+		float xOffset = 18.0;
+		float xSpace = 21.0;
+		float xPos = 0.0;
+		float yPos = 0.0;
+		int scale = 0;
+
+		for (int i = 0; i < 12; i++) {
+			addChild(createLight<SmallLight<GreenLight>>(Vec(xOffset + i * 18.0f, 280.0f), module, ScaleQuantizer2::SCALE_LIGHT + i));
+
+			ui.calculateKeyboard(i, xSpace, xOffset, 230.0f, &xPos, &yPos, &scale);
+			addChild(createLight<SmallLight<GreenLight>>(Vec(xPos, yPos), module, ScaleQuantizer2::KEY_LIGHT + scale));
+
+		}
+
+	}
+
 };
 
-ScaleQuantizer2Widget::ScaleQuantizer2Widget(ScaleQuantizer2 *module) : ModuleWidget(module) {
-	
-	UI ui;
-	
-	box.size = Vec(300, 380);
-
-	{
-		SVGPanel *panel = new SVGPanel();
-		panel->box.size = box.size;
-		panel->setBackground(SVG::load(assetPlugin(plugin, "res/ScaleQuantizerMkII.svg")));
-		addChild(panel);
-	}
-
-	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 5, true, false), Port::INPUT, module, ScaleQuantizer2::KEY_INPUT));
-    addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 1, 5, true, false), module, ScaleQuantizer2::KEY_PARAM, 0.0f, 11.0f, 0.0f)); // 12 notes
-	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 3, 5, true, false), Port::INPUT, module, ScaleQuantizer2::SCALE_INPUT));
-    addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::PORT, 4, 5, true, false), module, ScaleQuantizer2::SCALE_PARAM, 0.0f, 11.0f, 0.0f)); // 12 notes
-	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 6, 5, true, false), Port::INPUT, module, ScaleQuantizer2::TRANS_INPUT));
-    addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::PORT, 7, 5, true, false), module, ScaleQuantizer2::TRANS_PARAM, -11.0f, 11.0f, 0.0f)); // 12 notes
-
-	for (int i = 0; i < 8; i++) {
-		addInput(Port::create<PJ301MPort>(Vec(6 + i * 29, 41), Port::INPUT, module, ScaleQuantizer2::IN_INPUT + i));
-		addParam(ParamWidget::create<AHTrimpotSnap>(Vec(9 + i * 29.1, 101), module, ScaleQuantizer2::SHIFT_PARAM + i, -3.0f, 3.0f, 0.0f));
-		addOutput(Port::create<PJ301MPort>(Vec(6 + i * 29, 125), Port::OUTPUT, module, ScaleQuantizer2::OUT_OUTPUT + i));
-		addInput(Port::create<PJ301MPort>(Vec(6 + i * 29, 71), Port::INPUT, module, ScaleQuantizer2::HOLD_INPUT + i));		
-		addOutput(Port::create<PJ301MPort>(Vec(6 + i * 29, 155), Port::OUTPUT, module, ScaleQuantizer2::TRIG_OUTPUT + i));
-	}
-
-	float xOffset = 18.0;
-	float xSpace = 21.0;
-	float xPos = 0.0;
-	float yPos = 0.0;
-	int scale = 0;
-
-	for (int i = 0; i < 12; i++) {
-		addChild(ModuleLightWidget::create<SmallLight<GreenLight>>(Vec(xOffset + i * 18.0f, 280.0f), module, ScaleQuantizer2::SCALE_LIGHT + i));
-
-		ui.calculateKeyboard(i, xSpace, xOffset, 230.0f, &xPos, &yPos, &scale);
-		addChild(ModuleLightWidget::create<SmallLight<GreenLight>>(Vec(xPos, yPos), module, ScaleQuantizer2::KEY_LIGHT + scale));
-
-	}
-
-}
-
-Model *modelScaleQuantizer2 = Model::create<ScaleQuantizer2, ScaleQuantizer2Widget>( "Amalgamated Harmonics", "ScaleQuantizer2", "Scale Quantizer MkII", QUANTIZER_TAG);
+Model *modelScaleQuantizer2 = createModel<ScaleQuantizer2, ScaleQuantizer2Widget>("ScaleQuantizer2");
 

@@ -1,7 +1,6 @@
 #include "AH.hpp"
 #include "Core.hpp"
 #include "UI.hpp"
-#include "dsp/digital.hpp"
 
 #include <iostream>
 
@@ -79,14 +78,19 @@ struct Galaxy : AHModule {
 		NUM_LIGHTS
 	};
 	
-	Galaxy() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
+	Galaxy() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
+		params[KEY_PARAM].config(0.0, 11.0, 0.0); 
+		params[MODE_PARAM].config(0.0, 6.0, 0.0); 
+		params[BAD_PARAM].config(0.0, 1.0, 0.0); 
+	}
+
 	void step() override;
 
 	void getFromRandom();
 	void getFromKey();
 	void getFromKeyMode();
 
-	json_t *toJson() override {
+	json_t *dataToJson() override {
 		json_t *rootJ = json_object();
 
 		// offset
@@ -104,7 +108,7 @@ struct Galaxy : AHModule {
 		return rootJ;
 	}
 	
-	void fromJson(json_t *rootJ) override {
+	void dataFromJson(json_t *rootJ) override {
 
 		// offset
 		json_t *offsetJ = json_object_get(rootJ, "offset");
@@ -137,12 +141,11 @@ struct Galaxy : AHModule {
 		{0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,2,2},
 	};
 
-
 	float outVolts[NUM_PITCHES];
 	
 	int poll = 50000;
 
-	SchmittTrigger moveTrigger;
+	dsp::SchmittTrigger moveTrigger;
 
 	int degree = 0;
 	int quality = 0;
@@ -221,7 +224,7 @@ void Galaxy::step() {
 			getFromRandom();
 		} else if (mode == 1) {
 
-			if (randomUniform() < params[BAD_PARAM].value) {
+			if (random::uniform() < params[BAD_PARAM].value) {
 				badLight = 2;
 				getFromRandom();
 			} else {
@@ -230,7 +233,7 @@ void Galaxy::step() {
 
 		} else if (mode == 2) {
 
-			float excess = params[BAD_PARAM].value - randomUniform();
+			float excess = params[BAD_PARAM].value - random::uniform();
 
 			if (excess < 0.0) {
 				getFromKeyMode();
@@ -433,30 +436,30 @@ struct GalaxyDisplay : TransparentWidget {
 	std::shared_ptr<Font> font;
 
 	GalaxyDisplay() {
-		font = Font::load(assetPlugin(plugin, "res/EurostileBold.ttf"));
+		font = Font::load(asset::plugin(plugin, "res/EurostileBold.ttf"));
 	}
 
-	void draw(NVGcontext *vg) override {
+	void draw(const DrawContext &ctx) override {
 	
-		nvgFontSize(vg, 12);
-		nvgFontFaceId(vg, font->handle);
-		nvgFillColor(vg, nvgRGBA(255, 0, 0, 0xff));
-		nvgTextLetterSpacing(vg, -1);
+		nvgFontSize(ctx.vg, 12);
+		nvgFontFaceId(ctx.vg, font->handle);
+		nvgFillColor(ctx.vg, nvgRGBA(255, 0, 0, 0xff));
+		nvgTextLetterSpacing(ctx.vg, -1);
 
 		char text[128];
 
 		snprintf(text, sizeof(text), "%s", module->chordName.c_str());
-		nvgText(vg, box.pos.x + 5, box.pos.y, text, NULL);
+		nvgText(ctx.vg, box.pos.x + 5, box.pos.y, text, NULL);
 
 		snprintf(text, sizeof(text), "%s", module->chordExtName.c_str());
-		nvgText(vg, box.pos.x + 5, box.pos.y + 11, text, NULL);
+		nvgText(ctx.vg, box.pos.x + 5, box.pos.y + 11, text, NULL);
 
-		nvgTextAlign(vg, NVG_ALIGN_RIGHT);
+		nvgTextAlign(ctx.vg, NVG_ALIGN_RIGHT);
 		snprintf(text, sizeof(text), "%s", module->rootName.c_str());
-		nvgText(vg, box.size.x - 5, box.pos.y, text, NULL);
+		nvgText(ctx.vg, box.size.x - 5, box.pos.y, text, NULL);
 
 		snprintf(text, sizeof(text), "%s", module->modeName.c_str());
-		nvgText(vg, box.size.x - 5, box.pos.y + 11, text, NULL);
+		nvgText(ctx.vg, box.size.x - 5, box.pos.y + 11, text, NULL);
 
 	}
 	
@@ -464,20 +467,11 @@ struct GalaxyDisplay : TransparentWidget {
 
 struct GalaxyWidget : ModuleWidget {
 
-	Menu *createContextMenu() override;
-
-	GalaxyWidget(Galaxy *module) : ModuleWidget(module) {
+	GalaxyWidget(Galaxy *module)  {
 	
+		setModule(module);
+		setPanel(SVG::load(asset::plugin(plugin, "res/Galaxy.svg")));
 		UI ui;
-		
-		box.size = Vec(240, 380);
-
-		{
-			SVGPanel *panel = new SVGPanel();
-			panel->box.size = box.size;
-			panel->setBackground(SVG::load(assetPlugin(plugin, "res/Galaxy.svg")));
-			addChild(panel);
-		}
 
 		{
 			GalaxyDisplay *display = new GalaxyDisplay();
@@ -502,155 +496,132 @@ struct GalaxyWidget : ModuleWidget {
 
 				int l = n + (q * Galaxy::N_NOTES);
 
-				addChild(ModuleLightWidget::create<SmallLight<GreenLight>>(Vec(xPos + 110.5, 149.5 - yPos), module, Galaxy::NOTE_LIGHT + l));
+				addChild(createLight<SmallLight<GreenLight>>(Vec(xPos + 110.5, 149.5 - yPos), module, Galaxy::NOTE_LIGHT + l));
 
 			}
 
 		}
 		
 		for (int i = 0; i < 6; i++) {
-			addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, i, 5, true, false), Port::OUTPUT, module, Galaxy::PITCH_OUTPUT + i));
+			addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, i, 5, true, false), module, Galaxy::PITCH_OUTPUT + i));
 		}	
 
-		addInput(Port::create<PJ301MPort>(Vec(102, 140), Port::INPUT, module, Galaxy::MOVE_INPUT));
+		addInput(createInput<PJ301MPort>(Vec(102, 140), module, Galaxy::MOVE_INPUT));
 
-		addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 0, 4, true, false), module, Galaxy::KEY_PARAM, 0.0, 11.0, 0.0)); 
-		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 1, 4, true, false), Port::INPUT, module, Galaxy::KEY_INPUT));
+		addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 0, 4, true, false), module, Galaxy::KEY_PARAM)); 
+		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 1, 4, true, false), module, Galaxy::KEY_INPUT));
 
-		addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 4, 4, true, false), module, Galaxy::MODE_PARAM, 0.0, 6.0, 0.0)); 
-		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 5, 4, true, false), Port::INPUT, module, Galaxy::MODE_INPUT));
+		addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 4, 4, true, false), module, Galaxy::MODE_PARAM)); 
+		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 5, 4, true, false), module, Galaxy::MODE_INPUT));
 
 		Vec trim = ui.getPosition(UI::TRIMPOT, 5, 3, true, false);
 		trim.x += 15;
 		trim.y += 25;
 
-		addParam(ParamWidget::create<AHTrimpotNoSnap>(trim, module, Galaxy::BAD_PARAM, 0.0, 1.0, 0.0)); 
+		addParam(createParam<AHTrimpotNoSnap>(trim, module, Galaxy::BAD_PARAM)); 
 
 		trim.x += 15;
 		trim.y += 20;
-		addChild(ModuleLightWidget::create<SmallLight<GreenRedLight>>(trim, module, Galaxy::BAD_LIGHT));
+		addChild(createLight<SmallLight<GreenRedLight>>(trim, module, Galaxy::BAD_LIGHT));
 
 	}
+
+	void appendContextMenu(Menu *menu) override {
+
+		Galaxy *galaxy = dynamic_cast<Galaxy*>(module);
+		assert(galaxy);
+
+		struct OffsetItem : MenuItem {
+			Galaxy *module;
+			int offset;
+			void onAction(const event::Action &e) override {
+				module->offset = offset;
+			}
+		};
+
+		struct ModeItem : MenuItem {
+			Galaxy *module;
+			int mode;
+			void onAction(const event::Action &e) override {
+				module->mode = mode;
+			}
+		};
+
+		struct InversionItem : MenuItem {
+			Galaxy *module;
+			int allowedInversions;
+			void onAction(const event::Action &e) override {
+				module->allowedInversions = allowedInversions;
+			}
+		};
+
+		struct OffsetMenu : MenuItem {
+			Galaxy *module;
+			Menu *createChildMenu() override {
+				Menu *menu = new Menu;
+				std::vector<int> offsets = {12, 24, 36, 0};
+				std::vector<std::string> names = {"Lower", "Repeat", "Upper", "Random"};
+				for (size_t i = 0; i < offsets.size(); i++) {
+					OffsetItem *item = createMenuItem<OffsetItem>(names[i], CHECKMARK(module->offset == offsets[i]));
+					item->module = module;
+					item->offset = offsets[i];
+					menu->addChild(item);
+				}
+				return menu;
+			}
+		};
+
+		struct ModeMenu : MenuItem {
+			Galaxy *module;
+			Menu *createChildMenu() override {
+				Menu *menu = new Menu;
+				std::vector<int> modes = {0, 1, 2};
+				std::vector<std::string> names = {"Random", "in Key", "in Mode"};
+				for (size_t i = 0; i < modes.size(); i++) {
+					ModeItem *item = createMenuItem<ModeItem>(names[i], CHECKMARK(module->mode == modes[i]));
+					item->module = module;
+					item->mode = modes[i];
+					menu->addChild(item);
+				}
+				return menu;
+			}
+		};
+
+		struct InversionMenu : MenuItem {
+			Galaxy *module;
+			Menu *createChildMenu() override {
+				Menu *menu = new Menu;
+				std::vector<int> inversions = {0, 1, 2};
+				std::vector<std::string> names = {"Root only", "Root and First", "Root, First and Second"};
+				for (size_t i = 0; i < inversions.size(); i++) {
+					InversionItem *item = createMenuItem<InversionItem>(names[i], CHECKMARK(module->allowedInversions == inversions[i]));
+					item->module = module;
+					item->allowedInversions = inversions[i];
+					menu->addChild(item);
+				}
+				return menu;
+			}
+		};
+
+		menu->addChild(construct<MenuLabel>());
+		OffsetMenu *offsetItem = createMenuItem<OffsetMenu>("Repeat Notes");
+		offsetItem->module = galaxy;
+		menu->addChild(offsetItem);
+
+		menu->addChild(construct<MenuLabel>());
+		ModeMenu *modeItem = createMenuItem<ModeMenu>("Chord Selection");
+		modeItem->module = galaxy;
+		menu->addChild(modeItem);
+
+		menu->addChild(construct<MenuLabel>());
+		InversionMenu *invItem = createMenuItem<InversionMenu>("Allowed Chord Inversions");
+		invItem->module = galaxy;
+		menu->addChild(invItem);
+
+     }
 
 };
 
-struct GalOffsetItem : MenuItem {
-	Galaxy *gal;
-	int offset;
-	void onAction(EventAction &e) override {
-		gal->offset = offset;
-	}
-	void step() override {
-		rightText = (gal->offset == offset) ? "✔" : "";
-	}
-};
-
-struct GalModeItem : MenuItem {
-	Galaxy *gal;
-	int mode;
-	void onAction(EventAction &e) override {
-		gal->mode = mode;
-	}
-	void step() override {
-		rightText = (gal->mode == mode) ? "✔" : "";
-	}
-};
-
-struct GalInversionsItem : MenuItem {
-	Galaxy *gal;
-	int allowedInversions;
-	void onAction(EventAction &e) override {
-		gal->allowedInversions = allowedInversions;
-	}
-	void step() override {
-		rightText = (gal->allowedInversions == allowedInversions) ? "✔" : "";
-	}
-};
-
-Menu *GalaxyWidget::createContextMenu() {
-	Menu *menu = ModuleWidget::createContextMenu();
-
-	MenuLabel *spacerLabel = new MenuLabel();
-	menu->addChild(spacerLabel);
-
-	Galaxy *gal = dynamic_cast<Galaxy*>(module);
-	assert(gal);
-
-	MenuLabel *offsetLabel = new MenuLabel();
-	offsetLabel->text = "Repeat Notes";
-	menu->addChild(offsetLabel);
-
-	GalOffsetItem *offsetLowerItem = new GalOffsetItem();
-	offsetLowerItem->text = "Lower";
-	offsetLowerItem->gal = gal;
-	offsetLowerItem->offset = 12;
-	menu->addChild(offsetLowerItem);
-
-	GalOffsetItem *offsetRepeatItem = new GalOffsetItem();
-	offsetRepeatItem->text = "Repeat";
-	offsetRepeatItem->gal = gal;
-	offsetRepeatItem->offset = 24;
-	menu->addChild(offsetRepeatItem);
-
-	GalOffsetItem *offsetUpperItem = new GalOffsetItem();
-	offsetUpperItem->text = "Upper";
-	offsetUpperItem->gal = gal;
-	offsetUpperItem->offset = 36;
-	menu->addChild(offsetUpperItem);
-
-	GalOffsetItem *offsetRandomItem = new GalOffsetItem();
-	offsetRandomItem->text = "Random";
-	offsetRandomItem->gal = gal;
-	offsetRandomItem->offset = 0;
-	menu->addChild(offsetRandomItem);
-
-	MenuLabel *modeLabel = new MenuLabel();
-	modeLabel->text = "Chord Selection";
-	menu->addChild(modeLabel);
-
-	GalModeItem *modeRandomItem = new GalModeItem();
-	modeRandomItem->text = "Random";
-	modeRandomItem->gal = gal;
-	modeRandomItem->mode = 0;
-	menu->addChild(modeRandomItem);
-
-	GalModeItem *modeKeyItem = new GalModeItem();
-	modeKeyItem->text = "in Key";
-	modeKeyItem->gal = gal;
-	modeKeyItem->mode = 1;
-	menu->addChild(modeKeyItem);
-
-	GalModeItem *modeModeItem = new GalModeItem();
-	modeModeItem->text = "in Mode";
-	modeModeItem->gal = gal;
-	modeModeItem->mode = 2;
-	menu->addChild(modeModeItem);
-
-	MenuLabel *invLabel = new MenuLabel();
-	invLabel->text = "Allowed Chord Inversions";
-	menu->addChild(invLabel);
-
-	GalInversionsItem *invRootItem = new GalInversionsItem();
-	invRootItem->text = "Root only";
-	invRootItem->gal = gal;
-	invRootItem->allowedInversions = 0;
-	menu->addChild(invRootItem);
-
-	GalInversionsItem *invFirstItem = new GalInversionsItem();
-	invFirstItem->text = "Root and First";
-	invFirstItem->gal = gal;
-	invFirstItem->allowedInversions = 1;
-	menu->addChild(invFirstItem);
-
-	GalInversionsItem *invSecondItem = new GalInversionsItem();
-	invSecondItem->text = "Root, First and Second";
-	invSecondItem->gal = gal;
-	invSecondItem->allowedInversions = 2;
-	menu->addChild(invSecondItem);
-
-	return menu;
-}
-
-Model *modelGalaxy = Model::create<Galaxy, GalaxyWidget>( "Amalgamated Harmonics", "Galaxy", "Galaxy", SEQUENCER_TAG);
+Model *modelGalaxy = createModel<Galaxy, GalaxyWidget>("Galaxy");
 
 // ♯♭

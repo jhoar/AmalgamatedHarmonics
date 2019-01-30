@@ -34,12 +34,22 @@ struct Imperfect2 : AHModule {
 	};
 
 	Imperfect2() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
-		reset();
+
+		for (int i = 0; i < 4; i++) {
+			params[DELAY_PARAM + i].config(1.0f, 2.0f, 1.0f);
+			params[DELAYSPREAD_PARAM + i].config(1.0f, 2.0f, 1.0f);
+			params[LENGTH_PARAM + i].config(1.001f, 2.0f, 1.001f); // Always produce gate
+			params[LENGTHSPREAD_PARAM + i].config(1.0, 2.0, 1.0f); 
+			params[DIVISION_PARAM + i].config(1, 64, 1);
+		}
+
+		onReset();
+
 	}
 	
 	void step() override;
 	
-	void reset() override {
+	void onReset() override {
 		for (int i = 0; i < 4; i++) {
 			delayState[i] = false;
 			gateState[i] = false;
@@ -66,15 +76,13 @@ struct Imperfect2 : AHModule {
 	
 	AHPulseGenerator delayPhase[4];
 	AHPulseGenerator gatePhase[4];
-	SchmittTrigger inTrigger[4];
+	dsp::SchmittTrigger inTrigger[4];
 
 	int counter[4];
 	
 	BpmCalculator bpmCalc[4];
 		
 };
-
-
 
 void Imperfect2::step() {
 	
@@ -241,19 +249,19 @@ struct Imperfect2Box : TransparentWidget {
 	int *actGate;
 	
 	Imperfect2Box() {
-		font = Font::load(assetPlugin(plugin, "res/DSEG14ClassicMini-BoldItalic.ttf"));
+		font = Font::load(asset::plugin(plugin, "res/DSEG14ClassicMini-BoldItalic.ttf"));
 	}
 
-	void draw(NVGcontext *vg) override {
+	void draw(const DrawContext &ctx) override {
 	
 		Vec pos = Vec(0, 15);
 
-		nvgFontSize(vg, 10);
-		nvgFontFaceId(vg, font->handle);
-		nvgTextLetterSpacing(vg, -1);
-		nvgTextAlign(vg, NVGalign::NVG_ALIGN_CENTER);
+		nvgFontSize(ctx.vg, 10);
+		nvgFontFaceId(ctx.vg, font->handle);
+		nvgTextLetterSpacing(ctx.vg, -1);
+		nvgTextAlign(ctx.vg, NVGalign::NVG_ALIGN_CENTER);
 
-		nvgFillColor(vg, nvgRGBA(255, 0, 0, 0xff));
+		nvgFillColor(ctx.vg, nvgRGBA(255, 0, 0, 0xff));
 	
 		char text[10];
 		if (*bpm == 0.0f) {
@@ -261,33 +269,33 @@ struct Imperfect2Box : TransparentWidget {
 		} else {
 			snprintf(text, sizeof(text), "%.1f", *bpm);
 		}
-		nvgText(vg, pos.x + 20, pos.y, text, NULL);
+		nvgText(ctx.vg, pos.x + 20, pos.y, text, NULL);
 		
 		snprintf(text, sizeof(text), "%d", *dly);
-		nvgText(vg, pos.x + 74, pos.y, text, NULL);
+		nvgText(ctx.vg, pos.x + 74, pos.y, text, NULL);
 
 		if (*dlySpr != 0) {
 			snprintf(text, sizeof(text), "%d", *dlySpr);
-			nvgText(vg, pos.x + 144, pos.y, text, NULL);
+			nvgText(ctx.vg, pos.x + 144, pos.y, text, NULL);
 		}
 
 		snprintf(text, sizeof(text), "%d", *gate);
-		nvgText(vg, pos.x + 214, pos.y, text, NULL);
+		nvgText(ctx.vg, pos.x + 214, pos.y, text, NULL);
 
 		if (*gateSpr != 0) {
 			snprintf(text, sizeof(text), "%d", *gateSpr);
-			nvgText(vg, pos.x + 284, pos.y, text, NULL);
+			nvgText(ctx.vg, pos.x + 284, pos.y, text, NULL);
 		}
 
 		snprintf(text, sizeof(text), "%d", *division);
-		nvgText(vg, pos.x + 334, pos.y, text, NULL);
+		nvgText(ctx.vg, pos.x + 334, pos.y, text, NULL);
 		
-		nvgFillColor(vg, nvgRGBA(0, 0, 0, 0xff));
+		nvgFillColor(ctx.vg, nvgRGBA(0, 0, 0, 0xff));
 		snprintf(text, sizeof(text), "%d", *actDly);
-		nvgText(vg, pos.x + 372, pos.y, text, NULL);
+		nvgText(ctx.vg, pos.x + 372, pos.y, text, NULL);
 
 		snprintf(text, sizeof(text), "%d", *actGate);
-		nvgText(vg, pos.x + 408, pos.y, text, NULL);
+		nvgText(ctx.vg, pos.x + 408, pos.y, text, NULL);
 
 		
 	}
@@ -296,108 +304,97 @@ struct Imperfect2Box : TransparentWidget {
 
 
 struct Imperfect2Widget : ModuleWidget {
-	Imperfect2Widget(Imperfect2 *module);
+
+	Imperfect2Widget(Imperfect2 *module) {
+	
+		setModule(module);
+		setPanel(SVG::load(asset::plugin(plugin, "res/Imperfect2.svg")));
+		UI ui;
+
+		{
+			Imperfect2Box *display = new Imperfect2Box();
+			display->module = module;
+			display->box.pos = Vec(10, 95);
+			display->box.size = Vec(200, 20);
+			display->bpm = &(module->bpm[0]);
+			display->dly = &(module->delayTimeMs[0]);
+			display->dlySpr = &(module->delaySprMs[0]);
+			display->gate = &(module->gateTimeMs[0]);
+			display->gateSpr = &(module->gateSprMs[0]);
+			display->division = &(module->division[0]);
+			display->actDly = &(module->actDelayMs[0]);
+			display->actGate = &(module->actGateMs[0]);
+			
+			addChild(display);
+		}	
+
+		{
+			Imperfect2Box *display = new Imperfect2Box();
+			display->module = module;
+			display->box.pos = Vec(10, 165);
+			display->box.size = Vec(200, 20);
+			display->bpm = &(module->bpm[1]);
+			display->dly = &(module->delayTimeMs[1]);
+			display->dlySpr = &(module->delaySprMs[1]);
+			display->gate = &(module->gateTimeMs[1]);
+			display->gateSpr = &(module->gateSprMs[1]);
+			display->division = &(module->division[1]);
+			display->actDly = &(module->actDelayMs[1]);
+			display->actGate = &(module->actGateMs[1]);
+				
+			addChild(display);
+		}	
+
+		{
+			Imperfect2Box *display = new Imperfect2Box();
+			display->module = module;
+			display->box.pos = Vec(10, 235);
+			display->box.size = Vec(200, 20);
+			display->bpm = &(module->bpm[2]);
+			display->dly = &(module->delayTimeMs[2]);
+			display->dlySpr = &(module->delaySprMs[2]);
+			display->gate = &(module->gateTimeMs[2]);
+			display->gateSpr = &(module->gateSprMs[2]);
+			display->division = &(module->division[2]);
+			display->actDly = &(module->actDelayMs[2]);
+			display->actGate = &(module->actGateMs[2]);
+				
+			addChild(display);
+		}	
+
+		{
+			Imperfect2Box *display = new Imperfect2Box();
+			display->module = module;
+			display->box.pos = Vec(10, 305);
+			display->box.size = Vec(200, 20);
+			display->bpm = &(module->bpm[3]);
+			display->dly = &(module->delayTimeMs[3]);
+			display->dlySpr = &(module->delaySprMs[3]);
+			display->gate = &(module->gateTimeMs[3]);
+			display->gateSpr = &(module->gateSprMs[3]);
+			display->division = &(module->division[3]);
+			display->actDly = &(module->actDelayMs[3]);
+			display->actGate = &(module->actGateMs[3]);
+				
+			addChild(display);
+		}	
+
+		for (int i = 0; i < 4; i++) {
+			addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, i * 2 + 1, true, true), module, Imperfect2::TRIG_INPUT + i));
+			addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 1, i * 2 + 1, true, true), module, Imperfect2::DELAY_INPUT + i));
+			addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 2, i * 2 + 1, true, true), module, Imperfect2::DELAY_PARAM + i));
+			addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 3, i * 2 + 1, true, true), module, Imperfect2::DELAYSPREAD_INPUT + i));
+			addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 4, i * 2 + 1, true, true), module, Imperfect2::DELAYSPREAD_PARAM + i));
+			addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 5, i * 2 + 1, true, true), module, Imperfect2::LENGTH_INPUT + i));
+			addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 6, i * 2 + 1, true, true), module, Imperfect2::LENGTH_PARAM + i)); 
+			addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 7, i * 2 + 1, true, true), module, Imperfect2::LENGTHSPREAD_INPUT + i));
+			addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 8, i * 2 + 1, true, true), module, Imperfect2::LENGTHSPREAD_PARAM + i)); 
+			addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 9, i * 2 + 1, true, true), module, Imperfect2::DIVISION_PARAM + i));
+			addChild(createLight<MediumLight<GreenRedLight>>(ui.getPosition(UI::LIGHT, 10, i * 2 + 1, true, true), module, Imperfect2::OUT_LIGHT + i * 2));
+			addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 11, i * 2+ 1, true, true), module, Imperfect2::OUT_OUTPUT + i));
+		}
+	}	
 };
 
-Imperfect2Widget::Imperfect2Widget(Imperfect2 *module) : ModuleWidget(module) {
-	
-	UI ui;
-	
-	box.size = Vec(450, 380);
-
-	{
-		SVGPanel *panel = new SVGPanel();
-		panel->box.size = box.size;
-		panel->setBackground(SVG::load(assetPlugin(plugin, "res/Imperfect2.svg")));
-		addChild(panel);
-	}
-
-	{
-		Imperfect2Box *display = new Imperfect2Box();
-		display->module = module;
-		display->box.pos = Vec(10, 95);
-		display->box.size = Vec(200, 20);
-		display->bpm = &(module->bpm[0]);
-		display->dly = &(module->delayTimeMs[0]);
-		display->dlySpr = &(module->delaySprMs[0]);
-		display->gate = &(module->gateTimeMs[0]);
-		display->gateSpr = &(module->gateSprMs[0]);
-		display->division = &(module->division[0]);
-		display->actDly = &(module->actDelayMs[0]);
-		display->actGate = &(module->actGateMs[0]);
-		
-		addChild(display);
-	}	
-
-	{
-		Imperfect2Box *display = new Imperfect2Box();
-		display->module = module;
-		display->box.pos = Vec(10, 165);
-		display->box.size = Vec(200, 20);
-		display->bpm = &(module->bpm[1]);
-		display->dly = &(module->delayTimeMs[1]);
-		display->dlySpr = &(module->delaySprMs[1]);
-		display->gate = &(module->gateTimeMs[1]);
-		display->gateSpr = &(module->gateSprMs[1]);
-		display->division = &(module->division[1]);
-		display->actDly = &(module->actDelayMs[1]);
-		display->actGate = &(module->actGateMs[1]);
-			
-		addChild(display);
-	}	
-
-	{
-		Imperfect2Box *display = new Imperfect2Box();
-		display->module = module;
-		display->box.pos = Vec(10, 235);
-		display->box.size = Vec(200, 20);
-		display->bpm = &(module->bpm[2]);
-		display->dly = &(module->delayTimeMs[2]);
-		display->dlySpr = &(module->delaySprMs[2]);
-		display->gate = &(module->gateTimeMs[2]);
-		display->gateSpr = &(module->gateSprMs[2]);
-		display->division = &(module->division[2]);
-		display->actDly = &(module->actDelayMs[2]);
-		display->actGate = &(module->actGateMs[2]);
-			
-		addChild(display);
-	}	
-
-	{
-		Imperfect2Box *display = new Imperfect2Box();
-		display->module = module;
-		display->box.pos = Vec(10, 305);
-		display->box.size = Vec(200, 20);
-		display->bpm = &(module->bpm[3]);
-		display->dly = &(module->delayTimeMs[3]);
-		display->dlySpr = &(module->delaySprMs[3]);
-		display->gate = &(module->gateTimeMs[3]);
-		display->gateSpr = &(module->gateSprMs[3]);
-		display->division = &(module->division[3]);
-		display->actDly = &(module->actDelayMs[3]);
-		display->actGate = &(module->actGateMs[3]);
-			
-		addChild(display);
-	}	
-
-
-
-	for (int i = 0; i < 4; i++) {
-		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, i * 2 + 1, true, true), Port::INPUT, module, Imperfect2::TRIG_INPUT + i));
-		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 1, i * 2 + 1, true, true), Port::INPUT, module, Imperfect2::DELAY_INPUT + i));
-		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 2, i * 2 + 1, true, true), module, Imperfect2::DELAY_PARAM + i, 1.0f, 2.0f, 1.0f));
-		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 3, i * 2 + 1, true, true), Port::INPUT, module, Imperfect2::DELAYSPREAD_INPUT + i));
-		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 4, i * 2 + 1, true, true), module, Imperfect2::DELAYSPREAD_PARAM + i, 1.0f, 2.0f, 1.0f));
-		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 5, i * 2 + 1, true, true), Port::INPUT, module, Imperfect2::LENGTH_INPUT + i));
-		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 6, i * 2 + 1, true, true), module, Imperfect2::LENGTH_PARAM + i, 1.001f, 2.0f, 1.001f)); // Always produce gate
-		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 7, i * 2 + 1, true, true), Port::INPUT, module, Imperfect2::LENGTHSPREAD_INPUT + i));
-		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 8, i * 2 + 1, true, true), module, Imperfect2::LENGTHSPREAD_PARAM + i, 1.0, 2.0, 1.0f)); 
-		addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 9, i * 2 + 1, true, true), module, Imperfect2::DIVISION_PARAM + i, 1, 64, 1));
-		addChild(ModuleLightWidget::create<MediumLight<GreenRedLight>>(ui.getPosition(UI::LIGHT, 10, i * 2 + 1, true, true), module, Imperfect2::OUT_LIGHT + i * 2));
-		addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 11, i * 2+ 1, true, true), Port::OUTPUT, module, Imperfect2::OUT_OUTPUT + i));
-	}
-	
-}
-
-Model *modelImperfect2 = Model::create<Imperfect2, Imperfect2Widget>( "Amalgamated Harmonics", "Imperfect2", "Imperfect MkII", CLOCK_MODULATOR_TAG);
+Model *modelImperfect2 = createModel<Imperfect2, Imperfect2Widget>("Imperfect2");
 

@@ -1,5 +1,4 @@
-#include "util/common.hpp"
-#include "dsp/digital.hpp"
+#include "common.hpp"
 
 #include "dsp/noise.hpp"
 
@@ -30,14 +29,17 @@ struct SLN : AHModule {
 	};
 
 	SLN() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
-
+		params[SPEED_PARAM].config(0.0, 1.0, 0.0);
+		params[SLOPE_PARAM].config(0.0, 1.0, 0.0);
+		params[NOISE_PARAM].config(0.0, 2.0, 0.0);
+		params[ATTN_PARAM].config(0.0, 1.0, 1.0);
 	}
 	
 	void step() override;
 
 	Core core;
 
-	SchmittTrigger inTrigger;
+	dsp::SchmittTrigger inTrigger;
 	bogaudio::dsp::WhiteNoiseGenerator white;
 	bogaudio::dsp::PinkNoiseGenerator pink;
 	bogaudio::dsp::RedNoiseGenerator brown;
@@ -47,13 +49,11 @@ struct SLN : AHModule {
 	
 	// minimum and maximum slopes in volts per second
 	const float slewMin = 0.1;
-	const float slewMax = 10000.0;
-	
+	const float slewMax = 10000.0;	
 	const float slewRatio = slewMin / slewMax;
 	
 	// Amount of extra slew per voltage difference
 	const float shapeScale = 1.0/10.0;
-	
 	
 };
 
@@ -108,59 +108,57 @@ void SLN::step() {
 }
 
 struct SLNWidget : ModuleWidget {
-	SLNWidget(SLN *module);
-};
 
-SLNWidget::SLNWidget(SLN *module) : ModuleWidget(module) {
+	SLNWidget(SLN *module) {
 	
-	UI ui;
-	
-	box.size = Vec(45, 380);
+		setModule(module);
 
-	{
-		SVGPanel *panel = new SVGPanel();
-		panel->box.size = box.size;
-		panel->setBackground(SVG::load(assetPlugin(plugin, "res/SLN.svg")));
-		addChild(panel);
+		UI ui;
+
+		box.size = Vec(45, 380);
+
+		{
+			SVGPanel *panel = new SVGPanel();
+			panel->box.size = box.size;
+			panel->setBackground(SVG::load(asset::plugin(plugin, "res/SLN.svg")));
+			addChild(panel);
+		}
+
+		float panelwidth = 45.0;
+		float portwidth = 25.0;
+		float portX = (panelwidth - portwidth) / 2.0;
+
+		Vec p1 = ui.getPosition(UI::PORT, 0, 0, false, false);
+		p1.x = portX;
+		addInput(createInput<PJ301MPort>(p1, module, SLN::TRIG_INPUT));
+			
+		Vec k1 = ui.getPosition(UI::PORT, 0, 2, false, true);
+		k1.x = 20;
+		addParam(createParam<AHKnobNoSnap>(k1, module, SLN::SPEED_PARAM));
+
+		Vec k2 = ui.getPosition(UI::PORT, 0, 3, false, true);
+		k2.x = 3;
+		addParam(createParam<AHKnobNoSnap>(k2, module, SLN::SLOPE_PARAM));
+
+		Vec k3 = ui.getPosition(UI::PORT, 0, 4, false, true);
+		k3.x = 20;
+		addParam(createParam<AHKnobSnap>(k3, module, SLN::NOISE_PARAM));
+
+		Vec k4 = ui.getPosition(UI::PORT, 0, 5, false, true);
+		k4.x = 3;
+		addParam(createParam<AHKnobNoSnap>(k4, module, SLN::ATTN_PARAM)); 	
+
+		Vec p2 = ui.getPosition(UI::PORT, 0, 4, false, false);
+		p2.x = portX;	
+		addOutput(createOutput<PJ301MPort>(p2, module, SLN::OUT_OUTPUT));
+
+		Vec p3 = ui.getPosition(UI::PORT, 0, 5, false, false);
+		p3.x = portX;		
+		addOutput(createOutput<PJ301MPort>(p3, module, SLN::NOISE_OUTPUT));
+
 	}
 
-	float panelwidth = 45.0;
-	float portwidth = 25.0;
-	float portX = (panelwidth - portwidth) / 2.0;
+};
 
-	Vec p1 = ui.getPosition(UI::PORT, 0, 0, false, false);
-	p1.x = portX;
-	addInput(Port::create<PJ301MPort>(p1, Port::INPUT, module, SLN::TRIG_INPUT));
-		
-	Vec k1 = ui.getPosition(UI::PORT, 0, 2, false, true);
-	k1.x = 20;
-	AHKnobNoSnap *speedW = ParamWidget::create<AHKnobNoSnap>(k1, module, SLN::SPEED_PARAM, 0.0, 1.0, 0.0);
-	addParam(speedW);
-
-	Vec k2 = ui.getPosition(UI::PORT, 0, 3, false, true);
-	k2.x = 3;
-	AHKnobNoSnap *slopeW = ParamWidget::create<AHKnobNoSnap>(k2, module, SLN::SLOPE_PARAM, 0.0, 1.0, 0.0);
-	addParam(slopeW);
-
-	Vec k3 = ui.getPosition(UI::PORT, 0, 4, false, true);
-	k3.x = 20;
-	AHKnobSnap *noiseW = ParamWidget::create<AHKnobSnap>(k3, module, SLN::NOISE_PARAM, 0.0, 2.0, 0.0);
-	addParam(noiseW);
-
-	Vec k4 = ui.getPosition(UI::PORT, 0, 5, false, true);
-	k4.x = 3;
-	AHKnobNoSnap *attnW = ParamWidget::create<AHKnobNoSnap>(k4, module, SLN::ATTN_PARAM, 0.0, 1.0, 1.0);
-	addParam(attnW); 	
-
-	Vec p2 = ui.getPosition(UI::PORT, 0, 4, false, false);
-	p2.x = portX;	
-	addOutput(Port::create<PJ301MPort>(p2, Port::OUTPUT, module, SLN::OUT_OUTPUT));
-
-	Vec p3 = ui.getPosition(UI::PORT, 0, 5, false, false);
-	p3.x = portX;		
-	addOutput(Port::create<PJ301MPort>(p3, Port::OUTPUT, module, SLN::NOISE_OUTPUT));
-
-}
-
-Model *modelSLN = Model::create<SLN, SLNWidget>( "Amalgamated Harmonics", "SLN", "SLN", SAMPLE_AND_HOLD_TAG, NOISE_TAG);
+Model *modelSLN = createModel<SLN, SLNWidget>("SLN");
 

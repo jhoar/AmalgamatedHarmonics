@@ -2,8 +2,6 @@
 
 #include <iostream>
 
-#include "dsp/digital.hpp"
-
 #include "AH.hpp"
 
 const double PI = 3.14159265358979323846264338327950288;
@@ -38,7 +36,7 @@ struct BpmCalculator {
 	float timer = 0.0f;
 	int misses = 0;
 	float seconds = 0;
-	SchmittTrigger gateTrigger;
+	rack::dsp::SchmittTrigger gateTrigger;
 	
 	inline bool checkBeat(int mult) {
 		return ( ((timer - mult * seconds) * (timer - mult * seconds) / (seconds * seconds) < 0.2f ) && misses < 4);
@@ -337,29 +335,29 @@ struct Core {
 	}
 	
 	float getVoltsFromScale(int scale) {
-		return rescale(scale, 0.0f, NUM_SCALES - 1, 0.0f, 10.0f);
+		return rack::math::rescale(scale, 0.0f, NUM_SCALES - 1, 0.0f, 10.0f);
 	}
 	
 	int getScaleFromVolts(float volts) {
-		return round(rescale(fabs(volts), 0.0f, 10.0f, 0.0f, NUM_SCALES - 1));
+		return round(rack::math::rescale(fabs(volts), 0.0f, 10.0f, 0.0f, NUM_SCALES - 1));
 	}
 	
 	int getModeFromVolts(float volts) {
-		int mode = round(rescale(fabs(volts), 0.0f, 10.0f, 0.0f, NUM_SCALES - 1));
-		return clamp(mode - 1, 0, 6);
+		int mode = round(rack::math::rescale(fabs(volts), 0.0f, 10.0f, 0.0f, NUM_SCALES - 1));
+		return rack::math::clamp(mode - 1, 0, 6);
 	}
 	
 	float getVoltsFromMode(int mode) {
 		// Mode 0 = IONIAN, MODE 6 = LOCRIAN -> Scale 1 - 7
-		return rescale(mode + 1, 0.0f, NUM_SCALES - 1, 0.0f, 10.0f);
+		return rack::math::rescale(mode + 1, 0.0f, NUM_SCALES - 1, 0.0f, 10.0f);
 	}
 	
 	float getVoltsFromKey(int key) {
-		return rescale(key, 0.0f, NUM_NOTES - 1, 0.0f, 10.0f);
+		return rack::math::rescale(key, 0.0f, NUM_NOTES - 1, 0.0f, 10.0f);
 	}
 	
 	int getKeyFromVolts(float volts) {
-		return round(rescale(fabs(volts), 0.0f, 10.0f, 0.0f, NUM_NOTES - 1));
+		return round(rack::math::rescale(fabs(volts), 0.0f, 10.0f, 0.0f, NUM_NOTES - 1));
 	}
 	
 	void getRootFromMode(int inMode, int inRoot, int inTonic, int *currRoot, int *quality);

@@ -272,18 +272,24 @@ struct Arp32 : AHModule {
 	};
 	
 	Arp32() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
-		reset();
+		params[PATT_PARAM].config(0.0, 4.0, 0.0); 
+		params[TRANS_PARAM].config(-24, 24, 1); 
+		params[LENGTH_PARAM].config(1.0, 16.0, 1.0); 
+		params[OFFSET_PARAM].config(0.0, 10.0, 0.0); 
+		params[SCALE_PARAM].config(0, 2, 0); 
+
+		onReset();
 		id = rand();
         debugFlag = false;
 	}
 
 	void step() override;
 	
-	void reset() override {
+	void onReset() override {
 		isRunning = false;
 	}
 	
-	json_t *toJson() override {
+	json_t *dataToJson() override {
 		json_t *rootJ = json_object();
 
 		// gateMode
@@ -293,7 +299,7 @@ struct Arp32 : AHModule {
 		return rootJ;
 	}
 	
-	void fromJson(json_t *rootJ) override {
+	void dataFromJson(json_t *rootJ) override {
 		// gateMode
 		json_t *gateModeJ = json_object_get(rootJ, "gateMode");
 		
@@ -309,10 +315,10 @@ struct Arp32 : AHModule {
 	};
 	GateMode gateMode = TRIGGER;
 	
-	SchmittTrigger clockTrigger; // for clock
+	dsp::SchmittTrigger clockTrigger; // for clock
 	
-	PulseGenerator gatePulse;
-	PulseGenerator eocPulse;
+	dsp::PulseGenerator gatePulse;
+	dsp::PulseGenerator eocPulse;
 
 	float outVolts = 0;
 	float rootPitch = 0.0;
@@ -524,28 +530,28 @@ struct Arp32Display : TransparentWidget {
 	std::shared_ptr<Font> font;
 
 	Arp32Display() {
-		font = Font::load(assetPlugin(plugin, "res/EurostileBold.ttf"));
+		font = Font::load(asset::plugin(plugin, "res/EurostileBold.ttf"));
 	}
 
-	void draw(NVGcontext *vg) override {
+	void draw(const DrawContext &ctx) override {
 	
 		Vec pos = Vec(0, 15);
 
-		nvgFontSize(vg, 14);
-		nvgFontFaceId(vg, font->handle);
-		nvgTextLetterSpacing(vg, -1);
+		nvgFontSize(ctx.vg, 14);
+		nvgFontFaceId(ctx.vg, font->handle);
+		nvgTextLetterSpacing(ctx.vg, -1);
 
-		nvgFillColor(vg, nvgRGBA(255, 0, 0, 0xff));
+		nvgFillColor(ctx.vg, nvgRGBA(255, 0, 0, 0xff));
 	
 		char text[128];
 		if (module->inputLen == 0) {
 			snprintf(text, sizeof(text), "Error: inputLen == 0");
-			nvgText(vg, pos.x + 10, pos.y, text, NULL);			
+			nvgText(ctx.vg, pos.x + 10, pos.y, text, NULL);			
 		} else {
 			snprintf(text, sizeof(text), "%s", module->uiPatt->getName().c_str()); 
-			nvgText(vg, pos.x + 10, pos.y, text, NULL);			
+			nvgText(ctx.vg, pos.x + 10, pos.y, text, NULL);			
 			snprintf(text, sizeof(text), "L : %d", module->uiPatt->length); 
-			nvgText(vg, pos.x + 10, pos.y + 15, text, NULL);
+			nvgText(ctx.vg, pos.x + 10, pos.y + 15, text, NULL);
 			switch(module->uiPatt->scale) {
 				case 0: 
 					snprintf(text, sizeof(text), "S : %dst", module->uiPatt->trans); 
@@ -558,7 +564,7 @@ struct Arp32Display : TransparentWidget {
 					break;
 				default: snprintf(text, sizeof(text), "Error..."); break;
 			}
-			nvgText(vg, pos.x + 60, pos.y + 15, text, NULL);
+			nvgText(ctx.vg, pos.x + 60, pos.y + 15, text, NULL);
 
 		}
 	}
@@ -566,94 +572,77 @@ struct Arp32Display : TransparentWidget {
 };
 
 struct Arp32Widget : ModuleWidget {
-	Arp32Widget(Arp32 *module);
-	Menu *createContextMenu() override;
+
+	Arp32Widget(Arp32 *module) {
+		
+		setModule(module);
+		setPanel(SVG::load(asset::plugin(plugin, "res/Arp31p.svg")));
+		UI ui;
+
+		{
+			Arp32Display *display = new Arp32Display();
+			display->module = module;
+			display->box.pos = Vec(10, 90);
+			display->box.size = Vec(100, 140);
+			addChild(display);
+		}
+
+		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 0, true, false), module, Arp32::PITCH_INPUT));
+		
+		addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 0, 2, true, false), module, Arp32::PATT_PARAM)); 
+		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 3, true, false), module, Arp32::PATT_INPUT));
+		addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 1, 2, true, false), module, Arp32::TRANS_PARAM)); 
+		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 1, 3, true, false), module, Arp32::TRANS_INPUT)); 
+		addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 2, 2, true, false), module, Arp32::LENGTH_PARAM)); 
+		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 2, 3, true, false), module, Arp32::LENGTH_INPUT));
+
+		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 4, true, false), module, Arp32::CLOCK_INPUT));
+		addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 1, 4, true, false), module, Arp32::OFFSET_PARAM)); 
+		addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 2, 4, true, false), module, Arp32::SCALE_PARAM)); 
+
+		addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 5, true, false), module, Arp32::OUT_OUTPUT));
+		addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 1, 5, true, false), module, Arp32::GATE_OUTPUT));
+		addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 2, 5, true, false), module, Arp32::EOC_OUTPUT));
+
+	}
+
+	void appendContextMenu(Menu *menu) override {
+
+		Arp32 *arp = dynamic_cast<Arp32*>(module);
+		assert(arp);
+
+		struct GateModeItem : MenuItem {
+			Arp32 *module;
+			Arp32::GateMode gateMode;
+			void onAction(const event::Action &e) override {
+				module->gateMode = gateMode;
+			}
+		};
+
+		struct GateModeMenu : MenuItem {
+			Arp32 *module;
+			Menu *createChildMenu() override {
+				Menu *menu = new Menu;
+				std::vector<Arp32::GateMode> modes = {Arp32::TRIGGER, Arp32::RETRIGGER, Arp32::CONTINUOUS};
+				std::vector<std::string> names = {"Trigger", "Retrigger", "Continuous"};
+				for (size_t i = 0; i < modes.size(); i++) {
+					GateModeItem *item = createMenuItem<GateModeItem>(names[i], CHECKMARK(module->gateMode == modes[i]));
+					item->module = module;
+					item->gateMode = modes[i];
+					menu->addChild(item);
+				}
+				return menu;
+			}
+		};
+
+		menu->addChild(construct<MenuLabel>());
+		GateModeMenu *item = createMenuItem<GateModeMenu>("Gate Mode");
+		item->module = arp;
+		menu->addChild(item);
+
+     }
+	 
 };
 
-Arp32Widget::Arp32Widget(Arp32 *module) : ModuleWidget(module) {
-	
-	UI ui;
-	
-	box.size = Vec(135, 380);
-
-	{
-		SVGPanel *panel = new SVGPanel();
-		panel->box.size = box.size;
-		panel->setBackground(SVG::load(assetPlugin(plugin, "res/Arp32p.svg")));
-		addChild(panel);
-	}
-
-	{
-		Arp32Display *display = new Arp32Display();
-		display->module = module;
-		display->box.pos = Vec(10, 90);
-		display->box.size = Vec(100, 140);
-		addChild(display);
-	}
-
-	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 0, true, false), Port::INPUT, module, Arp32::PITCH_INPUT));
-	
-	addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 0, 2, true, false), module, Arp32::PATT_PARAM, 0.0, 4.0, 0.0)); 
-	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 3, true, false), Port::INPUT, module, Arp32::PATT_INPUT));
-	addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 1, 2, true, false), module, Arp32::TRANS_PARAM, -24, 24, 1)); 
-	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 1, 3, true, false), Port::INPUT, module, Arp32::TRANS_INPUT)); 
-	addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 2, 2, true, false), module, Arp32::LENGTH_PARAM, 1.0, 16.0, 1.0)); 
-	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 2, 3, true, false), Port::INPUT, module, Arp32::LENGTH_INPUT));
-
-	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 4, true, false), Port::INPUT, module, Arp32::CLOCK_INPUT));
-	addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 1, 4, true, false), module, Arp32::OFFSET_PARAM, 0.0, 10.0, 0.0)); 
-	addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 2, 4, true, false), module, Arp32::SCALE_PARAM, 0, 2, 0)); 
-
-	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 5, true, false), Port::OUTPUT, module, Arp32::OUT_OUTPUT));
-	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 1, 5, true, false), Port::OUTPUT, module, Arp32::GATE_OUTPUT));
-	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 2, 5, true, false), Port::OUTPUT, module, Arp32::EOC_OUTPUT));
-
-}
-
-struct ArpGateModeItem : MenuItem {
-	Arp32 *arp;
-	Arp32::GateMode gateMode;
-	void onAction(EventAction &e) override {
-		arp->gateMode = gateMode;
-	}
-	void step() override {
-		rightText = (arp->gateMode == gateMode) ? "✔" : "";
-	}
-};
-
-Menu *Arp32Widget::createContextMenu() {
-	Menu *menu = ModuleWidget::createContextMenu();
-
-	MenuLabel *spacerLabel = new MenuLabel();
-	menu->addChild(spacerLabel);
-
-	Arp32 *arp = dynamic_cast<Arp32*>(module);
-	assert(arp);
-
-	MenuLabel *modeLabel = new MenuLabel();
-	modeLabel->text = "Gate Mode";
-	menu->addChild(modeLabel);
-
-	ArpGateModeItem *triggerItem = new ArpGateModeItem();
-	triggerItem->text = "Trigger";
-	triggerItem->arp = arp;
-	triggerItem->gateMode = Arp32::TRIGGER;
-	menu->addChild(triggerItem);
-
-	ArpGateModeItem *retriggerItem = new ArpGateModeItem();
-	retriggerItem->text = "Retrigger";
-	retriggerItem->arp = arp;
-	retriggerItem->gateMode = Arp32::RETRIGGER;
-	menu->addChild(retriggerItem);
-
-	ArpGateModeItem *continuousItem = new ArpGateModeItem();
-	continuousItem->text = "Continuous";
-	continuousItem->arp = arp;
-	continuousItem->gateMode = Arp32::CONTINUOUS;
-	menu->addChild(continuousItem);
-
-	return menu;
-}
-
-Model *modelArp32 = Model::create<Arp32, Arp32Widget>( "Amalgamated Harmonics", "Arp32", "Arp 3.2 - Pattern", ARPEGGIATOR_TAG);
+Model *modelArp32 = createModel<Arp32, Arp32Widget>("Arp32");
 

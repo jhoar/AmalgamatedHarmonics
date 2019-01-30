@@ -43,7 +43,23 @@ struct Progress : AHModule {
 		NUM_LIGHTS
 	};
 
-	Progress() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) { }
+	Progress() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) { 
+
+		params[CLOCK_PARAM].config(-2.0, 6.0, 2.0);
+		params[RUN_PARAM].config(0.0, 1.0, 0.0);
+		params[RESET_PARAM].config(0.0, 1.0, 0.0);
+		params[STEPS_PARAM].config(1.0, 8.0, 8.0);
+
+		for (int i = 0; i < 8; i++) {
+			params[ROOT_PARAM + i].config(0.0, 10.0, 0.0);
+			params[CHORD_PARAM + i].config(0.0, 10.0, 0.0);
+			params[INV_PARAM + i].config(0.0, 2.0, 0.0);
+			params[GATE_PARAM + i].config(0.0, 1.0, 0.0);
+		}
+
+		onReset();
+
+	}
 	
 	void step() override;
 	
@@ -72,7 +88,7 @@ struct Progress : AHModule {
 	}
 	
 		
-	json_t *toJson() override {
+	json_t *dataToJson() override {
 		json_t *rootJ = json_object();
 
 		// running
@@ -93,7 +109,7 @@ struct Progress : AHModule {
 		return rootJ;
 	}
 	
-	void fromJson(json_t *rootJ) override {
+	void dataFromJson(json_t *rootJ) override {
 		// running
 		json_t *runningJ = json_object_get(rootJ, "running");
 		if (runningJ)
@@ -118,14 +134,14 @@ struct Progress : AHModule {
 	bool running = true;
 	
 	// for external clock
-	SchmittTrigger clockTrigger; 
+	dsp::SchmittTrigger clockTrigger; 
 	
 	// For buttons
-	SchmittTrigger runningTrigger;
-	SchmittTrigger resetTrigger;
-	SchmittTrigger gateTriggers[8];
+	dsp::SchmittTrigger runningTrigger;
+	dsp::SchmittTrigger resetTrigger;
+	dsp::SchmittTrigger gateTriggers[8];
 		
-	PulseGenerator gatePulse;
+	dsp::PulseGenerator gatePulse;
 
 	/** Phase of internal LFO */
 	float phase = 0.0f;
@@ -182,7 +198,7 @@ struct Progress : AHModule {
 	float pitches[8][6];
 	float oldPitches[6];
 			
-	void reset() override {
+	void onReset() override {
 		for (int i = 0; i < 8; i++) {
 			gates[i] = true;
 		}
@@ -442,125 +458,107 @@ void Progress::step() {
 }
 
 struct ProgressWidget : ModuleWidget {
-	ProgressWidget(Progress *module);
-	Menu *createContextMenu() override;
+
+	ProgressWidget(Progress *module) {
+		
+		setModule(module);
+		setPanel(SVG::load(asset::plugin(plugin, "res/Progress.svg")));
+		UI ui;
+
+		{
+			StateDisplay *display = new StateDisplay();
+			display->module = module;
+			display->box.pos = Vec(0, 135);
+			display->box.size = Vec(100, 140);
+			addChild(display);
+		}
+		
+		addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 0, 0, true, false), module, Progress::CLOCK_PARAM));
+		addParam(createParam<AHButton>(ui.getPosition(UI::BUTTON, 1, 0, true, false), module, Progress::RUN_PARAM));
+		addChild(createLight<MediumLight<GreenLight>>(ui.getPosition(UI::LIGHT, 1, 0, true, false), module, Progress::RUNNING_LIGHT));
+		addParam(createParam<AHButton>(ui.getPosition(UI::BUTTON, 2, 0, true, false), module, Progress::RESET_PARAM));
+		addChild(createLight<MediumLight<GreenLight>>(ui.getPosition(UI::LIGHT, 2, 0, true, false), module, Progress::RESET_LIGHT));
+		addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 3, 0, true, false), module, Progress::STEPS_PARAM));
+		addChild(createLight<MediumLight<GreenLight>>(ui.getPosition(UI::LIGHT, 4, 0, true, false), module, Progress::GATES_LIGHT));
+
+	//	static const float portX[13] = {20, 58, 96, 135, 173, 212, 250, 288, 326, 364, 402, 440, 478};
+		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 1, true, false), module, Progress::CLOCK_INPUT));
+		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 1, 1, true, false), module, Progress::EXT_CLOCK_INPUT));
+		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 2, 1, true, false), module, Progress::RESET_INPUT));
+		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 3, 1, true, false), module, Progress::STEPS_INPUT));
+
+		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 4, 1, true, false), module, Progress::KEY_INPUT));
+		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 5, 1, true, false), module, Progress::MODE_INPUT));
+
+		for (int i = 0; i < 3; i++) {
+			addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 7 + i, 0, true, false), module, Progress::PITCH_OUTPUT + i));
+		}	
+
+		for (int i = 0; i < 3; i++) {
+			addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 7 + i, 1, true, false), module, Progress::PITCH_OUTPUT + 3 + i));
+		}
+
+		for (int i = 0; i < 8; i++) {
+			AHKnobNoSnap *rootW = createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, i + 1, 4, true, true), module, Progress::ROOT_PARAM + i);
+			AHParamWidget::set<AHKnobNoSnap>(rootW, Progress::ROOT_TYPE, i);
+			addParam(rootW);
+			
+			AHKnobNoSnap *chordW = createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, i + 1, 5, true, true), module, Progress::CHORD_PARAM + i);
+			AHParamWidget::set<AHKnobNoSnap>(chordW, Progress::CHORD_TYPE, i);
+			addParam(chordW);
+
+			AHKnobSnap *invW = createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, i + 1, 6, true, true), module, Progress::INV_PARAM + i);
+			AHParamWidget::set<AHKnobSnap>(invW, Progress::INV_TYPE, i);
+			addParam(invW);
+
+			addParam(createParam<AHButton>(ui.getPosition(UI::BUTTON, i + 1, 7, true, true), module, Progress::GATE_PARAM + i));
+			addChild(createLight<MediumLight<GreenRedLight>>(ui.getPosition(UI::LIGHT, i + 1, 7, true, true), module, Progress::GATE_LIGHTS + i * 2));
+					
+			addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, i + 1, 5, true, false), module, Progress::GATE_OUTPUT + i));
+		}
+
+		addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 9, 5, true, false), module, Progress::GATES_OUTPUT));
+		
+	}
+
+	void appendContextMenu(Menu *menu) override {
+
+		Progress *progress = dynamic_cast<Progress*>(module);
+		assert(progress);
+
+		struct GateModeItem : MenuItem {
+			Progress *module;
+			Progress::GateMode gateMode;
+			void onAction(const event::Action &e) override {
+				module->gateMode = gateMode;
+			}
+		};
+
+		struct GateModeMenu : MenuItem {
+			Progress *module;
+			Menu *createChildMenu() override {
+				Menu *menu = new Menu;
+				std::vector<Progress::GateMode> modes = {Progress::TRIGGER, Progress::RETRIGGER, Progress::CONTINUOUS};
+				std::vector<std::string> names = {"Trigger", "Retrigger", "Continuous"};
+				for (size_t i = 0; i < modes.size(); i++) {
+					GateModeItem *item = createMenuItem<GateModeItem>(names[i], CHECKMARK(module->gateMode == modes[i]));
+					item->module = module;
+					item->gateMode = modes[i];
+					menu->addChild(item);
+				}
+				return menu;
+			}
+		};
+
+		menu->addChild(construct<MenuLabel>());
+		GateModeMenu *item = createMenuItem<GateModeMenu>("Gate Mode");
+		item->module = progress;
+		menu->addChild(item);
+
+     }
+	 
 };
 
-ProgressWidget::ProgressWidget(Progress *module) : ModuleWidget(module) {
-	
-	UI ui;
-		
-	box.size = Vec(15*26, 380);
-
-	{
-		SVGPanel *panel = new SVGPanel();
-		panel->box.size = box.size;
-		panel->setBackground(SVG::load(assetPlugin(plugin, "res/Progress.svg")));
-		addChild(panel);
-	}
-
-	{
-		StateDisplay *display = new StateDisplay();
-		display->module = module;
-		display->box.pos = Vec(0, 135);
-		display->box.size = Vec(100, 140);
-		addChild(display);
-	}
-	
-	addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 0, 0, true, false), module, Progress::CLOCK_PARAM, -2.0, 6.0, 2.0));
-	addParam(ParamWidget::create<AHButton>(ui.getPosition(UI::BUTTON, 1, 0, true, false), module, Progress::RUN_PARAM, 0.0, 1.0, 0.0));
-	addChild(ModuleLightWidget::create<MediumLight<GreenLight>>(ui.getPosition(UI::LIGHT, 1, 0, true, false), module, Progress::RUNNING_LIGHT));
-	addParam(ParamWidget::create<AHButton>(ui.getPosition(UI::BUTTON, 2, 0, true, false), module, Progress::RESET_PARAM, 0.0, 1.0, 0.0));
-	addChild(ModuleLightWidget::create<MediumLight<GreenLight>>(ui.getPosition(UI::LIGHT, 2, 0, true, false), module, Progress::RESET_LIGHT));
-	addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 3, 0, true, false), module, Progress::STEPS_PARAM, 1.0, 8.0, 8.0));
-	addChild(ModuleLightWidget::create<MediumLight<GreenLight>>(ui.getPosition(UI::LIGHT, 4, 0, true, false), module, Progress::GATES_LIGHT));
-
-//	static const float portX[13] = {20, 58, 96, 135, 173, 212, 250, 288, 326, 364, 402, 440, 478};
-	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 1, true, false), Port::INPUT, module, Progress::CLOCK_INPUT));
-	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 1, 1, true, false), Port::INPUT, module, Progress::EXT_CLOCK_INPUT));
-	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 2, 1, true, false), Port::INPUT, module, Progress::RESET_INPUT));
-	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 3, 1, true, false), Port::INPUT, module, Progress::STEPS_INPUT));
-
-	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 4, 1, true, false), Port::INPUT, module, Progress::KEY_INPUT));
-	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 5, 1, true, false), Port::INPUT, module, Progress::MODE_INPUT));
-
-	
-	for (int i = 0; i < 3; i++) {
-		addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 7 + i, 0, true, false), Port::OUTPUT, module, Progress::PITCH_OUTPUT + i));
-	}	
-
-	for (int i = 0; i < 3; i++) {
-		addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 7 + i, 1, true, false), Port::OUTPUT, module, Progress::PITCH_OUTPUT + 3 + i));
-	}
-
-	for (int i = 0; i < 8; i++) {
-		AHKnobNoSnap *rootW = ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, i + 1, 4, true, true), module, Progress::ROOT_PARAM + i, 0.0, 10.0, 0.0);
-		AHParamWidget::set<AHKnobNoSnap>(rootW, Progress::ROOT_TYPE, i);
-		addParam(rootW);
-		
-		AHKnobNoSnap *chordW = ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, i + 1, 5, true, true), module, Progress::CHORD_PARAM + i, 0.0, 10.0, 0.0);
-		AHParamWidget::set<AHKnobNoSnap>(chordW, Progress::CHORD_TYPE, i);
-		addParam(chordW);
-
-		AHKnobSnap *invW = ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, i + 1, 6, true, true), module, Progress::INV_PARAM + i, 0.0, 2.0, 0.0);
-		AHParamWidget::set<AHKnobSnap>(invW, Progress::INV_TYPE, i);
-		addParam(invW);
-
-		addParam(ParamWidget::create<AHButton>(ui.getPosition(UI::BUTTON, i + 1, 7, true, true), module, Progress::GATE_PARAM + i, 0.0, 1.0, 0.0));
-		addChild(ModuleLightWidget::create<MediumLight<GreenRedLight>>(ui.getPosition(UI::LIGHT, i + 1, 7, true, true), module, Progress::GATE_LIGHTS + i * 2));
-				
-		addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, i + 1, 5, true, false), Port::OUTPUT, module, Progress::GATE_OUTPUT + i));
-	}
-
-	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 9, 5, true, false), Port::OUTPUT, module, Progress::GATES_OUTPUT));
-	
-}
-
-struct ProgressGateModeItem : MenuItem {
-	Progress *progress;
-	Progress::GateMode gateMode;
-	void onAction(EventAction &e) override {
-		progress->gateMode = gateMode;
-	}
-	void step() override {
-		rightText = (progress->gateMode == gateMode) ? "✔" : "";
-	}
-};
-
-Menu *ProgressWidget::createContextMenu() {
-	Menu *menu = ModuleWidget::createContextMenu();
-
-	MenuLabel *spacerLabel = new MenuLabel();
-	menu->addChild(spacerLabel);
-
-	Progress *progress = dynamic_cast<Progress*>(module);
-	assert(progress);
-
-	MenuLabel *modeLabel = new MenuLabel();
-	modeLabel->text = "Gate Mode";
-	menu->addChild(modeLabel);
-
-	ProgressGateModeItem *triggerItem = new ProgressGateModeItem();
-	triggerItem->text = "Trigger";
-	triggerItem->progress = progress;
-	triggerItem->gateMode = Progress::TRIGGER;
-	menu->addChild(triggerItem);
-
-	ProgressGateModeItem *retriggerItem = new ProgressGateModeItem();
-	retriggerItem->text = "Retrigger";
-	retriggerItem->progress = progress;
-	retriggerItem->gateMode = Progress::RETRIGGER;
-	menu->addChild(retriggerItem);
-
-	ProgressGateModeItem *continuousItem = new ProgressGateModeItem();
-	continuousItem->text = "Continuous";
-	continuousItem->progress = progress;
-	continuousItem->gateMode = Progress::CONTINUOUS;
-	menu->addChild(continuousItem);
-
-	return menu;
-}
-
-Model *modelProgress = Model::create<Progress, ProgressWidget>( "Amalgamated Harmonics", "Progress", "Progress", SEQUENCER_TAG);
+Model *modelProgress = createModel<Progress, ProgressWidget>("Progress");
 
 

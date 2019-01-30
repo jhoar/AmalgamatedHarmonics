@@ -15,19 +15,20 @@ struct ParamEvent {
 
 };
 
-struct AHModule : Module {
+struct AHModule : rack::Module {
 
 	float delta;
 	float rho;
 
-	AHModule(int numParams, int numInputs, int numOutputs, int numLights = 0) : Module(numParams, numInputs, numOutputs, numLights) {
-		delta = engineGetSampleTime();
-		rho = engineGetSampleRate();
+	AHModule(int numParams, int numInputs, int numOutputs, int numLights = 0) {
+		config(numParams, numParams, numParams, numParams);
+		delta = app()->engine->getSampleTime();
+		rho   = app()->engine->getSampleRate();
 	}
 
 	void onSampleRateChange() override { 
-		delta = engineGetSampleTime();
-		rho = engineGetSampleRate();
+		delta = app()->engine->getSampleTime();
+		rho   = app()->engine->getSampleRate();
 	}
 
 	int stepX = 0;
@@ -70,7 +71,7 @@ struct StateDisplay : TransparentWidget {
 	std::shared_ptr<Font> font;
 
 	StateDisplay() {
-		font = Font::load(assetPlugin(plugin, "res/EurostileBold.ttf"));
+		font = Font::load(asset::plugin(plugin, "res/EurostileBold.ttf"));
 	}
 
 	void draw(NVGcontext *vg) override {
@@ -93,7 +94,7 @@ struct StateDisplay : TransparentWidget {
 
 struct AHParamWidget { // it's a mix-in
 
-	int pType = -1; // Should be set by ste<>(), but if not this allows us to catch pwidgers we are not interested in
+	int pType = -1; // Should be set by step<>(), but if not this allows us to catch pwidgets we are not interested in
 	int pId;
 	AHModule *mod = NULL;
 	
@@ -110,19 +111,20 @@ struct AHParamWidget { // it's a mix-in
 };
 
 // Not going to monitor buttons
-struct AHButton : SVGSwitch, MomentarySwitch {
+struct AHButton : SVGSwitch {
 	AHButton() {
-		addFrame(SVG::load(assetPlugin(plugin,"res/ComponentLibrary/AHButton.svg")));
+		momentary = true;
+		addFrame(SVG::load(asset::plugin(plugin,"res/ComponentLibrary/AHButton.svg")));
 	}	
 };
 
 struct AHKnob : RoundKnob, AHParamWidget {
-	void onChange(EventChange &e) override { 
+	void onChange(const event::Change & e) override { 
 		// One off cast, don't want to subclass from ParamWidget, so have to grab it here
-		if (!mod) {
-			mod = static_cast<AHModule *>(this->module);
+		if (!AHParamWidget::mod) {
+			AHParamWidget::mod = static_cast<AHModule *>(paramQuantity->module);
 		}
-		mod->receiveEvent(generateEvent(value));
+		AHParamWidget::mod->receiveEvent(generateEvent(paramQuantity->getValue()));
 		RoundKnob::onChange(e);
 	}
 };
@@ -130,42 +132,42 @@ struct AHKnob : RoundKnob, AHParamWidget {
 struct AHKnobSnap : AHKnob {
 	AHKnobSnap() {
 		snap = true;
-		setSVG(SVG::load(assetPlugin(plugin,"res/ComponentLibrary/AHKnob.svg")));
+		setSVG(SVG::load(asset::plugin(plugin,"res/ComponentLibrary/AHKnob.svg")));
 	}
 };
 
 struct AHKnobNoSnap : AHKnob {
 	AHKnobNoSnap() {
 		snap = false;
-		setSVG(SVG::load(assetPlugin(plugin,"res/ComponentLibrary/AHKnob.svg")));
+		setSVG(SVG::load(asset::plugin(plugin,"res/ComponentLibrary/AHKnob.svg")));
 	}
 };
 
 struct AHBigKnobNoSnap : AHKnob {
 	AHBigKnobNoSnap() {
 		snap = false;
-		setSVG(SVG::load(assetPlugin(plugin,"res/ComponentLibrary/AHBigKnob.svg")));
+		setSVG(SVG::load(asset::plugin(plugin,"res/ComponentLibrary/AHBigKnob.svg")));
 	}
 };
 
 struct AHBigKnobSnap : AHKnob {
 	AHBigKnobSnap() {
 		snap = true;
-		setSVG(SVG::load(assetPlugin(plugin,"res/ComponentLibrary/AHBigKnob.svg")));
+		setSVG(SVG::load(asset::plugin(plugin,"res/ComponentLibrary/AHBigKnob.svg")));
 	}
 };
 
 struct AHTrimpotSnap : AHKnob {
 	AHTrimpotSnap() {
 		snap = true;
-		setSVG(SVG::load(assetPlugin(plugin,"res/ComponentLibrary/AHTrimpot.svg")));
+		setSVG(SVG::load(asset::plugin(plugin,"res/ComponentLibrary/AHTrimpot.svg")));
 	}
 };
 
 struct AHTrimpotNoSnap : AHKnob {
 	AHTrimpotNoSnap() {
 		snap = false;
-		setSVG(SVG::load(assetPlugin(plugin,"res/ComponentLibrary/AHTrimpot.svg")));
+		setSVG(SVG::load(asset::plugin(plugin,"res/ComponentLibrary/AHTrimpot.svg")));
 	}
 };
 

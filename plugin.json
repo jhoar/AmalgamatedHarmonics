@@ -1,0 +1,68 @@
+{
+	"slug": "AmalgamatedHarmonics",
+	"name": "Amalgamated Harmonics",
+	"author": "John Hoar",
+	"license": "BSD 3-Clause",
+	"authorEmail": "amalgamatedharmonics@outlook.com",
+	"authorUrl": "https://github.com/jhoar/AmalgamatedHarmonics/wiki",
+	"sourceUrl": "https://github.com/jhoar/AmalgamatedHarmonics",
+	"version": "1.0.0",
+	"modules": {
+		"Arp31": {
+			"name": "Arp 3.1 - Chord",
+			"description": "Arpeggios over a chord",
+			"tags": ["ARPEGGIATOR"]
+		},
+        "Arp32": {
+			"name": "Arp 3.2 - Pattern",
+			"description": "Pattern arpeggios",
+			"tags": ["ARPEGGIATOR"]
+		},
+        "Bombe": {
+			"name": "Bombe",
+			"description": "A semi-random shift-register chord generator and looper",
+			"tags": ["SEQUENCER"]
+		},
+        "Circle": {
+			"name": "Fifths and Fourths",
+			"description": "An implementation of the Circle of Fifths",
+			"tags": ["SEQUENCER"]
+		},
+        "Galaxy": {
+			"name": "Galaxy",
+			"description": "Semi-random chord generation",
+			"tags": ["SEQUENCER"]
+		},
+        "Generative": {
+			"name": "Generative",
+			"description": "A toolkit of functions intended to support generative music creation",
+			"tags": ["NOISE","SAMPLE_AND_HOLD","LFO","RANDOM"]
+		},
+        "Imperfect2": {
+			"name": "Imperfect MkII",
+			"description": "A trigger-to-gate and clock divider module",
+			"tags": ["CLOCK_MODULATOR"]
+		},
+        "Progress": {
+			"name": "Progress",
+			"description": "A chord sequencer",
+			"tags": ["SEQUENCER"]
+		},
+        "Ruckus": {
+			"name": "Ruckus",
+			"description": "A trigger sequencer based on summed clock-dividers",
+			"tags": ["SEQUENCER"]
+		},
+        "SLN": {
+			"name": "SLN",
+			"description": "Slew-Limited Noise ",
+			"tags": ["SAMPLE_AND_HOLD","NOISE"]
+		},
+        "Arpeggiator2": {
+			"name": "Arpeggiator MkII (deprecated)",
+			"description": "A multi-input arpeggiator",
+			"tags": ["ARPEGGIATOR"]
+		}
+	}
+}
+
