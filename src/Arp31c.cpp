@@ -545,8 +545,8 @@ struct Arp31Widget : ModuleWidget {
 		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 3, true, false), module, Arp31::ARP_INPUT));
 
 		if (module != NULL) {
-			Arp31Display *displayW = createWidget<Arp31Display>(mm2px(Vec(40, 100)));
-			displayW->box.size = mm2px(Vec(100, 70));
+			Arp31Display *displayW = createWidget<Arp31Display>(Vec(40, 100));
+			displayW->box.size = Vec(100, 70);
 			displayW->module = module;
 			addChild(displayW);
 		}

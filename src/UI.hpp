@@ -21,7 +21,7 @@ struct AHModule : rack::Module {
 	float rho;
 
 	AHModule(int numParams, int numInputs, int numOutputs, int numLights = 0) {
-		config(numParams, numParams, numParams, numParams);
+		config(numParams, numInputs, numOutputs, numLights);
 		delta = APP->engine->getSampleTime();
 		rho   = APP->engine->getSampleRate();
 	}
