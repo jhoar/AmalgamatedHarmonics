@@ -1,7 +1,6 @@
 #include "AH.hpp"
 #include "Core.hpp"
 #include "UI.hpp"
-#include "dsp/digital.hpp"
 
 #include <iostream>
 
@@ -451,8 +450,27 @@ void Progress::step() {
 	lights[RESET_LIGHT].setBrightnessSmooth(resetTrigger.isHigh());
 	lights[GATES_LIGHT].setBrightnessSmooth(pulse);
 
-	for (int i = 0; i < NUM_PITCHES; i++) {
-		outputs[PITCH_OUTPUT + i].setVoltage(pitches[index][i]);
+
+	// Set the output pitches 
+
+	// Count the number of active ports in P2-P6
+	int portCount = 0;
+	for (int i = 1; i < NUM_PITCHES - 1; i++) {
+		if (outputs[PITCH_OUTPUT + i].isConnected()) {
+			portCount++;
+		}
+	}
+
+	// No active ports in P2-P6, so must be poly
+	if (portCount == 0) {
+		outputs[PITCH_OUTPUT].setChannels(6);
+		for (int i = 0; i < NUM_PITCHES; i++) {
+			outputs[PITCH_OUTPUT].setVoltage(pitches[index][i], i);
+		}
+	} else {
+		for (int i = 0; i < NUM_PITCHES; i++) {
+			outputs[PITCH_OUTPUT + i].setVoltage(pitches[index][i]);
+		}
 	}
 	
 }

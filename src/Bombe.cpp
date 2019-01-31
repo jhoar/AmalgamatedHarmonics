@@ -1,7 +1,6 @@
 #include "AH.hpp"
 #include "Core.hpp"
 #include "UI.hpp"
-#include "dsp/digital.hpp"
 
 #include <iostream>
 
@@ -368,17 +367,32 @@ void Bombe::step() {
 		lights[LOCK_LIGHT + 1].setBrightnessSmooth(0.0f);
 	}
 
-	// Set the output pitches and lights
-	for (int i = 0; i < NUM_PITCHES; i++) {
-		outputs[PITCH_OUTPUT + i].setVoltage(buffer[0].outVolts[i]);
+	// Set the output pitches 
+
+	// Count the number of active ports in P2-P6
+	int portCount = 0;
+	for (int i = 1; i < NUM_PITCHES - 1; i++) {
+		if (outputs[PITCH_OUTPUT + i].isConnected()) {
+			portCount++;
+		}
 	}
 
+	// No active ports in P2-P6, so must be poly
+	if (portCount == 0) {
+		outputs[PITCH_OUTPUT].setChannels(6);
+		for (int i = 0; i < NUM_PITCHES; i++) {
+			outputs[PITCH_OUTPUT].setVoltage(buffer[0].outVolts[i], i);
+		}
+	} else {
+		for (int i = 0; i < NUM_PITCHES; i++) {
+			outputs[PITCH_OUTPUT + i].setVoltage(buffer[0].outVolts[i]);
+		}
+	}
 }
 
 struct BombeDisplay : TransparentWidget {
 	
 	Bombe *module;
-	int frame = 0;
 	std::shared_ptr<Font> font;
 
 	BombeDisplay() {
@@ -579,12 +593,10 @@ struct BombeWidget : ModuleWidget {
 		offsetItem->module = bombe;
 		menu->addChild(offsetItem);
 
-		menu->addChild(construct<MenuLabel>());
 		ModeMenu *modeItem = createMenuItem<ModeMenu>("Chord Selection");
 		modeItem->module = bombe;
 		menu->addChild(modeItem);
 
-		menu->addChild(construct<MenuLabel>());
 		InversionMenu *invItem = createMenuItem<InversionMenu>("Allowed Chord Inversions");
 		invItem->module = bombe;
 		menu->addChild(invItem);
