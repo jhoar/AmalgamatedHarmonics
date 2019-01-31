@@ -212,7 +212,6 @@ struct Arp31 : AHModule {
 	
 	const static int MAX_STEPS = 16;
 	const static int MAX_DIST = 12; //Octave
-	const static int NUM_PITCHES = 6;
 
 	enum ParamIds {
 		ARP_PARAM,
@@ -221,7 +220,7 @@ struct Arp31 : AHModule {
 	};
 	enum InputIds {
 		CLOCK_INPUT,
-		ENUMS(PITCH_INPUT,6),
+		PITCH_INPUT,
 		ARP_INPUT,
 		NUM_INPUTS
 	};
@@ -232,7 +231,6 @@ struct Arp31 : AHModule {
 		NUM_OUTPUTS
 	};
 	enum LightIds {
-		ENUMS(CURR_LIGHT,6),
 		NUM_LIGHTS
 	};
 	
@@ -308,9 +306,9 @@ struct Arp31 : AHModule {
 	Arpeggio *currArp = &arp_right;
 	Arpeggio *uiArp = &arp_right;
 	
-	float pitches[6];
-	int pitchIndex[NUM_PITCHES];
-	int nPitches = 0;
+	std::vector<float> pitches;
+	std::vector<int> pitchIndex;
+
 	int id = 0;
 	int currLight = 0;
 
@@ -346,7 +344,6 @@ void Arp31::step() {
 	}
 
 	bool restart = false;
-	int oldLight = 0;
 
 	// Have we been clocked?
 	if (clockStatus) {
@@ -370,8 +367,6 @@ void Arp31::step() {
 			// Finally set the out voltage
 			int i = currArp->getPitch();
 			outVolts = clamp(pitches[i], -10.0f, 10.0f);
-			oldLight = currLight;
-			currLight = pitchIndex[i];
 
 			if (debugEnabled()) { std::cout << stepX << " " << id  << " Index: " << i << " V: " << outVolts << " Light: " << currLight << std::endl; }
 
@@ -394,19 +389,20 @@ void Arp31::step() {
 	if (restart) {
 
 		// Read input pitches and assign to pitch array
-		int nValidPitches = 0;
-		float inputPitches[NUM_PITCHES];
-		for (int p = 0; p < NUM_PITCHES; p++) {
-			int index = PITCH_INPUT + p;
-			if (inputs[index].isConnected()) {
-				inputPitches[nValidPitches] = inputs[index].getVoltage();
-				pitchIndex[nValidPitches] = p;
-				nValidPitches++;
-			} else {
-				inputPitches[nValidPitches] = 0.0;
-				pitchIndex[nValidPitches] = 0;
+		std::vector<float> inputPitches;
+		if (inputs[PITCH_INPUT].isConnected()) {
+			int channels = inputs[PITCH_INPUT].getChannels();
+			if (debugEnabled()) { std::cout << stepX << " " << id  << " Channels: " << channels << std::endl; }
+			for (int p = 0; p < channels; p++) {
+				inputPitches.push_back(inputs[PITCH_INPUT].getVoltage(p));
 			}
+		} else {
+			if (debugEnabled()) { std::cout << stepX << " " << id  << " No inputs, assume single 0V pitch" << std::endl; }
+			inputPitches.push_back(0.0f);
+			pitchIndex.push_back(0);
 		}
+
+		if (debugEnabled()) { std::cout << stepX << " " << id  << " Pitches: " << inputPitches.size() << std::endl; }
 
 		// if (debugEnabled()) {
 		// 	for (int p = 0; p < nValidPitches; p++) {
@@ -414,14 +410,6 @@ void Arp31::step() {
 		// 	}
 		// }
 		
-		// Always play something
-		if (nValidPitches == 0) {
-			if (debugEnabled()) { std::cout << stepX << " " << id  << " No inputs, assume single 0V pitch" << std::endl; }
-			inputPitches[0] = 0.0;
-			pitchIndex[0] = 0;
-			nValidPitches = 1;
-		}
-
 		// At the first step of the cycle
 		// So this is where we tweak the cycle parameters
 		arp = inputArp;
@@ -433,16 +421,20 @@ void Arp31::step() {
 			case 3: 	currArp = &arp_leftright;	break;
 			default:	currArp = &arp_right;		break; 	
 		};
-		
-		// Copy pitches
-		for (int p = 0; p < nValidPitches; p++) {
-			pitches[p] = inputPitches[p];
-		}
-		nPitches = nValidPitches;
 
-		if (debugEnabled()) { std::cout << stepX << " " << id  << " Initiatise new Cycle: Pattern: " << currArp->getName() << " nPitches: " << nPitches << std::endl; }
+		if (debugEnabled()) { std::cout << stepX << " " << id  << " Arp: " << currArp->getName() << std::endl; }
+
+		// Clear existing pitches
+		pitches.clear();
+
+		// Copy pitches
+		for (size_t p = 0; p < inputPitches.size(); p++) {
+			pitches.push_back(inputPitches[p]);
+		}
+
+		if (debugEnabled()) { std::cout << stepX << " " << id  << " Initiatise new Cycle: Pattern: " << currArp->getName() << " nPitches: " << pitches.size() << std::endl; }
 		
-		currArp->initialise(nPitches, offset);
+		currArp->initialise(pitches.size(), offset);
 
 		// Start
 		isRunning = true;
@@ -459,15 +451,11 @@ void Arp31::step() {
 	};
 	
 	// Initialise UI Arp
-	uiArp->initialise(nPitches ? nPitches : 1, offset);
+	uiArp->initialise(pitches.size() ? pitches.size() : 1, offset);
 	
 	// Set the value
 	outputs[OUT_OUTPUT].setVoltage(outVolts);
 
-	// Set the light
-	lights[CURR_LIGHT + oldLight].setBrightness(0.0);
-	lights[CURR_LIGHT + currLight].setBrightness(10.0);
-	
 	bool gPulse = gatePulse.process(delta);
 	bool cPulse = eocPulse.process(delta);
 	
@@ -486,7 +474,6 @@ void Arp31::step() {
 struct Arp31Display : TransparentWidget {
 	
 	Arp31 *module;
-	int frame = 0;
 	std::shared_ptr<Font> font;
 
 	Arp31Display() {
@@ -523,21 +510,7 @@ struct Arp31Widget : ModuleWidget {
 		addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 1, 5, true, false), module, Arp31::GATE_OUTPUT));
 		addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 2, 5, true, false), module, Arp31::EOC_OUTPUT));
 
-		for (int i = 0; i < 3; i++) {
-			addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, i, 0, true, false), module, Arp31::PITCH_INPUT + i));
-			Vec v = ui.getPosition(UI::LIGHT, i, 1, true, false);
-			v.x = v.x + 2;
-			v.y = 75;
-			addChild(createLight<SmallLight<GreenLight>>(v, module, Arp31::CURR_LIGHT + i));
-		}
-
-		for (int i = 3; i < 6; i++) {
-			addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, i - 3, 1, true, false), module, Arp31::PITCH_INPUT + i));
-			Vec v = ui.getPosition(UI::LIGHT, i - 3, 2, true, false);
-			v.x = v.x + 2;
-			v.y = 131;
-			addChild(createLight<SmallLight<GreenLight>>(v, module, Arp31::CURR_LIGHT + i));
-		}
+		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 0, true, false), module, Arp31::PITCH_INPUT));
 
 		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 4, true, false), module, Arp31::CLOCK_INPUT));
 		addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 1, 4, true, false), module, Arp31::OFFSET_PARAM)); 
