@@ -8,6 +8,11 @@
 	"sourceUrl": "https://github.com/jhoar/AmalgamatedHarmonics",
 	"version": "1.0.0",
 	"modules": {
+		"MuxDeMux": {
+			"name": "MuxDeMux",
+			"description": "Multiplexer/Demultiplexer for polyphonic cables",
+			"tags": ["UTILITY"]
+		},
 		"Arp31": {
 			"name": "Arp 3.1 - Chord",
 			"description": "Arpeggios over a chord",

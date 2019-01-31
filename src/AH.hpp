@@ -9,6 +9,7 @@ extern Plugin *pluginInstance;
 ////////////////////
 // module widgets
 ////////////////////
+extern Model *modelMuxDeMux;
 
 extern Model *modelArpeggiator2;
 
