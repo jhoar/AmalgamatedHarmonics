@@ -44,16 +44,21 @@ struct Progress : AHModule {
 
 	Progress() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) { 
 
-		params[CLOCK_PARAM].config(-2.0, 6.0, 2.0);
-		params[RUN_PARAM].config(0.0, 1.0, 0.0);
-		params[RESET_PARAM].config(0.0, 1.0, 0.0);
-		params[STEPS_PARAM].config(1.0, 8.0, 8.0);
+		params[CLOCK_PARAM].config(-2.0, 6.0, 2.0, "Frequency");
+		params[RUN_PARAM].config(0.0, 1.0, 0.0, "Run");
+		params[RESET_PARAM].config(0.0, 1.0, 0.0, "Reset");
+		params[STEPS_PARAM].config(1.0, 8.0, 8.0, "Steps");
 
 		for (int i = 0; i < 8; i++) {
-			params[ROOT_PARAM + i].config(0.0, 10.0, 0.0);
-			params[CHORD_PARAM + i].config(0.0, 10.0, 0.0);
-			params[INV_PARAM + i].config(0.0, 2.0, 0.0);
-			params[GATE_PARAM + i].config(0.0, 1.0, 0.0);
+			params[ROOT_PARAM + i].config(0.0, 10.0, 0.0, "Root note");
+			params[ROOT_PARAM + i].description = "Root note [degree of scale]";
+
+			params[CHORD_PARAM + i].config(0.0, 10.0, 0.0, "Chord");
+
+			params[INV_PARAM + i].config(0.0, 2.0, 0.0, "Inversion");
+			params[INV_PARAM + i].description = "Root, first of second inversion";
+
+			params[GATE_PARAM + i].config(0.0, 1.0, 0.0, "Gate active");
 		}
 
 		onReset();

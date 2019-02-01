@@ -33,12 +33,15 @@ struct ScaleQuantizer2 : AHModule {
 	};
 
 	ScaleQuantizer2() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
-		params[KEY_PARAM].config(0.0f, 11.0f, 0.0f); // 12 notes
-		params[SCALE_PARAM].config(0.0f, 11.0f, 0.0f); // 12 notes
-		params[TRANS_PARAM].config(-11.0f, 11.0f, 0.0f); // 12 notes
+		params[KEY_PARAM].config(0.0f, 11.0f, 0.0f, "Quantiser key"); // 12 notes
+
+		params[SCALE_PARAM].config(0.0f, 11.0f, 0.0f, "Quantiser scale"); // 12 scales
+
+		params[TRANS_PARAM].config(-11.0f, 11.0f, 0.0f, "Global transposition", " semitones"); // 12 notes
+		params[KEY_PARAM].description = "Transposition of all outputs post-quantisation";
 		
 		for (int i = 0; i < 8; i++) {
-			params[SHIFT_PARAM + i].config(-3.0f, 3.0f, 0.0f);
+			params[SHIFT_PARAM + i].config(-3.0f, 3.0f, 0.0f, "Octave shift", " octaves");
 		}
 
 	}

@@ -29,10 +29,16 @@ struct SLN : AHModule {
 	};
 
 	SLN() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
-		params[SPEED_PARAM].config(0.0, 1.0, 0.0);
-		params[SLOPE_PARAM].config(0.0, 1.0, 0.0);
-		params[NOISE_PARAM].config(0.0, 2.0, 0.0);
-		params[ATTN_PARAM].config(0.0, 1.0, 1.0);
+		params[SPEED_PARAM].config(0.0, 1.0, 0.0, "Inertia", "%", 0.0f, 100.0f);
+		params[SPEED_PARAM].description = "Resistance of the signal to change";
+
+		params[SLOPE_PARAM].config(0.0, 1.0, 0.0, "Slope");
+		params[SLOPE_PARAM].description = "Linear to exponential slope";
+
+		params[NOISE_PARAM].config(0.0, 2.0, 0.0, "Noise type");
+		params[NOISE_PARAM].description = "White, pink or brown noise";
+
+		params[ATTN_PARAM].config(0.0, 1.0, 1.0, "Attenuation", "%", 0.0f, -100.0f, 100.0f);
 	}
 	
 	void step() override;

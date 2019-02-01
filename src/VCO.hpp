@@ -99,7 +99,7 @@ struct EvenVCO {
 
 	void step(float delta, float pitch) {
 		// Compute frequency, pitch is 1V/oct
-		float freq = 261.626 * powf(2.0, pitch);
+		float freq = dsp::FREQ_C4 * powf(2.0, pitch);
 		freq = rack::clamp(freq, 0.0f, 20000.0f);
 
 		// Pulse width

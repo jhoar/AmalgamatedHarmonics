@@ -54,11 +54,18 @@ struct Bombe : AHModule {
 	
 	Bombe() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
 
-		params[KEY_PARAM].config(0.0, 11.0, 0.0); 
-		params[MODE_PARAM].config(0.0, 6.0, 0.0); 
-		params[LENGTH_PARAM].config(2.0, 16.0, 4.0); 
-		params[X_PARAM].config(0.0, 1.0001, 0.5); 
-		params[Y_PARAM].config(0.0, 1.0001, 0.5); 
+		params[KEY_PARAM].config(0.0, 11.0, 0.0, "Key");
+		params[KEY_PARAM].description = "Key from which chords are selected"; 
+
+		params[MODE_PARAM].config(0.0, 6.0, 0.0, "Mode"); 
+		params[MODE_PARAM].description = "Mode from which chords are selected"; 
+
+		params[LENGTH_PARAM].config(2.0, 16.0, 4.0, "Length of loop"); 
+		params[X_PARAM].config(0.0, 1.0, 0.5, "Update probability", "%", 0.0f, -100.0f, 100.0f);
+		params[X_PARAM].description = "Probability that the next chord will be updated";
+
+		params[Y_PARAM].config(0.0, 1.0, 0.5, "Deviation probability", "%", 0.0f, 100.0f);
+		params[Y_PARAM].description = "The deviation of the next chord update from the mode rule";
 
 		for(int i = 0; i < BUFFERSIZE; i++) {
 			int *chordArray = CoreUtil().ChordTable[buffer[i].chord].root;
@@ -73,7 +80,6 @@ struct Bombe : AHModule {
 	void modeSimple(BombeChord lastValue, float y);
 	void modeKey(BombeChord lastValue, float y);
 	void modeGalaxy(BombeChord lastValue, float y);
-	void modeComplex(BombeChord lastValue, float y);
 
 	json_t *dataToJson() override {
 		json_t *rootJ = json_object();
@@ -226,10 +232,6 @@ void Bombe::modeGalaxy(BombeChord lastValue, float y) {
 
 }
 
-void Bombe::modeComplex(BombeChord lastValue, float y) {
-	modeGalaxy(lastValue, y); // Default to Galaxy
-}
-
 void Bombe::step() {
 	
 	AHModule::step();
@@ -274,10 +276,6 @@ void Bombe::step() {
 			rootName = CoreUtil().noteNames[currRoot];
 			modeName = CoreUtil().modeNames[currMode];
 			break;
-		case 3: // Complex
-			rootName = CoreUtil().noteNames[currRoot];
-			modeName = CoreUtil().modeNames[currMode];
-			break;
 		default:
 			rootName = "";
 			modeName = "";
@@ -311,7 +309,6 @@ void Bombe::step() {
 					case 0:	modeRandom(lastValue, y); break;
 					case 1:	modeSimple(lastValue, y); break;
 					case 2:	modeGalaxy(lastValue, y); break;
-					case 3:	modeComplex(lastValue, y); break;
 					default: modeSimple(lastValue, y);
 				}
 
@@ -426,7 +423,6 @@ struct BombeDisplay : TransparentWidget {
 						break;
 					case 1:
 					case 2:
-					case 3:
 						if (module->displayBuffer[i].modeDegree != -1 && module->displayBuffer[i].quality != -1) { // FIXME
 							int index = module->displayBuffer[i].modeDegree * 3 + module->displayBuffer[i].quality;
 							chordExtName = CoreUtil().degreeNames[index];

@@ -272,11 +272,18 @@ struct Arp32 : AHModule {
 	};
 	
 	Arp32() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
-		params[PATT_PARAM].config(0.0, 4.0, 0.0); 
-		params[TRANS_PARAM].config(-24, 24, 1); 
-		params[LENGTH_PARAM].config(1.0, 16.0, 1.0); 
-		params[OFFSET_PARAM].config(0.0, 10.0, 0.0); 
-		params[SCALE_PARAM].config(0, 2, 0); 
+		params[PATT_PARAM].config(0.0, 4.0, 0.0, "Pattern"); 
+
+		params[TRANS_PARAM].config(-24, 24, 1, "Pattern magnitude"); 
+		params[TRANS_PARAM].description = "'Distance' of the start/end point of the pattern w.r.t the root note";
+		
+		params[LENGTH_PARAM].config(1.0, 16.0, 1.0, "Pattern steps");
+
+		params[OFFSET_PARAM].config(0.0, 10.0, 0.0, "Start offset"); 
+		params[OFFSET_PARAM].description = "Number of steps into the arpeggio to start";
+
+		params[SCALE_PARAM].config(0, 2, 0, "Step size"); 
+		params[SCALE_PARAM].description = "Size of each step, semitones or major or minor intervals"; 
 
 		onReset();
 		id = rand();

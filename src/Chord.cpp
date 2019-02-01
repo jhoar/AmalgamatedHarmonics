@@ -47,16 +47,17 @@ struct Chord : AHModule {
 		}
 
 		for (int n = 0; n < 6; n++) {
-			params[WAVE_PARAM + n].config(0.0f, 4.0f, 0.0f);
-			params[OCTAVE_PARAM + n].config(-3.0f, 3.0f, 0.0f);
-			params[DETUNE_PARAM + n].config(-1.0f, 1.0f, 0.0f);
-			params[PW_PARAM + n].config(-1.0f, 1.0f, 0.0f);
-			params[PWM_PARAM + n].config(0.0f, 1.0f, 0.0f);
-			params[ATTN_PARAM + n].config(0.0f, 1.0f, 1.0f);
-			params[PAN_PARAM + n].config(-posMax, posMax, voicePosRad[n]);
+			params[WAVE_PARAM + n].config(0.0f, 4.0f, 0.0f, "Waveform");
+			params[OCTAVE_PARAM + n].config(-3.0f, 3.0f, 0.0f, "Octave");
+			params[DETUNE_PARAM + n].config(-1.0f, 1.0f, 0.0f, "Fine tune +- 1 Octave", "V");
+			params[PW_PARAM + n].config(-1.0f, 1.0f, 0.0f, "Pulse width");
+			params[PWM_PARAM + n].config(0.0f, 1.0f, 0.0f, "Pulse width modulation CV");
+			params[ATTN_PARAM + n].config(0.0f, 1.0f, 1.0f, "Attenuation", "%", 0.0f, -100.0f, 100.0f);
+			params[PAN_PARAM + n].config(-posMax, posMax, voicePosRad[n], "Stereo pan (L-R)", "", 0.0f, -1.0f / voicePosRad[0]);
 		}
 
-		params[SPREAD_PARAM].config(0.0f, 1.0f, 1.0f);
+		params[SPREAD_PARAM].config(0.0f, 1.0f, 1.0f, "Spread");
+		params[SPREAD_PARAM].description = "Spread of voices across stereo field";
 
 	}
 

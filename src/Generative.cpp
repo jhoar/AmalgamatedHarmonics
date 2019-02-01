@@ -53,20 +53,42 @@ struct Generative : AHModule {
 	Generative() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) { 
 
 		// LFO section
-		params[FREQ_PARAM].config(-8.0f, 10.0f, 1.0f);
-		params[WAVE_PARAM].config(0.0f, 4.0f, 1.5f);
-		params[FM_PARAM].config(0.0f, 1.0f, 0.5f);
-		params[AM_PARAM].config(0.0f, 1.0f, 0.5f);
-		params[NOISE_PARAM].config(0.0f, 1.0f, 0.5f);
-		params[CLOCK_PARAM].config(-2.0, 6.0, 1.0);
-		params[PROB_PARAM].config(0.0, 1.0, 1.0);
-		params[DELAYL_PARAM].config(1.0f, 2.0f, 1.0f);
-		params[GATEL_PARAM].config(1.0f, 2.0f, 1.0f);
-		params[DELAYS_PARAM].config(1.0f, 2.0f, 1.0f);
-		params[GATES_PARAM].config(1.0f, 2.0f, 1.0f);
-		params[SLOPE_PARAM].config(0.0, 1.0, 0.0);
-		params[SPEED_PARAM].config(0.0, 1.0, 0.0);
-		params[ATTN_PARAM].config(0.0, 1.0, 1.0); 
+		params[FREQ_PARAM].config(-8.0f, 10.0f, 1.0f, "Frequency");
+		params[FREQ_PARAM].description = "Core LFO frequency";
+
+		params[WAVE_PARAM].config(0.0f, 4.0f, 1.5f, "Waveform");
+		params[WAVE_PARAM].description = "Continuous: Sine - Triangle - Saw - Square - Sine";
+
+		params[FM_PARAM].config(0.0f, 1.0f, 0.5f, "Frequency Modulation CV");
+
+		params[AM_PARAM].config(0.0f, 1.0f, 0.5f, "Amplitude Modulation Mix");
+		params[AM_PARAM].description = "Mix between the FM LFO and the voltage supplied in AM input";
+
+		params[NOISE_PARAM].config(0.0f, 1.0f, 0.5f, "Noise Mix");
+		params[NOISE_PARAM].description = "Mix between the FM-AM modulated LFO and the internal noise source";
+
+		params[CLOCK_PARAM].config(-2.0, 6.0, 1.0, "Clock frequency");
+		
+		params[PROB_PARAM].config(0.0, 1.0, 1.0, "Clock probability", "%", 0.0f, 100.0f);
+		params[PROB_PARAM].description = "Probability of an expected clock-tick";
+
+		params[DELAYL_PARAM].config(1.0f, 2.0f, 1.0f, "Delay length", "ms", 2.0f, 500.0f, -1000.0f);
+
+		params[GATEL_PARAM].config(1.0f, 2.0f, 1.0f, "Gate length", "ms", 2.0f, 500.0f, -1000.0f);
+
+		params[DELAYS_PARAM].config(1.0f, 2.0f, 1.0f, "Delay length spread", "ms", 2.0f, 500.0f, -1000.0f);
+		params[DELAYS_PARAM].description = "Magnitude of random time applied to delay length";
+
+		params[GATES_PARAM].config(1.0f, 2.0f, 1.0f, "Gate length spread", "ms", 2.0f, 500.0f, -1000.0f);
+		params[GATES_PARAM].description = "Magnitude of random time applied to gate length";
+
+		params[SLOPE_PARAM].config(0.0, 1.0, 0.0, "Slope");
+		params[SLOPE_PARAM].description = "Linear to exponential slope";
+
+		params[SPEED_PARAM].config(0.0, 1.0, 0.0, "Inertia", "%", 0.0f, 100.0f);
+		params[SPEED_PARAM].description = "Resistance of the signal to change";
+
+		params[ATTN_PARAM].config(0.0, 1.0, 1.0, "Attenuation", "%", 0.0f, -100.0f, 100.0f);
 
 	}
 	
