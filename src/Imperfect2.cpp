@@ -1,12 +1,11 @@
-#include "dsp/digital.hpp"
-
 #include "AH.hpp"
-#include "Core.hpp"
-#include "UI.hpp"
+#include "AHCommon.hpp"
 
 #include <iostream>
 
-struct Imperfect2 : AHModule {
+using namespace ah;
+
+struct Imperfect2 : core::AHModule {
 
 	enum ParamIds {
 		ENUMS(DELAY_PARAM,4),
@@ -33,7 +32,7 @@ struct Imperfect2 : AHModule {
 		NUM_LIGHTS
 	};
 
-	Imperfect2() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
+	Imperfect2() : core::AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
 
 		for (int i = 0; i < 4; i++) {
 			params[DELAY_PARAM + i].config(1.0f, 2.0f, 1.0f, "Delay length", "ms", 2.0f, 500.0f, -1000.0f);
@@ -66,8 +65,6 @@ struct Imperfect2 : AHModule {
 		}
 	}
 
-	Core core;
-
 	bool delayState[4];
 	bool gateState[4];
 	float delayTime[4];
@@ -81,20 +78,20 @@ struct Imperfect2 : AHModule {
 	int actDelayMs[4] = {0, 0, 0, 0};
 	int actGateMs[4] = {0, 0, 0, 0};
 	
-	AHPulseGenerator delayPhase[4];
-	AHPulseGenerator gatePhase[4];
-	dsp::SchmittTrigger inTrigger[4];
+	digital::AHPulseGenerator delayPhase[4];
+	digital::AHPulseGenerator gatePhase[4];
+	rack::dsp::SchmittTrigger inTrigger[4];
 
 	int counter[4];
 	
-	BpmCalculator bpmCalc[4];
+	digital::BpmCalculator bpmCalc[4];
 		
 };
 
 void Imperfect2::step() {
 	
-	stepX++;
-	
+	core::AHModule::step();
+
 	float dlyLen;
 	float dlySpr;
 	float gateLen;
@@ -182,12 +179,12 @@ void Imperfect2::step() {
 				if (!gatePhase[i].ishigh() && !delayPhase[i].ishigh()) {
 
 				// Determine delay and gate times for all active outputs
-					double rndD = clamp(core.gaussrand(), -2.0f, 2.0f);
+					double rndD = clamp(digital::gaussrand(), -2.0f, 2.0f);
 					delayTime[i] = clamp(dlyLen + dlySpr * rndD, 0.0f, 100.0f);
 				
 					// The modified gate time cannot be earlier than the start of the delay
-					double rndG = clamp(core.gaussrand(), -2.0f, 2.0f);
-					gateTime[i] = clamp(gateLen + gateSpr * rndG, Core::TRIGGER, 100.0f);
+					double rndG = clamp(digital::gaussrand(), -2.0f, 2.0f);
+					gateTime[i] = clamp(gateLen + gateSpr * rndG, digital::TRIGGER, 100.0f);
 
 					if (debugEnabled()) { 
 						std::cout << stepX << " Delay: " << i << ": Len: " << dlyLen << " Spr: " << dlySpr << " r: " << rndD << " = " << delayTime[i] << std::endl; 
@@ -244,7 +241,6 @@ void Imperfect2::step() {
 struct Imperfect2Box : TransparentWidget {
 	
 	Imperfect2 *module;
-	int frame = 0;
 	std::shared_ptr<Font> font;
 	float *bpm;
 	int *dly;
@@ -315,21 +311,20 @@ struct Imperfect2Widget : ModuleWidget {
 	
 		setModule(module);
 		setPanel(SVG::load(asset::plugin(pluginInstance, "res/Imperfect2.svg")));
-		UI ui;
 
 		for (int i = 0; i < 4; i++) {
-			addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, i * 2 + 1, true, true), module, Imperfect2::TRIG_INPUT + i));
-			addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 1, i * 2 + 1, true, true), module, Imperfect2::DELAY_INPUT + i));
-			addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 2, i * 2 + 1, true, true), module, Imperfect2::DELAY_PARAM + i));
-			addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 3, i * 2 + 1, true, true), module, Imperfect2::DELAYSPREAD_INPUT + i));
-			addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 4, i * 2 + 1, true, true), module, Imperfect2::DELAYSPREAD_PARAM + i));
-			addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 5, i * 2 + 1, true, true), module, Imperfect2::LENGTH_INPUT + i));
-			addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 6, i * 2 + 1, true, true), module, Imperfect2::LENGTH_PARAM + i)); 
-			addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 7, i * 2 + 1, true, true), module, Imperfect2::LENGTHSPREAD_INPUT + i));
-			addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 8, i * 2 + 1, true, true), module, Imperfect2::LENGTHSPREAD_PARAM + i)); 
-			addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 9, i * 2 + 1, true, true), module, Imperfect2::DIVISION_PARAM + i));
-			addChild(createLight<MediumLight<GreenRedLight>>(ui.getPosition(UI::LIGHT, 10, i * 2 + 1, true, true), module, Imperfect2::OUT_LIGHT + i * 2));
-			addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 11, i * 2+ 1, true, true), module, Imperfect2::OUT_OUTPUT + i));
+			addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, i * 2 + 1, true, true), module, Imperfect2::TRIG_INPUT + i));
+			addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 1, i * 2 + 1, true, true), module, Imperfect2::DELAY_INPUT + i));
+			addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 2, i * 2 + 1, true, true), module, Imperfect2::DELAY_PARAM + i));
+			addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 3, i * 2 + 1, true, true), module, Imperfect2::DELAYSPREAD_INPUT + i));
+			addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 4, i * 2 + 1, true, true), module, Imperfect2::DELAYSPREAD_PARAM + i));
+			addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 5, i * 2 + 1, true, true), module, Imperfect2::LENGTH_INPUT + i));
+			addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 6, i * 2 + 1, true, true), module, Imperfect2::LENGTH_PARAM + i)); 
+			addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 7, i * 2 + 1, true, true), module, Imperfect2::LENGTHSPREAD_INPUT + i));
+			addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 8, i * 2 + 1, true, true), module, Imperfect2::LENGTHSPREAD_PARAM + i)); 
+			addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 9, i * 2 + 1, true, true), module, Imperfect2::DIVISION_PARAM + i));
+			addChild(createLight<MediumLight<GreenRedLight>>(gui::getPosition(gui::LIGHT, 10, i * 2 + 1, true, true), module, Imperfect2::OUT_LIGHT + i * 2));
+			addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 11, i * 2+ 1, true, true), module, Imperfect2::OUT_OUTPUT + i));
 		}
 
 

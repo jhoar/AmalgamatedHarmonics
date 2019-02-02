@@ -1,8 +1,8 @@
 #include "common.hpp"
-#include "dsp/minblep.hpp"
-#include "dsp/filter.hpp"
 
-#include "Core.hpp"
+#include "AHCommon.hpp"
+
+using namespace ah;
 
 // Andrew Belt's LFO-2 code
 struct LowFrequencyOscillator {
@@ -35,9 +35,9 @@ struct LowFrequencyOscillator {
 	}
 	float sin() {
 		if (offset)
-			return 1.0f - cosf(2 * PI * phase) * (invert ? -1.0f : 1.0f);
+			return 1.0f - cosf(2 * core::PI * phase) * (invert ? -1.0f : 1.0f);
 		else
-			return sinf(2 * PI * phase) * (invert ? -1.0f : 1.0f);
+			return sinf(2 * core::PI * phase) * (invert ? -1.0f : 1.0f);
 	}
 	float tri(float x) {
 		return 4.0f * fabsf(x - roundf(x));
@@ -62,7 +62,7 @@ struct LowFrequencyOscillator {
 		return offset ? sqr + 1.0f : sqr;
 	}
 	float light() {
-		return sinf(2 * PI * phase);
+		return sinf(2 * core::PI * phase);
 	}
 };
 
@@ -142,7 +142,7 @@ struct EvenVCO {
 		tri += 4.0 * triSquare * freq * delta;
 		tri *= (1.0 - 40.0 * delta);
 
-		sine = -cosf(2* PI * phase);
+		sine = -cosf(2* core::PI * phase);
 		doubleSaw = (phase < 0.5) ? (-1.0 + 4.0*phase) : (-1.0 + 4.0*(phase - 0.5));
 		doubleSaw += doubleSawMinBLEP.process();
 		even = 0.55 * (doubleSaw + 1.27 * sine);

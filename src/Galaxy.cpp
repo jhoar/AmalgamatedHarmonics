@@ -1,10 +1,11 @@
-#include "AH.hpp"
-#include "Core.hpp"
-#include "UI.hpp"
-
 #include <iostream>
 
-struct Galaxy : AHModule {
+#include "AH.hpp"
+#include "AHCommon.hpp"
+
+using namespace ah;
+
+struct Galaxy : core::AHModule {
 
 	const static int NUM_PITCHES = 6;
 	const static int N_QUALITIES = 6;
@@ -78,7 +79,7 @@ struct Galaxy : AHModule {
 		NUM_LIGHTS
 	};
 	
-	Galaxy() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
+	Galaxy() : core::AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
 		params[KEY_PARAM].config(0.0, 11.0, 0.0, "Key");
 		params[KEY_PARAM].description = "Key from which chords are selected"; 
 
@@ -132,8 +133,6 @@ struct Galaxy : AHModule {
 
 	}
 
-	Core core;
-
 	int ChordTable[N_QUALITIES] = { 1, 31, 78, 25, 71, 91 }; // M, 7, m7, M7, m, dim
 	int QualityMap[3][QMAP_SIZE] = { 
 		{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,1},
@@ -150,7 +149,7 @@ struct Galaxy : AHModule {
 	
 	int poll = 50000;
 
-	dsp::SchmittTrigger moveTrigger;
+	rack::dsp::SchmittTrigger moveTrigger;
 
 	int degree = 0;
 	int quality = 0;
@@ -181,7 +180,7 @@ struct Galaxy : AHModule {
 
 void Galaxy::step() {
 	
-	AHModule::step();
+	core::AHModule::step();
 
 	int badLight = 0;
 
@@ -190,24 +189,24 @@ void Galaxy::step() {
 
 	if (inputs[MODE_INPUT].isConnected()) {
 		float fMode = inputs[MODE_INPUT].getVoltage();
-		currMode = CoreUtil().getModeFromVolts(fMode);
+		currMode = music::getModeFromVolts(fMode);
 	} else {
 		currMode = params[MODE_PARAM].getValue();
 	}
 
 	if (inputs[KEY_INPUT].isConnected()) {
 		float fRoot = inputs[KEY_INPUT].getVoltage();
-		currRoot = CoreUtil().getKeyFromVolts(fRoot);
+		currRoot = music::getKeyFromVolts(fRoot);
 	} else {
 		currRoot = params[KEY_PARAM].getValue();
 	}
 
 	if (mode == 1) {
-		rootName = CoreUtil().noteNames[currRoot];
+		rootName = music::noteNames[currRoot];
 		modeName = "";
 	} else if (mode == 2) {
-		rootName = CoreUtil().noteNames[currRoot];
-		modeName = CoreUtil().modeNames[currMode];
+		rootName = music::noteNames[currRoot];
+		modeName = music::modeNames[currMode];
 	} else {
 		rootName = "";
 		modeName = "";
@@ -261,10 +260,10 @@ void Galaxy::step() {
 		// Determine which chord corresponds to the grid position
 		int *chordArray;
 		switch(inversion) {
-			case 0: 	chordArray = CoreUtil().ChordTable[chord].root; 	break;
-			case 1: 	chordArray = CoreUtil().ChordTable[chord].first; 	break;
-			case 2: 	chordArray = CoreUtil().ChordTable[chord].second;	break;
-			default: 	chordArray = CoreUtil().ChordTable[chord].root;
+			case 0: 	chordArray = music::ChordTable[chord].root; 	break;
+			case 1: 	chordArray = music::ChordTable[chord].first; 	break;
+			case 2: 	chordArray = music::ChordTable[chord].second;	break;
+			default: 	chordArray = music::ChordTable[chord].root;
 		}
 
 		// std::cout << "End position: Root: " << currRoot << 
@@ -301,9 +300,9 @@ void Galaxy::step() {
 				if (off == 0) {
 					off = (rand() % 3 + 1) * 12;
 				}
-				outVolts[j] = CoreUtil().getVoltsFromPitch(chordArray[j] + off, noteIndex);			
+				outVolts[j] = music::getVoltsFromPitch(chordArray[j] + off, noteIndex);			
 			} else {
-				outVolts[j] = CoreUtil().getVoltsFromPitch(chordArray[j], noteIndex);			
+				outVolts[j] = music::getVoltsFromPitch(chordArray[j], noteIndex);			
 			}	
 		}
 
@@ -314,9 +313,9 @@ void Galaxy::step() {
 			int chordIndex = ChordTable[quality];
 
 			chordName = 
-				CoreUtil().noteNames[noteIndex] + 
-				CoreUtil().ChordTable[chordIndex].quality + " " + 
-				CoreUtil().inversionNames[inversion];
+				music::noteNames[noteIndex] + 
+				music::ChordTable[chordIndex].quality + " " + 
+				music::inversionNames[inversion];
 
 			if (mode == 2) {
 				if (haveMode) {
@@ -416,8 +415,8 @@ void Galaxy::getFromKey() {
 	}
 
 	// Just major scale
-	int *curScaleArr = CoreUtil().ASCALE_IONIAN;
-	int notesInScale = LENGTHOF(CoreUtil().ASCALE_IONIAN);
+	int *curScaleArr = music::ASCALE_IONIAN;
+	int notesInScale = LENGTHOF(music::ASCALE_IONIAN);
 
 	// Determine move through the scale
 	degree += radialInput; 
@@ -439,14 +438,14 @@ void Galaxy::getFromKeyMode() {
 	// Determine move through the scale
 	degree += rotateInput;
 	if (degree < 0) {
-		degree += Core::NUM_DEGREES;
-	} else if (degree >= Core::NUM_DEGREES) {
-		degree -= Core::NUM_DEGREES;
+		degree += music::NUM_DEGREES;
+	} else if (degree >= music::NUM_DEGREES) {
+		degree -= music::NUM_DEGREES;
 	}
 
 	// From the input root, mode and degree, we can get the root chord note and quality (Major,Minor,Diminshed)
 	int q;
-	CoreUtil().getRootFromMode(currMode,currRoot,degree,&noteIndex,&q);
+	music::getRootFromMode(currMode,currRoot,degree,&noteIndex,&q);
 	quality = QualityMap[q][rand() % QMAP_SIZE];
 
 }
@@ -454,7 +453,6 @@ void Galaxy::getFromKeyMode() {
 struct GalaxyDisplay : TransparentWidget {
 	
 	Galaxy *module;
-	int frame = 0;
 	std::shared_ptr<Font> font;
 
 	GalaxyDisplay() {
@@ -493,10 +491,9 @@ struct GalaxyWidget : ModuleWidget {
 	
 		setModule(module);
 		setPanel(SVG::load(asset::plugin(pluginInstance, "res/Galaxy.svg")));
-		UI ui;
 
-		float div = (PI * 2) / (float)Galaxy::N_QUALITIES;
-		float div2 = (PI * 2) / (float)(Galaxy::N_QUALITIES * Galaxy::N_QUALITIES);
+		float div = (core::PI * 2) / (float)Galaxy::N_QUALITIES;
+		float div2 = (core::PI * 2) / (float)(Galaxy::N_QUALITIES * Galaxy::N_QUALITIES);
 
 		for (int q = 0; q < Galaxy::N_QUALITIES; q++) {
 
@@ -517,22 +514,22 @@ struct GalaxyWidget : ModuleWidget {
 		}
 		
 		for (int i = 0; i < 6; i++) {
-			addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, i, 5, true, false), module, Galaxy::PITCH_OUTPUT + i));
+			addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, i, 5, true, false), module, Galaxy::PITCH_OUTPUT + i));
 		}	
 
 		addInput(createInput<PJ301MPort>(Vec(102, 140), module, Galaxy::MOVE_INPUT));
 
-		addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 0, 4, true, false), module, Galaxy::KEY_PARAM)); 
-		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 1, 4, true, false), module, Galaxy::KEY_INPUT));
+		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 0, 4, true, false), module, Galaxy::KEY_PARAM)); 
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 1, 4, true, false), module, Galaxy::KEY_INPUT));
 
-		addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 4, 4, true, false), module, Galaxy::MODE_PARAM)); 
-		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 5, 4, true, false), module, Galaxy::MODE_INPUT));
+		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 4, 4, true, false), module, Galaxy::MODE_PARAM)); 
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 5, 4, true, false), module, Galaxy::MODE_INPUT));
 
-		Vec trim = ui.getPosition(UI::TRIMPOT, 5, 3, true, false);
+		Vec trim = gui::getPosition(gui::TRIMPOT, 5, 3, true, false);
 		trim.x += 15;
 		trim.y += 25;
 
-		addParam(createParam<AHTrimpotNoSnap>(trim, module, Galaxy::BAD_PARAM)); 
+		addParam(createParam<gui::AHTrimpotNoSnap>(trim, module, Galaxy::BAD_PARAM)); 
 
 		trim.x += 15;
 		trim.y += 20;

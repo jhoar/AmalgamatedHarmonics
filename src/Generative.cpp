@@ -3,11 +3,12 @@
 #include "dsp/noise.hpp"
 
 #include "AH.hpp"
-#include "Core.hpp"
-#include "UI.hpp"
+#include "AHCommon.hpp"
 #include "VCO.hpp"
 
-struct Generative : AHModule {
+using namespace ah;
+
+struct Generative : core::AHModule {
 
 	enum ParamIds {
 		FREQ_PARAM,
@@ -50,7 +51,7 @@ struct Generative : AHModule {
 		NUM_LIGHTS
 	};
 
-	Generative() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) { 
+	Generative() : core::AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) { 
 
 		// LFO section
 		params[FREQ_PARAM].config(-8.0f, 10.0f, 1.0f, "Frequency");
@@ -126,16 +127,14 @@ struct Generative : AHModule {
 
 	}
 
-	Core core;
-
-	dsp::SchmittTrigger sampleTrigger;
-	dsp::SchmittTrigger holdTrigger;
-	dsp::SchmittTrigger clockTrigger;
+	rack::dsp::SchmittTrigger sampleTrigger;
+	rack::dsp::SchmittTrigger holdTrigger;
+	rack::dsp::SchmittTrigger clockTrigger;
 	bogaudio::dsp::PinkNoiseGenerator pink;
 	LowFrequencyOscillator oscillator;
 	LowFrequencyOscillator clock;
-	AHPulseGenerator delayPhase;
-	AHPulseGenerator gatePhase;
+	digital::AHPulseGenerator delayPhase;
+	digital::AHPulseGenerator gatePhase;
 
 	float target = 0.0f;
 	float current = 0.0f;
@@ -238,7 +237,7 @@ void Generative::step() {
 				float dlyLen = log2(params[DELAYL_PARAM].getValue());
 				float dlySpr = log2(params[DELAYS_PARAM].getValue());
 
-				double rndD = clamp(core.gaussrand(), -2.0f, 2.0f);
+				double rndD = clamp(digital::gaussrand(), -2.0f, 2.0f);
 				delayTime = clamp(dlyLen + dlySpr * rndD, 0.0f, 100.0f);
 				
 				// Trigger the respective delay pulse generator
@@ -258,8 +257,8 @@ void Generative::step() {
 		float gateLen = log2(params[GATEL_PARAM].getValue());
 		float gateSpr = log2(params[GATES_PARAM].getValue());
 
-		double rndG = clamp(core.gaussrand(), -2.0f, 2.0f);
-		gateTime = clamp(gateLen + gateSpr * rndG, Core::TRIGGER, 100.0f);
+		double rndG = clamp(digital::gaussrand(), -2.0f, 2.0f);
+		gateTime = clamp(gateLen + gateSpr * rndG, digital::TRIGGER, 100.0f);
 
 		// Open the gate and set flags
 		gatePhase.trigger(gateTime);
@@ -294,7 +293,7 @@ void Generative::step() {
 	if (quantise) {
 		int i;
 		int d;
-		out = CoreUtil().getPitchFromVolts(current, Core::NOTE_C, Core::SCALE_CHROMATIC, &i, &d);
+		out = music::getPitchFromVolts(current, music::NOTE_C, music::SCALE_CHROMATIC, &i, &d);
 	} else {
 		out = current;
 	}
@@ -333,43 +332,42 @@ struct GenerativeWidget : ModuleWidget {
 		
 		setModule(module);
 		setPanel(SVG::load(asset::plugin(pluginInstance, "res/Generative.svg")));
-		UI ui;
 
 		// LFO section
-		addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 0, 0, false, false), module, Generative::FREQ_PARAM));
-		addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 1, 0, false, false), module, Generative::WAVE_PARAM));
-		addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 2, 0, false, false), module, Generative::FM_PARAM));
-		addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 3, 0, false, false), module, Generative::AM_PARAM));
-		addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 4, 0, false, false), module, Generative::NOISE_PARAM));
-		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 1, 1, false, false), module, Generative::WAVE_INPUT));
-		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 2, 1, false, false), module, Generative::FM_INPUT));
-		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 3, 1, false, false), module, Generative::AM_INPUT));
-		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 4, 1, false, false), module, Generative::NOISE_INPUT));
+		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 0, 0, false, false), module, Generative::FREQ_PARAM));
+		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 1, 0, false, false), module, Generative::WAVE_PARAM));
+		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 2, 0, false, false), module, Generative::FM_PARAM));
+		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 3, 0, false, false), module, Generative::AM_PARAM));
+		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 4, 0, false, false), module, Generative::NOISE_PARAM));
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 1, 1, false, false), module, Generative::WAVE_INPUT));
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 2, 1, false, false), module, Generative::FM_INPUT));
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 3, 1, false, false), module, Generative::AM_INPUT));
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 4, 1, false, false), module, Generative::NOISE_INPUT));
 
 		// Gate Section
-		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 2, false, false), module, Generative::SAMPLE_INPUT));
-		addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 1, 2, false, false), module, Generative::CLOCK_PARAM));
-		addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 2, 2, false, false), module, Generative::PROB_PARAM));
-		addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 3, 2, false, false), module, Generative::DELAYL_PARAM));
-		addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 4, 2, false, false), module, Generative::GATEL_PARAM));
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 2, false, false), module, Generative::SAMPLE_INPUT));
+		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 1, 2, false, false), module, Generative::CLOCK_PARAM));
+		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 2, 2, false, false), module, Generative::PROB_PARAM));
+		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 3, 2, false, false), module, Generative::DELAYL_PARAM));
+		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 4, 2, false, false), module, Generative::GATEL_PARAM));
 
-		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 1, 3, false, false), module, Generative::CLOCK_INPUT));
-		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 2, 3, false, false), module, Generative::PROB_INPUT));
-		addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 3, 3, false, false), module, Generative::DELAYS_PARAM));
-		addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 4, 3, false, false), module, Generative::GATES_PARAM));
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 1, 3, false, false), module, Generative::CLOCK_INPUT));
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 2, 3, false, false), module, Generative::PROB_INPUT));
+		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 3, 3, false, false), module, Generative::DELAYS_PARAM));
+		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 4, 3, false, false), module, Generative::GATES_PARAM));
 
 		// Curve Section
-		addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 0, 4, false, false), module, Generative::SLOPE_PARAM));
-		addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 1, 4, false, false), module, Generative::SPEED_PARAM));
-		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 2, 4, false, false), module, Generative::HOLD_INPUT));
-		addChild(createLight<MediumLight<GreenRedLight>>(ui.getPosition(UI::LIGHT, 3, 4, false, false), module, Generative::GATE_LIGHT));
-		addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 4, 4, false, false), module, Generative::ATTN_PARAM)); 
+		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 0, 4, false, false), module, Generative::SLOPE_PARAM));
+		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 1, 4, false, false), module, Generative::SPEED_PARAM));
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 2, 4, false, false), module, Generative::HOLD_INPUT));
+		addChild(createLight<MediumLight<GreenRedLight>>(gui::getPosition(gui::LIGHT, 3, 4, false, false), module, Generative::GATE_LIGHT));
+		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 4, 4, false, false), module, Generative::ATTN_PARAM)); 
 
-		addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 5, false, false), module, Generative::LFO_OUTPUT));
-		addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 1, 5, false, false), module, Generative::MIXED_OUTPUT));
-		addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 2, 5, false, false), module, Generative::NOISE_OUTPUT));
-		addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 3, 5, false, false), module, Generative::GATE_OUTPUT));
-		addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 4, 5, false, false), module, Generative::OUT_OUTPUT));
+		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 5, false, false), module, Generative::LFO_OUTPUT));
+		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 1, 5, false, false), module, Generative::MIXED_OUTPUT));
+		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 2, 5, false, false), module, Generative::NOISE_OUTPUT));
+		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 3, 5, false, false), module, Generative::GATE_OUTPUT));
+		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 4, 5, false, false), module, Generative::OUT_OUTPUT));
 
 	}
 

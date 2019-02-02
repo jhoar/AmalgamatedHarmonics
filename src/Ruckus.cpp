@@ -1,10 +1,11 @@
 #include "common.hpp"
 
 #include "AH.hpp"
-#include "Core.hpp"
-#include "UI.hpp"
+#include "AHCommon.hpp"
 
-struct Ruckus : AHModule {
+using namespace ah;
+
+struct Ruckus : core::AHModule {
 
 	enum ParamIds {
 		ENUMS(DIV_PARAM,16),
@@ -32,7 +33,7 @@ struct Ruckus : AHModule {
 		NUM_LIGHTS
 	};
 
-	Ruckus() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
+	Ruckus() : core::AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
 
 		for (int y = 0; y < 4; y++) {
 
@@ -55,6 +56,7 @@ struct Ruckus : AHModule {
 		}
 
 		onReset();
+
 	}
 	
 	void step() override;
@@ -107,7 +109,7 @@ struct Ruckus : AHModule {
 		PROB_TYPE
 	};
 	
-	void receiveEvent(ParamEvent e) override {
+	void receiveEvent(core::ParamEvent e) override {
 		if (receiveEvents) {
 			switch(e.pType) {
 				case ParamType::DIV_TYPE: 
@@ -126,7 +128,6 @@ struct Ruckus : AHModule {
 		keepStateDisplay = 0;
 	}
 	
-	
 	void onReset() override {	
 		for (int i = 0; i < 4; i++) {
 			xMute[i] = true;
@@ -134,19 +135,17 @@ struct Ruckus : AHModule {
 		}
 	}	
 	
-	Core core;
-
-	AHPulseGenerator xGate[4];
-	AHPulseGenerator yGate[4];
+	digital::AHPulseGenerator xGate[4];
+	digital::AHPulseGenerator yGate[4];
 	
 	bool xMute[4] = {true, true, true, true};
 	bool yMute[4] = {true, true, true, true};
 	
-	dsp::SchmittTrigger xLockTrigger[4];
-	dsp::SchmittTrigger yLockTrigger[4];
+	rack::dsp::SchmittTrigger xLockTrigger[4];
+	rack::dsp::SchmittTrigger yLockTrigger[4];
 
-	dsp::SchmittTrigger inTrigger;
-	dsp::SchmittTrigger resetTrigger;
+	rack::dsp::SchmittTrigger inTrigger;
+	rack::dsp::SchmittTrigger resetTrigger;
 
 	int division[16];
 	int shift[16];
@@ -159,7 +158,7 @@ struct Ruckus : AHModule {
 
 void Ruckus::step() {
 	
-	AHModule::step();
+	core::AHModule::step();
 		
 	for (int i = 0; i < 4; i++) {
 
@@ -214,8 +213,8 @@ void Ruckus::step() {
 				
 				if (target % division[i] == 0) { 
 					if (random::uniform() < prob[i]) {
-						xGate[x].trigger(Core::TRIGGER);
-						yGate[y].trigger(Core::TRIGGER);
+						xGate[x].trigger(digital::TRIGGER);
+						yGate[y].trigger(digital::TRIGGER);
 						state[i] = 2;
 					}
 				}
@@ -277,14 +276,13 @@ struct RuckusWidget : ModuleWidget {
 	
 		setModule(module);
 		setPanel(SVG::load(asset::plugin(pluginInstance, "res/Ruckus.svg")));
-		UI ui;
 
 		//299.5 329.7
-		Vec a = ui.getPosition(UI::PORT, 6, 5, false, false);
+		Vec a = gui::getPosition(gui::PORT, 6, 5, false, false);
 		a.x = 312.0;
 
 		//325.5 329.7
-		Vec b = ui.getPosition(UI::PORT, 7, 5, false, false);
+		Vec b = gui::getPosition(gui::PORT, 7, 5, false, false);
 		b.x = 352.0;
 		
 		addInput(createInput<PJ301MPort>(a, module, Ruckus::TRIG_INPUT));
@@ -296,18 +294,18 @@ struct RuckusWidget : ModuleWidget {
 		for (int y = 0; y < 4; y++) {
 			for (int x = 0; x < 4; x++) {
 				int i = y * 4 + x;
-				Vec v = ui.getPosition(UI::KNOB, 1 + x * 2, y * 2, true, true);
+				Vec v = gui::getPosition(gui::KNOB, 1 + x * 2, y * 2, true, true);
 				
-				AHKnobSnap *divW = createParam<AHKnobSnap>(v, module, Ruckus::DIV_PARAM + i);
-				AHParamWidget::set<AHKnobSnap>(divW, Ruckus::DIV_TYPE, i);
+				gui::AHKnobSnap *divW = createParam<gui::AHKnobSnap>(v, module, Ruckus::DIV_PARAM + i);
+				gui::AHParamWidget::set<gui::AHKnobSnap>(divW, Ruckus::DIV_TYPE, i);
 				addParam(divW);
 
-				AHTrimpotNoSnap *probW = createParam<AHTrimpotNoSnap>(Vec(v.x + xd, v.y + yd), module, Ruckus::PROB_PARAM + i);
-				AHParamWidget::set<AHTrimpotNoSnap>(probW, Ruckus::PROB_TYPE, i);
+				gui::AHTrimpotNoSnap *probW = createParam<gui::AHTrimpotNoSnap>(Vec(v.x + xd, v.y + yd), module, Ruckus::PROB_PARAM + i);
+				gui::AHParamWidget::set<gui::AHTrimpotNoSnap>(probW, Ruckus::PROB_TYPE, i);
 				addParam(probW);
 
-				AHTrimpotSnap *shiftW = createParam<AHTrimpotSnap>(Vec(v.x - xd + 4, v.y + yd), module, Ruckus::SHIFT_PARAM + i);
-				AHParamWidget::set<AHTrimpotSnap>(shiftW, Ruckus::SHIFT_TYPE, i);
+				gui::AHTrimpotSnap *shiftW = createParam<gui::AHTrimpotSnap>(Vec(v.x - xd + 4, v.y + yd), module, Ruckus::SHIFT_PARAM + i);
+				gui::AHParamWidget::set<gui::AHTrimpotSnap>(shiftW, Ruckus::SHIFT_TYPE, i);
 				addParam(shiftW);
 
 				addChild(createLight<MediumLight<GreenLight>>(Vec(v.x - xd + 5, v.y - yd + 12), module, Ruckus::ACTIVE_LIGHT + i));
@@ -319,33 +317,33 @@ struct RuckusWidget : ModuleWidget {
 		float d = 12.0f;
 
 		for (int x = 0; x < 4; x++) {
-			addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 1 + x * 2, 8, true, true), module, Ruckus::XOUT_OUTPUT + x));
+			addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 1 + x * 2, 8, true, true), module, Ruckus::XOUT_OUTPUT + x));
 			
-			Vec bVec = ui.getPosition(UI::BUTTON, 1 + x * 2, 7, true, true);
+			Vec bVec = gui::getPosition(gui::BUTTON, 1 + x * 2, 7, true, true);
 			bVec.y = bVec.y + d;
-			addParam(createParam<AHButton>(bVec, module, Ruckus::XMUTE_PARAM + x));
+			addParam(createParam<gui::AHButton>(bVec, module, Ruckus::XMUTE_PARAM + x));
 			
-			Vec lVec = ui.getPosition(UI::LIGHT, 1 + x * 2, 7, true, true);
+			Vec lVec = gui::getPosition(gui::LIGHT, 1 + x * 2, 7, true, true);
 			lVec.y = lVec.y + d;
 			addChild(createLight<MediumLight<GreenLight>>(lVec, module, Ruckus::XMUTE_LIGHT + x));
 
 		}
 
 		for (int y = 0; y < 4; y++) {
-			addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT,9, y * 2, true, true), module, Ruckus::YOUT_OUTPUT + y));
+			addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT,9, y * 2, true, true), module, Ruckus::YOUT_OUTPUT + y));
 
-			Vec bVec = ui.getPosition(UI::BUTTON, 8, y * 2, true, true);
+			Vec bVec = gui::getPosition(gui::BUTTON, 8, y * 2, true, true);
 			bVec.x = bVec.x + d;		
-			addParam(createParam<AHButton>(bVec, module, Ruckus::YMUTE_PARAM + y));
+			addParam(createParam<gui::AHButton>(bVec, module, Ruckus::YMUTE_PARAM + y));
 
-			Vec lVec = ui.getPosition(UI::LIGHT, 8, y * 2, true, true);
+			Vec lVec = gui::getPosition(gui::LIGHT, 8, y * 2, true, true);
 			lVec.x = lVec.x + d;
 			addChild(createLight<MediumLight<GreenLight>>(lVec, module, Ruckus::YMUTE_LIGHT + y));
 
 		}
 
 		if (module != NULL) {
-			StateDisplay *display = createWidget<StateDisplay>(Vec(30, 335));
+			gui::StateDisplay *display = createWidget<gui::StateDisplay>(Vec(30, 335));
 			display->module = module;
 			display->box.size = Vec(100, 140);
 			addChild(display);

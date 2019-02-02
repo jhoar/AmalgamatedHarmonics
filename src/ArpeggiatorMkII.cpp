@@ -1,10 +1,10 @@
 #include "AH.hpp"
-#include "Core.hpp"
-#include "UI.hpp"
+#include "AHCommon.hpp"
 #include "component.hpp"
 
 #include <iostream>
 
+using namespace ah;
 
 struct Pattern {
 	
@@ -241,7 +241,6 @@ struct RezPattern : NotePattern {
 		notes.push_back(0);
 	}
 	
-	
 };
 
 struct OnTheRunPattern : NotePattern {
@@ -263,7 +262,6 @@ struct OnTheRunPattern : NotePattern {
 	}
 	
 };
-
 
 struct Arpeggio {
 
@@ -409,8 +407,7 @@ struct LeftRightArp : Arpeggio {
 	
 };
 
-
-struct Arpeggiator2 : AHModule {
+struct Arpeggiator2 : core::AHModule {
 	
 	const static int MAX_STEPS = 16;
 	const static int MAX_DIST = 12; //Octave
@@ -448,7 +445,7 @@ struct Arpeggiator2 : AHModule {
 		NUM_LIGHTS
 	};
 	
-	Arpeggiator2() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
+	Arpeggiator2() : core::AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
 
 		params[LOCK_PARAM].config(0.0, 1.0, 0.0, "Input lock");
 
@@ -508,15 +505,15 @@ struct Arpeggiator2 : AHModule {
 	};
 	GateMode gateMode = TRIGGER;
 	
-	dsp::SchmittTrigger clockTrigger; // for clock
-	dsp::SchmittTrigger trigTrigger;  // for step trigger
-	dsp::SchmittTrigger lockTrigger;
-	dsp::SchmittTrigger buttonTrigger;
+	rack::dsp::SchmittTrigger clockTrigger; // for clock
+	rack::dsp::SchmittTrigger trigTrigger;  // for step trigger
+	rack::dsp::SchmittTrigger lockTrigger;
+	rack::dsp::SchmittTrigger buttonTrigger;
 	
-	dsp::PulseGenerator triggerPulse;
-	dsp::PulseGenerator gatePulse;
-	dsp::PulseGenerator eosPulse;
-	dsp::PulseGenerator eocPulse;
+	rack::dsp::PulseGenerator triggerPulse;
+	rack::dsp::PulseGenerator gatePulse;
+	rack::dsp::PulseGenerator eosPulse;
+	rack::dsp::PulseGenerator eocPulse;
 
 	bool locked = false;
 
@@ -544,8 +541,6 @@ struct Arpeggiator2 : AHModule {
 	float trans = 0;
 	float scale = 0;
 	
-	float semiTone = 1.0 / 12.0;
-
 	UpPattern		patt_up; 
 	DownPattern 	patt_down; 
 	UpDownPattern 	patt_updown;
@@ -570,7 +565,6 @@ struct Arpeggiator2 : AHModule {
 	LeftArp 		ui_arp_left;
 	RightLeftArp 	ui_arp_rightleft;
 	LeftRightArp 	ui_arp_leftright;
-
 
 	Pattern *currPatt = &patt_up;
 	Arpeggio *currArp = &arp_right;
@@ -722,7 +716,7 @@ void Arpeggiator2::step() {
 	// Received trigger before EOS, fire EOS gate anyway
 	if (triggerStatus && isRunning && !currPatt->isPatternFinished()) {
 			// Pulse the EOS gate
-		eosPulse.trigger(Core::TRIGGER);
+		eosPulse.trigger(digital::TRIGGER);
 		if (debugEnabled()) { std::cout << stepX << " " << id  << " Short sequence" << std::endl; }
 	}
 
@@ -753,7 +747,7 @@ void Arpeggiator2::step() {
 		currPatt->advance();
 		
 		// Pulse the EOC gate
-		eocPulse.trigger(Core::TRIGGER);
+		eocPulse.trigger(digital::TRIGGER);
 		if (debugEnabled()) { std::cout << stepX << " " << id  << " Finished Cycle" << std::endl; }
 		
 		// Reached the end of the sequence
@@ -768,7 +762,7 @@ void Arpeggiator2::step() {
 			isRunning = false;
 			
 			// Pulse the EOS gate
-			eosPulse.trigger(Core::TRIGGER);
+			eosPulse.trigger(digital::TRIGGER);
 			if (debugEnabled()) { std::cout << stepX << " " << id  << " Finished Sequence, flag: " << isRunning << std::endl; }
 
 		} else {
@@ -854,7 +848,7 @@ void Arpeggiator2::step() {
 
 				
 		// Finally set the out voltage
-		outVolts = clamp(pitches[currArp->getPitch()] + semiTone * (float)currPatt->getOffset(), -10.0f, 10.0f);
+		outVolts = clamp(pitches[currArp->getPitch()] + music::SEMITONE * (float)currPatt->getOffset(), -10.0f, 10.0f);
 		
 		if (debugEnabled()) { std::cout << stepX << " " << id  << " Output V = " << outVolts << std::endl; }
 		
@@ -862,7 +856,7 @@ void Arpeggiator2::step() {
 		currArp->advance();
 		
 		// Pulse the output gate
-		gatePulse.trigger(Core::TRIGGER);
+		gatePulse.trigger(digital::TRIGGER);
 		
 	}
 	
@@ -962,35 +956,34 @@ struct Arpeggiator2Widget : ModuleWidget {
 	
 		setModule(module);
 		setPanel(SVG::load(asset::plugin(pluginInstance, "res/Arpeggiator2.svg")));
-		UI ui;
 
-		addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 0, false, false), module, Arpeggiator2::OUT_OUTPUT));
-		addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 1, 0, false, false), module, Arpeggiator2::GATE_OUTPUT));
-		addParam(createParam<AHButton>(ui.getPosition(UI::BUTTON, 2, 0, false, false), module, Arpeggiator2::LOCK_PARAM));
-		addChild(createLight<MediumLight<GreenLight>>(ui.getPosition(UI::LIGHT, 2, 0, false, false), module, Arpeggiator2::LOCK_LIGHT));
-		addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 3, 0, false, false), module, Arpeggiator2::EOC_OUTPUT));
-		addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 4, 0, false, false), module, Arpeggiator2::EOS_OUTPUT));
+		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 0, false, false), module, Arpeggiator2::OUT_OUTPUT));
+		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 1, 0, false, false), module, Arpeggiator2::GATE_OUTPUT));
+		addParam(createParam<gui::AHButton>(gui::getPosition(gui::BUTTON, 2, 0, false, false), module, Arpeggiator2::LOCK_PARAM));
+		addChild(createLight<MediumLight<GreenLight>>(gui::getPosition(gui::LIGHT, 2, 0, false, false), module, Arpeggiator2::LOCK_LIGHT));
+		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 3, 0, false, false), module, Arpeggiator2::EOC_OUTPUT));
+		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 4, 0, false, false), module, Arpeggiator2::EOS_OUTPUT));
 			
 		addParam(createParam<BefacoPush>(Vec(195, 148), module, Arpeggiator2::TRIGGER_PARAM));
 		
 		for (int i = 0; i < Arpeggiator2::NUM_PITCHES; i++) {
-			addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, i, 5, true, false), module, Arpeggiator2::PITCH_INPUT + i));
+			addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, i, 5, true, false), module, Arpeggiator2::PITCH_INPUT + i));
 		}
 		
-		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 4, 4, true, false), module, Arpeggiator2::ARP_INPUT));
-		addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 5, 4, true, false), module, Arpeggiator2::ARP_PARAM)); 
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 4, 4, true, false), module, Arpeggiator2::ARP_INPUT));
+		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 5, 4, true, false), module, Arpeggiator2::ARP_PARAM)); 
 		
-		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 4, true, false), module, Arpeggiator2::TRIG_INPUT));
-		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 1, 4, true, false), module, Arpeggiator2::CLOCK_INPUT));
-		addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 3, 4, true, false), module, Arpeggiator2::SCALE_PARAM)); 
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 4, true, false), module, Arpeggiator2::TRIG_INPUT));
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 1, 4, true, false), module, Arpeggiator2::CLOCK_INPUT));
+		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 3, 4, true, false), module, Arpeggiator2::SCALE_PARAM)); 
 
 		
-		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 3, true, false), module, Arpeggiator2::PATT_INPUT));
-		addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 1, 3, true, false), module, Arpeggiator2::PATT_PARAM)); 
-		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 2, 3, true, false), module, Arpeggiator2::TRANS_INPUT)); 
-		addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 3, 3, true, false), module, Arpeggiator2::TRANS_PARAM)); 
-		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 4, 3, true, false), module, Arpeggiator2::LENGTH_INPUT));
-		addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 5, 3, true, false), module, Arpeggiator2::LENGTH_PARAM)); 
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 3, true, false), module, Arpeggiator2::PATT_INPUT));
+		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 1, 3, true, false), module, Arpeggiator2::PATT_PARAM)); 
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 2, 3, true, false), module, Arpeggiator2::TRANS_INPUT)); 
+		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 3, 3, true, false), module, Arpeggiator2::TRANS_PARAM)); 
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 4, 3, true, false), module, Arpeggiator2::LENGTH_INPUT));
+		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 5, 3, true, false), module, Arpeggiator2::LENGTH_PARAM)); 
 
 		if (module != NULL) {
 			Arpeggiator2Display *display = createWidget<Arpeggiator2Display>(Vec(10, 95));

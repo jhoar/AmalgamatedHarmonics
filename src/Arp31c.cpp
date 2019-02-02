@@ -1,6 +1,5 @@
 #include "AH.hpp"
-#include "Core.hpp"
-#include "UI.hpp"
+#include "AHCommon.hpp"
 #include "component.hpp"
 
 #include <iostream>
@@ -207,8 +206,9 @@ struct LeftRightArp : Arpeggio {
 	
 };
 
+using namespace ah;
 
-struct Arp31 : AHModule {
+struct Arp31 : core::AHModule {
 	
 	const static int MAX_STEPS = 16;
 	const static int MAX_DIST = 12; //Octave
@@ -234,7 +234,7 @@ struct Arp31 : AHModule {
 		NUM_LIGHTS
 	};
 	
-	Arp31() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
+	Arp31() : core::AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
 		params[OFFSET_PARAM].config(0.0, 10.0, 0.0, "Start offset");
 		params[OFFSET_PARAM].description = "Number of steps into the arpeggio to start";
 
@@ -293,8 +293,6 @@ struct Arp31 : AHModule {
 	
 	int poll = 5000;
 		
-	float semiTone = 1.0 / 12.0;
-
 	RightArp 		arp_right;
 	LeftArp 		arp_left;
 	RightLeftArp 	arp_rightleft;
@@ -318,7 +316,7 @@ struct Arp31 : AHModule {
 
 void Arp31::step() {
 	
-	AHModule::step();
+	core::AHModule::step();
 
 	// Wait a few steps for the inputs to flow through Rack
 	if (stepX < 10) { 
@@ -359,7 +357,7 @@ void Arp31::step() {
 			if (currArp->isArpeggioFinished()) {
 
 				// Pulse the EOC gate
-				eocPulse.trigger(Core::TRIGGER);
+				eocPulse.trigger(digital::TRIGGER);
 
 				if (debugEnabled()) { std::cout << stepX << " " << id  << " Finished Cycle" << std::endl; }
 				restart = true;
@@ -373,7 +371,7 @@ void Arp31::step() {
 			if (debugEnabled()) { std::cout << stepX << " " << id  << " Index: " << i << " V: " << outVolts << " Light: " << currLight << std::endl; }
 
 			// Pulse the output gate
-			gatePulse.trigger(Core::TRIGGER);
+			gatePulse.trigger(digital::TRIGGER);
 
 			// Completed 1 step
 			currArp->advance();
@@ -506,19 +504,18 @@ struct Arp31Widget : ModuleWidget {
 	
 		setModule(module);
 		setPanel(SVG::load(asset::plugin(pluginInstance, "res/Arp31c.svg")));
-		UI ui;
 		
-		addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 5, true, false), module, Arp31::OUT_OUTPUT));
-		addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 1, 5, true, false), module, Arp31::GATE_OUTPUT));
-		addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 2, 5, true, false), module, Arp31::EOC_OUTPUT));
+		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 5, true, false), module, Arp31::OUT_OUTPUT));
+		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 1, 5, true, false), module, Arp31::GATE_OUTPUT));
+		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 2, 5, true, false), module, Arp31::EOC_OUTPUT));
 
-		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 0, true, false), module, Arp31::PITCH_INPUT));
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 0, true, false), module, Arp31::PITCH_INPUT));
 
-		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 4, true, false), module, Arp31::CLOCK_INPUT));
-		addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 1, 4, true, false), module, Arp31::OFFSET_PARAM)); 
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 4, true, false), module, Arp31::CLOCK_INPUT));
+		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 1, 4, true, false), module, Arp31::OFFSET_PARAM)); 
 
-		addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 0, 2, true, false), module, Arp31::ARP_PARAM)); 
-		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 3, true, false), module, Arp31::ARP_INPUT));
+		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 0, 2, true, false), module, Arp31::ARP_PARAM)); 
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 3, true, false), module, Arp31::ARP_INPUT));
 
 		if (module != NULL) {
 			Arp31Display *displayW = createWidget<Arp31Display>(Vec(40, 100));

@@ -1,12 +1,12 @@
 #include "common.hpp"
-
 #include "dsp/noise.hpp"
 
 #include "AH.hpp"
-#include "Core.hpp"
-#include "UI.hpp"
+#include "AHCommon.hpp"
 
-struct SLN : AHModule {
+using namespace ah;
+
+struct SLN : core::AHModule {
 
 	enum ParamIds {
 		SPEED_PARAM,
@@ -28,7 +28,7 @@ struct SLN : AHModule {
 		NUM_LIGHTS
 	};
 
-	SLN() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
+	SLN() : core::AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
 		params[SPEED_PARAM].config(0.0, 1.0, 0.0, "Inertia", "%", 0.0f, 100.0f);
 		params[SPEED_PARAM].description = "Resistance of the signal to change";
 
@@ -43,9 +43,7 @@ struct SLN : AHModule {
 	
 	void step() override;
 
-	Core core;
-
-	dsp::SchmittTrigger inTrigger;
+	rack::dsp::SchmittTrigger inTrigger;
 	bogaudio::dsp::WhiteNoiseGenerator white;
 	bogaudio::dsp::PinkNoiseGenerator pink;
 	bogaudio::dsp::RedNoiseGenerator brown;
@@ -65,7 +63,7 @@ struct SLN : AHModule {
 
 void SLN::step() {
 	
-	AHModule::step();
+	core::AHModule::step();
 	
 	float noise;
 	int noiseType = params[NOISE_PARAM].getValue();
@@ -118,47 +116,37 @@ struct SLNWidget : ModuleWidget {
 	SLNWidget(SLN *module) {
 	
 		setModule(module);
-
-		UI ui;
-
-		box.size = Vec(45, 380);
-
-		{
-			SVGPanel *panel = new SVGPanel();
-			panel->box.size = box.size;
-			panel->setBackground(SVG::load(asset::plugin(pluginInstance, "res/SLN.svg")));
-			addChild(panel);
-		}
+		setPanel(SVG::load(asset::plugin(pluginInstance, "res/SLN.svg")));
 
 		float panelwidth = 45.0;
 		float portwidth = 25.0;
 		float portX = (panelwidth - portwidth) / 2.0;
 
-		Vec p1 = ui.getPosition(UI::PORT, 0, 0, false, false);
+		Vec p1 = gui::getPosition(gui::PORT, 0, 0, false, false);
 		p1.x = portX;
 		addInput(createInput<PJ301MPort>(p1, module, SLN::TRIG_INPUT));
 			
-		Vec k1 = ui.getPosition(UI::PORT, 0, 2, false, true);
+		Vec k1 = gui::getPosition(gui::PORT, 0, 2, false, true);
 		k1.x = 20;
-		addParam(createParam<AHKnobNoSnap>(k1, module, SLN::SPEED_PARAM));
+		addParam(createParam<gui::AHKnobNoSnap>(k1, module, SLN::SPEED_PARAM));
 
-		Vec k2 = ui.getPosition(UI::PORT, 0, 3, false, true);
+		Vec k2 = gui::getPosition(gui::PORT, 0, 3, false, true);
 		k2.x = 3;
-		addParam(createParam<AHKnobNoSnap>(k2, module, SLN::SLOPE_PARAM));
+		addParam(createParam<gui::AHKnobNoSnap>(k2, module, SLN::SLOPE_PARAM));
 
-		Vec k3 = ui.getPosition(UI::PORT, 0, 4, false, true);
+		Vec k3 = gui::getPosition(gui::PORT, 0, 4, false, true);
 		k3.x = 20;
-		addParam(createParam<AHKnobSnap>(k3, module, SLN::NOISE_PARAM));
+		addParam(createParam<gui::AHKnobSnap>(k3, module, SLN::NOISE_PARAM));
 
-		Vec k4 = ui.getPosition(UI::PORT, 0, 5, false, true);
+		Vec k4 = gui::getPosition(gui::PORT, 0, 5, false, true);
 		k4.x = 3;
-		addParam(createParam<AHKnobNoSnap>(k4, module, SLN::ATTN_PARAM)); 	
+		addParam(createParam<gui::AHKnobNoSnap>(k4, module, SLN::ATTN_PARAM)); 	
 
-		Vec p2 = ui.getPosition(UI::PORT, 0, 4, false, false);
+		Vec p2 = gui::getPosition(gui::PORT, 0, 4, false, false);
 		p2.x = portX;	
 		addOutput(createOutput<PJ301MPort>(p2, module, SLN::OUT_OUTPUT));
 
-		Vec p3 = ui.getPosition(UI::PORT, 0, 5, false, false);
+		Vec p3 = gui::getPosition(gui::PORT, 0, 5, false, false);
 		p3.x = portX;		
 		addOutput(createOutput<PJ301MPort>(p3, module, SLN::NOISE_OUTPUT));
 

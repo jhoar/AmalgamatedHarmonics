@@ -1,14 +1,17 @@
 #include "AH.hpp"
-#include "Core.hpp"
-#include "UI.hpp"
-#include "VCO.hpp"
+
 #include "dsp/digital.hpp"
 #include "dsp/resampler.hpp"
 #include "dsp/filter.hpp"
 
+#include "AHCommon.hpp"
+#include "VCO.hpp"
+
 #include <iostream>
 
-struct Chord : AHModule {
+using namespace ah;
+
+struct Chord : core::AHModule {
 
 	const static int NUM_PITCHES = 6;
 
@@ -38,7 +41,7 @@ struct Chord : AHModule {
 	
 	Chord() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
 
-		float PI_180 = PI / 180.0;
+		float PI_180 = core::PI / 180.0;
 		float posMax = 90.0 * 0.5 * PI_180;
 		float voicePosDeg[6] = {-90.0f, 90.0f, -54.0f, 54.0f, -18.0f, 18.0f};
 		float voicePosRad[6];	
@@ -63,12 +66,10 @@ struct Chord : AHModule {
 
 	void step() override;
 		
-	Core core;
-
 	int poll = 50000;
 
-	dsp::SchmittTrigger moveTrigger;
-	dsp::PulseGenerator triggerPulse;
+	rack::dsp::SchmittTrigger moveTrigger;
+	rack::dsp::PulseGenerator triggerPulse;
 
 	EvenVCO oscillator[6];
 
@@ -148,34 +149,24 @@ struct ChordWidget : ModuleWidget {
 	ChordWidget(Chord *module) {
 		
 		setModule(module);
-		
-		UI ui;
-		
-		box.size = Vec(270, 380);
-
-		{
-			SVGPanel *panel = new SVGPanel();
-			panel->box.size = box.size;
-			panel->setBackground(SVG::load(asset::plugin(pluginInstance, "res/Chord.svg")));
-			addChild(panel);
-		}
+		setPanel(SVG::load(asset::plugin(pluginInstance, "res/Chord.svg")));
 
 		for (int n = 0; n < 6; n++) {
-			addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, n, 0, true, true), module, Chord::PITCH_INPUT + n));
-			addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, n, 1, true, true), module, Chord::WAVE_PARAM + n));
-			addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, n, 2, true, true), module, Chord::OCTAVE_PARAM + n));
-			addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, n, 3, true, true), module, Chord::DETUNE_PARAM + n));
-			addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, n, 4, true, true), module, Chord::PW_PARAM + n));
-			addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, n, 5, true, true), module, Chord::PW_INPUT + n));
-			addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, n, 6, true, true), module, Chord::PWM_PARAM + n));
-			addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, n, 7, true, true), module, Chord::ATTN_PARAM + n));
-			addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, n, 8, true, true), module, Chord::PAN_PARAM + n));
+			addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, n, 0, true, true), module, Chord::PITCH_INPUT + n));
+			addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, n, 1, true, true), module, Chord::WAVE_PARAM + n));
+			addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, n, 2, true, true), module, Chord::OCTAVE_PARAM + n));
+			addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, n, 3, true, true), module, Chord::DETUNE_PARAM + n));
+			addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, n, 4, true, true), module, Chord::PW_PARAM + n));
+			addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, n, 5, true, true), module, Chord::PW_INPUT + n));
+			addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, n, 6, true, true), module, Chord::PWM_PARAM + n));
+			addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, n, 7, true, true), module, Chord::ATTN_PARAM + n));
+			addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, n, 8, true, true), module, Chord::PAN_PARAM + n));
 		}
 
-		addParam(createParam<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 0, 9, true, true), module, Chord::SPREAD_PARAM));
+		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 0, 9, true, true), module, Chord::SPREAD_PARAM));
 
-		addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 4, 9, true, true), module, Chord::OUT_OUTPUT));
-		addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 5, 9, true, true), module, Chord::OUT_OUTPUT + 1));
+		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 4, 9, true, true), module, Chord::OUT_OUTPUT));
+		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 5, 9, true, true), module, Chord::OUT_OUTPUT + 1));
 
 	}
 };

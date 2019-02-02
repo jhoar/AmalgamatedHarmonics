@@ -1,11 +1,11 @@
 #include "AH.hpp"
-#include "Core.hpp"
-#include "UI.hpp"
-#include "dsp/digital.hpp"
+#include "AHCommon.hpp"
 
 #include <iostream>
 
-struct Circle : AHModule {
+using namespace ah;
+
+struct Circle : core::AHModule {
 
 	enum ParamIds {
 		KEY_PARAM,
@@ -36,7 +36,7 @@ struct Circle : AHModule {
 	};
 	Scaling voltScale = FIFTHS;
 	
-	Circle() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
+	Circle() : core::AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
 
 		params[KEY_PARAM].config(0.0, 11.0, 0.0, "Key"); 
 		params[KEY_PARAM].description = "Starting key for progression";
@@ -67,10 +67,10 @@ struct Circle : AHModule {
 		}
 	}
 	
-	dsp::SchmittTrigger rotLTrigger;
-	dsp::SchmittTrigger rotRTrigger;
+	rack::dsp::SchmittTrigger rotLTrigger;
+	rack::dsp::SchmittTrigger rotRTrigger;
 	
-	dsp::PulseGenerator stepPulse;
+	rack::dsp::PulseGenerator stepPulse;
 	
 	int baseKeyIndex = 0;
 	int curKeyIndex = 0;
@@ -83,7 +83,7 @@ struct Circle : AHModule {
 
 void Circle::step() {
 	
-	AHModule::step();
+	core::AHModule::step();
 
 	// Get inputs from Rack
 	float rotLInput		= inputs[ROTL_INPUT].getVoltage();
@@ -94,9 +94,9 @@ void Circle::step() {
 	if (inputs[KEY_INPUT].isConnected()) {
 		float fRoot = inputs[KEY_INPUT].getVoltage();
 		if (voltScale == FIFTHS) {
-			newKeyIndex = CoreUtil().getKeyFromVolts(fRoot);
+			newKeyIndex = music::getKeyFromVolts(fRoot);
 		} else {
-			CoreUtil().getPitchFromVolts(fRoot, Core::NOTE_C, Core::SCALE_CHROMATIC, &newKeyIndex, &deg);
+			music::getPitchFromVolts(fRoot, music::NOTE_C, music::SCALE_CHROMATIC, &newKeyIndex, &deg);
 		}
 	} else {
 		newKeyIndex = params[KEY_PARAM].getValue();
@@ -167,18 +167,18 @@ void Circle::step() {
 	int baseKey;
 
 	if (voltScale == FIFTHS) {
-		curKey = CoreUtil().CIRCLE_FIFTHS[curKeyIndex];
-		baseKey = CoreUtil().CIRCLE_FIFTHS[baseKeyIndex];
+		curKey = music::CIRCLE_FIFTHS[curKeyIndex];
+		baseKey = music::CIRCLE_FIFTHS[baseKeyIndex];
 	} else {
 		curKey = curKeyIndex;
 		baseKey = baseKeyIndex;		
 	}
 
 
-	float keyVolts = CoreUtil().getVoltsFromKey(curKey);
-	float modeVolts = CoreUtil().getVoltsFromMode(curMode);
+	float keyVolts = music::getVoltsFromKey(curKey);
+	float modeVolts = music::getVoltsFromMode(curMode);
 	
-	for (int i = 0; i < Core::NUM_NOTES; i++) {
+	for (int i = 0; i < music::NUM_NOTES; i++) {
 		lights[CKEY_LIGHT + i].setBrightness(0.0);
 		lights[BKEY_LIGHT + i].setBrightness(0.0);
 	}
@@ -186,7 +186,7 @@ void Circle::step() {
 	lights[CKEY_LIGHT + curKey].setBrightness(10.0);
 	lights[BKEY_LIGHT + baseKey].setBrightness(10.0);
 	
-	for (int i = 0; i < Core::NUM_MODES; i++) {
+	for (int i = 0; i < music::NUM_MODES; i++) {
 		lights[MODE_LIGHT + i].setBrightness(0.0);
 	}
 	lights[MODE_LIGHT + curMode].setBrightness(10.0);
@@ -202,16 +202,15 @@ struct CircleWidget : ModuleWidget {
 		
 		setModule(module);
 		setPanel(SVG::load(asset::plugin(pluginInstance, "res/Circle.svg")));
-		UI ui;
 
-		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 0, true, false), module, Circle::ROTL_INPUT));
-		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 5, 0, true, false), module, Circle::ROTR_INPUT));
-		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 5, true, false), module, Circle::KEY_INPUT));
-		addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 1, 5, true, false), module, Circle::KEY_PARAM)); 
-		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 2, 5, true, false), module, Circle::MODE_INPUT));
-		addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 3, 5, true, false), module, Circle::MODE_PARAM)); 
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 0, true, false), module, Circle::ROTL_INPUT));
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 5, 0, true, false), module, Circle::ROTR_INPUT));
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 5, true, false), module, Circle::KEY_INPUT));
+		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 1, 5, true, false), module, Circle::KEY_PARAM)); 
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 2, 5, true, false), module, Circle::MODE_INPUT));
+		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 3, 5, true, false), module, Circle::MODE_PARAM)); 
 
-		float div = (PI * 2) / 12.0;
+		float div = (core::PI * 2) / 12.0;
 
 		for (int i = 0; i < 12; i++) {
 
@@ -223,11 +222,11 @@ struct CircleWidget : ModuleWidget {
 			float xxPos = sinDiv * 60.0;
 			float yyPos = cosDiv * 60.0;
 
-	//		ui.calculateKeyboard(i, xSpace, xOffset, 230.0, &xPos, &yPos, &scale);
-			addChild(createLight<SmallLight<GreenLight>>(Vec(xxPos + 116.5, 149.5 - yyPos), module, Circle::CKEY_LIGHT + CoreUtil().CIRCLE_FIFTHS[i]));
+	//		gui::calculateKeyboard(i, xSpace, xOffset, 230.0, &xPos, &yPos, &scale);
+			addChild(createLight<SmallLight<GreenLight>>(Vec(xxPos + 116.5, 149.5 - yyPos), module, Circle::CKEY_LIGHT + music::CIRCLE_FIFTHS[i]));
 
-	//		ui.calculateKeyboard(i, xSpace, xOffset + 72.0, 165.0, &xPos, &yPos, &scale);
-			addChild(createLight<SmallLight<RedLight>>(Vec(xPos + 116.5, 149.5 - yPos), module, Circle::BKEY_LIGHT + CoreUtil().CIRCLE_FIFTHS[i]));
+	//		gui::calculateKeyboard(i, xSpace, xOffset + 72.0, 165.0, &xPos, &yPos, &scale);
+			addChild(createLight<SmallLight<RedLight>>(Vec(xPos + 116.5, 149.5 - yPos), module, Circle::BKEY_LIGHT + music::CIRCLE_FIFTHS[i]));
 		}
 		
 		float xOffset = 18.0;
@@ -237,8 +236,8 @@ struct CircleWidget : ModuleWidget {
 			addChild(createLight<SmallLight<GreenLight>>(Vec(xPos, 280.0), module, Circle::MODE_LIGHT + i));
 		}
 
-		addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 4, 5, true, false), module, Circle::KEY_OUTPUT));
-		addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 5, 5, true, false), module, Circle::MODE_OUTPUT));
+		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 4, 5, true, false), module, Circle::KEY_OUTPUT));
+		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 5, 5, true, false), module, Circle::MODE_OUTPUT));
 
 	}
 

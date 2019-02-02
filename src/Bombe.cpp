@@ -1,15 +1,16 @@
 #include "AH.hpp"
-#include "Core.hpp"
-#include "UI.hpp"
+#include "AHCommon.hpp"
 
 #include <iostream>
+
+using namespace ah;
 
 struct KeyParamQuantity : app::ParamQuantity {
 
 	std::string getDisplayValueString() override {
 		float v = getSmoothValue();
-		int k = CoreUtil().getKeyFromVolts(v);
-		return Core().noteNames[k];
+		int k = music::getKeyFromVolts(v);
+		return music::noteNames[k];
 	};
 
 };
@@ -18,8 +19,8 @@ struct ModeParamQuantity : app::ParamQuantity {
 
 	std::string getDisplayValueString() override {
 		float v = getSmoothValue();
-		int k = CoreUtil().getModeFromVolts(v);
-		return Core().modeNames[k];
+		int k = music::getModeFromVolts(v);
+		return music::modeNames[k];
 	};
 
 };
@@ -32,14 +33,14 @@ struct BombeChord {
 	int inversion;
 	float outVolts[6];
 	BombeChord() : rootNote(0), quality(0), chord(1), modeDegree(0), inversion(0) {
-		int *chordArray = CoreUtil().ChordTable[chord].root;
+		int *chordArray = music::ChordTable[chord].root;
 		for (int j = 0; j < 6; j++) {
-			outVolts[j] = CoreUtil().getVoltsFromPitch(chordArray[j], rootNote);			
+			outVolts[j] = music::getVoltsFromPitch(chordArray[j], rootNote);			
 		}
 	}
 };
 
-struct Bombe : AHModule {
+struct Bombe : core::AHModule {
 
 	const static int NUM_PITCHES = 6;
 	const static int N_NOTES = 12;
@@ -72,7 +73,7 @@ struct Bombe : AHModule {
 		NUM_LIGHTS
 	};
 	
-	Bombe() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
+	Bombe() : core::AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
 
 		params[KEY_PARAM].config<KeyParamQuantity>(0.0, 11.0, 0.0, "Key");
 		params[KEY_PARAM].description = "Key from which chords are selected"; 
@@ -88,9 +89,9 @@ struct Bombe : AHModule {
 		params[Y_PARAM].description = "The deviation of the next chord update from the mode rule";
 
 		for(int i = 0; i < BUFFERSIZE; i++) {
-			int *chordArray = CoreUtil().ChordTable[buffer[i].chord].root;
+			int *chordArray = music::ChordTable[buffer[i].chord].root;
 			for (int j = 0; j < 6; j++) {
-				buffer[i].outVolts[j] = CoreUtil().getVoltsFromPitch(chordArray[j], buffer[i].rootNote);			
+				buffer[i].outVolts[j] = music::getVoltsFromPitch(chordArray[j], buffer[i].rootNote);			
 			}
 		}
 	}
@@ -138,8 +139,6 @@ struct Bombe : AHModule {
 
 	}
 
-	Core core;
-
 	const static int N_CHORDS = 98;
 
 	int ChordMap[N_CHORDS] = {1,2,26,29,71,28,72,91,31,97,25,44,54,61,78,95,10,14,15,17,48,79,81,85,11,30,89,94,24,3,90,98,96,60,55,86,5,93,7,56,92,16,32,46,62,77,18,49,65,68,70,82,20,22,23,45,83,87,6,21,27,42,80,9,52,69,76,13,37,88,53,58,8,41,57,47,64,73,19,50,59,66,74,12,35,38,63,33,34,51,4,36,40,43,84,67,39,75};
@@ -159,7 +158,7 @@ struct Bombe : AHModule {
 	
 	int poll = 50000;
 
-	dsp::SchmittTrigger clockTrigger;
+	rack::dsp::SchmittTrigger clockTrigger;
 
 	int currRoot = 1;
 	int currMode = 1;
@@ -187,7 +186,7 @@ void Bombe::modeSimple(BombeChord lastValue, float y) {
 
 	int q;
 	int n;
-	CoreUtil().getRootFromMode(currMode,currRoot,buffer[0].modeDegree,&n,&q);
+	music::getRootFromMode(currMode,currRoot,buffer[0].modeDegree,&n,&q);
 	buffer[0].rootNote = n;
 	buffer[0].quality = q; // 0 = Maj, 1 = Min, 2 = Dim
 
@@ -227,11 +226,11 @@ void Bombe::modeKey(BombeChord lastValue, float y) {
 
 	int q;
 	int n;
-	CoreUtil().getRootFromMode(currMode,currRoot,buffer[0].modeDegree,&n,&q);
+	music::getRootFromMode(currMode,currRoot,buffer[0].modeDegree,&n,&q);
 
 	buffer[0].rootNote = n;
 	buffer[0].quality = -1; // FIXME
-	buffer[0].chord = (rand() % (CoreUtil().NUM_CHORDS - 1)) + 1; // Get the index into the main chord table
+	buffer[0].chord = (rand() % (music::NUM_CHORDS - 1)) + 1; // Get the index into the main chord table
 	buffer[0].inversion = InversionMap[allowedInversions][rand() % QMAP_SIZE];
 
 }
@@ -254,7 +253,7 @@ void Bombe::modeGalaxy(BombeChord lastValue, float y) {
 
 void Bombe::step() {
 	
-	AHModule::step();
+	core::AHModule::step();
 
 	// Get inputs from Rack
 	bool clocked = clockTrigger.process(inputs[CLOCK_INPUT].getVoltage());
@@ -263,14 +262,14 @@ void Bombe::step() {
 
 	if (inputs[MODE_INPUT].isConnected()) {
 		float fMode = inputs[MODE_INPUT].getVoltage();
-		currMode = CoreUtil().getModeFromVolts(fMode);
+		currMode = music::getModeFromVolts(fMode);
 	} else {
 		currMode = params[MODE_PARAM].getValue();
 	}
 
 	if (inputs[KEY_INPUT].isConnected()) {
 		float fRoot = inputs[KEY_INPUT].getVoltage();
-		currRoot = CoreUtil().getKeyFromVolts(fRoot);
+		currRoot = music::getKeyFromVolts(fRoot);
 	} else {
 		currRoot = params[KEY_PARAM].getValue();
 	}
@@ -289,12 +288,12 @@ void Bombe::step() {
 			modeName = "";
 			break;
 		case 1: // Simple
-			rootName = CoreUtil().noteNames[currRoot];
-			modeName = CoreUtil().modeNames[currMode];
+			rootName = music::noteNames[currRoot];
+			modeName = music::modeNames[currMode];
 			break;
 		case 2: // Galaxy
-			rootName = CoreUtil().noteNames[currRoot];
-			modeName = CoreUtil().modeNames[currMode];
+			rootName = music::noteNames[currRoot];
+			modeName = music::modeNames[currMode];
 			break;
 		default:
 			rootName = "";
@@ -335,10 +334,10 @@ void Bombe::step() {
 				// Determine which chord corresponds to the grid position
 				int *chordArray;
 				switch(buffer[0].inversion) {
-					case 0: 	chordArray = CoreUtil().ChordTable[buffer[0].chord].root; 	break;
-					case 1: 	chordArray = CoreUtil().ChordTable[buffer[0].chord].first; 	break;
-					case 2: 	chordArray = CoreUtil().ChordTable[buffer[0].chord].second;	break;
-					default: 	chordArray = CoreUtil().ChordTable[buffer[0].chord].root;
+					case 0: 	chordArray = music::ChordTable[buffer[0].chord].root; 	break;
+					case 1: 	chordArray = music::ChordTable[buffer[0].chord].first; 	break;
+					case 2: 	chordArray = music::ChordTable[buffer[0].chord].second;	break;
+					default: 	chordArray = music::ChordTable[buffer[0].chord].root;
 				}
 
 				// Determine which notes corresponds to the chord
@@ -348,9 +347,9 @@ void Bombe::step() {
 						if (offset == 0) { // if offset = 0, randomise offset per note
 							off = (rand() % 3 + 1) * 12;
 						}
-						buffer[0].outVolts[j] = CoreUtil().getVoltsFromPitch(chordArray[j] + off, buffer[0].rootNote);			
+						buffer[0].outVolts[j] = music::getVoltsFromPitch(chordArray[j] + off, buffer[0].rootNote);			
 					} else {
-						buffer[0].outVolts[j] = CoreUtil().getVoltsFromPitch(chordArray[j], buffer[0].rootNote);			
+						buffer[0].outVolts[j] = music::getVoltsFromPitch(chordArray[j], buffer[0].rootNote);			
 					}	
 				}
 			}
@@ -433,9 +432,9 @@ struct BombeDisplay : TransparentWidget {
 			if (module->displayBuffer[i].chord != 0) {
 
 				chordName = 
-					CoreUtil().noteNames[module->displayBuffer[i].rootNote] + " " + 
-					CoreUtil().ChordTable[module->displayBuffer[i].chord].quality + " " + 
-					CoreUtil().inversionNames[module->displayBuffer[i].inversion];
+					music::noteNames[module->displayBuffer[i].rootNote] + " " + 
+					music::ChordTable[module->displayBuffer[i].chord].quality + " " + 
+					music::inversionNames[module->displayBuffer[i].inversion];
 
 				switch(module->mode) {
 					case 0:
@@ -445,7 +444,7 @@ struct BombeDisplay : TransparentWidget {
 					case 2:
 						if (module->displayBuffer[i].modeDegree != -1 && module->displayBuffer[i].quality != -1) { // FIXME
 							int index = module->displayBuffer[i].modeDegree * 3 + module->displayBuffer[i].quality;
-							chordExtName = CoreUtil().degreeNames[index];
+							chordExtName = music::degreeNames[index];
 						}
 						break;
 					default:
@@ -478,25 +477,24 @@ struct BombeWidget : ModuleWidget {
 	
 		setModule(module);
 		setPanel(SVG::load(asset::plugin(pluginInstance, "res/Bombe.svg")));
-		UI ui;
 
 		for (int i = 0; i < 6; i++) {
-			addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, i, 5, true, false), module, Bombe::PITCH_OUTPUT + i));
+			addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, i, 5, true, false), module, Bombe::PITCH_OUTPUT + i));
 		}	
 
-		addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 0, 4, true, false), module, Bombe::KEY_PARAM)); 
-		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 1, 4, true, false), module, Bombe::KEY_INPUT));
+		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 0, 4, true, false), module, Bombe::KEY_PARAM)); 
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 1, 4, true, false), module, Bombe::KEY_INPUT));
 
-		addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 2, 4, true, false), module, Bombe::MODE_PARAM)); 
-		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 3, 4, true, false), module, Bombe::MODE_INPUT));
+		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 2, 4, true, false), module, Bombe::MODE_PARAM)); 
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 3, 4, true, false), module, Bombe::MODE_INPUT));
 
-		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 4, 4, true, false), module, Bombe::CLOCK_INPUT));
-		addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 5, 4, true, false), module, Bombe::LENGTH_PARAM)); 
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 4, 4, true, false), module, Bombe::CLOCK_INPUT));
+		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 5, 4, true, false), module, Bombe::LENGTH_PARAM)); 
 
 		Vec XParamPos;
 		XParamPos.x = 33;
 		XParamPos.y = 160;
-		addParam(createParam<AHBigKnobNoSnap>(XParamPos, module, Bombe::X_PARAM)); 
+		addParam(createParam<gui::AHBigKnobNoSnap>(XParamPos, module, Bombe::X_PARAM)); 
 
 		Vec XFreezePos;
 		XFreezePos.x = XParamPos.x - 12;
@@ -511,7 +509,7 @@ struct BombeWidget : ModuleWidget {
 		Vec YParamPos;
 		YParamPos.x = 137;
 		YParamPos.y = 160;
-		addParam(createParam<AHBigKnobNoSnap>(YParamPos, module, Bombe::Y_PARAM)); 
+		addParam(createParam<gui::AHBigKnobNoSnap>(YParamPos, module, Bombe::Y_PARAM)); 
 
 		Vec YInputPos;
 		YInputPos.x = YParamPos.x - 12;

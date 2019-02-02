@@ -1,11 +1,11 @@
 #include "component.hpp"
 
 #include "AH.hpp"
-#include "Core.hpp"
-#include "UI.hpp"
+#include "AHCommon.hpp"
 
 #include <iostream>
 
+using namespace ah;
 
 struct Pattern {
 	
@@ -240,7 +240,7 @@ struct OnTheRunPattern : NotePattern {
 	
 };
 
-struct Arp32 : AHModule {
+struct Arp32 : core::AHModule {
 	
 	const static int MAX_STEPS = 16;
 	const static int MAX_DIST = 12; //Octave
@@ -271,7 +271,7 @@ struct Arp32 : AHModule {
 		NUM_LIGHTS
 	};
 	
-	Arp32() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
+	Arp32() : core::AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
 		params[PATT_PARAM].config(0.0, 4.0, 0.0, "Pattern"); 
 
 		params[TRANS_PARAM].config(-24, 24, 1, "Pattern magnitude"); 
@@ -322,10 +322,10 @@ struct Arp32 : AHModule {
 	};
 	GateMode gateMode = TRIGGER;
 	
-	dsp::SchmittTrigger clockTrigger; // for clock
+	rack::dsp::SchmittTrigger clockTrigger; // for clock
 	
-	dsp::PulseGenerator gatePulse;
-	dsp::PulseGenerator eocPulse;
+	rack::dsp::PulseGenerator gatePulse;
+	rack::dsp::PulseGenerator eocPulse;
 
 	float outVolts = 0;
 	float rootPitch = 0.0;
@@ -344,8 +344,6 @@ struct Arp32 : AHModule {
 
 	int poll = 5000;
 		
-	float semiTone = 1.0 / 12.0;
-
 	DivergePattern			patt_diverge; 
 	ConvergePattern 		patt_converge; 
 	ReturnPattern 			patt_return;
@@ -368,7 +366,7 @@ struct Arp32 : AHModule {
 
 void Arp32::step() {
 	
-	AHModule::step();
+	core::AHModule::step();
 
 	// Wait a few steps for the inputs to flow through Rack
 	if (stepX < 10) { 
@@ -430,7 +428,7 @@ void Arp32::step() {
 			if (currPatt->isPatternFinished()) {
 
 				// Pulse the EOC gate
-				eocPulse.trigger(Core::TRIGGER);
+				eocPulse.trigger(digital::TRIGGER);
 
 				if (debugEnabled()) { std::cout << stepX << " " << id  << " Finished Cycle" << std::endl; }
 				restart = true;
@@ -438,12 +436,12 @@ void Arp32::step() {
 			} 
 							
 			// Finally set the out voltage
-			outVolts = clamp(rootPitch + semiTone * (float)currPatt->getOffset(), -10.0f, 10.0f);
+			outVolts = clamp(rootPitch + music::SEMITONE * (float)currPatt->getOffset(), -10.0f, 10.0f);
 			
 			if (debugEnabled()) { std::cout << stepX << " " << id  << " Output V = " << outVolts << std::endl; }
 					
 			// Pulse the output gate
-			gatePulse.trigger(Core::TRIGGER);
+			gatePulse.trigger(digital::TRIGGER);
 
 			// Completed 1 step
 			currPatt->advance();
@@ -533,7 +531,6 @@ void Arp32::step() {
 struct Arp32Display : TransparentWidget {
 	
 	Arp32 *module;
-	int frame = 0;
 	std::shared_ptr<Font> font;
 
 	Arp32Display() {
@@ -584,24 +581,23 @@ struct Arp32Widget : ModuleWidget {
 		
 		setModule(module);
 		setPanel(SVG::load(asset::plugin(pluginInstance, "res/Arp32p.svg")));
-		UI ui;
 
-		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 0, true, false), module, Arp32::PITCH_INPUT));
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 0, true, false), module, Arp32::PITCH_INPUT));
 		
-		addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 0, 2, true, false), module, Arp32::PATT_PARAM)); 
-		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 3, true, false), module, Arp32::PATT_INPUT));
-		addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 1, 2, true, false), module, Arp32::TRANS_PARAM)); 
-		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 1, 3, true, false), module, Arp32::TRANS_INPUT)); 
-		addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 2, 2, true, false), module, Arp32::LENGTH_PARAM)); 
-		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 2, 3, true, false), module, Arp32::LENGTH_INPUT));
+		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 0, 2, true, false), module, Arp32::PATT_PARAM)); 
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 3, true, false), module, Arp32::PATT_INPUT));
+		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 1, 2, true, false), module, Arp32::TRANS_PARAM)); 
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 1, 3, true, false), module, Arp32::TRANS_INPUT)); 
+		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 2, 2, true, false), module, Arp32::LENGTH_PARAM)); 
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 2, 3, true, false), module, Arp32::LENGTH_INPUT));
 
-		addInput(createInput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 4, true, false), module, Arp32::CLOCK_INPUT));
-		addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 1, 4, true, false), module, Arp32::OFFSET_PARAM)); 
-		addParam(createParam<AHKnobSnap>(ui.getPosition(UI::KNOB, 2, 4, true, false), module, Arp32::SCALE_PARAM)); 
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 4, true, false), module, Arp32::CLOCK_INPUT));
+		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 1, 4, true, false), module, Arp32::OFFSET_PARAM)); 
+		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 2, 4, true, false), module, Arp32::SCALE_PARAM)); 
 
-		addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 0, 5, true, false), module, Arp32::OUT_OUTPUT));
-		addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 1, 5, true, false), module, Arp32::GATE_OUTPUT));
-		addOutput(createOutput<PJ301MPort>(ui.getPosition(UI::PORT, 2, 5, true, false), module, Arp32::EOC_OUTPUT));
+		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 5, true, false), module, Arp32::OUT_OUTPUT));
+		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 1, 5, true, false), module, Arp32::GATE_OUTPUT));
+		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 2, 5, true, false), module, Arp32::EOC_OUTPUT));
 
 		if (module != NULL) {
 			Arp32Display *displayW = createWidget<Arp32Display>(Vec(10, 90));
