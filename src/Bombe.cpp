@@ -4,6 +4,26 @@
 
 #include <iostream>
 
+struct KeyParamQuantity : app::ParamQuantity {
+
+	std::string getDisplayValueString() override {
+		float v = getSmoothValue();
+		int k = CoreUtil().getKeyFromVolts(v);
+		return Core().noteNames[k];
+	};
+
+};
+
+struct ModeParamQuantity : app::ParamQuantity {
+
+	std::string getDisplayValueString() override {
+		float v = getSmoothValue();
+		int k = CoreUtil().getModeFromVolts(v);
+		return Core().modeNames[k];
+	};
+
+};
+
 struct BombeChord {
 	int rootNote;
 	int quality;
@@ -54,10 +74,10 @@ struct Bombe : AHModule {
 	
 	Bombe() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
 
-		params[KEY_PARAM].config(0.0, 11.0, 0.0, "Key");
+		params[KEY_PARAM].config<KeyParamQuantity>(0.0, 11.0, 0.0, "Key");
 		params[KEY_PARAM].description = "Key from which chords are selected"; 
 
-		params[MODE_PARAM].config(0.0, 6.0, 0.0, "Mode"); 
+		params[MODE_PARAM].config<ModeParamQuantity>(0.0, 6.0, 0.0, "Mode"); 
 		params[MODE_PARAM].description = "Mode from which chords are selected"; 
 
 		params[LENGTH_PARAM].config(2.0, 16.0, 4.0, "Length of loop"); 
