@@ -180,6 +180,14 @@ struct AHTrimpotNoSnap : AHKnob {
 	}
 };
 
+struct KeyParamQuantity : app::ParamQuantity {
+	std::string getDisplayValueString() override;
+};
+
+struct ModeParamQuantity : app::ParamQuantity {
+	std::string getDisplayValueString() override;
+};
+
 enum UIElement {
     KNOB = 0,
     PORT,

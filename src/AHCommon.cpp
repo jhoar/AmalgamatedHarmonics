@@ -26,6 +26,16 @@ float X_BUTTON_COMPACT[2]   = {23.2, 35.0}; // 15 + 8.2
 float X_LIGHT_COMPACT[2]    = {27.6, 35.0}; // 15 + 12.6
 float X_TRIMPOT_COMPACT[2]  = {23.2, 35.0}; // 15 + 8.2
 
+std::string KeyParamQuantity::getDisplayValueString() {
+	int k = (int)getValue();
+	return music::noteNames[k];
+};
+
+std::string ModeParamQuantity::getDisplayValueString() {
+	int k = (int)getValue();
+	return music::modeNames[k];
+};
+
 Vec getPosition(int type, int xSlot, int ySlot, bool xDense, bool yDense) {
 
 	float *xArray;
@@ -419,11 +429,13 @@ float getVoltsFromScale(int scale) {
 }
 
 int getScaleFromVolts(float volts) {
-	return round(rack::math::rescale(fabs(volts), 0.0f, 10.0f, 0.0f, NUM_SCALES - 1));
+	float v = rack::math::clamp(fabs(volts), 0.0, 10.0f);
+	return round(rack::math::rescale(v, 0.0f, 10.0f, 0.0f, NUM_SCALES - 1));
 }
 
 int getModeFromVolts(float volts) {
-	int mode = round(rack::math::rescale(fabs(volts), 0.0f, 10.0f, 0.0f, NUM_SCALES - 1));
+	float v = rack::math::clamp(fabs(volts), 0.0, 10.0f);
+	int mode = round(rack::math::rescale(v, 0.0f, 10.0f, 0.0f, NUM_SCALES - 1));
 	return rack::math::clamp(mode - 1, 0, 6);
 }
 
@@ -437,7 +449,8 @@ float getVoltsFromKey(int key) {
 }
 
 int getKeyFromVolts(float volts) {
-	return round(rack::math::rescale(fabs(volts), 0.0f, 10.0f, 0.0f, NUM_NOTES - 1));
+	float v = rack::math::clamp(fabs(volts), 0.0, 10.0f);
+	return round(rack::math::rescale(v, 0.0f, 10.0f, 0.0f, NUM_NOTES - 1));
 }
 
 float getPitchFromVolts(float inVolts, float inRoot, float inScale, int *outRoot, int *outScale, int *outNote, int *outDegree) {
