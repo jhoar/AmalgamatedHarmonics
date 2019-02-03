@@ -153,8 +153,8 @@ struct PolyProbeWidget : ModuleWidget {
 		setModule(module);
 		setPanel(SVG::load(asset::plugin(pluginInstance, "res/PolyProbe.svg")));
 
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 0, false, false), module, PolyProbe::POLYCV_INPUT));
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 1, 0, false, false), module, PolyProbe::POLYGATE_INPUT));
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 5, 6, true, true), module, PolyProbe::POLYCV_INPUT));
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 5, 8, true, true), module, PolyProbe::POLYGATE_INPUT));
 
 		if (module != NULL) {
 			PolyProbeDisplay *displayW = createWidget<PolyProbeDisplay>(Vec(0, 20));
