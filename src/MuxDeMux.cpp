@@ -28,23 +28,31 @@ struct MuxDeMux : core::AHModule {
 
 	MuxDeMux() : core::AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {	}
 
+	bool mask = false;
+
 	void step() override {
 	
 		AHModule::step();
 
 		// Process poly input
-		for(int i = 0; i < inputs[POLYCV_INPUT].getChannels(); i++) {
-			if (inputs[POLYGATE_INPUT].isConnected()) {
+		int i = 0;
+		for( ; i < inputs[POLYCV_INPUT].getChannels(); i++) {
+			if (mask && inputs[POLYGATE_INPUT].isConnected()) { // mask -- set to 0.0v every input where the gate is low
 				if (inputs[POLYGATE_INPUT].getVoltage(i) > 0.0f) {
 					outputs[MONO_OUTPUT + i].setVoltage(inputs[POLYCV_INPUT].getVoltage(i));		
 				} else {
 					outputs[MONO_OUTPUT + i].setVoltage(0.0f);		
 				}
-			} else {
+			} else { // Passthrough -- either no gate or ignore gate and set mono output from poly channel
 				outputs[MONO_OUTPUT + i].setVoltage(inputs[POLYCV_INPUT].getVoltage(i));
 			}
 		}
 
+		for( ; i < engine::PORT_MAX_CHANNELS; i++) {
+			outputs[MONO_OUTPUT + i].setVoltage(0.0f);		
+		}
+
+		// Process mono input
 		int maxChan = -1;
 
 		for(int i = 0; i < engine::PORT_MAX_CHANNELS; i++) {
@@ -59,15 +67,20 @@ struct MuxDeMux : core::AHModule {
 		outputs[POLYCV_OUTPUT].setChannels(maxChan);
 		outputs[POLYGATE_OUTPUT].setChannels(maxChan);
 
-		// Process mono input
-		for(int i = 0; i < maxChan; i++) {
-			if (inputs[MONO_INPUT + i].isConnected()) {
-				outputs[POLYCV_OUTPUT].setVoltage(inputs[MONO_INPUT + i].getVoltage(), i);
-				outputs[POLYGATE_OUTPUT].setVoltage(10.0, i);
+		int j = 0;
+		for( ; j < maxChan; j++) {
+			if (inputs[MONO_INPUT + j].isConnected()) {
+				outputs[POLYCV_OUTPUT].setVoltage(inputs[MONO_INPUT + j].getVoltage(), j);
+				outputs[POLYGATE_OUTPUT].setVoltage(10.0, j);
 			} else {
-				outputs[POLYCV_OUTPUT].setVoltage(0.0, i);
-				outputs[POLYGATE_OUTPUT].setVoltage(0.0, i);
+				outputs[POLYCV_OUTPUT].setVoltage(0.0, j);
+				outputs[POLYGATE_OUTPUT].setVoltage(0.0, j);
 			}
+		}
+
+		for( ; j < engine::PORT_MAX_CHANNELS; j++) {
+			outputs[POLYCV_OUTPUT].setVoltage(0.0, j);
+			outputs[POLYGATE_OUTPUT].setVoltage(0.0, j);
 		}
 	}
 };
@@ -101,6 +114,43 @@ struct MuxDeMuxWidget : ModuleWidget {
 		}
 
 	}
+
+	void appendContextMenu(Menu *menu) override {
+
+		MuxDeMux *mdm = dynamic_cast<MuxDeMux*>(module);
+		assert(mdm);
+
+		struct MaskItem : MenuItem {
+			MuxDeMux *module;
+			bool mask;
+			void onAction(const event::Action &e) override {
+				module->mask = mask;
+			}
+		};
+
+		struct MaskMenu : MenuItem {
+			MuxDeMux *module;
+			Menu *createChildMenu() override {
+				Menu *menu = new Menu;
+				std::vector<bool> modes = {true, false};
+				std::vector<std::string> names = {"Mask", "Passthrough"};
+				for (size_t i = 0; i < modes.size(); i++) {
+					MaskItem *item = createMenuItem<MaskItem>(names[i], CHECKMARK(module->mask == modes[i]));
+					item->module = module;
+					item->mask = modes[i];
+					menu->addChild(item);
+				}
+				return menu;
+			}
+		};
+
+		menu->addChild(construct<MenuLabel>());
+		MaskMenu *item = createMenuItem<MaskMenu>("Mask polyphonic input CV");
+		item->module = mdm;
+		menu->addChild(item);
+
+     }
+
 
 };
 
