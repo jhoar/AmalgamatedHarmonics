@@ -47,8 +47,7 @@ struct Ruckus : core::AHModule {
 				int i = y * 4 + x;
 				params[DIV_PARAM + i].config(0, 64, 0, "Clock division");
 
-				params[PROB_PARAM + i].config(0.0f, 1.0f, 1.0f, "Clock probability", "%", 0.0f, 100.0f);
-				params[PROB_PARAM + i].description = "Probability of an expected clock-tick";
+				params[PROB_PARAM + i].config(0.0f, 1.0f, 1.0f, "Clock-tick probability", "%", 0.0f, 100.0f);
 
 				params[SHIFT_PARAM + i].config(-64.0f, 64.0f, 0.0f, "Clock shift");
 				params[SHIFT_PARAM + i].description = "Relative clock shift w.r.t. master clock";

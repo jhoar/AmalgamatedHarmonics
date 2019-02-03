@@ -57,21 +57,81 @@ struct Generative : core::AHModule {
 		params[FREQ_PARAM].config(-8.0f, 10.0f, 1.0f, "Frequency");
 		params[FREQ_PARAM].description = "Core LFO frequency";
 
-		params[WAVE_PARAM].config(0.0f, 4.0f, 1.5f, "Waveform");
+
+		struct WaveParamQuantity : app::ParamQuantity {
+			std::string getDisplayValueString() override {
+				float v = getValue();
+				if (v == 0.f) {
+					return "Sine " + ParamQuantity::getDisplayValueString();
+				}
+				if (v == 1.f) {
+					return "Triangle " + ParamQuantity::getDisplayValueString();
+				}
+				if (v == 2.f) {
+					return "Saw " + ParamQuantity::getDisplayValueString();
+				}
+				if (v == 3.f) {
+					return "Square " + ParamQuantity::getDisplayValueString();
+				}
+				if (v == 4.f) {
+					return "Sine " + ParamQuantity::getDisplayValueString();
+				}
+				if (v > 0.f && v < 1.f/3.f) {
+					return "Sine|..Triangle " + ParamQuantity::getDisplayValueString();
+				}
+				if (v >= 1.f/3.f && v < 2.f/3.f) {
+					return "Sine.|.Triangle " + ParamQuantity::getDisplayValueString();		
+				}
+				if (v >= 2.f/3.f && v < 1.f) {
+					return "Sine..|Triangle " + ParamQuantity::getDisplayValueString();
+				}
+				if (v > 1.f && v < 4.f/3.f) {
+					return "Triangle|..Saw " + ParamQuantity::getDisplayValueString();
+				}
+				if (v >= 4.f/3.f && v < 5.f/3.f) {
+					return "Triangle.|.Saw " + ParamQuantity::getDisplayValueString();		
+				}
+				if (v >= 5.f/3.f && v < 2.f) {
+					return "Triangle..|Saw " + ParamQuantity::getDisplayValueString();
+				}
+				if (v > 2.f && v < 7.f/3.f) {
+					return "Saw|..Square " + ParamQuantity::getDisplayValueString();
+				}
+				if (v >= 7.f/3.f && v < 8.f/3.f) {
+					return "Saw.|.Square " + ParamQuantity::getDisplayValueString();		
+				}
+				if (v >= 8.f/3.f && v < 3.f) {
+					return "Saw..|Square " + ParamQuantity::getDisplayValueString();
+				}
+				if (v > 3.f && v < 10.f/3.f) {
+					return "Square|..Sine " + ParamQuantity::getDisplayValueString();
+				}
+				if (v >= 10.f/3.f && v < 11.f/3.f) {
+					return "Square.|.Sine " + ParamQuantity::getDisplayValueString();		
+				}
+				if (v >= 11.f/3.f && v < 4.f) {
+					return "Square..|Sine " + ParamQuantity::getDisplayValueString();
+				}
+
+				return "Sine (probably) " + ParamQuantity::getDisplayValueString();
+
+			}
+		};
+
+		params[WAVE_PARAM].config<WaveParamQuantity>(0.0f, 4.0f, 1.5f, "Waveform");
 		params[WAVE_PARAM].description = "Continuous: Sine - Triangle - Saw - Square - Sine";
 
 		params[FM_PARAM].config(0.0f, 1.0f, 0.5f, "Frequency Modulation CV");
 
 		params[AM_PARAM].config(0.0f, 1.0f, 0.5f, "Amplitude Modulation Mix");
-		params[AM_PARAM].description = "Mix between the FM LFO and the voltage supplied in AM input";
+		params[AM_PARAM].description = "Mix between the FM modulated LFO and the voltage supplied in AM input";
 
 		params[NOISE_PARAM].config(0.0f, 1.0f, 0.5f, "Noise Mix");
 		params[NOISE_PARAM].description = "Mix between the FM-AM modulated LFO and the internal noise source";
 
 		params[CLOCK_PARAM].config(-2.0, 6.0, 1.0, "Clock frequency");
 		
-		params[PROB_PARAM].config(0.0, 1.0, 1.0, "Clock probability", "%", 0.0f, 100.0f);
-		params[PROB_PARAM].description = "Probability of an expected clock-tick";
+		params[PROB_PARAM].config(0.0, 1.0, 1.0, "Clock-tick probability", "%", 0.0f, 100.0f);
 
 		params[DELAYL_PARAM].config(1.0f, 2.0f, 1.0f, "Delay length", "ms", 2.0f, 500.0f, -1000.0f);
 

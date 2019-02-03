@@ -282,7 +282,22 @@ struct Arp32 : core::AHModule {
 		params[OFFSET_PARAM].config(0.0, 10.0, 0.0, "Start offset"); 
 		params[OFFSET_PARAM].description = "Number of steps into the arpeggio to start";
 
-		params[SCALE_PARAM].config(0, 2, 0, "Step size"); 
+		struct ScaleParamQuantity : app::ParamQuantity {
+			std::string getDisplayValueString() override {
+				int v = (int)getValue();
+				if (v == 0) {
+					return "Semitone " + ParamQuantity::getDisplayValueString();
+				}
+				if (v == 1) {
+					return "Major interval " + ParamQuantity::getDisplayValueString();
+				}
+				if (v == 2) {
+					return "Minor interval " + ParamQuantity::getDisplayValueString();
+				}
+				return "Semitone (probably) " + ParamQuantity::getDisplayValueString();
+			}
+		};
+		params[SCALE_PARAM].config<ScaleParamQuantity>(0, 2, 0, "Step size"); 
 		params[SCALE_PARAM].description = "Size of each step, semitones or major or minor intervals"; 
 
 		onReset();

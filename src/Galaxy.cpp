@@ -86,7 +86,7 @@ struct Galaxy : core::AHModule {
 		params[MODE_PARAM].config<gui::ModeParamQuantity>(0.0, 6.0, 0.0, "Mode");
 		params[MODE_PARAM].description = "Mode from which chord are selected"; 
 
-		params[BAD_PARAM].config(0.0, 1.0, 0.0, "Bad"); 
+		params[BAD_PARAM].config(0.0, 1.0, 0.0, "Bad", "%", 0.0f, 100.0f);
 		params[BAD_PARAM].description = "Deviation from chord selection rule for the mode";
 	}
 

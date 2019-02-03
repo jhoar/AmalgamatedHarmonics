@@ -34,9 +34,9 @@ struct ScaleQuantizer2 : core::AHModule {
 	};
 
 	ScaleQuantizer2() : core::AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
-		params[KEY_PARAM].config(0.0f, 11.0f, 0.0f, "Quantiser key"); // 12 notes
+		params[KEY_PARAM].config(0.0f, 11.0f, 0.0f, "Key"); // 12 notes
 
-		params[SCALE_PARAM].config(0.0f, 11.0f, 0.0f, "Quantiser scale"); // 12 scales
+		params[SCALE_PARAM].config(0.0f, 11.0f, 0.0f, "Scale"); // 12 scales
 
 		params[TRANS_PARAM].config(-11.0f, 11.0f, 0.0f, "Global transposition", " semitones"); // 12 notes
 		params[KEY_PARAM].description = "Transposition of all outputs post-quantisation";

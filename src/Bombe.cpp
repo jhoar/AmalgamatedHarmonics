@@ -55,10 +55,10 @@ struct Bombe : core::AHModule {
 	
 	Bombe() : core::AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
 
-		params[KEY_PARAM].config<gui::KeyParamQuantity>(0.0, 11.0, 0.0, "Key");
+		params[KEY_PARAM].config(0.0, 11.0, 0.0, "Key");
 		params[KEY_PARAM].description = "Key from which chords are selected"; 
 
-		params[MODE_PARAM].config<gui::ModeParamQuantity>(0.0, 6.0, 0.0, "Mode"); 
+		params[MODE_PARAM].config(0.0, 6.0, 0.0, "Mode"); 
 		params[MODE_PARAM].description = "Mode from which chords are selected"; 
 
 		params[LENGTH_PARAM].config(2.0, 16.0, 4.0, "Length of loop"); 

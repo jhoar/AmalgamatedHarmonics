@@ -1,8 +1,6 @@
 #include "AH.hpp"
 
-#include "dsp/digital.hpp"
-#include "dsp/resampler.hpp"
-#include "dsp/filter.hpp"
+#include "string.hpp"
 
 #include "AHCommon.hpp"
 #include "VCO.hpp"
@@ -49,14 +47,62 @@ struct Chord : core::AHModule {
 			voicePosRad[i] = voicePosDeg[i] * 0.5 * PI_180;
 		}
 
+		struct WaveParamQuantity : app::ParamQuantity {
+			std::string getDisplayValueString() override {
+				int v = (int)getValue();
+				switch (v)
+				{
+					case 0:
+						return "Sine " + ParamQuantity::getDisplayValueString();
+						break;
+					case 1:
+						return "Saw " + ParamQuantity::getDisplayValueString();
+						break;
+					case 2:
+						return "Triangle " + ParamQuantity::getDisplayValueString();
+						break;
+					case 3:
+						return "Square " + ParamQuantity::getDisplayValueString();
+						break;
+					case 4:
+						return "Even " + ParamQuantity::getDisplayValueString();
+						break;
+					default:
+						return ParamQuantity::getDisplayValueString();
+						break;
+				}
+			}
+		};
+
+		struct PanParamQuantity : app::ParamQuantity {
+
+			float e = 1.0f / (90.0f * 0.5 * (core::PI / 180.0));
+
+			std::string getDisplayValueString() override {
+				float v = getSmoothValue() * e;
+
+				std::string s = "Unknown";
+				if (v == 0.f) {
+					s = "0";
+				}
+				if (v < 0.f) {
+					s = string::f("%.*g", 3, math::normalizeZero(fabs(v) * 100.0f)) + "% L";
+				}
+				if (v > 0.f) {
+					s = string::f("%.*g", 3, math::normalizeZero(v * 100.0f)) + "% R";
+				}
+				return s;
+			}
+		};
+
 		for (int n = 0; n < 6; n++) {
-			params[WAVE_PARAM + n].config(0.0f, 4.0f, 0.0f, "Waveform");
+			params[WAVE_PARAM + n].config<WaveParamQuantity>(0.0f, 4.0f, 0.0f, "Waveform");
 			params[OCTAVE_PARAM + n].config(-3.0f, 3.0f, 0.0f, "Octave");
-			params[DETUNE_PARAM + n].config(-1.0f, 1.0f, 0.0f, "Fine tune +- 1 Octave", "V");
+			params[DETUNE_PARAM + n].config(-1.0f, 1.0f, 0.0f, "Fine tune", "V");
 			params[PW_PARAM + n].config(-1.0f, 1.0f, 0.0f, "Pulse width");
 			params[PWM_PARAM + n].config(0.0f, 1.0f, 0.0f, "Pulse width modulation CV");
 			params[ATTN_PARAM + n].config(0.0f, 1.0f, 1.0f, "Attenuation", "%", 0.0f, -100.0f, 100.0f);
-			params[PAN_PARAM + n].config(-posMax, posMax, voicePosRad[n], "Stereo pan (L-R)", "", 0.0f, -1.0f / voicePosRad[0]);
+			params[PAN_PARAM + n].config<PanParamQuantity>(-posMax, posMax, voicePosRad[n], "Stereo pan (L-R)", "", 0.0f, -1.0f / voicePosRad[0]);
 		}
 
 		params[SPREAD_PARAM].config(0.0f, 1.0f, 1.0f, "Spread");

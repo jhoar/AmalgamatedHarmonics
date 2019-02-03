@@ -35,8 +35,28 @@ struct SLN : core::AHModule {
 		params[SLOPE_PARAM].config(0.0, 1.0, 0.0, "Slope");
 		params[SLOPE_PARAM].description = "Linear to exponential slope";
 
-		params[NOISE_PARAM].config(0.0, 2.0, 0.0, "Noise type");
-		params[NOISE_PARAM].description = "White, pink or brown noise";
+		struct NoiseParamQuantity : app::ParamQuantity {
+			std::string getDisplayValueString() override {
+				int v = (int)getValue();
+				switch (v)
+				{
+					case 0:
+						return "White noise " + ParamQuantity::getDisplayValueString();
+						break;
+					case 1:
+						return "Pink noise " + ParamQuantity::getDisplayValueString();
+						break;
+					case 2:
+						return "Brown noise " + ParamQuantity::getDisplayValueString();
+						break;
+					default:
+						return ParamQuantity::getDisplayValueString();
+						break;
+				}
+			}
+		};
+		params[NOISE_PARAM].config<NoiseParamQuantity>(0.0, 2.0, 0.0, "Noise type");
+		params[NOISE_PARAM].description = "White, pink (1/f) or brown (1/f^2) noise";
 
 		params[ATTN_PARAM].config(0.0, 1.0, 1.0, "Attenuation", "%", 0.0f, -100.0f, 100.0f);
 	}
