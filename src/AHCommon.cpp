@@ -1,6 +1,8 @@
 #include "AHCommon.hpp"
 
-namespace ah::gui {
+namespace ah {
+
+namespace gui {
 
 float Y_KNOB[2]    = {50.8, 56.0}; // w.r.t 22 = 28.8 from bottom
 float Y_PORT[2]    = {49.7, 56.0}; // 27.7
@@ -115,9 +117,9 @@ void calculateKeyboard(int inKey, float spacing, float xOff, float yOff, float *
 
 }
 
-} // namespace ah::gui
+} // namespace gui
 
-namespace ah::digital {
+namespace digital {
 
 double gaussrand() {
  	static double U, V;
@@ -138,7 +140,7 @@ double gaussrand() {
 
 }
 
-namespace ah::music {
+namespace music {
 
 ChordDef ChordTable[NUM_CHORDS] {
 	{	0	,"None",{	-24	,	-24	,	-24	,	-24	,	-24	,	-24	},{	-24	,	-24	,	-24	,	-24	,	-24	,	-24	},{	-24	,	-24	,	-24	,	-24	,	-24	,	-24	}},
@@ -614,4 +616,6 @@ void getRootFromMode(int inMode, int inRoot, int inTonic, int *currRoot, int *qu
 	// 	<< std::endl;
 }
  
+}
+
 }
