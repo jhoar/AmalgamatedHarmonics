@@ -145,7 +145,7 @@ struct Galaxy : core::AHModule {
 		{0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,2,2},
 	};
 
-	float outVolts[NUM_PITCHES];
+	float outVolts[NUM_PITCHES] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
 	
 	int poll = 50000;
 

@@ -117,7 +117,7 @@ struct PolyProbeDisplay : TransparentWidget {
 			snprintf(text, sizeof(text), "Gate in: %d", module->nGateChannels);
 		} else {
 			nvgFillColor(ctx.vg, nvgRGBA(255, 0, 0, 0xff));
-			snprintf(text, sizeof(text), "No gate in");
+			snprintf(text, sizeof(text), "No Gate in");
 		}
 		nvgText(ctx.vg, box.pos.x + 5, box.pos.y + j * 16, text, NULL);
 		j = j + 2;
