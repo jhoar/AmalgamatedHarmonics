@@ -33,15 +33,15 @@ struct MuxDeMux : core::AHModule {
 		AHModule::step();
 
 		// Process poly input
-		for(int i = 0; i < inputs[POLYGATE_INPUT].getChannels(); i++) {
+		for(int i = 0; i < inputs[POLYCV_INPUT].getChannels(); i++) {
 			if (inputs[POLYGATE_INPUT].isConnected()) {
-				if (inputs[POLYGATE_INPUT].getNormalPolyVoltage(0.0, i) > 0.0f) {
-					outputs[MONO_OUTPUT + i].setVoltage(inputs[POLYCV_INPUT].getPolyVoltage(i));		
+				if (inputs[POLYGATE_INPUT].getVoltage(i) > 0.0f) {
+					outputs[MONO_OUTPUT + i].setVoltage(inputs[POLYCV_INPUT].getVoltage(i));		
 				} else {
 					outputs[MONO_OUTPUT + i].setVoltage(0.0f);		
 				}
 			} else {
-				outputs[MONO_OUTPUT + i].setVoltage(inputs[POLYCV_INPUT].getPolyVoltage(i));
+				outputs[MONO_OUTPUT + i].setVoltage(inputs[POLYCV_INPUT].getVoltage(i));
 			}
 		}
 
