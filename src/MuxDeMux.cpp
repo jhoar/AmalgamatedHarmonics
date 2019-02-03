@@ -80,7 +80,7 @@ struct MuxDeMuxWidget : ModuleWidget {
 		setPanel(SVG::load(asset::plugin(pluginInstance, "res/MuxDeMux.svg")));
 
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 1, true, true), module, MuxDeMux::POLYCV_INPUT));
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 3, true, true), module, MuxDeMux::POLYCV_INPUT));
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 3, true, true), module, MuxDeMux::POLYGATE_INPUT));
 		for (int i = 0; i < 8; i++) {
 			addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 1, 1 + i, true, true),  module, MuxDeMux::MONO_OUTPUT + i));
 		}
