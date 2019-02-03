@@ -8,6 +8,11 @@
 	"sourceUrl": "https://github.com/jhoar/AmalgamatedHarmonics",
 	"version": "1.0.0",
 	"modules": {
+		"PolyProbe": {
+			"name": "PolyProbe",
+			"description": "Probe Polyphonic cable state",
+			"tags": ["UTILITY"]
+		},
 		"MuxDeMux": {
 			"name": "MuxDeMux",
 			"description": "Multiplexer/Demultiplexer for polyphonic cables",

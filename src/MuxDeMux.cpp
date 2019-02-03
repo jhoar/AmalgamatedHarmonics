@@ -12,12 +12,14 @@ struct MuxDeMux : core::AHModule {
 	};
 	enum InputIds {
 		ENUMS(MONO_INPUT,16),
-		POLY_INPUT,
+		POLYCV_INPUT,
+		POLYGATE_INPUT,
 		NUM_INPUTS
 	};
 	enum OutputIds {
 		ENUMS(MONO_OUTPUT,16),
-		POLY_OUTPUT,
+		POLYCV_OUTPUT,
+		POLYGATE_OUTPUT,
 		NUM_OUTPUTS
 	};
 	enum LightIds {
@@ -30,10 +32,42 @@ struct MuxDeMux : core::AHModule {
 	
 		AHModule::step();
 
-		outputs[POLY_OUTPUT].setChannels(engine::PORT_MAX_CHANNELS);
+		// Process poly input
+		for(int i = 0; i < inputs[POLYGATE_INPUT].getChannels(); i++) {
+			if (inputs[POLYGATE_INPUT].isConnected()) {
+				if (inputs[POLYGATE_INPUT].getNormalPolyVoltage(0.0, i) > 0.0f) {
+					outputs[MONO_OUTPUT + i].setVoltage(inputs[POLYCV_INPUT].getPolyVoltage(i));		
+				} else {
+					outputs[MONO_OUTPUT + i].setVoltage(0.0f);		
+				}
+			} else {
+				outputs[MONO_OUTPUT + i].setVoltage(inputs[POLYCV_INPUT].getPolyVoltage(i));
+			}
+		}
+
+		int maxChan = -1;
+
 		for(int i = 0; i < engine::PORT_MAX_CHANNELS; i++) {
-			outputs[MONO_OUTPUT + i].setVoltage(inputs[POLY_INPUT].getPolyVoltage(i));
-			outputs[POLY_OUTPUT].setVoltage(inputs[MONO_INPUT + i].getVoltage(), i);
+			if (inputs[MONO_INPUT + i].isConnected()) {
+				maxChan = i;
+			}
+		}
+
+		// Number of channels is index + 1
+		maxChan++;
+
+		outputs[POLYCV_OUTPUT].setChannels(maxChan);
+		outputs[POLYGATE_OUTPUT].setChannels(maxChan);
+
+		// Process mono input
+		for(int i = 0; i < maxChan; i++) {
+			if (inputs[MONO_INPUT + i].isConnected()) {
+				outputs[POLYCV_OUTPUT].setVoltage(inputs[MONO_INPUT + i].getVoltage(), i);
+				outputs[POLYGATE_OUTPUT].setVoltage(10.0, i);
+			} else {
+				outputs[POLYCV_OUTPUT].setVoltage(0.0, i);
+				outputs[POLYGATE_OUTPUT].setVoltage(0.0, i);
+			}
 		}
 	}
 };
@@ -45,7 +79,8 @@ struct MuxDeMuxWidget : ModuleWidget {
 		setModule(module);
 		setPanel(SVG::load(asset::plugin(pluginInstance, "res/MuxDeMux.svg")));
 
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 1, true, true), module, MuxDeMux::POLY_INPUT));
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 1, true, true), module, MuxDeMux::POLYCV_INPUT));
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 3, true, true), module, MuxDeMux::POLYCV_INPUT));
 		for (int i = 0; i < 8; i++) {
 			addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 1, 1 + i, true, true),  module, MuxDeMux::MONO_OUTPUT + i));
 		}
@@ -55,7 +90,8 @@ struct MuxDeMuxWidget : ModuleWidget {
 		}
 
 
-		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 5, 8, true, true),  module, MuxDeMux::POLY_OUTPUT));
+		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 5, 6, true, true),  module, MuxDeMux::POLYCV_OUTPUT));
+		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 5, 8, true, true),  module, MuxDeMux::POLYGATE_OUTPUT));
 		for (int i = 0; i < 8; i++) {
 			addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 3, 1 + i, true, true), module, MuxDeMux::MONO_INPUT + i));
 		}
