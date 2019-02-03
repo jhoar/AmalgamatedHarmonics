@@ -954,17 +954,17 @@
      borderopacity="1.0"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:zoom="4.3184211"
-     inkscape:cx="112.4778"
-     inkscape:cy="190"
+     inkscape:zoom="2.1657895"
+     inkscape:cx="30.129239"
+     inkscape:cy="153.14216"
      inkscape:current-layer="layer2"
      showgrid="false"
      units="mm"
-     inkscape:window-width="1976"
-     inkscape:window-height="1824"
-     inkscape:window-x="368"
-     inkscape:window-y="228"
-     inkscape:window-maximized="0"
+     inkscape:window-width="1780"
+     inkscape:window-height="1046"
+     inkscape:window-x="129"
+     inkscape:window-y="-11"
+     inkscape:window-maximized="1"
      showguides="false"
      inkscape:guide-bbox="true"
      inkscape:showpageshadow="false"
@@ -1439,13 +1439,13 @@
          y="131.43527"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">MONO IN</tspan></text>
     <g
-       id="g9016"
-       transform="translate(-0.14700597,40.143046)">
+       id="g2246"
+       transform="translate(0,-0.14299926)">
       <rect
          transform="scale(1,-1)"
          ry="4.2187495"
-         y="-371.88672"
-         x="189.98825"
+         y="-412.02975"
+         x="189.84125"
          height="45"
          width="35"
          id="rect10536"
@@ -1453,16 +1453,16 @@
       <text
          xml:space="preserve"
          style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;display:inline;fill:#000000;fill-opacity:1;stroke:none"
-         x="192.8945"
-         y="337.82422"
+         x="189.72406"
+         y="377.96725"
          id="text10544"><tspan
            sodipodi:role="line"
            id="tspan10542"
-           x="192.8945"
-           y="337.82422"
-           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1">P-OUT</tspan></text>
+           x="189.72406"
+           y="377.96725"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1">GT OUT</tspan></text>
       <path
-         transform="matrix(1.0806724,0.57665211,-0.55278499,1.1273317,270.21087,44.72838)"
+         transform="matrix(1.0806724,0.57665211,-0.55278499,1.1273317,270.06386,84.871426)"
          inkscape:transform-center-y="-1.7704976"
          inkscape:transform-center-x="-0.0087335528"
          d="m 76.627278,232.54102 -3.137955,9.25351 5.843863,7.83093 -9.77029,-0.12489 -5.641802,7.97774 -2.900417,-9.33069 -9.330689,-2.90042 7.977735,-5.6418 -0.124881,-9.77029 7.830927,5.84386 z"
@@ -1481,28 +1481,28 @@
          sodipodi:type="star" />
     </g>
     <g
-       id="g9010"
-       transform="translate(0.75799975,-205.92595)">
+       id="g2234"
+       transform="translate(-0.75799967,-0.07400465)">
       <rect
          style="display:inline;fill:#000000;fill-opacity:1;stroke-width:0.78504759"
          id="rect10546"
          width="35"
          height="45"
-         x="14.988245"
-         y="-371.88672"
+         x="15.746244"
+         y="-165.96077"
          ry="4.2187495"
          transform="scale(1,-1)" />
       <text
          id="text10554"
-         y="337.82422"
-         x="22.813766"
+         y="131.89827"
+         x="20.235828"
          style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;display:inline;fill:#d4af37;fill-opacity:1;stroke:none"
          xml:space="preserve"><tspan
            style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1"
-           y="337.82422"
-           x="22.813766"
+           y="131.89827"
+           x="20.235828"
            id="tspan10552"
-           sodipodi:role="line">P-IN</tspan></text>
+           sodipodi:role="line">CV IN</tspan></text>
       <path
          sodipodi:type="star"
          style="display:inline;opacity:0.97000002;fill:#d4af37;fill-opacity:1;stroke:none;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
@@ -1520,7 +1520,7 @@
          d="m 76.627278,232.54102 -3.137955,9.25351 5.843863,7.83093 -9.77029,-0.12489 -5.641802,7.97774 -2.900417,-9.33069 -9.330689,-2.90042 7.977735,-5.6418 -0.124881,-9.77029 7.830927,5.84386 z"
          inkscape:transform-center-x="-0.0087335528"
          inkscape:transform-center-y="-1.7704976"
-         transform="matrix(1.0806724,0.57665211,-0.55278499,1.1273317,95.21086,44.72838)" />
+         transform="matrix(1.0806724,0.57665211,-0.55278499,1.1273317,95.96886,-161.19757)" />
     </g>
     <rect
        transform="scale(1,-1)"
@@ -1630,5 +1630,89 @@
          x="175.83324"
          y="410.02179"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:8px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">15</tspan></text>
+    <g
+       id="g2240"
+       transform="translate(-0.75799967,5.9259953)">
+      <rect
+         transform="scale(1,-1)"
+         ry="4.2187495"
+         y="-229.96077"
+         x="15.746244"
+         height="45"
+         width="35"
+         id="rect1120"
+         style="display:inline;fill:#000000;fill-opacity:1;stroke-width:0.78504759" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;display:inline;fill:#d4af37;fill-opacity:1;stroke:none"
+         x="20.548328"
+         y="195.89827"
+         id="text1124"><tspan
+           sodipodi:role="line"
+           id="tspan1122"
+           x="20.548328"
+           y="195.89827"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">GT IN</tspan></text>
+      <path
+         transform="matrix(1.0806724,0.57665211,-0.55278499,1.1273317,95.96886,-97.19757)"
+         inkscape:transform-center-y="-1.7704976"
+         inkscape:transform-center-x="-0.0087335528"
+         d="m 76.627278,232.54102 -3.137955,9.25351 5.843863,7.83093 -9.77029,-0.12489 -5.641802,7.97774 -2.900417,-9.33069 -9.330689,-2.90042 7.977735,-5.6418 -0.124881,-9.77029 7.830927,5.84386 z"
+         inkscape:randomized="0"
+         inkscape:rounded="0"
+         inkscape:flatsided="false"
+         sodipodi:arg2="-0.15707963"
+         sodipodi:arg1="-0.78539816"
+         sodipodi:r2="7.3570223"
+         sodipodi:r1="14.714044"
+         sodipodi:cy="242.94542"
+         sodipodi:cx="66.222878"
+         sodipodi:sides="5"
+         id="path1126"
+         style="display:inline;opacity:0.97000002;fill:#d4af37;fill-opacity:1;stroke:none;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         sodipodi:type="star" />
+    </g>
+    <g
+       id="g2252"
+       transform="translate(0,-6.1429993)">
+      <rect
+         style="display:inline;fill:#d4af37;fill-opacity:1;stroke-width:0.78504759"
+         id="rect1142"
+         width="35"
+         height="45"
+         x="189.84125"
+         y="-348.02975"
+         ry="4.2187495"
+         transform="scale(1,-1)" />
+      <text
+         id="text1146"
+         y="313.96725"
+         x="189.72406"
+         style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;display:inline;fill:#000000;fill-opacity:1;stroke:none"
+         xml:space="preserve"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1"
+           y="313.96725"
+           x="189.72406"
+           id="tspan1144"
+           sodipodi:role="line">CV OUT</tspan></text>
+      <path
+         sodipodi:type="star"
+         style="display:inline;opacity:0.97000002;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="path1148"
+         sodipodi:sides="5"
+         sodipodi:cx="66.222878"
+         sodipodi:cy="242.94542"
+         sodipodi:r1="14.714044"
+         sodipodi:r2="7.3570223"
+         sodipodi:arg1="-0.78539816"
+         sodipodi:arg2="-0.15707963"
+         inkscape:flatsided="false"
+         inkscape:rounded="0"
+         inkscape:randomized="0"
+         d="m 76.627278,232.54102 -3.137955,9.25351 5.843863,7.83093 -9.77029,-0.12489 -5.641802,7.97774 -2.900417,-9.33069 -9.330689,-2.90042 7.977735,-5.6418 -0.124881,-9.77029 7.830927,5.84386 z"
+         inkscape:transform-center-x="-0.0087335528"
+         inkscape:transform-center-y="-1.7704976"
+         transform="matrix(1.0806724,0.57665211,-0.55278499,1.1273317,270.06386,20.871426)" />
+    </g>
   </g>
 </svg>
