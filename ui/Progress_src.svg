@@ -955,7 +955,7 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="6.7549591"
-     inkscape:cx="262.86024"
+     inkscape:cx="234.65874"
      inkscape:cy="267.03225"
      inkscape:current-layer="layer2"
      showgrid="false"
@@ -2020,12 +2020,5 @@
          x="205.35172"
          id="tspan55531"
          sodipodi:role="line">5</tspan></text>
-    <path
-       inkscape:connector-curvature="0"
-       style="display:inline;opacity:0.97000002;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.61988729;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       inkscape:transform-center-x="-0.0087335528"
-       inkscape:transform-center-y="-1.7704976"
-       d="m 294.47507,130.51456 -8.50631,8.62227 1.98649,12.19793 -10.48945,-5.77484 -10.50692,5.74019 2.02347,-12.19131 -8.48011,-8.6503 11.74002,-1.75981 5.26592,-11.08636 5.23226,11.10368 z"
-       id="path1433" />
   </g>
 </svg>
