@@ -8,16 +8,6 @@
 	"sourceUrl": "https://github.com/jhoar/AmalgamatedHarmonics",
 	"version": "1.0.0",
 	"modules": {
-		"PolyProbe": {
-			"name": "PolyProbe",
-			"description": "Probe Polyphonic cable state",
-			"tags": ["UTILITY"]
-		},
-		"MuxDeMux": {
-			"name": "MuxDeMux",
-			"description": "Multiplexer/Demultiplexer for polyphonic cables",
-			"tags": ["UTILITY"]
-		},
 		"Arp31": {
 			"name": "Arp 3.1 - Chord",
 			"description": "Arpeggios over a chord",
@@ -53,8 +43,8 @@
 			"description": "A trigger-to-gate and clock divider module",
 			"tags": ["CLOCK_MODULATOR"]
 		},
-        "Progress": {
-			"name": "Progress",
+        "Progress2": {
+			"name": "Progress MKII",
 			"description": "A chord sequencer",
 			"tags": ["SEQUENCER"]
 		},
@@ -68,10 +58,25 @@
 			"description": "Slew-Limited Noise ",
 			"tags": ["SAMPLE_AND_HOLD","NOISE"]
 		},
+		"MuxDeMux": {
+			"name": "MuxDeMux",
+			"description": "Multiplexer/Demultiplexer for polyphonic cables",
+			"tags": ["UTILITY"]
+		},
+		"PolyProbe": {
+			"name": "PolyProbe",
+			"description": "Probe Polyphonic cable state",
+			"tags": ["UTILITY"]
+		},
         "Arpeggiator2": {
 			"name": "Arpeggiator MkII (deprecated)",
 			"description": "A multi-input arpeggiator",
 			"tags": ["ARPEGGIATOR"]
+		},
+		"Progress": {
+			"name": "Progress  (deprecated)",
+			"description": "A chord sequencer",
+			"tags": ["SEQUENCER"]
 		}
 	}
 }

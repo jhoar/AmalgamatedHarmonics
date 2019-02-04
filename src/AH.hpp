@@ -9,9 +9,6 @@ extern Plugin *pluginInstance;
 ////////////////////
 // module widgets
 ////////////////////
-extern Model *modelPolyProbe;
-
-extern Model *modelMuxDeMux;
 
 extern Model *modelArpeggiator2;
 
@@ -23,7 +20,13 @@ extern Model *modelCircle;
 
 extern Model *modelImperfect2;
 
+extern Model *modelMuxDeMux;
+
+extern Model *modelPolyProbe;
+
 extern Model *modelProgress;
+
+extern Model *modelProgress2;
 
 extern Model *modelRuckus;
 
