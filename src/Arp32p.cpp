@@ -186,7 +186,7 @@ struct NotePattern : Pattern {
 	}
 
 	bool isPatternFinished() override {
-		return (count >= (int)notes.size());
+		return (count >= (int)notes.size() - 1);
 	}
 		
 };
