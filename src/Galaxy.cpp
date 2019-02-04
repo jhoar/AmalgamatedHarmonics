@@ -99,6 +99,10 @@ struct Galaxy : core::AHModule {
 	json_t *dataToJson() override {
 		json_t *rootJ = json_object();
 
+		// polymode
+		json_t *polymodeJ = json_boolean(polymode);
+		json_object_set_new(rootJ, "polymode", polymodeJ);
+
 		// offset
 		json_t *offsetJ = json_integer((int) offset);
 		json_object_set_new(rootJ, "offset", offsetJ);
@@ -115,6 +119,11 @@ struct Galaxy : core::AHModule {
 	}
 	
 	void dataFromJson(json_t *rootJ) override {
+
+		// polymode
+		json_t *polymodeJ = json_object_get(rootJ, "polymode");
+		if (polymodeJ)
+			polymode = json_boolean_value(polymodeJ);
 
 		// offset
 		json_t *offsetJ = json_object_get(rootJ, "offset");
@@ -148,6 +157,7 @@ struct Galaxy : core::AHModule {
 	float outVolts[NUM_PITCHES] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
 	
 	int poll = 50000;
+	bool polymode = false;
 
 	rack::dsp::SchmittTrigger moveTrigger;
 
@@ -346,20 +356,12 @@ void Galaxy::step() {
 	}
 
 	// Set the output pitches 
-
-	// Count the number of active ports in P2-P6
-	int portCount = 0;
-	for (int i = 1; i < NUM_PITCHES - 1; i++) {
-		if (outputs[PITCH_OUTPUT + i].isConnected()) {
-			portCount++;
-		}
-	}
-
-	// No active ports in P2-P6, so must be poly
-	if (portCount == 0) {
+	if (polymode) {
 		outputs[PITCH_OUTPUT].setChannels(6);
+		outputs[PITCH_OUTPUT + 1].setChannels(6);
 		for (int i = 0; i < NUM_PITCHES; i++) {
 			outputs[PITCH_OUTPUT].setVoltage(outVolts[i], i);
+			outputs[PITCH_OUTPUT + 1].setVoltage(10.0, i);
 		}
 	} else {
 		for (int i = 0; i < NUM_PITCHES; i++) {
@@ -549,6 +551,14 @@ struct GalaxyWidget : ModuleWidget {
 		Galaxy *galaxy = dynamic_cast<Galaxy*>(module);
 		assert(galaxy);
 
+		struct PolyModeItem : MenuItem {
+			Galaxy *module;
+			bool polymode;
+			void onAction(const event::Action &e) override {
+				module->polymode = polymode;
+			}
+		};
+
 		struct OffsetItem : MenuItem {
 			Galaxy *module;
 			int offset;
@@ -570,6 +580,22 @@ struct GalaxyWidget : ModuleWidget {
 			int allowedInversions;
 			void onAction(const event::Action &e) override {
 				module->allowedInversions = allowedInversions;
+			}
+		};
+
+		struct PolyModeMenu : MenuItem {
+			Galaxy *module;
+			Menu *createChildMenu() override {
+				Menu *menu = new Menu;
+				std::vector<bool> modes = {true, false};
+				std::vector<std::string> names = {"Poly", "Mono"};
+				for (size_t i = 0; i < modes.size(); i++) {
+					PolyModeItem *item = createMenuItem<PolyModeItem>(names[i], CHECKMARK(module->polymode == modes[i]));
+					item->module = module;
+					item->polymode = modes[i];
+					menu->addChild(item);
+				}
+				return menu;
 			}
 		};
 
@@ -622,6 +648,10 @@ struct GalaxyWidget : ModuleWidget {
 		};
 
 		menu->addChild(construct<MenuLabel>());
+		PolyModeMenu *polymodeItem = createMenuItem<PolyModeMenu>("Polyphony");
+		polymodeItem->module = galaxy;
+		menu->addChild(polymodeItem);
+
 		OffsetMenu *offsetItem = createMenuItem<OffsetMenu>("Repeat Notes");
 		offsetItem->module = galaxy;
 		menu->addChild(offsetItem);

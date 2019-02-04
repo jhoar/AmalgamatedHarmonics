@@ -106,7 +106,7 @@ struct Bombe : core::AHModule {
 	
 	void dataFromJson(json_t *rootJ) override {
 
-		// offset
+		// polymode
 		json_t *polymodeJ = json_object_get(rootJ, "polymode");
 		if (polymodeJ)
 			polymode = json_boolean_value(polymodeJ);
@@ -375,20 +375,12 @@ void Bombe::step() {
 	}
 
 	// Set the output pitches 
-
-	// Count the number of active ports in P2-P6
-	int portCount = 0;
-	for (int i = 1; i < NUM_PITCHES - 1; i++) {
-		if (outputs[PITCH_OUTPUT + i].isConnected()) {
-			portCount++;
-		}
-	}
-
-	// No active ports in P2-P6, so must be poly
-	if (portCount == 0) {
+	if (polymode) {
 		outputs[PITCH_OUTPUT].setChannels(6);
+		outputs[PITCH_OUTPUT + 1].setChannels(6);
 		for (int i = 0; i < NUM_PITCHES; i++) {
 			outputs[PITCH_OUTPUT].setVoltage(buffer[0].outVolts[i], i);
+			outputs[PITCH_OUTPUT + 1].setVoltage(10.0, i);
 		}
 	} else {
 		for (int i = 0; i < NUM_PITCHES; i++) {
