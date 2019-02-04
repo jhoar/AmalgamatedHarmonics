@@ -393,19 +393,20 @@ void Arp31::step() {
 		std::vector<float> inputPitches;
 		if (inputs[PITCH_INPUT].isConnected()) {
 			int channels = inputs[PITCH_INPUT].getChannels();
+			if (debugEnabled()) { std::cout << stepX << " " << id  << " Channels: " << channels << std::endl; }
+
 			if (inputs[GATE_INPUT].isConnected()) {
-				if (debugEnabled()) { std::cout << stepX << " " << id  << " Channels: " << channels << std::endl; }
 				for (int p = 0; p < channels; p++) {
 					if (inputs[GATE_INPUT].getVoltage(p) > 0.0f) {
 						inputPitches.push_back(inputs[PITCH_INPUT].getVoltage(p));
 					}
 				}
 			} else { // No gate info, read sequentially;
-				if (debugEnabled()) { std::cout << stepX << " " << id  << " Channels: " << channels << std::endl; }
 				for (int p = 0; p < channels; p++) {
 					inputPitches.push_back(inputs[PITCH_INPUT].getVoltage(p));
 				}
 			}
+
 		} 
 
 		if (inputPitches.size() == 0) {
@@ -416,12 +417,6 @@ void Arp31::step() {
 
 		if (debugEnabled()) { std::cout << stepX << " " << id  << " Pitches: " << inputPitches.size() << std::endl; }
 
-		// if (debugEnabled()) {
-		// 	for (int p = 0; p < nValidPitches; p++) {
-		// 		std::cout << inputPitches[p] << std::endl;
-		// 	}
-		// }
-		
 		// At the first step of the cycle
 		// So this is where we tweak the cycle parameters
 		arp = inputArp;
@@ -433,8 +428,6 @@ void Arp31::step() {
 			case 3: 	currArp = &arp_leftright;	break;
 			default:	currArp = &arp_right;		break; 	
 		};
-
-		if (debugEnabled()) { std::cout << stepX << " " << id  << " Arp: " << currArp->getName() << std::endl; }
 
 		// Clear existing pitches
 		pitches.clear();

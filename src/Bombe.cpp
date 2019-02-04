@@ -63,7 +63,7 @@ struct Bombe : core::AHModule {
 
 		params[LENGTH_PARAM].config(2.0, 16.0, 4.0, "Length of loop"); 
 		params[X_PARAM].config(0.0, 1.0, 0.5, "Update probability", "%", 0.0f, -100.0f, 100.0f);
-		params[X_PARAM].description = "Probability that the next chord will be updated";
+		params[X_PARAM].description = "Probability that the next chord will be changed";
 
 		params[Y_PARAM].config(0.0, 1.0, 0.5, "Deviation probability", "%", 0.0f, 100.0f);
 		params[Y_PARAM].description = "The deviation of the next chord update from the mode rule";
