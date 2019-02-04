@@ -221,6 +221,7 @@ struct Arp31 : core::AHModule {
 	enum InputIds {
 		CLOCK_INPUT,
 		PITCH_INPUT,
+		GATE_INPUT,
 		ARP_INPUT,
 		NUM_INPUTS
 	};
@@ -392,11 +393,22 @@ void Arp31::step() {
 		std::vector<float> inputPitches;
 		if (inputs[PITCH_INPUT].isConnected()) {
 			int channels = inputs[PITCH_INPUT].getChannels();
-			if (debugEnabled()) { std::cout << stepX << " " << id  << " Channels: " << channels << std::endl; }
-			for (int p = 0; p < channels; p++) {
-				inputPitches.push_back(inputs[PITCH_INPUT].getVoltage(p));
+			if (inputs[GATE_INPUT].isConnected()) {
+				if (debugEnabled()) { std::cout << stepX << " " << id  << " Channels: " << channels << std::endl; }
+				for (int p = 0; p < channels; p++) {
+					if (inputs[GATE_INPUT].getVoltage(p) > 0.0f) {
+						inputPitches.push_back(inputs[PITCH_INPUT].getVoltage(p));
+					}
+				}
+			} else { // No gate info, read sequentially;
+				if (debugEnabled()) { std::cout << stepX << " " << id  << " Channels: " << channels << std::endl; }
+				for (int p = 0; p < channels; p++) {
+					inputPitches.push_back(inputs[PITCH_INPUT].getVoltage(p));
+				}
 			}
-		} else {
+		} 
+
+		if (inputPitches.size() == 0) {
 			if (debugEnabled()) { std::cout << stepX << " " << id  << " No inputs, assume single 0V pitch" << std::endl; }
 			inputPitches.push_back(0.0f);
 			pitchIndex.push_back(0);
@@ -510,6 +522,7 @@ struct Arp31Widget : ModuleWidget {
 		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 2, 5, true, false), module, Arp31::EOC_OUTPUT));
 
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 0, true, false), module, Arp31::PITCH_INPUT));
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 1, 0, true, false), module, Arp31::GATE_INPUT));
 
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 4, true, false), module, Arp31::CLOCK_INPUT));
 		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 1, 4, true, false), module, Arp31::OFFSET_PARAM)); 
