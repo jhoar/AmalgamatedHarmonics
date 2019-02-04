@@ -136,7 +136,7 @@ struct SLNWidget : ModuleWidget {
 	SLNWidget(SLN *module) {
 	
 		setModule(module);
-		setPanel(SVG::load(asset::plugin(pluginInstance, "res/SLN.svg")));
+		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/SLN.svg")));
 
 		float panelwidth = 45.0;
 		float portwidth = 25.0;

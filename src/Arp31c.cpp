@@ -477,7 +477,7 @@ struct Arp31Display : TransparentWidget {
 	std::shared_ptr<Font> font;
 
 	Arp31Display() {
-		font = Font::load(asset::plugin(pluginInstance, "res/EurostileBold.ttf"));
+		font = APP->window->loadFont(asset::plugin(pluginInstance, "res/EurostileBold.ttf"));
 	}
 
 	void draw(const DrawContext &ctx) override {
@@ -503,7 +503,7 @@ struct Arp31Widget : ModuleWidget {
 	Arp31Widget(Arp31 *module) {
 	
 		setModule(module);
-		setPanel(SVG::load(asset::plugin(pluginInstance, "res/Arp31c.svg")));
+		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Arp31c.svg")));
 		
 		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 5, true, false), module, Arp31::OUT_OUTPUT));
 		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 1, 5, true, false), module, Arp31::GATE_OUTPUT));

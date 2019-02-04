@@ -391,7 +391,7 @@ struct GenerativeWidget : ModuleWidget {
 	GenerativeWidget(Generative *module) {
 		
 		setModule(module);
-		setPanel(SVG::load(asset::plugin(pluginInstance, "res/Generative.svg")));
+		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Generative.svg")));
 
 		// LFO section
 		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 0, 0, false, false), module, Generative::FREQ_PARAM));

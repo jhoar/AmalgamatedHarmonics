@@ -274,7 +274,7 @@ struct RuckusWidget : ModuleWidget {
 	RuckusWidget(Ruckus *module) {
 	
 		setModule(module);
-		setPanel(SVG::load(asset::plugin(pluginInstance, "res/Ruckus.svg")));
+		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Ruckus.svg")));
 
 		//299.5 329.7
 		Vec a = gui::getPosition(gui::PORT, 6, 5, false, false);

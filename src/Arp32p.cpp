@@ -549,7 +549,7 @@ struct Arp32Display : TransparentWidget {
 	std::shared_ptr<Font> font;
 
 	Arp32Display() {
-		font = Font::load(asset::plugin(pluginInstance, "res/EurostileBold.ttf"));
+		font = APP->window->loadFont(asset::plugin(pluginInstance, "res/EurostileBold.ttf"));
 	}
 
 	void draw(const DrawContext &ctx) override {
@@ -595,7 +595,7 @@ struct Arp32Widget : ModuleWidget {
 	Arp32Widget(Arp32 *module) {
 		
 		setModule(module);
-		setPanel(SVG::load(asset::plugin(pluginInstance, "res/Arp32p.svg")));
+		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Arp32p.svg")));
 
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 0, true, false), module, Arp32::PITCH_INPUT));
 		

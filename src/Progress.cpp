@@ -486,7 +486,7 @@ struct ProgressWidget : ModuleWidget {
 	ProgressWidget(Progress *module) {
 		
 		setModule(module);
-		setPanel(SVG::load(asset::plugin(pluginInstance, "res/Progress.svg")));
+		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Progress.svg")));
 		
 		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 0, 0, true, false), module, Progress::CLOCK_PARAM));
 		addParam(createParam<gui::AHButton>(gui::getPosition(gui::BUTTON, 1, 0, true, false), module, Progress::RUN_PARAM));

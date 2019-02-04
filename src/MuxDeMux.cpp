@@ -90,7 +90,7 @@ struct MuxDeMuxWidget : ModuleWidget {
 	MuxDeMuxWidget(MuxDeMux *module) {
 		
 		setModule(module);
-		setPanel(SVG::load(asset::plugin(pluginInstance, "res/MuxDeMux.svg")));
+		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/MuxDeMux.svg")));
 
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 1, true, true), module, MuxDeMux::POLYCV_INPUT));
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 3, true, true), module, MuxDeMux::POLYGATE_INPUT));

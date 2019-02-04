@@ -195,7 +195,7 @@ struct ChordWidget : ModuleWidget {
 	ChordWidget(Chord *module) {
 		
 		setModule(module);
-		setPanel(SVG::load(asset::plugin(pluginInstance, "res/Chord.svg")));
+		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Chord.svg")));
 
 		for (int n = 0; n < 6; n++) {
 			addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, n, 0, true, true), module, Chord::PITCH_INPUT + n));

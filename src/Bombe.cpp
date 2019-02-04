@@ -85,6 +85,10 @@ struct Bombe : core::AHModule {
 	json_t *dataToJson() override {
 		json_t *rootJ = json_object();
 
+		// polymode
+		json_t *polymodeJ = json_boolean(polymode);
+		json_object_set_new(rootJ, "polymode", polymodeJ);
+
 		// offset
 		json_t *offsetJ = json_integer((int) offset);
 		json_object_set_new(rootJ, "offset", offsetJ);
@@ -101,6 +105,11 @@ struct Bombe : core::AHModule {
 	}
 	
 	void dataFromJson(json_t *rootJ) override {
+
+		// offset
+		json_t *polymodeJ = json_object_get(rootJ, "polymode");
+		if (polymodeJ)
+			polymode = json_boolean_value(polymodeJ);
 
 		// offset
 		json_t *offsetJ = json_object_get(rootJ, "offset");
@@ -139,6 +148,8 @@ struct Bombe : core::AHModule {
 	int poll = 50000;
 
 	rack::dsp::SchmittTrigger clockTrigger;
+
+	bool polymode = false;
 
 	int currRoot = 1;
 	int currMode = 1;
@@ -392,7 +403,7 @@ struct BombeDisplay : TransparentWidget {
 	std::shared_ptr<Font> font;
 
 	BombeDisplay() {
-		font = Font::load(asset::plugin(pluginInstance, "res/EurostileBold.ttf"));
+		font = APP->window->loadFont(asset::plugin(pluginInstance, "res/EurostileBold.ttf"));
 	}
 
 	void draw(const DrawContext &ctx) override {
@@ -456,7 +467,7 @@ struct BombeWidget : ModuleWidget {
 	BombeWidget(Bombe *module)  {
 	
 		setModule(module);
-		setPanel(SVG::load(asset::plugin(pluginInstance, "res/Bombe.svg")));
+		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Bombe.svg")));
 
 		for (int i = 0; i < 6; i++) {
 			addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, i, 5, true, false), module, Bombe::PITCH_OUTPUT + i));
@@ -510,6 +521,14 @@ struct BombeWidget : ModuleWidget {
 		Bombe *bombe = dynamic_cast<Bombe*>(module);
 		assert(bombe);
 
+		struct PolyModeItem : MenuItem {
+			Bombe *module;
+			bool polymode;
+			void onAction(const event::Action &e) override {
+				module->polymode = polymode;
+			}
+		};
+
 		struct OffsetItem : MenuItem {
 			Bombe *module;
 			int offset;
@@ -531,6 +550,22 @@ struct BombeWidget : ModuleWidget {
 			int allowedInversions;
 			void onAction(const event::Action &e) override {
 				module->allowedInversions = allowedInversions;
+			}
+		};
+
+		struct PolyModeMenu : MenuItem {
+			Bombe *module;
+			Menu *createChildMenu() override {
+				Menu *menu = new Menu;
+				std::vector<bool> modes = {true, false};
+				std::vector<std::string> names = {"Poly", "Mono"};
+				for (size_t i = 0; i < modes.size(); i++) {
+					PolyModeItem *item = createMenuItem<PolyModeItem>(names[i], CHECKMARK(module->polymode == modes[i]));
+					item->module = module;
+					item->polymode = modes[i];
+					menu->addChild(item);
+				}
+				return menu;
 			}
 		};
 
@@ -583,6 +618,10 @@ struct BombeWidget : ModuleWidget {
 		};
 
 		menu->addChild(construct<MenuLabel>());
+		PolyModeMenu *polymodeItem = createMenuItem<PolyModeMenu>("Polyphony");
+		polymodeItem->module = bombe;
+		menu->addChild(polymodeItem);
+
 		OffsetMenu *offsetItem = createMenuItem<OffsetMenu>("Repeat Notes");
 		offsetItem->module = bombe;
 		menu->addChild(offsetItem);

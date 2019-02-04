@@ -456,7 +456,7 @@ struct GalaxyDisplay : TransparentWidget {
 	std::shared_ptr<Font> font;
 
 	GalaxyDisplay() {
-		font = Font::load(asset::plugin(pluginInstance, "res/EurostileBold.ttf"));
+		font = APP->window->loadFont(asset::plugin(pluginInstance, "res/EurostileBold.ttf"));
 	}
 
 	void draw(const DrawContext &ctx) override {
@@ -490,7 +490,7 @@ struct GalaxyWidget : ModuleWidget {
 	GalaxyWidget(Galaxy *module)  {
 	
 		setModule(module);
-		setPanel(SVG::load(asset::plugin(pluginInstance, "res/Galaxy.svg")));
+		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Galaxy.svg")));
 
 		float div = (core::PI * 2) / (float)Galaxy::N_QUALITIES;
 		float div2 = (core::PI * 2) / (float)(Galaxy::N_QUALITIES * Galaxy::N_QUALITIES);

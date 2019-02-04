@@ -35,13 +35,20 @@ struct PolyProbe : core::AHModule {
 	
 		AHModule::step();
 
-		nGateChannels = 0;
-		nCVChannels = 0;
-		hasGateIn = false;
-		hasCVIn = false;
-		for (int i = 0; i < 16; i++) {
-			gate[i] = false;
-			cv[i] = 0.0;
+		if (!inputs[POLYGATE_INPUT].isConnected()) {
+			hasGateIn = false;
+			nGateChannels = 0;
+			for (int i = 0; i < 16; i++) {
+				gate[i] = false;
+			}
+		}
+
+		if (!inputs[POLYCV_INPUT].isConnected()) {
+			nCVChannels = 0;
+			hasCVIn = false;
+			for (int i = 0; i < 16; i++) {
+				cv[i] = 0.0;
+			}
 		}
 
 		if (inputs[POLYGATE_INPUT].isConnected()) {
@@ -50,13 +57,9 @@ struct PolyProbe : core::AHModule {
 			for (int i = 0; i < nGateChannels; i++) {
 				if (inputs[POLYGATE_INPUT].getNormalVoltage(0.0, i) > 0.0f) {
 					gate[i] = true;
-				} else {
-					gate[i] = false;
-				}
+				} 
 			}
-		} else {
-			hasGateIn = false;
-		}
+		} 
 
 		// Process poly input
 		if (inputs[POLYCV_INPUT].isConnected()) {
@@ -65,11 +68,8 @@ struct PolyProbe : core::AHModule {
 			for (int i = 0; i < nCVChannels; i++) {
 				cv[i] = inputs[POLYCV_INPUT].getVoltage(i);
 			}
-		} else {
-			hasCVIn = false;
-		}
+		} 
 	}
-
 };
 
 struct PolyProbeDisplay : TransparentWidget {
@@ -78,7 +78,7 @@ struct PolyProbeDisplay : TransparentWidget {
 	std::shared_ptr<Font> font;
 
 	PolyProbeDisplay() {
-		font = Font::load(asset::plugin(pluginInstance, "res/EurostileBold.ttf"));
+		font = APP->window->loadFont(asset::plugin(pluginInstance, "res/EurostileBold.ttf"));
 	}
 
 	void draw(const DrawContext &ctx) override {
@@ -130,7 +130,7 @@ struct PolyProbeDisplay : TransparentWidget {
 				if (module->hasGateIn) {
 					if (module->gate[i]) {
 						nvgFillColor(ctx.vg, nvgRGBA(0, 255, 0, 0xff));
-						snprintf(text, sizeof(text), "%02d GATE        %f", i, module->cv[i]);
+						snprintf(text, sizeof(text), "%02d GATE          %f", i, module->cv[i]);
 					} else {
 						nvgFillColor(ctx.vg, nvgRGBA(255, 0, 0, 0xff));
 						snprintf(text, sizeof(text), "%02d NOGATE   %f", i, module->cv[i]);
@@ -151,7 +151,7 @@ struct PolyProbeWidget : ModuleWidget {
 	PolyProbeWidget(PolyProbe *module) {
 		
 		setModule(module);
-		setPanel(SVG::load(asset::plugin(pluginInstance, "res/PolyProbe.svg")));
+		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/PolyProbe.svg")));
 
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 5, 6, true, true), module, PolyProbe::POLYCV_INPUT));
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 5, 8, true, true), module, PolyProbe::POLYGATE_INPUT));

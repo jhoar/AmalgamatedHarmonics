@@ -201,7 +201,7 @@ struct CircleWidget : ModuleWidget {
 	CircleWidget(Circle *module) {
 		
 		setModule(module);
-		setPanel(SVG::load(asset::plugin(pluginInstance, "res/Circle.svg")));
+		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Circle.svg")));
 
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 0, true, false), module, Circle::ROTL_INPUT));
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 5, 0, true, false), module, Circle::ROTR_INPUT));

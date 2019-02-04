@@ -911,7 +911,7 @@ struct Arpeggiator2Display : TransparentWidget {
 	std::shared_ptr<Font> font;
 
 	Arpeggiator2Display() {
-		font = Font::load(asset::plugin(pluginInstance, "res/EurostileBold.ttf"));
+		font = APP->window->loadFont(asset::plugin(pluginInstance, "res/EurostileBold.ttf"));
 	}
 
 	void draw(const DrawContext &ctx) override {
@@ -955,7 +955,7 @@ struct Arpeggiator2Widget : ModuleWidget {
 	Arpeggiator2Widget(Arpeggiator2 *module) {
 	
 		setModule(module);
-		setPanel(SVG::load(asset::plugin(pluginInstance, "res/Arpeggiator2.svg")));
+		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Arpeggiator2.svg")));
 
 		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 0, false, false), module, Arpeggiator2::OUT_OUTPUT));
 		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 1, 0, false, false), module, Arpeggiator2::GATE_OUTPUT));

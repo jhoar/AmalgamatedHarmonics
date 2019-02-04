@@ -80,7 +80,7 @@ struct StateDisplay : TransparentWidget {
 	std::shared_ptr<Font> font;
 
 	StateDisplay() {
-		font = Font::load(asset::plugin(pluginInstance, "res/EurostileBold.ttf"));
+		font = APP->window->loadFont(asset::plugin(pluginInstance, "res/EurostileBold.ttf"));
 	}
 
 	void draw(NVGcontext *vg) override {
@@ -123,7 +123,7 @@ struct AHParamWidget { // it's a mix-in
 struct AHButton : SVGSwitch {
 	AHButton() {
 		momentary = true;
-		addFrame(SVG::load(asset::plugin(pluginInstance,"res/ComponentLibrary/AHButton.svg")));
+		addFrame(APP->window->loadSvg(asset::plugin(pluginInstance,"res/ComponentLibrary/AHButton.svg")));
 	}	
 };
 
@@ -141,42 +141,42 @@ struct AHKnob : RoundKnob, AHParamWidget {
 struct AHKnobSnap : AHKnob {
 	AHKnobSnap() {
 		snap = true;
-		setSVG(SVG::load(asset::plugin(pluginInstance,"res/ComponentLibrary/AHKnob.svg")));
+		setSvg(APP->window->loadSvg(asset::plugin(pluginInstance,"res/ComponentLibrary/AHKnob.svg")));
 	}
 };
 
 struct AHKnobNoSnap : AHKnob {
 	AHKnobNoSnap() {
 		snap = false;
-		setSVG(SVG::load(asset::plugin(pluginInstance,"res/ComponentLibrary/AHKnob.svg")));
+		setSvg(APP->window->loadSvg(asset::plugin(pluginInstance,"res/ComponentLibrary/AHKnob.svg")));
 	}
 };
 
 struct AHBigKnobNoSnap : AHKnob {
 	AHBigKnobNoSnap() {
 		snap = false;
-		setSVG(SVG::load(asset::plugin(pluginInstance,"res/ComponentLibrary/AHBigKnob.svg")));
+		setSvg(APP->window->loadSvg(asset::plugin(pluginInstance,"res/ComponentLibrary/AHBigKnob.svg")));
 	}
 };
 
 struct AHBigKnobSnap : AHKnob {
 	AHBigKnobSnap() {
 		snap = true;
-		setSVG(SVG::load(asset::plugin(pluginInstance,"res/ComponentLibrary/AHBigKnob.svg")));
+		setSvg(APP->window->loadSvg(asset::plugin(pluginInstance,"res/ComponentLibrary/AHBigKnob.svg")));
 	}
 };
 
 struct AHTrimpotSnap : AHKnob {
 	AHTrimpotSnap() {
 		snap = true;
-		setSVG(SVG::load(asset::plugin(pluginInstance,"res/ComponentLibrary/AHTrimpot.svg")));
+		setSvg(APP->window->loadSvg(asset::plugin(pluginInstance,"res/ComponentLibrary/AHTrimpot.svg")));
 	}
 };
 
 struct AHTrimpotNoSnap : AHKnob {
 	AHTrimpotNoSnap() {
 		snap = false;
-		setSVG(SVG::load(asset::plugin(pluginInstance,"res/ComponentLibrary/AHTrimpot.svg")));
+		setSvg(APP->window->loadSvg(asset::plugin(pluginInstance,"res/ComponentLibrary/AHTrimpot.svg")));
 	}
 };
 
