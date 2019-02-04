@@ -31,7 +31,8 @@ struct Progress2 : core::AHModule {
 	};
 	enum OutputIds {
 		GATES_OUTPUT,
-		ENUMS(PITCH_OUTPUT,6),
+		PITCH_OUTPUT,
+		POLYGATE_OUTPUT,
 		ENUMS(GATE_OUTPUT,8),
 		NUM_OUTPUTS
 	};
@@ -258,14 +259,12 @@ void Progress2::step() {
 
 	// index is our current step
 	if (inputs[KEY_INPUT].isConnected()) {
-		float fRoot = inputs[KEY_INPUT].getVoltage();
-		currKey = music::getKeyFromVolts(fRoot);
+		currKey = music::getKeyFromVolts(inputs[KEY_INPUT].getVoltage());
 		haveRoot = true;
 	}
 
 	if (inputs[MODE_INPUT].isConnected()) {
-		float fMode = inputs[MODE_INPUT].getVoltage();
-		currMode = music::getModeFromVolts(fMode);	
+		currMode = music::getModeFromVolts(inputs[MODE_INPUT].getVoltage());	
 		haveMode = true;
 	}
 	
@@ -273,8 +272,8 @@ void Progress2::step() {
 	
 	 if (modeMode && ((prevMode != currMode) || (prevKey != currKey))) { // Input changes so force re-read
 	 	for (int step = 0; step < 8; step++) {
-			prevDegreeInput[step]    = -100.0;
-			prevQualityInput[step]  = -100.0;
+			prevDegreeInput[step]	= -100.0;
+			prevQualityInput[step]	= -100.0;
 		}
 		
 		prevMode = currMode;
@@ -312,8 +311,8 @@ void Progress2::step() {
 		
 		if (modeMode) {			
 		
-			currDegreeInput[step]   = params[ROOT_PARAM + step].getValue();
-			currQualityInput[step] = params[CHORD_PARAM + step].getValue();
+			currDegreeInput[step]	= params[ROOT_PARAM + step].getValue();
+			currQualityInput[step]	= params[CHORD_PARAM + step].getValue();
 							
 			if (prevDegreeInput[step] != currDegreeInput[step]) {
 				prevDegreeInput[step] = currDegreeInput[step];
@@ -382,8 +381,8 @@ void Progress2::step() {
 			// Get the array of pitches based on the inversion
 			switch(currInv[step]) {
 				case music::ROOT:  		chordArray = music::ChordTable[currChord[step]].root; 	break;
-				case music::FIRST_INV:  	chordArray = music::ChordTable[currChord[step]].first; 	break;
-				case music::SECOND_INV:  chordArray = music::ChordTable[currChord[step]].second;	break;
+				case music::FIRST_INV:  chordArray = music::ChordTable[currChord[step]].first; 	break;
+				case music::SECOND_INV: chordArray = music::ChordTable[currChord[step]].second;	break;
 				default: chordArray = music::ChordTable[currChord[step]].root;
 			}
 			
@@ -457,8 +456,11 @@ void Progress2::step() {
 	lights[GATES_LIGHT].setBrightnessSmooth(pulse);
 
 	// Set the output pitches 
+	outputs[PITCH_OUTPUT].setChannels(6);
+	outputs[PITCH_OUTPUT + 1].setChannels(6);
 	for (int i = 0; i < NUM_PITCHES; i++) {
-		outputs[PITCH_OUTPUT + i].setVoltage(pitches[index][i]);
+		outputs[PITCH_OUTPUT].setVoltage(pitches[index][i], i);
+		outputs[PITCH_OUTPUT + 1].setVoltage(10.0, i);
 	}
 	
 }
@@ -487,13 +489,8 @@ struct Progress2Widget : ModuleWidget {
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 4, 1, true, false), module, Progress2::KEY_INPUT));
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 5, 1, true, false), module, Progress2::MODE_INPUT));
 
-		for (int i = 0; i < 3; i++) {
-			addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 7 + i, 0, true, false), module, Progress2::PITCH_OUTPUT + i));
-		}	
-
-		for (int i = 0; i < 3; i++) {
-			addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 7 + i, 1, true, false), module, Progress2::PITCH_OUTPUT + 3 + i));
-		}
+		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 7, 0, true, false), module, Progress2::PITCH_OUTPUT));
+		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 8, 0, true, false), module, Progress2::POLYGATE_OUTPUT));
 
 		for (int i = 0; i < 8; i++) {
 			gui::AHKnobNoSnap *rootW = createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, i + 1, 4, true, true), module, Progress2::ROOT_PARAM + i);
