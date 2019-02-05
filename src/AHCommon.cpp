@@ -38,7 +38,7 @@ std::string ModeParamQuantity::getDisplayValueString() {
 	return music::modeNames[k];
 };
 
-Vec getPosition(int type, int xSlot, int ySlot, bool xDense, bool yDense) {
+Vec getPosition(int type, int xSlot, int ySlot, bool xDense, bool yDense, float xDelta, float yDelta) {
 
 	float *xArray;
 	float *yArray;
@@ -69,7 +69,7 @@ Vec getPosition(int type, int xSlot, int ySlot, bool xDense, bool yDense) {
 		if (yDense) { yArray = Y_KNOB_COMPACT; } else { yArray = Y_KNOB; }
 	}
 
-	return Vec(xArray[0] + xArray[1] * xSlot, yArray[0] + yArray[1] * ySlot);
+	return Vec(xDelta + xArray[0] + xArray[1] * xSlot, yDelta + yArray[0] + yArray[1] * ySlot);
 
 }
 

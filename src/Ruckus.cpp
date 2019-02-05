@@ -318,12 +318,10 @@ struct RuckusWidget : ModuleWidget {
 		for (int x = 0; x < 4; x++) {
 			addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 1 + x * 2, 8, true, true), module, Ruckus::XOUT_OUTPUT + x));
 			
-			Vec bVec = gui::getPosition(gui::BUTTON, 1 + x * 2, 7, true, true);
-			bVec.y = bVec.y + d;
+			Vec bVec = gui::getPosition(gui::BUTTON, 1 + x * 2, 7, true, true, 0.0, d);
 			addParam(createParam<gui::AHButton>(bVec, module, Ruckus::XMUTE_PARAM + x));
 			
-			Vec lVec = gui::getPosition(gui::LIGHT, 1 + x * 2, 7, true, true);
-			lVec.y = lVec.y + d;
+			Vec lVec = gui::getPosition(gui::LIGHT, 1 + x * 2, 7, true, true, 0.0, d);
 			addChild(createLight<MediumLight<GreenLight>>(lVec, module, Ruckus::XMUTE_LIGHT + x));
 
 		}
@@ -331,12 +329,10 @@ struct RuckusWidget : ModuleWidget {
 		for (int y = 0; y < 4; y++) {
 			addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT,9, y * 2, true, true), module, Ruckus::YOUT_OUTPUT + y));
 
-			Vec bVec = gui::getPosition(gui::BUTTON, 8, y * 2, true, true);
-			bVec.x = bVec.x + d;		
+			Vec bVec = gui::getPosition(gui::BUTTON, 8, y * 2, true, true, d, 0.0f);
 			addParam(createParam<gui::AHButton>(bVec, module, Ruckus::YMUTE_PARAM + y));
 
-			Vec lVec = gui::getPosition(gui::LIGHT, 8, y * 2, true, true);
-			lVec.x = lVec.x + d;
+			Vec lVec = gui::getPosition(gui::LIGHT, 8, y * 2, true, true, d, 0.0f);
 			addChild(createLight<MediumLight<GreenLight>>(lVec, module, Ruckus::YMUTE_LIGHT + y));
 
 		}

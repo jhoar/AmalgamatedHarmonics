@@ -527,15 +527,11 @@ struct GalaxyWidget : ModuleWidget {
 		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 4, 4, true, false), module, Galaxy::MODE_PARAM)); 
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 5, 4, true, false), module, Galaxy::MODE_INPUT));
 
-		Vec trim = gui::getPosition(gui::TRIMPOT, 5, 3, true, false);
-		trim.x += 15;
-		trim.y += 25;
+		Vec p1 = gui::getPosition(gui::TRIMPOT, 5, 3, true, false, 15.0f, 25.0f);
+		addParam(createParam<gui::AHTrimpotNoSnap>(p1, module, Galaxy::BAD_PARAM)); 
 
-		addParam(createParam<gui::AHTrimpotNoSnap>(trim, module, Galaxy::BAD_PARAM)); 
-
-		trim.x += 15;
-		trim.y += 20;
-		addChild(createLight<SmallLight<GreenRedLight>>(trim, module, Galaxy::BAD_LIGHT));
+		Vec p2 = gui::getPosition(gui::TRIMPOT, 5, 3, true, false, 30.0f, 45.0f);
+		addChild(createLight<SmallLight<GreenRedLight>>(p2, module, Galaxy::BAD_LIGHT));
 
 		if (module != NULL) {
 			GalaxyDisplay *displayW = createWidget<GalaxyDisplay>(Vec(0, 20));

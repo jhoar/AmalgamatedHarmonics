@@ -469,7 +469,7 @@ struct Progress2Widget : ModuleWidget {
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 4, 0, true, false), module, Progress2::KEY_INPUT));
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 5, 0, true, false), module, Progress2::MODE_INPUT));
 
-		addChild(createLight<MediumLight<GreenLight>>(gui::getPosition(gui::LIGHT, 6, 1, true, false), module, Progress2::GATES_LIGHT));
+		addChild(createLight<MediumLight<GreenLight>>(gui::getPosition(gui::LIGHT, 0, 5, true, false), module, Progress2::GATES_LIGHT));
 		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 6, 0, true, false), module, Progress2::GATES_OUTPUT));
 		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 7, 0, true, false), module, Progress2::PITCH_OUTPUT));
 		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 8, 0, true, false), module, Progress2::POLYGATE_OUTPUT));
@@ -479,8 +479,8 @@ struct Progress2Widget : ModuleWidget {
 			addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, i + 1, 5, true, true), module, Progress2::CHORD_PARAM + i));
 			addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, i + 1, 6, true, true), module, Progress2::INV_PARAM + i));
 
-			addParam(createParam<gui::AHButton>(gui::getPosition(gui::BUTTON, i + 1, 7, true, true), module, Progress2::GATE_PARAM + i));
-			addChild(createLight<MediumLight<GreenRedLight>>(gui::getPosition(gui::LIGHT, i + 1, 7, true, true), module, Progress2::GATE_LIGHTS + i * 2));
+			addParam(createParam<gui::AHButton>(gui::getPosition(gui::BUTTON, i + 1, 8, true, true, 0.0f, -4.0f), module, Progress2::GATE_PARAM + i));
+			addChild(createLight<MediumLight<GreenRedLight>>(gui::getPosition(gui::LIGHT, i + 1, 8, true, true, 0.0f, -4.0f), module, Progress2::GATE_LIGHTS + i * 2));
 					
 			addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, i + 1, 5, true, false), module, Progress2::GATE_OUTPUT + i));
 		}

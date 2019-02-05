@@ -221,7 +221,7 @@ extern float X_LIGHT_COMPACT[2];
 extern float X_TRIMPOT_COMPACT[2];
 
 // Template this
-Vec getPosition(int type, int xSlot, int ySlot, bool xDense, bool yDense);
+Vec getPosition(int type, int xSlot, int ySlot, bool xDense, bool yDense, float xDelta = 0.0f, float yDelta = 0.0f);
 
 /* From the numerical key on a keyboard (0 = C, 11 = B), spacing in px between white keys and a starting x and Y coordinate for the C key (in px)
 * calculate the actual X and Y coordinate for a key, and the scale note to which that key belongs (see Midi note mapping)
