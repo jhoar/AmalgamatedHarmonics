@@ -14,7 +14,7 @@
    viewBox="0 0 4.7623944 4.7624998"
    version="1.1"
    id="svg7595"
-   inkscape:version="0.92.2 5c3e80d, 2017-08-06"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)"
    sodipodi:docname="AHButton.svg">
   <defs
      id="defs7589">
@@ -33,9 +33,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="7.9195959"
-     inkscape:cx="-67.764383"
-     inkscape:cy="0.82092183"
+     inkscape:zoom="47.611111"
+     inkscape:cx="8.9998007"
+     inkscape:cy="9"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -43,11 +43,11 @@
      fit-margin-left="0"
      fit-margin-right="0"
      fit-margin-bottom="0"
-     inkscape:window-width="2560"
-     inkscape:window-height="1396"
+     inkscape:window-width="1920"
+     inkscape:window-height="1080"
      inkscape:window-x="0"
      inkscape:window-y="18"
-     inkscape:window-maximized="0"
+     inkscape:window-maximized="1"
      units="px" />
   <metadata
      id="metadata7592">
@@ -70,12 +70,23 @@
        transform="matrix(0.26458333,0,0,0.26458333,-271.16296,-21.64884)"
        clip-path="url(#clip444)"
        id="g31387"
-       style="clip-rule:nonzero;fill:#d4af37;fill-opacity:1">
+       style="clip-rule:nonzero;fill:#000000;fill-opacity:1">
       <path
-         style="fill:#d4af37;fill-opacity:1;fill-rule:nonzero;stroke:none"
+         style="fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none"
          d="m 1202.125,344.12109 c -1.6953,4.66797 0.7148,9.83594 5.3789,11.53516 4.6719,1.69531 9.8359,-0.71094 11.5352,-5.37891 1.6992,-4.67187 -0.7071,-9.83203 -5.3789,-11.53515 -4.668,-1.69532 -9.8282,0.70703 -11.5352,5.3789"
          id="path31385"
          inkscape:connector-curvature="0" />
+    </g>
+    <g
+       style="clip-rule:nonzero;fill:#d4af37;fill-opacity:1"
+       id="g835"
+       clip-path="url(#clip444)"
+       transform="matrix(0.25871729,0,0,0.25902615,-264.06164,-19.719391)">
+      <path
+         inkscape:connector-curvature="0"
+         id="path833"
+         d="m 1202.125,344.12109 c -1.6953,4.66797 0.7148,9.83594 5.3789,11.53516 4.6719,1.69531 9.8359,-0.71094 11.5352,-5.37891 1.6992,-4.67187 -0.7071,-9.83203 -5.3789,-11.53515 -4.668,-1.69532 -9.8282,0.70703 -11.5352,5.3789"
+         style="fill:#d4af37;fill-opacity:1;fill-rule:nonzero;stroke:none" />
     </g>
   </g>
 </svg>
