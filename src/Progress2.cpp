@@ -298,21 +298,20 @@ void Progress2::step() {
 	
 	modeMode = haveRoot && haveMode;
 	
-	 if (modeMode && ((prevMode != currMode) || (prevKey != currKey))) { // Input changes so force re-read
+	if (modeMode && ((prevMode != currMode) || (prevKey != currKey))) { // Input changes so force re-read
 	 	for (int step = 0; step < 8; step++) {
 			update = true;
 		}
 		
 		prevMode = currMode;
-		prevKey = currKey;
-		
+		prevKey = currKey;	
 	}
 
 	if (prevModeMode != modeMode) { // Switching mode, so reset history to ensure re-read on return
 		update = true;
 	}
 
-	// Read inputs
+	// Update
 	for (int step = 0; step < 8; step++) {
 
 		chords[step].setDegree(params[CHORD_PARAM + step].getValue());
@@ -321,41 +320,37 @@ void Progress2::step() {
 		chords[step].setRoot(params[ROOT_PARAM + step].getValue());
 		chords[step].setInversion(params[INV_PARAM + step].getValue());
 
-		if (chords[step].dirty) {
-			update = true;
+		if (chords[step].dirty || update) {
+
 			chords[step].dirty = false;
-		}
 
-		chords[step].root  = round(rescale(fabs(chords[step].inRoot), 0.0f, 10.0f, 0.0f, music::NUM_NOTES - 1)); // Param range is 0 to 10, mapped to 0 to 11
-		chords[step].chord = round(rescale(fabs(chords[step].inChord), 0.0f, 10.0f, 1.0f, 98.0f)); // Param range is 0 to 10		
-		chords[step].degree = round(rescale(fabs(chords[step].inDegree), 0.0f, 10.0f, 0.0f, music::NUM_DEGREES - 1));
-		chords[step].inversion = (int)chords[step].inInversion;
-	
-		// Update if we are in Mode mode
-		if (modeMode) {			
+			chords[step].root  = round(rescale(fabs(chords[step].inRoot), 0.0f, 10.0f, 0.0f, music::NUM_NOTES - 1)); // Param range is 0 to 10, mapped to 0 to 11
+			chords[step].chord = round(rescale(fabs(chords[step].inChord), 0.0f, 10.0f, 1.0f, 98.0f)); // Param range is 0 to 10		
+			chords[step].degree = round(rescale(fabs(chords[step].inDegree), 0.0f, 10.0f, 0.0f, music::NUM_DEGREES - 1));
+			chords[step].inversion = (int)chords[step].inInversion;
 		
-			// Root and chord can get updated
+			// Update if we are in Mode mode
+			if (modeMode) {			
+			
+				// Root and chord can get updated
+				// From the input root, mode and degree, we can get the root chord note and quality (Major,Minor,Diminshed)
+				music::getRootFromMode(currMode, currKey, chords[step].degree, &chords[step].root, &chords[step].quality);
 
-			// From the input root, mode and degree, we can get the root chord note and quality (Major,Minor,Diminshed)
-			music::getRootFromMode(currMode, currKey, chords[step].degree, &chords[step].root, &chords[step].quality);
+				// Now get the actual chord from the main list
+				switch(chords[step].quality) {
+					case music::MAJ: 
+						chords[step].chord = round(rescale(fabs(chords[step].inQuality), 0.0f, 10.0f, 1.0f, 70.0f)); 
+						break;
+					case music::MIN: 
+						chords[step].chord = round(rescale(fabs(chords[step].inQuality), 0.0f, 10.0f, 71.0f, 90.0f));
+						break;
+					case music::DIM: 
+						chords[step].chord = round(rescale(fabs(chords[step].inQuality), 0.0f, 10.0f, 91.0f, 98.0f));
+						break;		
+				}
 
-			// Now get the actual chord from the main list
-			switch(chords[step].quality) {
-				case music::MAJ: 
-					chords[step].chord = round(rescale(fabs(chords[step].inQuality), 0.0f, 10.0f, 1.0f, 70.0f)); 
-					break;
-				case music::MIN: 
-					chords[step].chord = round(rescale(fabs(chords[step].inQuality), 0.0f, 10.0f, 71.0f, 90.0f));
-					break;
-				case music::DIM: 
-					chords[step].chord = round(rescale(fabs(chords[step].inQuality), 0.0f, 10.0f, 91.0f, 98.0f));
-					break;		
-			}
+			} 
 
-		} 
-
-		if (update) {
-					
 			int *chordArray;
 
 			// Get the array of pitches based on the inversion
@@ -562,5 +557,3 @@ struct Progress2Widget : ModuleWidget {
 };
 
 Model *modelProgress2 = createModel<Progress2, Progress2Widget>("Progress2");
-
-
