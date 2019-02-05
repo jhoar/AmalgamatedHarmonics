@@ -5,6 +5,32 @@
 
 using namespace ah;
 
+
+struct PChord {
+	float prevRoot = -100.0;
+	float prevChord = -100.0;
+	float prevDegree = -100.0;
+	float prevQuality = -100.0;
+	float prevInversion = -100.0;
+
+	float currRoot;
+	float currChord;
+	float currDegree;
+	float currQuality;
+	float currInversion;
+
+	int root;
+	int chord;
+	int inversion;	
+	int degree;
+	int quality;
+
+	float pitches[6];
+
+	bool gate;
+
+};
+
 struct Progress2 : core::AHModule {
 
 	const static int NUM_PITCHES = 6;
@@ -68,32 +94,7 @@ struct Progress2 : core::AHModule {
 	}
 	
 	void step() override;
-	
-	enum ParamType {
-		ROOT_TYPE,
-		CHORD_TYPE,
-		INV_TYPE
-	};
-
-	void receiveEvent(core::ParamEvent e) override {
-		if (receiveEvents && e.pType != -1) { // AHParamWidgets that are no config through set<>() have a pType of -1
-			if (modeMode) {
-				paramState = "> " + 
-					music::noteNames[currRoot[e.pId]] + 
-					music::ChordTable[currChord[e.pId]].quality + " " +  
-					music::inversionNames[currInv[e.pId]] + " " + "[" + 
-					music::degreeNames[currDegree[e.pId] * 3 + currQuality[e.pId]] + "]"; 
-			} else {
-				paramState = "> " + 
-					music::noteNames[currRoot[e.pId]] + 
-					music::ChordTable[currChord[e.pId]].quality + " " +  
-					music::inversionNames[currInv[e.pId]];
-			}
-		}
-		keepStateDisplay = 0;
-	}
-	
-		
+			
 	json_t *dataToJson() override {
 		json_t *rootJ = json_object();
 
@@ -103,7 +104,7 @@ struct Progress2 : core::AHModule {
 		// gates
 		json_t *gatesJ = json_array();
 		for (int i = 0; i < 8; i++) {
-			json_t *gateJ = json_integer((int) gates[i]);
+			json_t *gateJ = json_integer((int) chords[i].gate);
 			json_array_append_new(gatesJ, gateJ);
 		}
 		json_object_set_new(rootJ, "gates", gatesJ);
@@ -127,7 +128,7 @@ struct Progress2 : core::AHModule {
 			for (int i = 0; i < 8; i++) {
 				json_t *gateJ = json_array_get(gatesJ, i);
 				if (gateJ)
-					gates[i] = !!json_integer_value(gateJ);
+					chords[i].gate = !!json_integer_value(gateJ);
 			}
 		}
 
@@ -154,7 +155,6 @@ struct Progress2 : core::AHModule {
 
 	// Step index
 	int index = 0;
-	bool gates[8] = {true,true,true,true,true,true,true,true};
 
 	float resetLight = 0.0f;
 	float gateLight = 0.0f;
@@ -173,40 +173,18 @@ struct Progress2 : core::AHModule {
 	int offset = 24; 	// Repeated notes in chord and expressed in the chord definition as being transposed 2 octaves lower. 
 						// When played this offset needs to be removed (or the notes removed, or the notes transposed to an octave higher)
 	
-	float prevRootInput[8] = {-100.0, -100.0, -100.0, -100.0, -100.0, -100.0, -100.0, -100.0};
-	float prevChrInput[8] = {-100.0, -100.0, -100.0, -100.0, -100.0, -100.0, -100.0, -100.0};
+	PChord chords[8];
 
-	float prevDegreeInput[8] = {-100.0, -100.0, -100.0, -100.0, -100.0, -100.0, -100.0, -100.0};
-	float prevQualityInput[8] = {-100.0, -100.0, -100.0, -100.0, -100.0, -100.0, -100.0, -100.0};
-
-	float prevInvInput[8] = {-100.0, -100.0, -100.0, -100.0, -100.0, -100.0, -100.0, -100.0};
-
-	float currRootInput[8];
-	float currChrInput[8];
-
-	float currDegreeInput[8];
-	float currQualityInput[8];
-
-	float currInvInput[8];
-	
 	int currMode;
 	int currKey;
 	int prevMode = -1;
 	int prevKey = -1;
 	
-	int currRoot[8];
-	int currChord[8];
-	int currInv[8];	
-
-	int currDegree[8];
-	int currQuality[8];
-	
-	float pitches[8][6];
 	float oldPitches[6];
 			
 	void onReset() override {
 		for (int i = 0; i < 8; i++) {
-			gates[i] = true;
+			chords[i].gate = true;
 		}
 	}
 	
@@ -256,6 +234,7 @@ void Progress2::step() {
 
 	bool haveRoot = false;
 	bool haveMode = false;
+	bool update = false;
 
 	// index is our current step
 	if (inputs[KEY_INPUT].isConnected()) {
@@ -272,144 +251,121 @@ void Progress2::step() {
 	
 	 if (modeMode && ((prevMode != currMode) || (prevKey != currKey))) { // Input changes so force re-read
 	 	for (int step = 0; step < 8; step++) {
-			prevDegreeInput[step]	= -100.0;
-			prevQualityInput[step]	= -100.0;
+			update = true;
 		}
 		
 		prevMode = currMode;
 		prevKey = currKey;
 		
 	}
-	
+
 	// Read inputs
 	for (int step = 0; step < 8; step++) {
-		if (modeMode) {
-			currDegreeInput[step]  = params[CHORD_PARAM + step].getValue();
-			currQualityInput[step] = params[ROOT_PARAM + step].getValue();
-			if (prevModeMode != modeMode) { // Switching mode, so reset history to ensure re-read on return
-				prevChrInput[step]  = -100.0;
-				prevRootInput[step]  = -100.0;
-			}
-		} else {
-			currChrInput[step]  = params[CHORD_PARAM + step].getValue();
-			currRootInput[step] = params[ROOT_PARAM + step].getValue();
-			if (prevModeMode != modeMode) { // Switching mode, so reset history to ensure re-read on return
-				prevDegreeInput[step]  = -100.0;
-				prevQualityInput[step]  = -100.0;
-			}
-		}
-		currInvInput[step]  = params[INV_PARAM + step].getValue();
-	}
-	
-	// Remember mode
-	prevModeMode = modeMode;
-	
-	// Check for changes on all steps
-	for (int step = 0; step < 8; step++) {
-		
-		bool update = false;
-		
-		if (modeMode) {			
-		
-			currDegreeInput[step]	= params[ROOT_PARAM + step].getValue();
-			currQualityInput[step]	= params[CHORD_PARAM + step].getValue();
-							
-			if (prevDegreeInput[step] != currDegreeInput[step]) {
-				prevDegreeInput[step] = currDegreeInput[step];
-				update = true;
-			}
-		
-			if (prevQualityInput[step] != currQualityInput[step]) {
-				prevQualityInput[step]  = currQualityInput[step]; 
-				update = true;
-			}
-			
-			if (update) {
-				
-				// Get Degree (I- VII)
-				currDegree[step] = round(rescale(fabs(currDegreeInput[step]), 0.0f, 10.0f, 0.0f, music::NUM_DEGREES - 1)); 
 
-				// From the input root, mode and degree, we can get the root chord note and quality (Major,Minor,Diminshed)
-				music::getRootFromMode(currMode,currKey,currDegree[step],&currRoot[step],&currQuality[step]);
+		chords[step].currDegree  	= params[CHORD_PARAM + step].getValue();
+		chords[step].currQuality 	= params[ROOT_PARAM + step].getValue();
+		chords[step].currChord  	= params[CHORD_PARAM + step].getValue();
+		chords[step].currRoot   	= params[ROOT_PARAM + step].getValue();
+		chords[step].currInversion  = params[INV_PARAM + step].getValue();
 
-				// Now get the actual chord from the main list
-				switch(currQuality[step]) {
-					case music::MAJ: 
-						currChord[step] = round(rescale(fabs(currQualityInput[step]), 0.0f, 10.0f, 1.0f, 70.0f)); 
-						break;
-					case music::MIN: 
-						currChord[step] = round(rescale(fabs(currQualityInput[step]), 0.0f, 10.0f, 71.0f, 90.0f));
-						break;
-					case music::DIM: 
-						currChord[step] = round(rescale(fabs(currQualityInput[step]), 0.0f, 10.0f, 91.0f, 98.0f));
-						break;		
-				}
-			
-			}
-
-		} else {
-			
-			// Chord Mode
-			
-			// If anything has changed, recalculate output for that step
-			if (prevRootInput[step] != currRootInput[step]) {
-				prevRootInput[step] = currRootInput[step];
-				currRoot[step] = round(rescale(fabs(currRootInput[step]), 0.0f, 10.0f, 0.0f, music::NUM_NOTES - 1)); // Param range is 0 to 10, mapped to 0 to 11
-				update = true;
-			}
-		
-			if (prevChrInput[step] != currChrInput[step]) {
-				prevChrInput[step]  = currChrInput[step]; 
-				currChord[step] = round(rescale(fabs(currChrInput[step]), 0.0f, 10.0f, 1.0f, 98.0f)); // Param range is 0 to 10		
-				update = true;
-			}
-			
-		}
-		
-		// Inversions remain the same between Chord and Mode mode
-		if (prevInvInput[step] != currInvInput[step]) {
-			prevInvInput[step]  = currInvInput[step];		
-			currInv[step] = currInvInput[step];
+		if (prevModeMode != modeMode) { // Switching mode, so reset history to ensure re-read on return
 			update = true;
 		}
+
+		if (chords[step].prevDegree != chords[step].currDegree) {
+			chords[step].prevDegree = chords[step].currDegree;
+			update = true;
+		}
+	
+		if (chords[step].prevQuality != chords[step].currQuality) {
+			chords[step].prevQuality  = chords[step].currQuality; 
+			update = true;
+		}
+
+		if (chords[step].prevRoot != chords[step].currRoot) {
+			chords[step].prevRoot  = chords[step].currRoot;
+			update = true;
+		}
+	
+		if (chords[step].prevChord != chords[step].currChord) {
+			chords[step].prevChord  = chords[step].currChord; 
+			update = true;
+		}
+
+		if (chords[step].prevInversion != chords[step].currInversion) {
+			chords[step].prevInversion  = chords[step].currInversion;		
+			update = true;
+		}
+
+		chords[step].root  = round(rescale(fabs(chords[step].currRoot), 0.0f, 10.0f, 0.0f, music::NUM_NOTES - 1)); // Param range is 0 to 10, mapped to 0 to 11
+		chords[step].chord = round(rescale(fabs(chords[step].currChord), 0.0f, 10.0f, 1.0f, 98.0f)); // Param range is 0 to 10		
+		chords[step].degree = round(rescale(fabs(chords[step].currDegree), 0.0f, 10.0f, 0.0f, music::NUM_DEGREES - 1));
+		chords[step].inversion = (int)chords[step].currInversion;
+	
+		// Update if we are in Mode mode
+		if (modeMode) {			
 		
-		// So, after all that, we calculate the pitch output
+			// Root and chord can get updated
+
+			// From the input root, mode and degree, we can get the root chord note and quality (Major,Minor,Diminshed)
+			music::getRootFromMode(currMode,currKey,chords[step].currDegree,&chords[step].root,&chords[step].quality);
+
+			// Now get the actual chord from the main list
+			switch(chords[step].quality) {
+				case music::MAJ: 
+					chords[step].chord = round(rescale(fabs(chords[step].currQuality), 0.0f, 10.0f, 1.0f, 70.0f)); 
+					break;
+				case music::MIN: 
+					chords[step].chord = round(rescale(fabs(chords[step].currQuality), 0.0f, 10.0f, 71.0f, 90.0f));
+					break;
+				case music::DIM: 
+					chords[step].chord = round(rescale(fabs(chords[step].currQuality), 0.0f, 10.0f, 91.0f, 98.0f));
+					break;		
+			}
+
+		} 
+
 		if (update) {
 					
 			int *chordArray;
-	
+
 			// Get the array of pitches based on the inversion
-			switch(currInv[step]) {
-				case music::ROOT:  		chordArray = music::ChordTable[currChord[step]].root; 	break;
-				case music::FIRST_INV:  chordArray = music::ChordTable[currChord[step]].first; 	break;
-				case music::SECOND_INV: chordArray = music::ChordTable[currChord[step]].second;	break;
-				default: chordArray = music::ChordTable[currChord[step]].root;
+			switch(chords[step].inversion) {
+				case music::ROOT:  		chordArray = music::ChordTable[chords[step].chord].root; 	break;
+				case music::FIRST_INV:  chordArray = music::ChordTable[chords[step].chord].first; 	break;
+				case music::SECOND_INV: chordArray = music::ChordTable[chords[step].chord].second;	break;
+				default: chordArray = music::ChordTable[chords[step].chord].root;
 			}
 			
 			for (int j = 0; j < NUM_PITCHES; j++) {
-	
+
 				// Set the pitches for this step. If the chord has less than 6 notes, the empty slots are
 				// filled with repeated notes. These notes are identified by a  24 semi-tome negative
 				// offset. We correct for that offset now, pitching thaem back into the original octave.
 				// They could be pitched into the octave above (or below)
 				if (chordArray[j] < 0) {
-					pitches[step][j] = music::getVoltsFromPitch(chordArray[j] + offset,currRoot[step]);			
+					chords[step].pitches[j] = music::getVoltsFromPitch(chordArray[j] + offset,chords[step].root);			
 				} else {
-					pitches[step][j] = music::getVoltsFromPitch(chordArray[j],currRoot[step]);			
+					chords[step].pitches[j] = music::getVoltsFromPitch(chordArray[j],chords[step].root);
 				}	
 			}
-		}	
+		}
 	}
+	
+	// Remember mode
+	prevModeMode = modeMode;
+
+	// So, after all that, we calculate the pitch output
 	
 	bool pulse = gatePulse.process(delta);
 	
 	// Gate buttons
 	for (int i = 0; i < 8; i++) {
 		if (gateTriggers[i].process(params[GATE_PARAM + i].getValue())) {
-			gates[i] = !gates[i];
+			chords[i].gate = !chords[i].gate;
 		}
 		
-		bool gateOn = (running && i == index && gates[i]);
+		bool gateOn = (running && i == index && chords[i].gate);
 		if (gateMode == TRIGGER) {
 			gateOn = gateOn && pulse;
 		} else if (gateMode == RETRIGGER) {
@@ -419,7 +375,7 @@ void Progress2::step() {
 		outputs[GATE_OUTPUT + i].setVoltage(gateOn ? 10.0f : 0.0f);	
 		
 		if (i == index) {
-			if (gates[i]) {
+			if (chords[i].gate) {
 				// Gate is on and active = flash green
 				lights[GATE_LIGHTS + i * 2].setBrightnessSmooth(1.0f);
 				lights[GATE_LIGHTS + i * 2 + 1].setBrightnessSmooth(0.0f);
@@ -429,7 +385,7 @@ void Progress2::step() {
 				lights[GATE_LIGHTS + i * 2 + 1].setBrightnessSmooth(0.20f);
 			}
 		} else {
-			if (gates[i]) {
+			if (chords[i].gate) {
 				// Gate is on and not active = red
 				lights[GATE_LIGHTS + i * 2].setBrightnessSmooth(0.0f);
 				lights[GATE_LIGHTS + i * 2 + 1].setBrightnessSmooth(1.0f);
@@ -439,10 +395,9 @@ void Progress2::step() {
 				lights[GATE_LIGHTS + i * 2 + 1].setBrightnessSmooth(0.0f);
 			}			
 		}
-		
 	}
 
-	bool gatesOn = (running && gates[index]);
+	bool gatesOn = (running && chords[index].gate);
 	if (gateMode == TRIGGER) {
 		gatesOn = gatesOn && pulse;
 	} else if (gateMode == RETRIGGER) {
@@ -459,7 +414,7 @@ void Progress2::step() {
 	outputs[PITCH_OUTPUT].setChannels(6);
 	outputs[PITCH_OUTPUT + 1].setChannels(6);
 	for (int i = 0; i < NUM_PITCHES; i++) {
-		outputs[PITCH_OUTPUT].setVoltage(pitches[index][i], i);
+		outputs[PITCH_OUTPUT].setVoltage(chords[index].pitches[i], i);
 		outputs[PITCH_OUTPUT + 1].setVoltage(10.0, i);
 	}
 	
@@ -493,17 +448,9 @@ struct Progress2Widget : ModuleWidget {
 		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 8, 0, true, false), module, Progress2::POLYGATE_OUTPUT));
 
 		for (int i = 0; i < 8; i++) {
-			gui::AHKnobNoSnap *rootW = createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, i + 1, 4, true, true), module, Progress2::ROOT_PARAM + i);
-			gui::AHParamWidget::set<gui::AHKnobNoSnap>(rootW, Progress2::ROOT_TYPE, i);
-			addParam(rootW);
-			
-			gui::AHKnobNoSnap *chordW = createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, i + 1, 5, true, true), module, Progress2::CHORD_PARAM + i);
-			gui::AHParamWidget::set<gui::AHKnobNoSnap>(chordW, Progress2::CHORD_TYPE, i);
-			addParam(chordW);
-
-			gui::AHKnobSnap *invW = createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, i + 1, 6, true, true), module, Progress2::INV_PARAM + i);
-			gui::AHParamWidget::set<gui::AHKnobSnap>(invW, Progress2::INV_TYPE, i);
-			addParam(invW);
+			addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, i + 1, 4, true, true), module, Progress2::ROOT_PARAM + i));
+			addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, i + 1, 5, true, true), module, Progress2::CHORD_PARAM + i));
+			addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, i + 1, 6, true, true), module, Progress2::INV_PARAM + i));
 
 			addParam(createParam<gui::AHButton>(gui::getPosition(gui::BUTTON, i + 1, 7, true, true), module, Progress2::GATE_PARAM + i));
 			addChild(createLight<MediumLight<GreenRedLight>>(gui::getPosition(gui::LIGHT, i + 1, 7, true, true), module, Progress2::GATE_LIGHTS + i * 2));
@@ -513,13 +460,6 @@ struct Progress2Widget : ModuleWidget {
 
 		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 9, 5, true, false), module, Progress2::GATES_OUTPUT));
 		
-		if (module != NULL) {
-			gui::StateDisplay *display = createWidget<gui::StateDisplay>(Vec(0, 135));
-			display->module = module;
-			display->box.size = Vec(100, 140);
-			addChild(display);
-		}
-
 	}
 
 	void appendContextMenu(Menu *menu) override {
