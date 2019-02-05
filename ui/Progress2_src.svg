@@ -955,7 +955,7 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="2.1657895"
-     inkscape:cx="172.5"
+     inkscape:cx="84.541313"
      inkscape:cy="190"
      inkscape:current-layer="layer2"
      showgrid="false"
@@ -1715,24 +1715,6 @@
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.60489655px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1;stroke-width:0.99420899"
          id="tspan53882">GATE</tspan></text>
     <rect
-       transform="scale(1,-1)"
-       ry="4.2187495"
-       y="-207.38676"
-       x="224.98825"
-       height="45"
-       width="35"
-       id="rect55497"
-       style="display:inline;fill:#000000;fill-opacity:1;stroke-width:0.78504759" />
-    <rect
-       transform="scale(1,-1)"
-       ry="4.2187495"
-       y="-266.38675"
-       x="259.98825"
-       height="45"
-       width="35"
-       id="rect55535"
-       style="display:inline;fill:#000000;fill-opacity:1;stroke-width:0.78504759" />
-    <rect
        style="display:inline;opacity:1;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:1.76164174;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect4429"
        width="150.31477"
@@ -1741,15 +1723,6 @@
        y="-68.739243"
        transform="rotate(90)" />
     <rect
-       style="display:inline;fill:#000000;fill-opacity:1;stroke-width:0.78504759"
-       id="rect55537"
-       width="35"
-       height="45"
-       x="294.98825"
-       y="-266.38675"
-       ry="4.2187495"
-       transform="scale(1,-1)" />
-    <rect
        style="display:inline;opacity:1;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:1.76164174;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect4431"
        width="150.31477"
@@ -1757,15 +1730,6 @@
        x="254.07573"
        y="-138.73924"
        transform="rotate(90)" />
-    <rect
-       transform="scale(1,-1)"
-       ry="4.2187495"
-       y="-266.38675"
-       x="294.98825"
-       height="45"
-       width="35"
-       id="rect55539"
-       style="display:inline;fill:#000000;fill-opacity:1;stroke-width:0.78504759" />
     <rect
        transform="rotate(90)"
        y="-173.73924"
