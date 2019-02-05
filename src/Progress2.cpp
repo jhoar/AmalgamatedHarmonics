@@ -7,18 +7,50 @@ using namespace ah;
 
 
 struct PChord {
-	float prevRoot = -100.0;
-	float prevChord = -100.0;
-	float prevDegree = -100.0;
-	float prevQuality = -100.0;
-	float prevInversion = -100.0;
 
-	float currRoot;
-	float currChord;
-	float currDegree;
-	float currQuality;
-	float currInversion;
+	void setRoot(float v) {
+		if (inRoot != v) {
+			dirty = true;
+		}
+		inRoot = v;
+	}
 
+	void setChord(float v) {
+		if (inChord != v) {
+			dirty = true;
+		}
+		inChord = v;
+	}
+
+	void setDegree(float v) {
+		if (inDegree != v) {
+			dirty = true;
+		}
+		inDegree = v;
+	}
+
+	void setQuality(float v) {
+		if (inQuality != v) {
+			dirty = true;
+		}
+		inQuality = v;
+	}
+
+	void setInversion(float v) {
+		if (inInversion != v) {
+			dirty = true;
+		}
+		inInversion = v;
+	}
+
+	// Input analog value
+	float inRoot;
+	float inChord;
+	float inDegree;
+	float inQuality;
+	float inInversion;
+
+	// Intepreted value
 	int root;
 	int chord;
 	int inversion;	
@@ -28,6 +60,8 @@ struct PChord {
 	float pitches[6];
 
 	bool gate;
+
+	bool dirty;
 
 };
 
@@ -113,6 +147,10 @@ struct Progress2 : core::AHModule {
 		json_t *gateModeJ = json_integer((int) gateMode);
 		json_object_set_new(rootJ, "gateMode", gateModeJ);
 
+		// offset
+		json_t *offsetJ = json_integer((int) offset);
+		json_object_set_new(rootJ, "offset", offsetJ);
+
 		return rootJ;
 	}
 	
@@ -136,6 +174,12 @@ struct Progress2 : core::AHModule {
 		json_t *gateModeJ = json_object_get(rootJ, "gateMode");
 		if (gateModeJ)
 			gateMode = (GateMode)json_integer_value(gateModeJ);
+
+		// offset
+		json_t *offsetJ = json_object_get(rootJ, "offset");
+		if (offsetJ)
+			offset = json_integer_value(offsetJ);
+
 	}
 	
 	bool running = true;
@@ -166,9 +210,6 @@ struct Progress2 : core::AHModule {
 		CONTINUOUS,
 	};
 	GateMode gateMode = CONTINUOUS;
-		
-	bool modeMode = false;
-	bool prevModeMode = false;
 	
 	int offset = 24; 	// Repeated notes in chord and expressed in the chord definition as being transposed 2 octaves lower. 
 						// When played this offset needs to be removed (or the notes removed, or the notes transposed to an octave higher)
@@ -179,9 +220,11 @@ struct Progress2 : core::AHModule {
 	int currKey;
 	int prevMode = -1;
 	int prevKey = -1;
+	bool modeMode = false;
+	bool prevModeMode = false;
 	
-	float oldPitches[6];
-			
+	bool changeRepeat = false;
+
 	void onReset() override {
 		for (int i = 0; i < 8; i++) {
 			chords[i].gate = true;
@@ -236,6 +279,12 @@ void Progress2::step() {
 	bool haveMode = false;
 	bool update = false;
 
+	// Updated repeat mode
+	if (changeRepeat) {
+		update = true;
+		changeRepeat = false;
+	}
+
 	// index is our current step
 	if (inputs[KEY_INPUT].isConnected()) {
 		currKey = music::getKeyFromVolts(inputs[KEY_INPUT].getVoltage());
@@ -259,48 +308,28 @@ void Progress2::step() {
 		
 	}
 
+	if (prevModeMode != modeMode) { // Switching mode, so reset history to ensure re-read on return
+		update = true;
+	}
+
 	// Read inputs
 	for (int step = 0; step < 8; step++) {
 
-		chords[step].currDegree  	= params[CHORD_PARAM + step].getValue();
-		chords[step].currQuality 	= params[ROOT_PARAM + step].getValue();
-		chords[step].currChord  	= params[CHORD_PARAM + step].getValue();
-		chords[step].currRoot   	= params[ROOT_PARAM + step].getValue();
-		chords[step].currInversion  = params[INV_PARAM + step].getValue();
+		chords[step].setDegree(params[CHORD_PARAM + step].getValue());
+		chords[step].setQuality(params[ROOT_PARAM + step].getValue());
+		chords[step].setChord(params[CHORD_PARAM + step].getValue());
+		chords[step].setRoot(params[ROOT_PARAM + step].getValue());
+		chords[step].setInversion(params[INV_PARAM + step].getValue());
 
-		if (prevModeMode != modeMode) { // Switching mode, so reset history to ensure re-read on return
+		if (chords[step].dirty) {
 			update = true;
-		}
-
-		if (chords[step].prevDegree != chords[step].currDegree) {
-			chords[step].prevDegree = chords[step].currDegree;
-			update = true;
-		}
-	
-		if (chords[step].prevQuality != chords[step].currQuality) {
-			chords[step].prevQuality  = chords[step].currQuality; 
-			update = true;
+			chords[step].dirty = false;
 		}
 
-		if (chords[step].prevRoot != chords[step].currRoot) {
-			chords[step].prevRoot  = chords[step].currRoot;
-			update = true;
-		}
-	
-		if (chords[step].prevChord != chords[step].currChord) {
-			chords[step].prevChord  = chords[step].currChord; 
-			update = true;
-		}
-
-		if (chords[step].prevInversion != chords[step].currInversion) {
-			chords[step].prevInversion  = chords[step].currInversion;		
-			update = true;
-		}
-
-		chords[step].root  = round(rescale(fabs(chords[step].currRoot), 0.0f, 10.0f, 0.0f, music::NUM_NOTES - 1)); // Param range is 0 to 10, mapped to 0 to 11
-		chords[step].chord = round(rescale(fabs(chords[step].currChord), 0.0f, 10.0f, 1.0f, 98.0f)); // Param range is 0 to 10		
-		chords[step].degree = round(rescale(fabs(chords[step].currDegree), 0.0f, 10.0f, 0.0f, music::NUM_DEGREES - 1));
-		chords[step].inversion = (int)chords[step].currInversion;
+		chords[step].root  = round(rescale(fabs(chords[step].inRoot), 0.0f, 10.0f, 0.0f, music::NUM_NOTES - 1)); // Param range is 0 to 10, mapped to 0 to 11
+		chords[step].chord = round(rescale(fabs(chords[step].inChord), 0.0f, 10.0f, 1.0f, 98.0f)); // Param range is 0 to 10		
+		chords[step].degree = round(rescale(fabs(chords[step].inDegree), 0.0f, 10.0f, 0.0f, music::NUM_DEGREES - 1));
+		chords[step].inversion = (int)chords[step].inInversion;
 	
 		// Update if we are in Mode mode
 		if (modeMode) {			
@@ -308,18 +337,18 @@ void Progress2::step() {
 			// Root and chord can get updated
 
 			// From the input root, mode and degree, we can get the root chord note and quality (Major,Minor,Diminshed)
-			music::getRootFromMode(currMode,currKey,chords[step].currDegree,&chords[step].root,&chords[step].quality);
+			music::getRootFromMode(currMode, currKey, chords[step].degree, &chords[step].root, &chords[step].quality);
 
 			// Now get the actual chord from the main list
 			switch(chords[step].quality) {
 				case music::MAJ: 
-					chords[step].chord = round(rescale(fabs(chords[step].currQuality), 0.0f, 10.0f, 1.0f, 70.0f)); 
+					chords[step].chord = round(rescale(fabs(chords[step].inQuality), 0.0f, 10.0f, 1.0f, 70.0f)); 
 					break;
 				case music::MIN: 
-					chords[step].chord = round(rescale(fabs(chords[step].currQuality), 0.0f, 10.0f, 71.0f, 90.0f));
+					chords[step].chord = round(rescale(fabs(chords[step].inQuality), 0.0f, 10.0f, 71.0f, 90.0f));
 					break;
 				case music::DIM: 
-					chords[step].chord = round(rescale(fabs(chords[step].currQuality), 0.0f, 10.0f, 91.0f, 98.0f));
+					chords[step].chord = round(rescale(fabs(chords[step].inQuality), 0.0f, 10.0f, 91.0f, 98.0f));
 					break;		
 			}
 
@@ -341,10 +370,13 @@ void Progress2::step() {
 
 				// Set the pitches for this step. If the chord has less than 6 notes, the empty slots are
 				// filled with repeated notes. These notes are identified by a  24 semi-tome negative
-				// offset. We correct for that offset now, pitching thaem back into the original octave.
-				// They could be pitched into the octave above (or below)
+				// offset. 
 				if (chordArray[j] < 0) {
-					chords[step].pitches[j] = music::getVoltsFromPitch(chordArray[j] + offset,chords[step].root);			
+					int off = offset;
+					if (offset == 0) { // if offset = 0, randomise offset per note
+						off = (rand() % 3 + 1) * 12;
+					}
+					chords[step].pitches[j] = music::getVoltsFromPitch(chordArray[j] + off,chords[step].root);			
 				} else {
 					chords[step].pitches[j] = music::getVoltsFromPitch(chordArray[j],chords[step].root);
 				}	
@@ -356,7 +388,6 @@ void Progress2::step() {
 	prevModeMode = modeMode;
 
 	// So, after all that, we calculate the pitch output
-	
 	bool pulse = gatePulse.process(delta);
 	
 	// Gate buttons
@@ -475,6 +506,15 @@ struct Progress2Widget : ModuleWidget {
 			}
 		};
 
+		struct OffsetItem : MenuItem {
+			Progress2 *module;
+			int offset;
+			void onAction(const event::Action &e) override {
+				module->offset = offset;
+				module->changeRepeat = true;
+			}
+		};
+
 		struct GateModeMenu : MenuItem {
 			Progress2 *module;
 			Menu *createChildMenu() override {
@@ -491,10 +531,31 @@ struct Progress2Widget : ModuleWidget {
 			}
 		};
 
+		struct OffsetMenu : MenuItem {
+			Progress2 *module;
+			Menu *createChildMenu() override {
+				Menu *menu = new Menu;
+				std::vector<int> offsets = {12, 24, 36, 0};
+				std::vector<std::string> names = {"Lower", "Repeat", "Upper", "Random"};
+				for (size_t i = 0; i < offsets.size(); i++) {
+					OffsetItem *item = createMenuItem<OffsetItem>(names[i], CHECKMARK(module->offset == offsets[i]));
+					item->module = module;
+					item->offset = offsets[i];
+					menu->addChild(item);
+				}
+				return menu;
+			}
+		};
+
+
 		menu->addChild(construct<MenuLabel>());
 		GateModeMenu *item = createMenuItem<GateModeMenu>("Gate Mode");
 		item->module = progress;
 		menu->addChild(item);
+
+		OffsetMenu *offsetItem = createMenuItem<OffsetMenu>("Repeat Notes");
+		offsetItem->module = progress;
+		menu->addChild(offsetItem);
 
      }
 	 
