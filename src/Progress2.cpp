@@ -159,6 +159,10 @@ struct Progress2 : core::AHModule {
 		json_t *offsetJ = json_integer((int) offset);
 		json_object_set_new(rootJ, "offset", offsetJ);
 
+		// chordMode
+		json_t *chordModeJ = json_integer((int) chordMode);
+		json_object_set_new(rootJ, "chordMode", chordModeJ);
+
 		return rootJ;
 	}
 	
@@ -187,6 +191,11 @@ struct Progress2 : core::AHModule {
 		json_t *offsetJ = json_object_get(rootJ, "offset");
 		if (offsetJ)
 			offset = json_integer_value(offsetJ);
+
+		// chordMode
+		json_t *chordModeJ = json_object_get(rootJ, "chordMode");
+		if (chordModeJ)
+			chordMode = json_integer_value(chordModeJ);
 
 	}
 	
