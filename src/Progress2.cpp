@@ -74,6 +74,8 @@ struct Progress2 : core::AHModule {
 		RUN_PARAM,
 		RESET_PARAM,
 		STEPS_PARAM,
+		KEY_PARAM,
+		MODE_PARAM,
 		ENUMS(ROOT_PARAM,8),
 		ENUMS(CHORD_PARAM,8),
 		ENUMS(INV_PARAM,8),
@@ -110,6 +112,12 @@ struct Progress2 : core::AHModule {
 		params[RUN_PARAM].config(0.0, 1.0, 0.0, "Run");
 		params[RESET_PARAM].config(0.0, 1.0, 0.0, "Reset");
 		params[STEPS_PARAM].config(1.0, 8.0, 8.0, "Steps");
+
+		params[KEY_PARAM].config(0.0, 11.0, 0.0, "Key");
+		params[KEY_PARAM].description = "Key from which chords are selected"; 
+
+		params[MODE_PARAM].config(0.0, 6.0, 0.0, "Mode"); 
+		params[MODE_PARAM].description = "Mode from which chords are selected"; 
 
 		for (int i = 0; i < 8; i++) {
 			params[ROOT_PARAM + i].config(0.0, 10.0, 0.0, "Root note");
@@ -220,10 +228,10 @@ struct Progress2 : core::AHModule {
 	int currKey;
 	int prevMode = -1;
 	int prevKey = -1;
-	bool modeMode = false;
-	bool prevModeMode = false;
-	
+
+	int  chordMode = 0; // 0 == Chord, 1 = Mode
 	bool changeRepeat = false;
+	bool changeMode = false;
 
 	void onReset() override {
 		for (int i = 0; i < 8; i++) {
@@ -275,40 +283,33 @@ void Progress2::step() {
 		setIndex(0, numSteps);
 	}
 
-	bool haveRoot = false;
-	bool haveMode = false;
 	bool update = false;
 
-	// Updated repeat mode
-	if (changeRepeat) {
+	// Updated modes
+	if (changeRepeat || changeMode) {
 		update = true;
 		changeRepeat = false;
-	}
-
-	// index is our current step
-	if (inputs[KEY_INPUT].isConnected()) {
-		currKey = music::getKeyFromVolts(inputs[KEY_INPUT].getVoltage());
-		haveRoot = true;
+		changeMode = false;
 	}
 
 	if (inputs[MODE_INPUT].isConnected()) {
-		currMode = music::getModeFromVolts(inputs[MODE_INPUT].getVoltage());	
-		haveMode = true;
-	}
-	
-	modeMode = haveRoot && haveMode;
-	
-	if (modeMode && ((prevMode != currMode) || (prevKey != currKey))) { // Input changes so force re-read
-	 	for (int step = 0; step < 8; step++) {
-			update = true;
-		}
-		
-		prevMode = currMode;
-		prevKey = currKey;	
+		float fMode = inputs[MODE_INPUT].getVoltage();
+		currMode = music::getModeFromVolts(fMode);
+	} else {
+		currMode = params[MODE_PARAM].getValue();
 	}
 
-	if (prevModeMode != modeMode) { // Switching mode, so reset history to ensure re-read on return
+	if (inputs[KEY_INPUT].isConnected()) {
+		float fRoot = inputs[KEY_INPUT].getVoltage();
+		currKey = music::getKeyFromVolts(fRoot);
+	} else {
+		currKey = params[KEY_PARAM].getValue();
+	}
+	
+	if (chordMode && ((prevMode != currMode) || (prevKey != currKey))) { // Input changes so force re-read
 		update = true;
+		prevMode = currMode;
+		prevKey = currKey;	
 	}
 
 	// Update
@@ -330,7 +331,7 @@ void Progress2::step() {
 			chords[step].inversion = (int)chords[step].inInversion;
 		
 			// Update if we are in Mode mode
-			if (modeMode) {			
+			if (chordMode) {			
 			
 				// Root and chord can get updated
 				// From the input root, mode and degree, we can get the root chord note and quality (Major,Minor,Diminshed)
@@ -379,9 +380,6 @@ void Progress2::step() {
 		}
 	}
 	
-	// Remember mode
-	prevModeMode = modeMode;
-
 	// So, after all that, we calculate the pitch output
 	bool pulse = gatePulse.process(delta);
 	
@@ -466,8 +464,10 @@ struct Progress2Widget : ModuleWidget {
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 2, 1, true, false), module, Progress2::RESET_INPUT));
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 3, 1, true, false), module, Progress2::STEPS_INPUT));
 
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 4, 0, true, false), module, Progress2::KEY_INPUT));
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 5, 0, true, false), module, Progress2::MODE_INPUT));
+		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 4, 0, true, false), module, Progress2::KEY_PARAM));
+		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 5, 0, true, false), module, Progress2::MODE_PARAM));
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 4, 1, true, false), module, Progress2::KEY_INPUT));
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 5, 1, true, false), module, Progress2::MODE_INPUT));
 
 		addChild(createLight<MediumLight<GreenLight>>(gui::getPosition(gui::LIGHT, 0, 5, true, false), module, Progress2::GATES_LIGHT));
 		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 6, 0, true, false), module, Progress2::GATES_OUTPUT));
@@ -509,6 +509,15 @@ struct Progress2Widget : ModuleWidget {
 			}
 		};
 
+		struct ChordItem : MenuItem {
+			Progress2 *module;
+			int chordMode;
+			void onAction(const event::Action &e) override {
+				module->chordMode = chordMode;
+				module->changeMode = true;
+			}
+		};
+
 		struct GateModeMenu : MenuItem {
 			Progress2 *module;
 			Menu *createChildMenu() override {
@@ -541,11 +550,30 @@ struct Progress2Widget : ModuleWidget {
 			}
 		};
 
+		struct ChordMenu : MenuItem {
+			Progress2 *module;
+			Menu *createChildMenu() override {
+				Menu *menu = new Menu;
+				std::vector<int> chordModes = {0, 1};
+				std::vector<std::string> names = {"Normal Chords", "Chords from Mode"};
+				for (size_t i = 0; i < chordModes.size(); i++) {
+					ChordItem *item = createMenuItem<ChordItem>(names[i], CHECKMARK(module->chordMode == chordModes[i]));
+					item->module = module;
+					item->chordMode = chordModes[i];
+					menu->addChild(item);
+				}
+				return menu;
+			}
+		};
 
 		menu->addChild(construct<MenuLabel>());
-		GateModeMenu *item = createMenuItem<GateModeMenu>("Gate Mode");
-		item->module = progress;
-		menu->addChild(item);
+		ChordMenu *chordItem = createMenuItem<ChordMenu>("Chord Mode");
+		chordItem->module = progress;
+		menu->addChild(chordItem);
+
+		GateModeMenu *gateItem = createMenuItem<GateModeMenu>("Gate Mode");
+		gateItem->module = progress;
+		menu->addChild(gateItem);
 
 		OffsetMenu *offsetItem = createMenuItem<OffsetMenu>("Repeat Notes");
 		offsetItem->module = progress;
