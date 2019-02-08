@@ -104,9 +104,6 @@ struct Progress2 : core::AHModule {
 		STEPS_PARAM,
 		KEY_PARAM,
 		MODE_PARAM,
-		ENUMS(ROOT_PARAM,8),
-		ENUMS(CHORD_PARAM,8),
-		ENUMS(INV_PARAM,8),
 		ENUMS(GATE_PARAM,8),
 		NUM_PARAMS
 	};
@@ -148,14 +145,6 @@ struct Progress2 : core::AHModule {
 		params[MODE_PARAM].description = "Mode from which chords are selected"; 
 
 		for (int i = 0; i < 8; i++) {
-			params[ROOT_PARAM + i].config(0.0, 10.0, 0.0, "Root note");
-			params[ROOT_PARAM + i].description = "Root note [degree of scale]";
-
-			params[CHORD_PARAM + i].config(0.0, 10.0, 0.0, "Chord");
-
-			params[INV_PARAM + i].config(0.0, 2.0, 0.0, "Inversion");
-			params[INV_PARAM + i].description = "Root, first of second inversion";
-
 			params[GATE_PARAM + i].config(0.0, 1.0, 0.0, "Gate active");
 		}
 
@@ -336,11 +325,11 @@ void Progress2::step() {
 	// Update
 	for (int step = 0; step < 8; step++) {
 
-		pState.chords[step].setDegree(params[CHORD_PARAM + step].getValue());
-		pState.chords[step].setQuality(params[ROOT_PARAM + step].getValue());
-		pState.chords[step].setChord(params[CHORD_PARAM + step].getValue());
-		pState.chords[step].setRoot(params[ROOT_PARAM + step].getValue());
-		pState.chords[step].setInversion(params[INV_PARAM + step].getValue());
+		pState.chords[step].setDegree(0.0f);
+		pState.chords[step].setQuality(0.0f);
+		pState.chords[step].setChord(0.0f);
+		pState.chords[step].setRoot(0.0f);
+		pState.chords[step].setInversion(0.0f);
 
 		if (pState.chords[step].dirty || update) { // Also reset if key or mode or module settings has changed
 
@@ -496,10 +485,6 @@ struct Progress2Widget : ModuleWidget {
 		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 8, 0, true, false), module, Progress2::POLYGATE_OUTPUT));
 
 		for (int i = 0; i < 8; i++) {
-			addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, i + 1, 4, true, true), module, Progress2::ROOT_PARAM + i));
-			addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, i + 1, 5, true, true), module, Progress2::CHORD_PARAM + i));
-			addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, i + 1, 6, true, true), module, Progress2::INV_PARAM + i));
-
 			addParam(createParam<gui::AHButton>(gui::getPosition(gui::BUTTON, i + 1, 8, true, true, 0.0f, -4.0f), module, Progress2::GATE_PARAM + i));
 			addChild(createLight<MediumLight<GreenRedLight>>(gui::getPosition(gui::LIGHT, i + 1, 8, true, true, 0.0f, -4.0f), module, Progress2::GATE_LIGHTS + i * 2));
 					
