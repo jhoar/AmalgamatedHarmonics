@@ -5,8 +5,7 @@
 
 using namespace ah;
 
-
-struct PChord {
+struct ProgressChord {
 
 	void setRoot(float v) {
 		if (inRoot != v) {
@@ -60,8 +59,37 @@ struct PChord {
 	float pitches[6];
 
 	bool gate;
-
 	bool dirty;
+
+};
+
+struct ProgressState {
+
+	int chordMode = 0;  // 0 == Chord, 1 = Mode
+	int offset = 24; 	// Repeated notes in chord and expressed in the chord definition as being transposed 2 octaves lower. 
+						// When played this offset needs to be removed (or the notes removed, or the notes transposed to an octave higher)
+	
+	ProgressChord chords[8];
+
+	void setMode(int m) {
+		if (mode != m) {
+			dirty = true;
+		}
+		mode = m;
+	}
+
+	void setKey(int k) {
+		if (key != k) {
+			dirty = true;
+		}
+		mode = k;
+	}
+
+	int mode;
+	int key;
+
+	bool dirty = true; // read on first run through
+	bool settingChanged = false;
 
 };
 
@@ -146,7 +174,7 @@ struct Progress2 : core::AHModule {
 		// gates
 		json_t *gatesJ = json_array();
 		for (int i = 0; i < 8; i++) {
-			json_t *gateJ = json_integer((int) chords[i].gate);
+			json_t *gateJ = json_integer((int) pState.chords[i].gate);
 			json_array_append_new(gatesJ, gateJ);
 		}
 		json_object_set_new(rootJ, "gates", gatesJ);
@@ -156,11 +184,11 @@ struct Progress2 : core::AHModule {
 		json_object_set_new(rootJ, "gateMode", gateModeJ);
 
 		// offset
-		json_t *offsetJ = json_integer((int) offset);
+		json_t *offsetJ = json_integer((int) pState.offset);
 		json_object_set_new(rootJ, "offset", offsetJ);
 
 		// chordMode
-		json_t *chordModeJ = json_integer((int) chordMode);
+		json_t *chordModeJ = json_integer((int) pState.chordMode);
 		json_object_set_new(rootJ, "chordMode", chordModeJ);
 
 		return rootJ;
@@ -178,7 +206,7 @@ struct Progress2 : core::AHModule {
 			for (int i = 0; i < 8; i++) {
 				json_t *gateJ = json_array_get(gatesJ, i);
 				if (gateJ)
-					chords[i].gate = !!json_integer_value(gateJ);
+					pState.chords[i].gate = !!json_integer_value(gateJ);
 			}
 		}
 
@@ -190,12 +218,12 @@ struct Progress2 : core::AHModule {
 		// offset
 		json_t *offsetJ = json_object_get(rootJ, "offset");
 		if (offsetJ)
-			offset = json_integer_value(offsetJ);
+			pState.offset = json_integer_value(offsetJ);
 
 		// chordMode
 		json_t *chordModeJ = json_object_get(rootJ, "chordMode");
 		if (chordModeJ)
-			chordMode = json_integer_value(chordModeJ);
+			pState.chordMode = json_integer_value(chordModeJ);
 
 	}
 	
@@ -217,6 +245,8 @@ struct Progress2 : core::AHModule {
 	// Step index
 	int index = 0;
 
+	ProgressState pState;
+
 	float resetLight = 0.0f;
 	float gateLight = 0.0f;
 	float stepLights[8] = {};
@@ -228,23 +258,9 @@ struct Progress2 : core::AHModule {
 	};
 	GateMode gateMode = CONTINUOUS;
 	
-	int offset = 24; 	// Repeated notes in chord and expressed in the chord definition as being transposed 2 octaves lower. 
-						// When played this offset needs to be removed (or the notes removed, or the notes transposed to an octave higher)
-	
-	PChord chords[8];
-
-	int currMode;
-	int currKey;
-	int prevMode = -1;
-	int prevKey = -1;
-
-	int  chordMode = 0; // 0 == Chord, 1 = Mode
-	bool changeRepeat = false;
-	bool changeMode = false;
-
 	void onReset() override {
 		for (int i = 0; i < 8; i++) {
-			chords[i].gate = true;
+			pState.chords[i].gate = true;
 		}
 	}
 	
@@ -295,67 +311,63 @@ void Progress2::step() {
 	bool update = false;
 
 	// Updated modes
-	if (changeRepeat || changeMode) {
+	if (pState.settingChanged) {
 		update = true;
-		changeRepeat = false;
-		changeMode = false;
+		pState.settingChanged = false;
 	}
 
 	if (inputs[MODE_INPUT].isConnected()) {
-		float fMode = inputs[MODE_INPUT].getVoltage();
-		currMode = music::getModeFromVolts(fMode);
+		pState.setMode(music::getModeFromVolts(inputs[MODE_INPUT].getVoltage()));
 	} else {
-		currMode = params[MODE_PARAM].getValue();
+		pState.setMode(params[MODE_PARAM].getValue());
 	}
 
 	if (inputs[KEY_INPUT].isConnected()) {
-		float fRoot = inputs[KEY_INPUT].getVoltage();
-		currKey = music::getKeyFromVolts(fRoot);
+		pState.setKey(music::getKeyFromVolts(inputs[KEY_INPUT].getVoltage()));
 	} else {
-		currKey = params[KEY_PARAM].getValue();
+		pState.setKey(params[KEY_PARAM].getValue());
 	}
 	
-	if (chordMode && ((prevMode != currMode) || (prevKey != currKey))) { // Input changes so force re-read
+	if (pState.chordMode && pState.dirty) { // Input changes so force re-read
+		pState.dirty = false;
 		update = true;
-		prevMode = currMode;
-		prevKey = currKey;	
 	}
 
 	// Update
 	for (int step = 0; step < 8; step++) {
 
-		chords[step].setDegree(params[CHORD_PARAM + step].getValue());
-		chords[step].setQuality(params[ROOT_PARAM + step].getValue());
-		chords[step].setChord(params[CHORD_PARAM + step].getValue());
-		chords[step].setRoot(params[ROOT_PARAM + step].getValue());
-		chords[step].setInversion(params[INV_PARAM + step].getValue());
+		pState.chords[step].setDegree(params[CHORD_PARAM + step].getValue());
+		pState.chords[step].setQuality(params[ROOT_PARAM + step].getValue());
+		pState.chords[step].setChord(params[CHORD_PARAM + step].getValue());
+		pState.chords[step].setRoot(params[ROOT_PARAM + step].getValue());
+		pState.chords[step].setInversion(params[INV_PARAM + step].getValue());
 
-		if (chords[step].dirty || update) {
+		if (pState.chords[step].dirty || update) { // Also reset if key or mode or module settings has changed
 
-			chords[step].dirty = false;
+			pState.chords[step].dirty = false;
 
-			chords[step].root  = round(rescale(fabs(chords[step].inRoot), 0.0f, 10.0f, 0.0f, music::NUM_NOTES - 1)); // Param range is 0 to 10, mapped to 0 to 11
-			chords[step].chord = round(rescale(fabs(chords[step].inChord), 0.0f, 10.0f, 1.0f, 98.0f)); // Param range is 0 to 10		
-			chords[step].degree = round(rescale(fabs(chords[step].inDegree), 0.0f, 10.0f, 0.0f, music::NUM_DEGREES - 1));
-			chords[step].inversion = (int)chords[step].inInversion;
+			pState.chords[step].root  = round(rescale(fabs(pState.chords[step].inRoot), 0.0f, 10.0f, 0.0f, music::NUM_NOTES - 1)); // Param range is 0 to 10, mapped to 0 to 11
+			pState.chords[step].chord = round(rescale(fabs(pState.chords[step].inChord), 0.0f, 10.0f, 1.0f, 98.0f)); // Param range is 0 to 10		
+			pState.chords[step].degree = round(rescale(fabs(pState.chords[step].inDegree), 0.0f, 10.0f, 0.0f, music::NUM_DEGREES - 1));
+			pState.chords[step].inversion = (int)pState.chords[step].inInversion;
 		
 			// Update if we are in Mode mode
-			if (chordMode) {			
+			if (pState.chordMode) {			
 			
 				// Root and chord can get updated
 				// From the input root, mode and degree, we can get the root chord note and quality (Major,Minor,Diminshed)
-				music::getRootFromMode(currMode, currKey, chords[step].degree, &chords[step].root, &chords[step].quality);
+				music::getRootFromMode(pState.mode, pState.key, pState.chords[step].degree, &pState.chords[step].root, &pState.chords[step].quality);
 
 				// Now get the actual chord from the main list
-				switch(chords[step].quality) {
+				switch(pState.chords[step].quality) {
 					case music::MAJ: 
-						chords[step].chord = round(rescale(fabs(chords[step].inQuality), 0.0f, 10.0f, 1.0f, 70.0f)); 
+						pState.chords[step].chord = round(rescale(fabs(pState.chords[step].inQuality), 0.0f, 10.0f, 1.0f, 70.0f)); 
 						break;
 					case music::MIN: 
-						chords[step].chord = round(rescale(fabs(chords[step].inQuality), 0.0f, 10.0f, 71.0f, 90.0f));
+						pState.chords[step].chord = round(rescale(fabs(pState.chords[step].inQuality), 0.0f, 10.0f, 71.0f, 90.0f));
 						break;
 					case music::DIM: 
-						chords[step].chord = round(rescale(fabs(chords[step].inQuality), 0.0f, 10.0f, 91.0f, 98.0f));
+						pState.chords[step].chord = round(rescale(fabs(pState.chords[step].inQuality), 0.0f, 10.0f, 91.0f, 98.0f));
 						break;		
 				}
 
@@ -364,11 +376,11 @@ void Progress2::step() {
 			int *chordArray;
 
 			// Get the array of pitches based on the inversion
-			switch(chords[step].inversion) {
-				case music::ROOT:  		chordArray = music::ChordTable[chords[step].chord].root; 	break;
-				case music::FIRST_INV:  chordArray = music::ChordTable[chords[step].chord].first; 	break;
-				case music::SECOND_INV: chordArray = music::ChordTable[chords[step].chord].second;	break;
-				default: chordArray = music::ChordTable[chords[step].chord].root;
+			switch(pState.chords[step].inversion) {
+				case music::ROOT:  		chordArray = music::ChordTable[pState.chords[step].chord].root; 	break;
+				case music::FIRST_INV:  chordArray = music::ChordTable[pState.chords[step].chord].first; 	break;
+				case music::SECOND_INV: chordArray = music::ChordTable[pState.chords[step].chord].second;	break;
+				default: chordArray = music::ChordTable[pState.chords[step].chord].root;
 			}
 			
 			for (int j = 0; j < NUM_PITCHES; j++) {
@@ -377,13 +389,13 @@ void Progress2::step() {
 				// filled with repeated notes. These notes are identified by a  24 semi-tome negative
 				// offset. 
 				if (chordArray[j] < 0) {
-					int off = offset;
-					if (offset == 0) { // if offset = 0, randomise offset per note
+					int off = pState.offset;
+					if (pState.offset == 0) { // if offset = 0, randomise offset per note
 						off = (rand() % 3 + 1) * 12;
 					}
-					chords[step].pitches[j] = music::getVoltsFromPitch(chordArray[j] + off,chords[step].root);			
+					pState.chords[step].pitches[j] = music::getVoltsFromPitch(chordArray[j] + off,pState.chords[step].root);			
 				} else {
-					chords[step].pitches[j] = music::getVoltsFromPitch(chordArray[j],chords[step].root);
+					pState.chords[step].pitches[j] = music::getVoltsFromPitch(chordArray[j],      pState.chords[step].root);
 				}	
 			}
 		}
@@ -395,10 +407,10 @@ void Progress2::step() {
 	// Gate buttons
 	for (int i = 0; i < 8; i++) {
 		if (gateTriggers[i].process(params[GATE_PARAM + i].getValue())) {
-			chords[i].gate = !chords[i].gate;
+			pState.chords[i].gate = !pState.chords[i].gate;
 		}
 		
-		bool gateOn = (running && i == index && chords[i].gate);
+		bool gateOn = (running && i == index && pState.chords[i].gate);
 		if (gateMode == TRIGGER) {
 			gateOn = gateOn && pulse;
 		} else if (gateMode == RETRIGGER) {
@@ -408,7 +420,7 @@ void Progress2::step() {
 		outputs[GATE_OUTPUT + i].setVoltage(gateOn ? 10.0f : 0.0f);	
 		
 		if (i == index) {
-			if (chords[i].gate) {
+			if (pState.chords[i].gate) {
 				// Gate is on and active = flash green
 				lights[GATE_LIGHTS + i * 2].setBrightnessSmooth(1.0f);
 				lights[GATE_LIGHTS + i * 2 + 1].setBrightnessSmooth(0.0f);
@@ -418,7 +430,7 @@ void Progress2::step() {
 				lights[GATE_LIGHTS + i * 2 + 1].setBrightnessSmooth(0.20f);
 			}
 		} else {
-			if (chords[i].gate) {
+			if (pState.chords[i].gate) {
 				// Gate is on and not active = red
 				lights[GATE_LIGHTS + i * 2].setBrightnessSmooth(0.0f);
 				lights[GATE_LIGHTS + i * 2 + 1].setBrightnessSmooth(1.0f);
@@ -430,7 +442,7 @@ void Progress2::step() {
 		}
 	}
 
-	bool gatesOn = (running && chords[index].gate);
+	bool gatesOn = (running && pState.chords[index].gate);
 	if (gateMode == TRIGGER) {
 		gatesOn = gatesOn && pulse;
 	} else if (gateMode == RETRIGGER) {
@@ -447,7 +459,7 @@ void Progress2::step() {
 	outputs[PITCH_OUTPUT].setChannels(6);
 	outputs[PITCH_OUTPUT + 1].setChannels(6);
 	for (int i = 0; i < NUM_PITCHES; i++) {
-		outputs[PITCH_OUTPUT].setVoltage(chords[index].pitches[i], i);
+		outputs[PITCH_OUTPUT].setVoltage(pState.chords[index].pitches[i], i);
 		outputs[PITCH_OUTPUT + 1].setVoltage(10.0, i);
 	}
 	
@@ -513,8 +525,8 @@ struct Progress2Widget : ModuleWidget {
 			Progress2 *module;
 			int offset;
 			void onAction(const event::Action &e) override {
-				module->offset = offset;
-				module->changeRepeat = true;
+				module->pState.offset = offset;
+				module->pState.settingChanged = true;
 			}
 		};
 
@@ -522,8 +534,8 @@ struct Progress2Widget : ModuleWidget {
 			Progress2 *module;
 			int chordMode;
 			void onAction(const event::Action &e) override {
-				module->chordMode = chordMode;
-				module->changeMode = true;
+				module->pState.chordMode = chordMode;
+				module->pState.settingChanged = true;
 			}
 		};
 
@@ -550,7 +562,7 @@ struct Progress2Widget : ModuleWidget {
 				std::vector<int> offsets = {12, 24, 36, 0};
 				std::vector<std::string> names = {"Lower", "Repeat", "Upper", "Random"};
 				for (size_t i = 0; i < offsets.size(); i++) {
-					OffsetItem *item = createMenuItem<OffsetItem>(names[i], CHECKMARK(module->offset == offsets[i]));
+					OffsetItem *item = createMenuItem<OffsetItem>(names[i], CHECKMARK(module->pState.offset == offsets[i]));
 					item->module = module;
 					item->offset = offsets[i];
 					menu->addChild(item);
@@ -566,7 +578,7 @@ struct Progress2Widget : ModuleWidget {
 				std::vector<int> chordModes = {0, 1};
 				std::vector<std::string> names = {"Normal Chords", "Chords from Mode"};
 				for (size_t i = 0; i < chordModes.size(); i++) {
-					ChordItem *item = createMenuItem<ChordItem>(names[i], CHECKMARK(module->chordMode == chordModes[i]));
+					ChordItem *item = createMenuItem<ChordItem>(names[i], CHECKMARK(module->pState.chordMode == chordModes[i]));
 					item->module = module;
 					item->chordMode = chordModes[i];
 					menu->addChild(item);
