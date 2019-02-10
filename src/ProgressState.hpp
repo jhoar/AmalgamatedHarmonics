@@ -48,7 +48,7 @@ struct ProgressState {
 
 		for (int i = 0; i < 8; i++) {
 			chords[i].degree = 0;
-//			chords[i].quality = 0;
+			chords[i].quality = 0;
 			chords[i].chord = 1;
 			chords[i].root = 0;
 			chords[i].inversion = 0;
@@ -72,13 +72,19 @@ struct ProgressState {
 			dirty = true;
 		}
 		mode = m;
+		for (int i = 0; i < 8; i++) {
+			music::getRootFromMode(mode, key, chords[i].degree, &(chords[i].root), &(chords[i].quality));
+		}
 	}
 
 	void setKey(int k) {
 		if (key != k) {
 			dirty = true;
 		}
-		mode = k;
+		key = k;
+		for (int i = 0; i < 8; i++) {
+			music::getRootFromMode(mode, key, chords[i].degree, &(chords[i].root), &(chords[i].quality));
+		}
 	}
 
 	int mode;
@@ -98,6 +104,33 @@ struct RootItem : ui::MenuItem {
 	}
 };
 
+struct DegreeItem : ui::MenuItem {
+	ProgressChord *pChord;
+	ProgressState *pState;
+	int degree;
+	void onAction(const event::Action &e) override {
+		pChord->degree = degree;
+		pChord->dirty = true;
+
+		// Root and chord can get updated
+		// From the input root, mode and degree, we can get the root chord note and quality (Major,Minor,Diminshed)
+		music::getRootFromMode(pState->mode, pState->key, pChord->degree, &(pChord->root), &(pChord->quality));
+
+		// // Now get the actual chord from the main list
+		// switch(pState->chords[step].quality) {
+		// 	case music::MAJ: 
+		// 		pState->chords[step].chord = round(rescale(fabs(pState->chords[step].inQuality), 0.0f, 10.0f, 1.0f, 70.0f)); 
+		// 		break;
+		// 	case music::MIN: 
+		// 		pState->chords[step].chord = round(rescale(fabs(pState->chords[step].inQuality), 0.0f, 10.0f, 71.0f, 90.0f));
+		// 		break;
+		// 	case music::DIM: 
+		// 		pState->chords[step].chord = round(rescale(fabs(pState->chords[step].inQuality), 0.0f, 10.0f, 91.0f, 98.0f));
+		// 		break;		
+		// }
+	}
+};
+
 struct RootChoice : gui::AHChoice {
 	ProgressState *pState;
 	int pStep;
@@ -107,13 +140,25 @@ struct RootChoice : gui::AHChoice {
 			return;
 
 		ui::Menu *menu = createMenu();
-		menu->addChild(createMenuLabel("Root Note"));
-		for (int i = 0; i < music::NUM_NOTES; i++) {
-			RootItem *item = new RootItem;
-			item->pChord = &(pState->chords[pStep]);
-			item->root = i;
-			item->text = music::noteNames[i];
-			menu->addChild(item);
+		if (pState->chordMode) {
+			menu->addChild(createMenuLabel("Degree"));
+			for (int i = 0; i < music::NUM_DEGREES; i++) {
+				DegreeItem *item = new DegreeItem;
+				item->pState = pState;
+				item->pChord = &(pState->chords[pStep]);
+				item->degree = i;
+				item->text = music::degreeNames[i * 3];
+				menu->addChild(item);
+			}
+		} else {
+			menu->addChild(createMenuLabel("Root Note"));
+			for (int i = 0; i < music::NUM_NOTES; i++) {
+				RootItem *item = new RootItem;
+				item->pChord = &(pState->chords[pStep]);
+				item->root = i;
+				item->text = music::noteNames[i];
+				menu->addChild(item);
+			}
 		}
 	}
 
@@ -124,16 +169,11 @@ struct RootChoice : gui::AHChoice {
 		}
 
 		text = music::noteNames[pState->chords[pStep].root];
-		if (text.empty()) {
-			text = "()";
-			color.a = 0.5f;
-		} else {
-			if (pState->chordMode) {
-				color.a = 0.5f; // We will ignore the root note in Mode mode
-			} else {
-				color.a = 1.f;
-			}
-		}
+
+		if (pState->chordMode) {
+			int index = pState->chords[pStep].degree * 3 + pState->chords[pStep].quality;
+			text += " " + music::degreeNames[index];
+		} 
 	}
 };
 
@@ -178,54 +218,6 @@ struct ChordChoice : gui::AHChoice {
 			color.a = 0.5f;
 		} else {
 			color.a = 1.f;
-		}
-	}
-};
-
-struct DegreeItem : ui::MenuItem {
-	ProgressChord *pChord;
-	int degree;
-	void onAction(const event::Action &e) override {
-		pChord->degree = degree;
-		pChord->dirty = true;
-	}
-};
-
-struct DegreeChoice : gui::AHChoice {
-	ProgressState *pState;
-	int pStep;
-
-	void onAction(const event::Action &e) override {
-		if (!pState)
-			return;
-
-		ui::Menu *menu = createMenu();
-		menu->addChild(createMenuLabel("Degree"));
-		for (int i = 0; i < music::NUM_DEGREES * 3; i = i + 3) {
-			DegreeItem *item = new DegreeItem;
-			item->pChord = &(pState->chords[pStep]);
-			item->degree = i;
-			item->text = music::degreeNames[i];
-			menu->addChild(item);
-		}
-	}
-
-	void step() override {
-		if (!pState) {
-			text = "";
-			return;
-		}
-		text = music::degreeNames[pState->chords[pStep].degree];
-		if (text.empty()) {
-			text = "()";
-			color.a = 0.5f;
-		}
-		else {
-			if (!pState->chordMode) {
-				color.a = 0.5f; // We will ignore the root note in Mode mode
-			} else {
-				color.a = 1.f;
-			}
 		}
 	}
 };
@@ -279,10 +271,9 @@ struct ProgressStepWidget : LedDisplay {
 
 	RootChoice *rootChooser;
 	ChordChoice *chordChooser;
-	DegreeChoice *degreeChooser;
 	InversionChoice *inversionChooser;
 
-	LedDisplaySeparator *separators[3];
+	LedDisplaySeparator *separators[2];
 
 	void setPState(ProgressState *pState, int pStep) {
 
@@ -313,18 +304,6 @@ struct ProgressStepWidget : LedDisplay {
 		this->separators[1] = createWidget<LedDisplaySeparator>(pos);
 		this->separators[1]->box.size.x = box.size.x;
 		addChild(this->separators[1]);
-
-		DegreeChoice *degreeChoice = createWidget<DegreeChoice>(pos);
-		degreeChoice->box.size.x = box.size.x;
-		degreeChoice->pState = pState;
-		degreeChoice->pStep = pStep;
-		addChild(degreeChoice);
-		pos = degreeChoice->box.getBottomLeft();
-		this->degreeChooser = degreeChoice;
-
-		this->separators[2] = createWidget<LedDisplaySeparator>(pos);
-		this->separators[2]->box.size.x = box.size.x;
-		addChild(this->separators[2]);
 
 		InversionChoice *inversionChoice = createWidget<InversionChoice>(pos);
 		inversionChoice->box.size.x = box.size.x;
@@ -361,22 +340,6 @@ struct ProgressStateWidget : LedDisplay {
         /// Update if we are in Mode mode
         if (pState->chordMode) {			
         
-            // Root and chord can get updated
-            // From the input root, mode and degree, we can get the root chord note and quality (Major,Minor,Diminshed)
-            music::getRootFromMode(pState->mode, pState->key, pState->chords[step].degree, &(pState->chords[step].root), &(pState->chords[step].quality));
-
-            // Now get the actual chord from the main list
-            switch(pState->chords[step].quality) {
-                case music::MAJ: 
-                    pState->chords[step].chord = round(rescale(fabs(pState->chords[step].inQuality), 0.0f, 10.0f, 1.0f, 70.0f)); 
-                    break;
-                case music::MIN: 
-                    pState->chords[step].chord = round(rescale(fabs(pState->chords[step].inQuality), 0.0f, 10.0f, 71.0f, 90.0f));
-                    break;
-                case music::DIM: 
-                    pState->chords[step].chord = round(rescale(fabs(pState->chords[step].inQuality), 0.0f, 10.0f, 91.0f, 98.0f));
-                    break;		
-            }
 
         } 
 
