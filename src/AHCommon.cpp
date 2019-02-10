@@ -372,7 +372,7 @@ int ModeQuality[7][7] {
 
 int ModeOffset[7][7] {
 	{0,0,0,0,0,0,0},     // Ionian
-	{0,0,-1,-1,0,0,-1},  // Dorian
+	{0,0,-1,0,0,0,-1},  // Dorian
 	{0,-1,-1,0,0,-1,-1}, // Phrygian
 	{0,0,0,1,0,0,0},     // Lydian
 	{0,0,0,0,0,0,-1},    // Mixolydian
