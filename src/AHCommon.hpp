@@ -74,6 +74,14 @@ struct AHModule : rack::Module {
 
 namespace gui {
 
+struct AHChoice : LedDisplayChoice {
+	AHChoice();
+
+	float fontSize;
+
+	void draw(NVGcontext *vg) override;
+};
+
 struct StateDisplay : TransparentWidget {
 	
 	core::AHModule *module;
@@ -330,7 +338,7 @@ static constexpr float SEMITONE = 1.0 / 12.0;
 
 struct ChordDef {
 	int number;
-	std::string quality;
+	std::string name;
 	int	root[6];
 	int	first[6];
 	int	second[6];
