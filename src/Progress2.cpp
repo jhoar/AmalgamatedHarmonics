@@ -1,97 +1,11 @@
 #include "AH.hpp"
 #include "AHCommon.hpp"
 
+#include "ProgressState.hpp"
+
 #include <iostream>
 
 using namespace ah;
-
-struct ProgressChord {
-
-	void setRoot(float v) {
-		if (inRoot != v) {
-			dirty = true;
-		}
-		inRoot = v;
-	}
-
-	void setChord(float v) {
-		if (inChord != v) {
-			dirty = true;
-		}
-		inChord = v;
-	}
-
-	void setDegree(float v) {
-		if (inDegree != v) {
-			dirty = true;
-		}
-		inDegree = v;
-	}
-
-	void setQuality(float v) {
-		if (inQuality != v) {
-			dirty = true;
-		}
-		inQuality = v;
-	}
-
-	void setInversion(float v) {
-		if (inInversion != v) {
-			dirty = true;
-		}
-		inInversion = v;
-	}
-
-	// Input analog value
-	float inRoot;
-	float inChord;
-	float inDegree;
-	float inQuality;
-	float inInversion;
-
-	// Intepreted value
-	int root;
-	int chord;
-	int inversion;	
-	int degree;
-	int quality;
-
-	float pitches[6];
-
-	bool gate;
-	bool dirty;
-
-};
-
-struct ProgressState {
-
-	int chordMode = 0;  // 0 == Chord, 1 = Mode
-	int offset = 24; 	// Repeated notes in chord and expressed in the chord definition as being transposed 2 octaves lower. 
-						// When played this offset needs to be removed (or the notes removed, or the notes transposed to an octave higher)
-	
-	ProgressChord chords[8];
-
-	void setMode(int m) {
-		if (mode != m) {
-			dirty = true;
-		}
-		mode = m;
-	}
-
-	void setKey(int k) {
-		if (key != k) {
-			dirty = true;
-		}
-		mode = k;
-	}
-
-	int mode;
-	int key;
-
-	bool dirty = true; // read on first run through
-	bool settingChanged = false;
-
-};
 
 struct Progress2 : core::AHModule {
 
@@ -325,42 +239,9 @@ void Progress2::step() {
 	// Update
 	for (int step = 0; step < 8; step++) {
 
-		pState.chords[step].setDegree(0.0f);
-		pState.chords[step].setQuality(0.0f);
-		pState.chords[step].setChord(0.0f);
-		pState.chords[step].setRoot(0.0f);
-		pState.chords[step].setInversion(0.0f);
-
 		if (pState.chords[step].dirty || update) { // Also reset if key or mode or module settings has changed
 
 			pState.chords[step].dirty = false;
-
-			pState.chords[step].root  = round(rescale(fabs(pState.chords[step].inRoot), 0.0f, 10.0f, 0.0f, music::NUM_NOTES - 1)); // Param range is 0 to 10, mapped to 0 to 11
-			pState.chords[step].chord = round(rescale(fabs(pState.chords[step].inChord), 0.0f, 10.0f, 1.0f, 98.0f)); // Param range is 0 to 10		
-			pState.chords[step].degree = round(rescale(fabs(pState.chords[step].inDegree), 0.0f, 10.0f, 0.0f, music::NUM_DEGREES - 1));
-			pState.chords[step].inversion = (int)pState.chords[step].inInversion;
-		
-			// Update if we are in Mode mode
-			if (pState.chordMode) {			
-			
-				// Root and chord can get updated
-				// From the input root, mode and degree, we can get the root chord note and quality (Major,Minor,Diminshed)
-				music::getRootFromMode(pState.mode, pState.key, pState.chords[step].degree, &pState.chords[step].root, &pState.chords[step].quality);
-
-				// Now get the actual chord from the main list
-				switch(pState.chords[step].quality) {
-					case music::MAJ: 
-						pState.chords[step].chord = round(rescale(fabs(pState.chords[step].inQuality), 0.0f, 10.0f, 1.0f, 70.0f)); 
-						break;
-					case music::MIN: 
-						pState.chords[step].chord = round(rescale(fabs(pState.chords[step].inQuality), 0.0f, 10.0f, 71.0f, 90.0f));
-						break;
-					case music::DIM: 
-						pState.chords[step].chord = round(rescale(fabs(pState.chords[step].inQuality), 0.0f, 10.0f, 91.0f, 98.0f));
-						break;		
-				}
-
-			} 
 
 			int *chordArray;
 
@@ -372,7 +253,7 @@ void Progress2::step() {
 				default: chordArray = music::ChordTable[pState.chords[step].chord].root;
 			}
 			
-			for (int j = 0; j < NUM_PITCHES; j++) {
+			for (int j = 0; j < NUM_PITCHES; j++) {	
 
 				// Set the pitches for this step. If the chord has less than 6 notes, the empty slots are
 				// filled with repeated notes. These notes are identified by a  24 semi-tome negative
@@ -487,10 +368,14 @@ struct Progress2Widget : ModuleWidget {
 		for (int i = 0; i < 8; i++) {
 			addParam(createParam<gui::AHButton>(gui::getPosition(gui::BUTTON, i + 1, 8, true, true, 0.0f, -4.0f), module, Progress2::GATE_PARAM + i));
 			addChild(createLight<MediumLight<GreenRedLight>>(gui::getPosition(gui::LIGHT, i + 1, 8, true, true, 0.0f, -4.0f), module, Progress2::GATE_LIGHTS + i * 2));
-					
 			addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, i + 1, 5, true, false), module, Progress2::GATE_OUTPUT + i));
 		}
 		
+		ProgressStateWidget *stateWidget = createWidget<ProgressStateWidget>(Vec(5.0, 135.0));
+		stateWidget->box.size = Vec(335, 165);
+		stateWidget->setPState(module ? &module->pState : NULL);
+		addChild(stateWidget);
+
 	}
 
 	void appendContextMenu(Menu *menu) override {
@@ -515,7 +400,7 @@ struct Progress2Widget : ModuleWidget {
 			}
 		};
 
-		struct ChordItem : MenuItem {
+		struct ChordModeItem : MenuItem {
 			Progress2 *module;
 			int chordMode;
 			void onAction(const event::Action &e) override {
@@ -556,14 +441,14 @@ struct Progress2Widget : ModuleWidget {
 			}
 		};
 
-		struct ChordMenu : MenuItem {
+		struct ChordModeMenu : MenuItem {
 			Progress2 *module;
 			Menu *createChildMenu() override {
 				Menu *menu = new Menu;
 				std::vector<int> chordModes = {0, 1};
 				std::vector<std::string> names = {"Normal Chords", "Chords from Mode"};
 				for (size_t i = 0; i < chordModes.size(); i++) {
-					ChordItem *item = createMenuItem<ChordItem>(names[i], CHECKMARK(module->pState.chordMode == chordModes[i]));
+					ChordModeItem *item = createMenuItem<ChordModeItem>(names[i], CHECKMARK(module->pState.chordMode == chordModes[i]));
 					item->module = module;
 					item->chordMode = chordModes[i];
 					menu->addChild(item);
@@ -573,7 +458,7 @@ struct Progress2Widget : ModuleWidget {
 		};
 
 		menu->addChild(construct<MenuLabel>());
-		ChordMenu *chordItem = createMenuItem<ChordMenu>("Chord Mode");
+		ChordModeMenu *chordItem = createMenuItem<ChordModeMenu>("Chord Mode");
 		chordItem->module = progress;
 		menu->addChild(chordItem);
 

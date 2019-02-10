@@ -4,6 +4,30 @@ namespace ah {
 
 namespace gui {
 
+AHChoice::AHChoice() {
+    box.size = mm2px(math::Vec(0, 28.0 / 3)); // FIX
+    font = APP->window->loadFont(asset::plugin(pluginInstance, "res/EurostileBold.ttf")); // FIX
+    color = nvgRGB(0x00, 0xFF, 0xFF);
+    bgColor = nvgRGBAf(30, 30, 30, 0); 
+    textOffset = math::Vec(10, 18);	// FIX?	
+	fontSize = 12.0;
+}
+
+void AHChoice::draw(NVGcontext *vg) {
+    nvgScissor(vg, 0, 0, box.size.x, box.size.y);
+
+    if (font->handle >= 0) {
+        nvgFillColor(vg, color);
+        nvgFontFaceId(vg, font->handle);
+        nvgTextLetterSpacing(vg, 0.0);
+
+        nvgFontSize(vg, fontSize); // FIX
+        nvgText(vg, textOffset.x, textOffset.y, text.c_str(), NULL);
+    }
+
+    nvgResetScissor(vg);
+}
+
 float Y_KNOB[2]    = {50.8, 56.0}; // w.r.t 22 = 28.8 from bottom
 float Y_PORT[2]    = {49.7, 56.0}; // 27.7
 float Y_BUTTON[2]  = {53.3, 56.0}; // 31.3 
@@ -144,7 +168,7 @@ namespace music {
 
 ChordDef ChordTable[NUM_CHORDS] {
 	{	0	,"None",{	-24	,	-24	,	-24	,	-24	,	-24	,	-24	},{	-24	,	-24	,	-24	,	-24	,	-24	,	-24	},{	-24	,	-24	,	-24	,	-24	,	-24	,	-24	}},
-	{	1	,"",{	0	,	4	,	7	,	-24	,	-20	,	-17	},{	12	,	4	,	7	,	-12	,	-20	,	-17	},{	12	,	16	,	7	,	-12	,	-8	,	-17	}},
+	{	1	,"M",{	0	,	4	,	7	,	-24	,	-20	,	-17	},{	12	,	4	,	7	,	-12	,	-20	,	-17	},{	12	,	16	,	7	,	-12	,	-8	,	-17	}},
 	{	2	,"M#5",{	0	,	4	,	8	,	-24	,	-20	,	-16	},{	12	,	4	,	8	,	-12	,	-20	,	-16	},{	12	,	16	,	8	,	-12	,	-8	,	-16	}},
 	{	3	,"M#5add9",{	0	,	4	,	8	,	14	,	-24	,	-20	},{	12	,	4	,	8	,	14	,	-24	,	-20	},{	12	,	16	,	8	,	14	,	-12	,	-20	}},
 	{	4	,"M13",{	0	,	4	,	7	,	11	,	14	,	21	},{	12	,	4	,	7	,	11	,	14	,	21	},{	12	,	16	,	7	,	11	,	14	,	21	}},
@@ -325,9 +349,9 @@ std::string degreeNames[21] { // Degree * 3 + Quality
 };
 	
 std::string inversionNames[3] {
-	"",
-	"(1)",
-	"(2)"
+	"(Root)",
+	"(1st)",
+	"(2nd)"
 };
 
 std::string qualityNames[3] {
