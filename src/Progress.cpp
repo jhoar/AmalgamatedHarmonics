@@ -79,13 +79,13 @@ struct Progress : core::AHModule {
 			if (modeMode) {
 				paramState = "> " + 
 					music::noteNames[currRoot[e.pId]] + 
-					music::ChordTable[currChord[e.pId]].quality + " " +  
+					music::ChordTable[currChord[e.pId]].name + " " +  
 					music::inversionNames[currInv[e.pId]] + " " + "[" + 
 					music::degreeNames[currDegree[e.pId] * 3 + currQuality[e.pId]] + "]"; 
 			} else {
 				paramState = "> " + 
 					music::noteNames[currRoot[e.pId]] + 
-					music::ChordTable[currChord[e.pId]].quality + " " +  
+					music::ChordTable[currChord[e.pId]].name + " " +  
 					music::inversionNames[currInv[e.pId]];
 			}
 		}
