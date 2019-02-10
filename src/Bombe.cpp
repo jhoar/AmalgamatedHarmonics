@@ -416,7 +416,7 @@ struct BombeDisplay : TransparentWidget {
 
 				chordName = 
 					music::noteNames[module->displayBuffer[i].rootNote] + " " + 
-					music::ChordTable[module->displayBuffer[i].chord].quality + " " + 
+					music::ChordTable[module->displayBuffer[i].chord].name + " " + 
 					music::inversionNames[module->displayBuffer[i].inversion];
 
 				switch(module->mode) {

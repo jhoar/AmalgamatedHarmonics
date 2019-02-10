@@ -324,7 +324,7 @@ void Galaxy::step() {
 
 			chordName = 
 				music::noteNames[noteIndex] + 
-				music::ChordTable[chordIndex].quality + " " + 
+				music::ChordTable[chordIndex].name + " " + 
 				music::inversionNames[inversion];
 
 			if (mode == 2) {
