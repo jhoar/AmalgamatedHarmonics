@@ -597,25 +597,6 @@ int getKeyFromVolts(float volts) {
 	return round(rack::math::rescale(v, 0.0f, 10.0f, 0.0f, NUM_NOTES - 1));
 }
 
-float getPitchFromVolts(float inVolts, float inRoot, float inScale, int *outRoot, int *outScale, int *outNote, int *outDegree) {
-	
-	// get the root note and scale
-	int currRoot = getKeyFromVolts(inRoot);
-	int currScale = getScaleFromVolts(inScale);
-
-	// if (debug && stepX % poll == 0) {
-	// 	std::cout << "QUANT " << stepX << " Root in: " << inRoot << " Root out: " << currRoot<< " Scale in: " << inScale << " Scale out: " << currScale << std::endl;
-	// }	
-	
-	float outVolts = getPitchFromVolts(inVolts, currRoot, currScale, outNote, outDegree);
-	
-	*outRoot = currRoot;
-	*outScale = currScale;
-	
-	return outVolts;
- 
-}
-
 float getPitchFromVolts(float inVolts, int currRoot, int currScale, int *outNote, int *outDegree) {
 	
 	int *curScaleArr;
@@ -696,31 +677,34 @@ float getPitchFromVolts(float inVolts, int currRoot, int currScale, int *outNote
 
 	} while (true);
 
-	if(scaleIndex == 0) {
-		noteFound = notesInScale - 2; // NIS is a count, not index
-	} else {
-		noteFound = scaleIndex - 1;
+	if (outNote != NULL && outDegree != NULL) {
+
+		if(scaleIndex == 0) {
+			noteFound = notesInScale - 2; // NIS is a count, not index
+		} else {
+			noteFound = scaleIndex - 1;
+		}
+
+		// if (debug && stepX % poll == 0) {
+		// 	std::cout << "QUANT NIS: " << notesInScale <<  " scaleIndex: " << scaleIndex << " NF: " << noteFound << std::endl;
+		// }
+		
+		int currNote = (currRoot + curScaleArr[noteFound]) % 12; // So this is the nth note of the scale; 
+		// case in point, V=0, Scale = F#m returns the 6th note, which should be C#
+
+		// if (debug && stepX % poll == 0) {
+		// 	// Dump the note and degree, mod the size in case where we have wrapped round
+
+		// 	std::cout << "QUANT Found index in scale: " << noteFound << ", currNote: "  << currNote;
+		// 	std::cout << " This is scale note: "  << curScaleArr[noteFound] << " (Interval: " << intervalNames[curScaleArr[noteFound]] << ")";
+		// 	std::cout << ": " << inVolts << " -> " << closestVal << std::endl;
+
+		// }
+
+		*outNote = currNote;
+		*outDegree = curScaleArr[noteFound];
 	}
 
-	// if (debug && stepX % poll == 0) {
-	// 	std::cout << "QUANT NIS: " << notesInScale <<  " scaleIndex: " << scaleIndex << " NF: " << noteFound << std::endl;
-	// }
-	
-	int currNote = (currRoot + curScaleArr[noteFound]) % 12; // So this is the nth note of the scale; 
-	// case in point, V=0, Scale = F#m returns the 6th note, which should be C#
-
-	// if (debug && stepX % poll == 0) {
-	// 	// Dump the note and degree, mod the size in case where we have wrapped round
-
-	// 	std::cout << "QUANT Found index in scale: " << noteFound << ", currNote: "  << currNote;
-	// 	std::cout << " This is scale note: "  << curScaleArr[noteFound] << " (Interval: " << intervalNames[curScaleArr[noteFound]] << ")";
-	// 	std::cout << ": " << inVolts << " -> " << closestVal << std::endl;
-
-	// }
-
-	*outNote = currNote;
-	*outDegree = curScaleArr[noteFound];
-	
 	return closestVal;
  
 }

@@ -92,9 +92,7 @@ void ScaleQuantizer2::step() {
 	float trans = (inputs[TRANS_INPUT].getVoltage() + params[TRANS_PARAM].getValue()) / 12.0;
 	if (trans != 0.0) {
 		if (trans != lastTrans) {
-			int i;
-			int d;
-			trans = music::getPitchFromVolts(trans, music::NOTE_C, music::SCALE_CHROMATIC, &i, &d);
+			trans = music::getPitchFromVolts(trans, music::NOTE_C, music::SCALE_CHROMATIC);
 			lastTrans = trans;
 		} else {
 			trans = lastTrans;

@@ -351,9 +351,7 @@ void Generative::step() {
 	// Quantise or not
 	float out;
 	if (quantise) {
-		int i;
-		int d;
-		out = music::getPitchFromVolts(current, music::NOTE_C, music::SCALE_CHROMATIC, &i, &d);
+		out = music::getPitchFromVolts(current, music::NOTE_C, music::SCALE_CHROMATIC);
 	} else {
 		out = current;
 	}
