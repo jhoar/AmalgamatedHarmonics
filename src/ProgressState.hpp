@@ -71,11 +71,7 @@ struct ProgressState {
 		if (mode != m) {
 			mode = m;
 			for (int i = 0; i < 8; i++) {
-				int r;
-				int q;
-				music::getRootFromMode(mode, key, chords[i].degree, &r, &q);
-				chords[i].root = r;
-				chords[i].quality = q;
+				music::getRootFromMode(mode, key, chords[i].degree, &(chords[i].root), &(chords[i].quality));
 			}
 			dirty = true;
 		}
@@ -85,11 +81,7 @@ struct ProgressState {
 		if (key != k) {
 			key = k;
 			for (int i = 0; i < 8; i++) {
-					int r;
-					int q;
-					music::getRootFromMode(mode, key, chords[i].degree, &r, &q);
-					chords[i].root = r;
-					chords[i].quality = q;
+				music::getRootFromMode(mode, key, chords[i].degree, &(chords[i].root), &(chords[i].quality));
 			}
 			dirty = true;
 		}
