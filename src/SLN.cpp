@@ -58,7 +58,7 @@ struct SLN : core::AHModule {
 		params[NOISE_PARAM].config<NoiseParamQuantity>(0.0, 2.0, 0.0, "Noise type");
 		params[NOISE_PARAM].description = "White, pink (1/f) or brown (1/f^2) noise";
 
-		params[ATTN_PARAM].config(0.0, 1.0, 1.0, "Attenuation", "%", 0.0f, -100.0f, 100.0f);
+		params[ATTN_PARAM].config(0.0, 1.0, 1.0, "Level", "%", 0.0f, 100.0f);
 	}
 	
 	void step() override;

@@ -101,7 +101,7 @@ struct Chord : core::AHModule {
 			params[DETUNE_PARAM + n].config(-1.0f, 1.0f, 0.0f, "Fine tune", "V");
 			params[PW_PARAM + n].config(-1.0f, 1.0f, 0.0f, "Pulse width");
 			params[PWM_PARAM + n].config(0.0f, 1.0f, 0.0f, "Pulse width modulation CV");
-			params[ATTN_PARAM + n].config(0.0f, 1.0f, 1.0f, "Attenuation", "%", 0.0f, -100.0f, 100.0f);
+			params[ATTN_PARAM + n].config(0.0f, 1.0f, 1.0f, "Level", "%", 0.0f, 100.0f);
 			params[PAN_PARAM + n].config<PanParamQuantity>(-posMax, posMax, voicePosRad[n], "Stereo pan (L-R)", "", 0.0f, -1.0f / voicePosRad[0]);
 		}
 

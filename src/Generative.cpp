@@ -149,7 +149,7 @@ struct Generative : core::AHModule {
 		params[SPEED_PARAM].config(0.0, 1.0, 0.0, "Inertia", "%", 0.0f, 100.0f);
 		params[SPEED_PARAM].description = "Resistance of the signal to change";
 
-		params[ATTN_PARAM].config(0.0, 1.0, 1.0, "Attenuation", "%", 0.0f, -100.0f, 100.0f);
+		params[ATTN_PARAM].config(0.0, 1.0, 1.0, "Level", "%", 0.0f, 100.0f);
 
 	}
 	
