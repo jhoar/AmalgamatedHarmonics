@@ -370,9 +370,9 @@ std::string degreeNames[21] { // Degree * 3 + Quality
 };
 	
 std::string inversionNames[3] {
-	"(Root)",
-	"(1st)",
-	"(2nd)"
+	"(R)",
+	"(1)",
+	"(2)"
 };
 
 std::string qualityNames[3] {
