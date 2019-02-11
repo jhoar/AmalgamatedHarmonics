@@ -39,7 +39,7 @@ void RootItem::onAction(const event::Action &e) {
 }
 
 void DegreeItem::onAction(const event::Action &e) {
-    pChord->rootNote = degree;
+    pChord->modeDegree = degree;
     pChord->dirty = true;
 
     // Root and chord can get updated
@@ -93,12 +93,14 @@ void RootChoice::step() {
         return;
     }
 
+    ProgressChord &pC = pState->chords[pStep];
+
     if (pState->chordMode) {
-        text = music::NoteDegreeModeNames[pState->chords[pStep].rootNote][pState->chords[pStep].modeDegree][pState->mode];
-        int index = pState->chords[pStep].modeDegree * 3 + pState->chords[pStep].quality;
+        text = music::NoteDegreeModeNames[pC.rootNote][pC.modeDegree][pState->mode];
+        int index = pC.modeDegree * 3 + pC.quality;
         text += " " + music::degreeNames[index];
     } else {
-        text = music::noteNames[pState->chords[pStep].rootNote];
+        text = music::noteNames[pC.rootNote];
     }
 }
 // Root/Degree menu
@@ -132,12 +134,6 @@ void ChordChoice::step() {
 
     text = music::ChordTable[pState->chords[pStep].chord].name;
 
-    if (text.empty()) {
-        text = "()";
-        color.a = 0.5f;
-    } else {
-        color.a = 1.f;
-    }
 }
 // Chord menu
 
@@ -167,14 +163,9 @@ void InversionChoice::step() {
         text = "";
         return;
     }
+
     text = music::inversionNames[pState->chords[pStep].inversion];
-    if (text.empty()) {
-        text = "()";
-        color.a = 0.5f;
-    }
-    else {
-        color.a = 1.f;
-    }
+
 }
 // Inversion menu
 
