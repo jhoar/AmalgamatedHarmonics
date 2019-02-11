@@ -5,6 +5,11 @@
 
 using namespace ah;
 
+struct BombeChord : music::Chord {
+	int mode = -1;
+	int key = -1;
+};
+
 struct Bombe : core::AHModule {
 
 	const static int NUM_PITCHES = 6;
@@ -62,10 +67,10 @@ struct Bombe : core::AHModule {
 	}
 
 	void step() override;
-	void modeRandom(music::Chord lastValue, float y);
-	void modeSimple(music::Chord lastValue, float y);
-	void modeKey(music::Chord lastValue, float y);
-	void modeGalaxy(music::Chord lastValue, float y);
+	void modeRandom(BombeChord lastValue, float y);
+	void modeSimple(BombeChord lastValue, float y);
+	void modeKey(BombeChord lastValue, float y);
+	void modeGalaxy(BombeChord lastValue, float y);
 
 	json_t *dataToJson() override {
 		json_t *rootJ = json_object();
@@ -149,83 +154,10 @@ struct Bombe : core::AHModule {
 	std::string modeName = "";
 
 	const static int BUFFERSIZE = 16;
-	music::Chord buffer[BUFFERSIZE];
-	music::Chord displayBuffer[BUFFERSIZE];
+	BombeChord buffer[BUFFERSIZE];
+	BombeChord displayBuffer[BUFFERSIZE];
 
 };
-
-void Bombe::modeSimple(music::Chord lastValue, float y) {
-
-	// Recalculate new value of buffer[0].outVolts from lastValue
-	int shift = (rand() % (N_DEGREES - 1)) + 1; // 1 - 6 - always new chord
-	buffer[0].modeDegree = (lastValue.modeDegree + shift) % N_DEGREES; // FIXME, come from mode2 modeDeg == -1!
-
-	int q;
-	int n;
-	music::getRootFromMode(currMode,currRoot,buffer[0].modeDegree,&n,&q);
-	buffer[0].rootNote = n;
-	buffer[0].quality = q; // 0 = Maj, 1 = Min, 2 = Dim
-
-	if (random::uniform() < y) {
-		buffer[0].chord = QualityMap[q][rand() % QMAP_SIZE]; // Get the index into the main chord table
-	} else {
-		buffer[0].chord = Quality2Chord[q]; // Get the index into the main chord table
-	}
-
-	buffer[0].inversion = InversionMap[allowedInversions][rand() % QMAP_SIZE];
-
-}
-
-void Bombe::modeRandom(music::Chord lastValue, float y) {
-
-	// Recalculate new value of buffer[0].outVolts from lastValue
-	float p = random::uniform();
-	if (p < y) {
-		buffer[0].rootNote = rand() % 12; 
-	} else {
-		buffer[0].rootNote = MajorScale[rand() % 7]; 
-	}
-
-	buffer[0].modeDegree = -1; // FIXME
-	buffer[0].quality = -1; // FIXME
-
-	int maxChord = (int)((float)N_CHORDS * y) + 1;
-	buffer[0].chord = ChordMap[rand() % maxChord]; 
-	buffer[0].inversion = InversionMap[allowedInversions][rand() % QMAP_SIZE];
-
-}
-
-void Bombe::modeKey(music::Chord lastValue, float y) {
-
-	int shift = (rand() % (N_DEGREES - 1)) + 1; // 1 - 6 - always new chord
-	buffer[0].modeDegree = (lastValue.modeDegree + shift) % N_DEGREES; // FIXME, come from mode2 modeDeg == -1!
-
-	int q;
-	int n;
-	music::getRootFromMode(currMode,currRoot,buffer[0].modeDegree,&n,&q);
-
-	buffer[0].rootNote = n;
-	buffer[0].quality = -1; // FIXME
-	buffer[0].chord = (rand() % (music::NUM_CHORDS - 1)) + 1; // Get the index into the main chord table
-	buffer[0].inversion = InversionMap[allowedInversions][rand() % QMAP_SIZE];
-
-}
-
-void Bombe::modeGalaxy(music::Chord lastValue, float y) {
-
-	float excess = y - random::uniform();
-
-	if (excess < 0.0) {
-		modeSimple(lastValue, y);
-	} else {
-		if (excess < 0.2) {
-			modeKey(lastValue, y);
-		} else {
-			modeRandom(lastValue, y);
-		}
-	}
-
-}
 
 void Bombe::step() {
 	
@@ -279,7 +211,7 @@ void Bombe::step() {
 	if (clocked) {
 
 		// Grab value from last element of sub-array, which will be the new head value
-		music::Chord lastValue = buffer[length - 1];
+		BombeChord lastValue = buffer[length - 1];
 
 		// Shift buffer
 		for(int i = length - 1; i > 0; i--) {
@@ -363,6 +295,79 @@ void Bombe::step() {
 	}
 }
 
+void Bombe::modeSimple(BombeChord lastValue, float y) {
+
+	// Recalculate new value of buffer[0].outVolts from lastValue
+	int shift = (rand() % (N_DEGREES - 1)) + 1; // 1 - 6 - always new chord
+	buffer[0].modeDegree = (lastValue.modeDegree + shift) % N_DEGREES; // FIXME, come from mode2 modeDeg == -1!
+
+	// quality 0 = Maj, 1 = Min, 2 = Dim
+	music::getRootFromMode(currMode,currRoot,buffer[0].modeDegree,&(buffer[0].rootNote),&(buffer[0].quality));
+
+	if (random::uniform() < y) {
+		buffer[0].chord = QualityMap[buffer[0].quality][rand() % QMAP_SIZE]; // Get the index into the main chord table
+	} else {
+		buffer[0].chord = Quality2Chord[buffer[0].quality]; // Get the index into the main chord table
+	}
+
+	buffer[0].inversion = InversionMap[allowedInversions][rand() % QMAP_SIZE];
+	buffer[0].key = currRoot;
+	buffer[0].mode = currMode;
+
+}
+
+void Bombe::modeRandom(BombeChord lastValue, float y) {
+
+	// Recalculate new value of buffer[0].outVolts from lastValue
+	float p = random::uniform();
+	if (p < y) {
+		buffer[0].rootNote = rand() % 12; 
+	} else {
+		buffer[0].rootNote = MajorScale[rand() % 7]; 
+	}
+
+	buffer[0].modeDegree = -1; 
+	buffer[0].quality = -1; 
+	buffer[0].key = -1; 
+	buffer[0].mode = -1; 
+
+	float index = (float)(N_CHORDS - 1) * y;
+	int maxChord = (int)index + 1;
+	buffer[0].chord = ChordMap[rand() % maxChord]; 
+	buffer[0].inversion = InversionMap[allowedInversions][rand() % QMAP_SIZE];
+
+}
+
+void Bombe::modeKey(BombeChord lastValue, float y) {
+
+	int shift = (rand() % (N_DEGREES - 1)) + 1; // 1 - 6 - always new chord
+	buffer[0].modeDegree = (lastValue.modeDegree + shift) % N_DEGREES; // FIXME, come from mode2 modeDeg == -1!
+
+	music::getRootFromMode(currMode,currRoot,buffer[0].modeDegree,&(buffer[0].rootNote),&(buffer[0].quality));
+
+	buffer[0].chord = (rand() % (music::NUM_CHORDS - 1)) + 1; // Get the index into the main chord table
+	buffer[0].inversion = InversionMap[allowedInversions][rand() % QMAP_SIZE];
+	buffer[0].key = currRoot;
+	buffer[0].mode = currMode;
+
+}
+
+void Bombe::modeGalaxy(BombeChord lastValue, float y) {
+
+	float excess = y - random::uniform();
+
+	if (excess < 0.0) {
+		modeSimple(lastValue, y);
+	} else {
+		if (excess < 0.2) {
+			modeKey(lastValue, y);
+		} else {
+			modeRandom(lastValue, y);
+		}
+	}
+
+}
+
 struct BombeDisplay : TransparentWidget {
 	
 	Bombe *module;
@@ -386,27 +391,24 @@ struct BombeDisplay : TransparentWidget {
 			std::string chordName = "";
 			std::string chordExtName = "";
 
-			if (module->displayBuffer[i].chord != 0) {
+			BombeChord &bC = module->displayBuffer[i];
 
-				chordName = 
-					music::noteNames[module->displayBuffer[i].rootNote] + " " + 
-					music::ChordTable[module->displayBuffer[i].chord].name + " " + 
-					music::inversionNames[module->displayBuffer[i].inversion];
+			if (bC.chord != 0) {
 
-				switch(module->mode) {
-					case 0:
-						chordExtName = "";
-						break;
-					case 1:
-					case 2:
-						if (module->displayBuffer[i].modeDegree != -1 && module->displayBuffer[i].quality != -1) { // FIXME
-							int index = module->displayBuffer[i].modeDegree * 3 + module->displayBuffer[i].quality;
-							chordExtName = music::degreeNames[index];
-						}
-						break;
-					default:
-						chordExtName = "";
+				if (bC.key != -1 && bC.mode != -1) {
+					chordName = music::NoteDegreeModeNames[bC.key][bC.modeDegree][bC.mode]  + " " 
+						+ music::ChordTable[bC.chord].name + " " 
+						+ music::inversionNames[bC.inversion];
+				} else {
+					chordName = music::noteNames[bC.rootNote] + " " 
+						+ music::ChordTable[bC.chord].name + " " 
+						+ music::inversionNames[bC.inversion];
 				}
+
+				if (bC.modeDegree != -1 && bC.quality != -1) { 
+					chordExtName = music::degreeNames[bC.modeDegree * 3 + bC.quality];
+				}
+
 			}
 
 			snprintf(text, sizeof(text), "%s %s", chordName.c_str(), chordExtName.c_str());
