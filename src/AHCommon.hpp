@@ -509,6 +509,8 @@ extern std::string inversionNames[3];
 
 extern std::string qualityNames[3];
 
+extern std::string NoteDegreeModeNames[12][7][7];
+
 } // namespace music
 
 } // namespace ah
