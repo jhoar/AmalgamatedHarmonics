@@ -6,6 +6,8 @@
 
 using namespace ah;
 
+extern std::string allthenames[12][7][7];
+
 struct ProgressChord {
 
 	// Intepreted value
@@ -168,7 +170,7 @@ struct RootChoice : gui::AHChoice {
 			return;
 		}
 
-		text = music::noteNames[pState->chords[pStep].root];
+		text = allthenames[pState->chords[pStep].root][pState->chords[pStep].degree][pState->mode];
 
 		if (pState->chordMode) {
 			int index = pState->chords[pStep].degree * 3 + pState->chords[pStep].quality;
