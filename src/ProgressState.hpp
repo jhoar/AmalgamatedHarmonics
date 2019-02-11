@@ -72,8 +72,10 @@ struct ProgressState {
 	void setMode(int m) {
 		if (mode != m) {
 			mode = m;
-			for (int i = 0; i < 8; i++) {
-				music::getRootFromMode(mode, key, chords[i].degree, &(chords[i].root), &(chords[i].quality));
+			if(chordMode) { 
+				for (int i = 0; i < 8; i++) {
+					music::getRootFromMode(mode, key, chords[i].degree, &(chords[i].root), &(chords[i].quality));
+				}
 			}
 			dirty = true;
 		}
@@ -82,8 +84,10 @@ struct ProgressState {
 	void setKey(int k) {
 		if (key != k) {
 			key = k;
-			for (int i = 0; i < 8; i++) {
-				music::getRootFromMode(mode, key, chords[i].degree, &(chords[i].root), &(chords[i].quality));
+			if(chordMode) { 
+				for (int i = 0; i < 8; i++) {
+					music::getRootFromMode(mode, key, chords[i].degree, &(chords[i].root), &(chords[i].quality));
+				}
 			}
 			dirty = true;
 		}
@@ -170,12 +174,13 @@ struct RootChoice : gui::AHChoice {
 			return;
 		}
 
-		text = allthenames[pState->chords[pStep].root][pState->chords[pStep].degree][pState->mode];
-
 		if (pState->chordMode) {
+			text = allthenames[pState->chords[pStep].root][pState->chords[pStep].degree][pState->mode];
 			int index = pState->chords[pStep].degree * 3 + pState->chords[pStep].quality;
 			text += " " + music::degreeNames[index];
-		} 
+		} else {
+			text = music::noteNames[pState->chords[pStep].root];
+		}
 	}
 };
 
