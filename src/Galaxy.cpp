@@ -217,7 +217,7 @@ void Galaxy::step() {
 		rootName = music::noteNames[currRoot];
 		modeName = "";
 	} else if (mode == 2) {
-		rootName = music::noteNames[currRoot];
+		rootName = music::NoteDegreeModeNames[currRoot][0][currMode];
 		modeName = music::modeNames[currMode];
 	} else {
 		rootName = "";
@@ -309,17 +309,25 @@ void Galaxy::step() {
 
 			int chordIndex = ChordTable[currChord.quality];
 
-			chordName = 
-				music::noteNames[currChord.rootNote] + 
-				music::ChordTable[chordIndex].name + " " + 
-				music::inversionNames[currChord.inversion];
-
 			if (mode == 2) {
 				if (haveMode) {
+					chordName = 
+						music::NoteDegreeModeNames[currRoot][currChord.modeDegree][currMode] +
+						music::ChordTable[chordIndex].name + " " + 
+						music::inversionNames[currChord.inversion];
 					chordExtName = degNames[currChord.modeDegree * 6 + currChord.quality];
 				} else {
+					chordName = 
+						music::noteNames[currChord.rootNote] + 
+						music::ChordTable[chordIndex].name + " " + 
+						music::inversionNames[currChord.inversion];
 					chordExtName = "";
 				} 
+			} else {
+				chordName = 
+					music::noteNames[currChord.rootNote] + 
+					music::ChordTable[chordIndex].name + " " + 
+					music::inversionNames[currChord.inversion];
 			}
 
 			lights[NOTE_LIGHT + light].setBrightness(0.0f);

@@ -264,11 +264,11 @@ void Bombe::step() {
 			modeName = "";
 			break;
 		case 1: // Simple
-			rootName = music::noteNames[currRoot];
+			rootName = music::NoteDegreeModeNames[currRoot][0][currMode];
 			modeName = music::modeNames[currMode];
 			break;
 		case 2: // Galaxy
-			rootName = music::noteNames[currRoot];
+			rootName = music::NoteDegreeModeNames[currRoot][0][currMode];
 			modeName = music::modeNames[currMode];
 			break;
 		default:
@@ -316,18 +316,7 @@ void Bombe::step() {
 					default: 	chordArray = music::ChordTable[buffer[0].chord].root;
 				}
 
-				// Determine which notes corresponds to the chord
-				for (int j = 0; j < NUM_PITCHES; j++) {
-					if (chordArray[j] < 0) {
-						int off = offset;
-						if (offset == 0) { // if offset = 0, randomise offset per note
-							off = (rand() % 3 + 1) * 12;
-						}
-						buffer[0].outVolts[j] = music::getVoltsFromPitch(chordArray[j] + off, buffer[0].rootNote);			
-					} else {
-						buffer[0].outVolts[j] = music::getVoltsFromPitch(chordArray[j], buffer[0].rootNote);			
-					}	
-				}
+				buffer[0].setVoltages(chordArray, offset);
 			}
 		}
 
