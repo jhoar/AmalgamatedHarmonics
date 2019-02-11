@@ -2,27 +2,8 @@
 
 // ProgressState
 ProgressState::ProgressState() {
-
-    int *chordArray = music::ChordTable[1].root;
-
     for (int i = 0; i < 8; i++) {
-        chords[i].degree = 0;
-        chords[i].quality = 0;
-        chords[i].chord = 1;
-        chords[i].root = 0;
-        chords[i].inversion = 0;
-
-        for (int j = 0; j < 6; j++) {
-            if (chordArray[j] < 0) {
-                int off = offset;
-                if (offset == 0) { // if offset = 0, randomise offset per note
-                    off = (rand() % 3 + 1) * 12;
-                }
-                chords[i].pitches[j] = music::getVoltsFromPitch(chordArray[j] + off,chords[i].root);			
-            } else {
-                chords[i].pitches[j] = music::getVoltsFromPitch(chordArray[j],      chords[i].root);
-            }	
-        }
+        chords[i].setVoltages(music::ChordTable[1].root, offset);
     }
 }
 
@@ -31,7 +12,7 @@ void ProgressState::setMode(int m) {
         mode = m;
         if(chordMode) { 
             for (int i = 0; i < 8; i++) {
-                music::getRootFromMode(mode, key, chords[i].degree, &(chords[i].root), &(chords[i].quality));
+                music::getRootFromMode(mode, key, chords[i].modeDegree, &(chords[i].rootNote), &(chords[i].quality));
             }
         }
         dirty = true;
@@ -43,7 +24,7 @@ void ProgressState::setKey(int k) {
         key = k;
         if(chordMode) { 
             for (int i = 0; i < 8; i++) {
-                music::getRootFromMode(mode, key, chords[i].degree, &(chords[i].root), &(chords[i].quality));
+                music::getRootFromMode(mode, key, chords[i].modeDegree, &(chords[i].rootNote), &(chords[i].quality));
             }
         }
         dirty = true;
@@ -53,17 +34,17 @@ void ProgressState::setKey(int k) {
 
 // Root/Degree menu
 void RootItem::onAction(const event::Action &e) {
-    pChord->root = root;
+    pChord->rootNote = root;
     pChord->dirty = true;
 }
 
 void DegreeItem::onAction(const event::Action &e) {
-    pChord->degree = degree;
+    pChord->rootNote = degree;
     pChord->dirty = true;
 
     // Root and chord can get updated
     // From the input root, mode and degree, we can get the root chord note and quality (Major,Minor,Diminshed)
-    music::getRootFromMode(pState->mode, pState->key, pChord->degree, &(pChord->root), &(pChord->quality));
+    music::getRootFromMode(pState->mode, pState->key, pChord->modeDegree, &(pChord->rootNote), &(pChord->quality));
 
     // // Now get the actual chord from the main list
     // switch(pState->chords[step].quality) {
@@ -113,11 +94,11 @@ void RootChoice::step() {
     }
 
     if (pState->chordMode) {
-        text = music::NoteDegreeModeNames[pState->chords[pStep].root][pState->chords[pStep].degree][pState->mode];
-        int index = pState->chords[pStep].degree * 3 + pState->chords[pStep].quality;
+        text = music::NoteDegreeModeNames[pState->chords[pStep].rootNote][pState->chords[pStep].modeDegree][pState->mode];
+        int index = pState->chords[pStep].modeDegree * 3 + pState->chords[pStep].quality;
         text += " " + music::degreeNames[index];
     } else {
-        text = music::noteNames[pState->chords[pStep].root];
+        text = music::noteNames[pState->chords[pStep].rootNote];
     }
 }
 // Root/Degree menu

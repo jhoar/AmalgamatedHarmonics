@@ -166,6 +166,27 @@ double gaussrand() {
 
 namespace music {
 
+Chord::Chord() : rootNote(0), quality(0), chord(1), modeDegree(0), inversion(0) {
+	int *chordArray = music::ChordTable[chord].root;
+	for (int j = 0; j < 6; j++) {
+		outVolts[j] = getVoltsFromPitch(chordArray[j], rootNote);			
+	}
+}
+
+void Chord::setVoltages(int *chordArray, int offset) {
+	for (int j = 0; j < 6; j++) {
+		if (chordArray[j] < 0) {
+			int off = offset;
+			if (offset == 0) { // if offset = 0, randomise offset per note
+				off = (rand() % 3 + 1) * 12;
+			}
+			outVolts[j] = getVoltsFromPitch(chordArray[j] + off,rootNote);			
+		} else {
+			outVolts[j] = getVoltsFromPitch(chordArray[j],      rootNote);
+		}	
+	}
+}
+
 ChordDef ChordTable[NUM_CHORDS] {
 	{	0	,"None",{	-24	,	-24	,	-24	,	-24	,	-24	,	-24	},{	-24	,	-24	,	-24	,	-24	,	-24	,	-24	},{	-24	,	-24	,	-24	,	-24	,	-24	,	-24	}},
 	{	1	,"M",{	0	,	4	,	7	,	-24	,	-20	,	-17	},{	12	,	4	,	7	,	-12	,	-20	,	-17	},{	12	,	16	,	7	,	-12	,	-8	,	-17	}},

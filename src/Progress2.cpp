@@ -253,21 +253,8 @@ void Progress2::step() {
 				default: chordArray = music::ChordTable[pState.chords[step].chord].root;
 			}
 			
-			for (int j = 0; j < NUM_PITCHES; j++) {	
+			pState.chords[step].setVoltages(chordArray, pState.offset);
 
-				// Set the pitches for this step. If the chord has less than 6 notes, the empty slots are
-				// filled with repeated notes. These notes are identified by a  24 semi-tome negative
-				// offset. 
-				if (chordArray[j] < 0) {
-					int off = pState.offset;
-					if (pState.offset == 0) { // if offset = 0, randomise offset per note
-						off = (rand() % 3 + 1) * 12;
-					}
-					pState.chords[step].pitches[j] = music::getVoltsFromPitch(chordArray[j] + off,pState.chords[step].root);			
-				} else {
-					pState.chords[step].pitches[j] = music::getVoltsFromPitch(chordArray[j],      pState.chords[step].root);
-				}	
-			}
 		}
 	}
 	
@@ -329,7 +316,7 @@ void Progress2::step() {
 	outputs[PITCH_OUTPUT].setChannels(6);
 	outputs[PITCH_OUTPUT + 1].setChannels(6);
 	for (int i = 0; i < NUM_PITCHES; i++) {
-		outputs[PITCH_OUTPUT].setVoltage(pState.chords[index].pitches[i], i);
+		outputs[PITCH_OUTPUT].setVoltage(pState.chords[index].outVolts[i], i);
 		outputs[PITCH_OUTPUT + 1].setVoltage(10.0, i);
 	}
 	

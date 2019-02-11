@@ -5,21 +5,6 @@
 
 using namespace ah;
 
-struct BombeChord {
-	int rootNote;
-	int quality;
-	int chord;
-	int modeDegree;
-	int inversion;
-	float outVolts[6];
-	BombeChord() : rootNote(0), quality(0), chord(1), modeDegree(0), inversion(0) {
-		int *chordArray = music::ChordTable[chord].root;
-		for (int j = 0; j < 6; j++) {
-			outVolts[j] = music::getVoltsFromPitch(chordArray[j], rootNote);			
-		}
-	}
-};
-
 struct Bombe : core::AHModule {
 
 	const static int NUM_PITCHES = 6;
@@ -77,10 +62,10 @@ struct Bombe : core::AHModule {
 	}
 
 	void step() override;
-	void modeRandom(BombeChord lastValue, float y);
-	void modeSimple(BombeChord lastValue, float y);
-	void modeKey(BombeChord lastValue, float y);
-	void modeGalaxy(BombeChord lastValue, float y);
+	void modeRandom(music::Chord lastValue, float y);
+	void modeSimple(music::Chord lastValue, float y);
+	void modeKey(music::Chord lastValue, float y);
+	void modeGalaxy(music::Chord lastValue, float y);
 
 	json_t *dataToJson() override {
 		json_t *rootJ = json_object();
@@ -164,12 +149,12 @@ struct Bombe : core::AHModule {
 	std::string modeName = "";
 
 	const static int BUFFERSIZE = 16;
-	BombeChord buffer[BUFFERSIZE];
-	BombeChord displayBuffer[BUFFERSIZE];
+	music::Chord buffer[BUFFERSIZE];
+	music::Chord displayBuffer[BUFFERSIZE];
 
 };
 
-void Bombe::modeSimple(BombeChord lastValue, float y) {
+void Bombe::modeSimple(music::Chord lastValue, float y) {
 
 	// Recalculate new value of buffer[0].outVolts from lastValue
 	int shift = (rand() % (N_DEGREES - 1)) + 1; // 1 - 6 - always new chord
@@ -191,7 +176,7 @@ void Bombe::modeSimple(BombeChord lastValue, float y) {
 
 }
 
-void Bombe::modeRandom(BombeChord lastValue, float y) {
+void Bombe::modeRandom(music::Chord lastValue, float y) {
 
 	// Recalculate new value of buffer[0].outVolts from lastValue
 	float p = random::uniform();
@@ -210,7 +195,7 @@ void Bombe::modeRandom(BombeChord lastValue, float y) {
 
 }
 
-void Bombe::modeKey(BombeChord lastValue, float y) {
+void Bombe::modeKey(music::Chord lastValue, float y) {
 
 	int shift = (rand() % (N_DEGREES - 1)) + 1; // 1 - 6 - always new chord
 	buffer[0].modeDegree = (lastValue.modeDegree + shift) % N_DEGREES; // FIXME, come from mode2 modeDeg == -1!
@@ -226,7 +211,7 @@ void Bombe::modeKey(BombeChord lastValue, float y) {
 
 }
 
-void Bombe::modeGalaxy(BombeChord lastValue, float y) {
+void Bombe::modeGalaxy(music::Chord lastValue, float y) {
 
 	float excess = y - random::uniform();
 
@@ -294,7 +279,7 @@ void Bombe::step() {
 	if (clocked) {
 
 		// Grab value from last element of sub-array, which will be the new head value
-		BombeChord lastValue = buffer[length - 1];
+		music::Chord lastValue = buffer[length - 1];
 
 		// Shift buffer
 		for(int i = length - 1; i > 0; i--) {

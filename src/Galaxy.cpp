@@ -161,10 +161,12 @@ struct Galaxy : core::AHModule {
 
 	rack::dsp::SchmittTrigger moveTrigger;
 
-	int degree = 0;
-	int quality = 0;
-	int noteIndex = 0; 
-	int inversion = 0;
+	music::Chord currChord;
+
+	// int degree = 0;
+	// int quality = 0;
+	// int noteIndex = 0; 
+	// int inversion = 0;
 
 	int lastQuality = 0;
 	int lastNoteIndex = 0; 
@@ -264,16 +266,16 @@ void Galaxy::step() {
 
 		}
 
-		inversion = InversionMap[allowedInversions][rand() % QMAP_SIZE];
-		int chord = ChordTable[quality];
+		currChord.inversion = InversionMap[allowedInversions][rand() % QMAP_SIZE];
+		currChord.chord = ChordTable[currChord.quality];
 
 		// Determine which chord corresponds to the grid position
 		int *chordArray;
-		switch(inversion) {
-			case 0: 	chordArray = music::ChordTable[chord].root; 	break;
-			case 1: 	chordArray = music::ChordTable[chord].first; 	break;
-			case 2: 	chordArray = music::ChordTable[chord].second;	break;
-			default: 	chordArray = music::ChordTable[chord].root;
+		switch(currChord.inversion) {
+			case 0: 	chordArray = music::ChordTable[currChord.chord].root; 	break;
+			case 1: 	chordArray = music::ChordTable[currChord.chord].first; 	break;
+			case 2: 	chordArray = music::ChordTable[currChord.chord].second;	break;
+			default: 	chordArray = music::ChordTable[currChord.chord].root;
 		}
 
 		// std::cout << "End position: Root: " << currRoot << 
@@ -283,53 +285,38 @@ void Galaxy::step() {
 		// 	" Inversion: " << inversion << " " << chordArray <<
 		// 	" NoteIndex: " << noteIndex << std::endl << std::endl;
 
-		if (quality != lastQuality) {
+		if (currChord.quality != lastQuality) {
 			changed = true;
-			lastQuality = quality;
+			lastQuality = currChord.quality;
 		}
 
-		if (noteIndex != lastNoteIndex) {
+		if (currChord.rootNote != lastNoteIndex) {
 			changed = true;
-			lastNoteIndex = noteIndex;
+			lastNoteIndex = currChord.rootNote;
 		}
 
-		if (inversion != lastInversion) {
+		if (currChord.inversion != lastInversion) {
 			changed = true;
-			lastInversion = inversion;
+			lastInversion = currChord.inversion;
 		}
 
 		// Determine which notes corresponds to the chord
-		for (int j = 0; j < NUM_PITCHES; j++) {
- 
-		// Set the pitches for this step. If the chord has less than 6 notes, the empty slots are
-		// filled with repeated notes. These notes are identified by a  24 semi-tome negative
-		// offset. We correct for that offset now, pitching thaem back into the original octave.
-		// They could be pitched into the octave above (or below)
-			if (chordArray[j] < 0) {
-				int off = offset;
-				if (off == 0) {
-					off = (rand() % 3 + 1) * 12;
-				}
-				outVolts[j] = music::getVoltsFromPitch(chordArray[j] + off, noteIndex);			
-			} else {
-				outVolts[j] = music::getVoltsFromPitch(chordArray[j], noteIndex);			
-			}	
-		}
+		currChord.setVoltages(chordArray, offset);
 
-		int newlight = noteIndex + (quality * N_NOTES);
+		int newlight = currChord.rootNote + (currChord.quality * N_NOTES);
 
 		if (changed) {
 
-			int chordIndex = ChordTable[quality];
+			int chordIndex = ChordTable[currChord.quality];
 
 			chordName = 
-				music::noteNames[noteIndex] + 
+				music::noteNames[currChord.rootNote] + 
 				music::ChordTable[chordIndex].name + " " + 
-				music::inversionNames[inversion];
+				music::inversionNames[currChord.inversion];
 
 			if (mode == 2) {
 				if (haveMode) {
-					chordExtName = degNames[degree * 6 + quality];
+					chordExtName = degNames[currChord.modeDegree * 6 + currChord.quality];
 				} else {
 					chordExtName = "";
 				} 
@@ -382,19 +369,11 @@ void Galaxy::getFromRandom() {
 	// std::cout << "Rotate: " << rotateInput << "  Radial: " << radialInput << std::endl;
 
 	// Determine move around the grid
-	quality += rotateInput;
-	if (quality < 0) {
-		quality += N_QUALITIES;
-	} else if (quality >= N_QUALITIES) {
-		quality -= N_QUALITIES;
-	}
+	currChord.quality += rotateInput;
+	currChord.quality = eucMod(currChord.quality, N_QUALITIES);
 
-	noteIndex += radialInput;
-	if (noteIndex < 0) {
-		noteIndex += N_NOTES;
-	} else if (noteIndex >= N_NOTES) {
-		noteIndex -= N_NOTES;
-	}
+	currChord.rootNote += radialInput;
+	currChord.rootNote = eucMod(currChord.rootNote, N_NOTES);
 
 }
 
@@ -409,26 +388,18 @@ void Galaxy::getFromKey() {
 	// std::cout << "Rotate: " << rotateInput << "  Radial: " << radialInput << std::endl;
 
 	// Determine move around the grid
-	quality += rotateInput;
-	if (quality < 0) {
-		quality += N_QUALITIES;
-	} else if (quality >= N_QUALITIES) {
-		quality -= N_QUALITIES;
-	}
+	currChord.quality += rotateInput;
+	currChord.quality = eucMod(currChord.quality, N_QUALITIES);
 
 	// Just major scale
 	int *curScaleArr = music::ASCALE_IONIAN;
 	int notesInScale = LENGTHOF(music::ASCALE_IONIAN);
 
 	// Determine move through the scale
-	degree += radialInput; 
-	if (degree < 0) {
-		degree += notesInScale;
-	} else if (degree >= notesInScale) {
-		degree -= notesInScale;
-	}
+	currChord.modeDegree += radialInput; 
+	currChord.modeDegree = eucMod(currChord.modeDegree, notesInScale);
 
-	noteIndex = (currRoot + curScaleArr[degree]) % 12;
+	currChord.rootNote = (currRoot + curScaleArr[currChord.modeDegree]) % 12;
 
 }
 
@@ -438,17 +409,13 @@ void Galaxy::getFromKeyMode() {
 	int rotateInput = rotSign * (rand() % 1 + 1); // -2 to 2
 
 	// Determine move through the scale
-	degree += rotateInput;
-	if (degree < 0) {
-		degree += music::NUM_DEGREES;
-	} else if (degree >= music::NUM_DEGREES) {
-		degree -= music::NUM_DEGREES;
-	}
+	currChord.modeDegree += rotateInput;
+	currChord.modeDegree = eucMod(currChord.modeDegree, music::NUM_DEGREES);
 
 	// From the input root, mode and degree, we can get the root chord note and quality (Major,Minor,Diminshed)
 	int q;
-	music::getRootFromMode(currMode,currRoot,degree,&noteIndex,&q);
-	quality = QualityMap[q][rand() % QMAP_SIZE];
+	music::getRootFromMode(currMode,currRoot,currChord.modeDegree,&(currChord.rootNote),&q);
+	currChord.quality = QualityMap[q][rand() % QMAP_SIZE];
 
 }
 

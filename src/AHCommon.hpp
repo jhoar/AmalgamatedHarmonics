@@ -336,6 +336,20 @@ const static int NUM_CHORDS = 99;
 
 static constexpr float SEMITONE = 1.0 / 12.0;
 
+struct Chord {
+	int rootNote;
+	int quality;
+	int chord;
+	int modeDegree;
+	int inversion;
+
+	float outVolts[6];
+
+	Chord();
+	void setVoltages(int *chordArray, int offset);
+	
+};
+
 struct ChordDef {
 	int number;
 	std::string name;

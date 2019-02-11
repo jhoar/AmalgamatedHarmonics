@@ -6,16 +6,7 @@
 
 using namespace ah;
 
-struct ProgressChord {
-
-	// Intepreted value
-	int root;
-	int chord;
-	int inversion;	
-	int degree;
-	int quality;
-
-	float pitches[6];
+struct ProgressChord : music::Chord {
 
 	bool gate;
 	bool dirty;
