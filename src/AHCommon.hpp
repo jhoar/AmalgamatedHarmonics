@@ -99,7 +99,7 @@ struct StateDisplay : TransparentWidget {
 		nvgFontFaceId(vg, font->handle);
 		nvgTextLetterSpacing(vg, -1);
 
-		nvgFillColor(vg, nvgRGBA(255, 0, 0, 0xff));
+		nvgFillColor(vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
 	
 		char text[128];
 		snprintf(text, sizeof(text), "%s", module->paramState.c_str());

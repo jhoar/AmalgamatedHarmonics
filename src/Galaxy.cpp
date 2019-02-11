@@ -440,7 +440,7 @@ struct GalaxyDisplay : TransparentWidget {
 	
 		nvgFontSize(ctx.vg, 12);
 		nvgFontFaceId(ctx.vg, font->handle);
-		nvgFillColor(ctx.vg, nvgRGBA(255, 0, 0, 0xff));
+		nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
 		nvgTextLetterSpacing(ctx.vg, -1);
 
 		char text[128];

@@ -94,14 +94,14 @@ struct PolyProbeDisplay : TransparentWidget {
 		nvgTextAlign(ctx.vg, NVG_ALIGN_LEFT);
 		if (module->hasCVIn) {
 			if (module->nCVChannels == module->nGateChannels) {
-				nvgFillColor(ctx.vg, nvgRGBA(0, 255, 0, 0xff));
+				nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
 				snprintf(text, sizeof(text), "CV In: %d", module->nCVChannels);
 			} else {
 				if (module->hasGateIn) {
 					nvgFillColor(ctx.vg, nvgRGBA(255, 0, 0, 0xff));
 					snprintf(text, sizeof(text), "CV In: %d (channel count mismatch)", module->nCVChannels);
 				} else {
-					nvgFillColor(ctx.vg, nvgRGBA(0, 255, 0, 0xff));
+					nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
 					snprintf(text, sizeof(text), "CV In: %d", module->nCVChannels);
 				}
 			}
@@ -113,7 +113,7 @@ struct PolyProbeDisplay : TransparentWidget {
 		j++;
 
 		if (module->hasGateIn) {
-			nvgFillColor(ctx.vg, nvgRGBA(0, 255, 0, 0xff));
+			nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
 			snprintf(text, sizeof(text), "Gate in: %d", module->nGateChannels);
 		} else {
 			nvgFillColor(ctx.vg, nvgRGBA(255, 0, 0, 0xff));
@@ -129,7 +129,7 @@ struct PolyProbeDisplay : TransparentWidget {
 			} else {
 				if (module->hasGateIn) {
 					if (module->gate[i]) {
-						nvgFillColor(ctx.vg, nvgRGBA(0, 255, 0, 0xff));
+						nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
 						snprintf(text, sizeof(text), "%02d GATE          %f", i, module->cv[i]);
 					} else {
 						nvgFillColor(ctx.vg, nvgRGBA(255, 0, 0, 0xff));

@@ -560,7 +560,7 @@ struct Arp32Display : TransparentWidget {
 		nvgFontFaceId(ctx.vg, font->handle);
 		nvgTextLetterSpacing(ctx.vg, -1);
 
-		nvgFillColor(ctx.vg, nvgRGBA(255, 0, 0, 0xff));
+		nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
 	
 		char text[128];
 		if (module->inputLen == 0) {

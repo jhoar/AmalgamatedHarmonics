@@ -381,7 +381,7 @@ struct BombeDisplay : TransparentWidget {
 	
 		nvgFontSize(ctx.vg, 14);
 		nvgFontFaceId(ctx.vg, font->handle);
-		nvgFillColor(ctx.vg, nvgRGBA(255, 0, 0, 0xff));
+		nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
 		nvgTextLetterSpacing(ctx.vg, -1);
 
 		char text[128];
@@ -413,11 +413,11 @@ struct BombeDisplay : TransparentWidget {
 
 			snprintf(text, sizeof(text), "%s %s", chordName.c_str(), chordExtName.c_str());
 			nvgText(ctx.vg, box.pos.x + 5, box.pos.y + i * 14, text, NULL);
-			nvgFillColor(ctx.vg, nvgRGBA(255 - i * 32, 0, 0, 0xff));
+			nvgFillColor(ctx.vg, nvgRGBA(0, 255, 255, 223 - i * 32));
 
 		}
 
-		nvgFillColor(ctx.vg, nvgRGBA(255, 0, 0, 0xff));
+		nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
 
 		nvgTextAlign(ctx.vg, NVG_ALIGN_RIGHT);
 		snprintf(text, sizeof(text), "%s", module->rootName.c_str());

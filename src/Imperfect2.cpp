@@ -263,8 +263,7 @@ struct Imperfect2Box : TransparentWidget {
 		nvgFontFaceId(ctx.vg, font->handle);
 		nvgTextLetterSpacing(ctx.vg, -1);
 		nvgTextAlign(ctx.vg, NVGalign::NVG_ALIGN_CENTER);
-
-		nvgFillColor(ctx.vg, nvgRGBA(255, 0, 0, 0xff));
+		nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
 	
 		char text[10];
 		if (*bpm == 0.0f) {
