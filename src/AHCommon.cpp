@@ -614,17 +614,9 @@ void getRootFromMode(int inMode, int inRoot, int inTonic, int *currRoot, int *qu
 	int positionRelativeToStartOfScale = tonicIndex[inMode + inTonic];
 	int positionStartOfScale = scaleIndex[inMode];
 	
-	// FIXME should be mapped into the Circle of Fifths??	
-	*currRoot = inRoot + noteIndex[positionStartOfScale + positionRelativeToStartOfScale]; 
- 	
- 	if (*currRoot < 0) {
- 		*currRoot += 12;
- 	}
-	
- 	if (*currRoot > 11) {
- 		*currRoot -= 12;
- 	}
- 
+	int root = inRoot + noteIndex[positionStartOfScale + positionRelativeToStartOfScale]; 
+	*currRoot = eucMod(root, 12);
+
 	// Quantizer q;
 	//
 	// std::cout << "Mode: " << inMode
