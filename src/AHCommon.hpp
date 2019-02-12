@@ -347,6 +347,7 @@ struct Chord {
 
 	Chord();
 	void setVoltages(int *chordArray, int offset);
+	void setVoltages(std::vector<int> &chordArray, int offset);
 
 };
 
@@ -522,6 +523,33 @@ extern std::string inversionNames[3];
 extern std::string qualityNames[3];
 
 extern std::string NoteDegreeModeNames[12][7][7];
+
+struct InversionDefinition {
+	int inversion;
+	std::vector<int> formula;
+	std::string baseName;
+
+	std::string getName(int rootNote);
+	std::string getName(int mode, int key, int degree, int root);
+};
+
+struct ChordDefinition {
+	int id;
+	std::string name;
+	std::vector<int> formula;
+	std::vector<InversionDefinition> inversions;
+
+	void generateInversions();
+	void calculateInversion(std::vector<int> &inputF, std::vector<int> &outputF, int inv);
+};
+
+struct KnownChords {
+	std::vector<ChordDefinition> chords;
+
+	KnownChords();
+	void dump();
+};
+
 
 } // namespace music
 

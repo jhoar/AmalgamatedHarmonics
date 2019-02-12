@@ -82,13 +82,13 @@ void RootChoice::step() {
     }
 
     ProgressChord &pC = pState->chords[pStep];
+    music::InversionDefinition &inv = pState->knownChords.chords[pC.chord].inversions[pC.inversion];
 
     if (pState->chordMode) {
-        text = music::NoteDegreeModeNames[pC.rootNote][pC.modeDegree][pState->mode];
-        int index = pC.modeDegree * 3 + pC.quality;
-        text += " " + music::degreeNames[index];
+        text = inv.getName(pState->mode, pState->key, pC.modeDegree, pC.rootNote);
+        text += " " + music::degreeNames[pC.modeDegree * 3 + pC.quality];
     } else {
-        text = music::noteNames[pC.rootNote];
+        text = inv.getName(pC.rootNote);
     }
 }
 // Root/Degree menu

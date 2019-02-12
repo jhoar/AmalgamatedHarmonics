@@ -130,6 +130,8 @@ struct Progress2 : core::AHModule {
 
 	}
 	
+	music::KnownChords knownChords;
+
 	bool running = true;
 	
 	// for external clock
@@ -243,17 +245,9 @@ void Progress2::step() {
 
 			pState.chords[step].dirty = false;
 
-			int *chordArray;
-
-			// Get the array of pitches based on the inversion
-			switch(pState.chords[step].inversion) {
-				case music::ROOT:  		chordArray = music::ChordTable[pState.chords[step].chord].root; 	break;
-				case music::FIRST_INV:  chordArray = music::ChordTable[pState.chords[step].chord].first; 	break;
-				case music::SECOND_INV: chordArray = music::ChordTable[pState.chords[step].chord].second;	break;
-				default: chordArray = music::ChordTable[pState.chords[step].chord].root;
-			}
-			
-			pState.chords[step].setVoltages(chordArray, pState.offset);
+			music::ChordDefinition &chordDef = knownChords.chords[pState.chords[step].chord];
+			std::vector<int> &invDef = chordDef.inversions[pState.chords[step].inversion].formula;
+			pState.chords[step].setVoltages(invDef, pState.offset);
 
 		}
 	}

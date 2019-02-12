@@ -20,6 +20,7 @@ struct ProgressState {
 						// When played this offset needs to be removed (or the notes removed, or the notes transposed to an octave higher)
 	
 	ProgressChord chords[8];
+	music::KnownChords knownChords;
 
 	ProgressState();
 

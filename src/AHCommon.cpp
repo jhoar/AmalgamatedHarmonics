@@ -1,5 +1,7 @@
 #include "AHCommon.hpp"
 
+#include <sstream>
+
 namespace ah {
 
 namespace gui {
@@ -186,6 +188,21 @@ void Chord::setVoltages(int *chordArray, int offset) {
 		}	
 	}
 }
+
+void Chord::setVoltages(std::vector<int> &chordArray, int offset) {
+	for (int j = 0; j < 6; j++) {
+		if (chordArray[j] < 0) {
+			int off = offset;
+			if (offset == 0) { // if offset = 0, randomise offset per note
+				off = (rand() % 3 + 1) * 12;
+			}
+			outVolts[j] = getVoltsFromPitch(chordArray[j] + off,rootNote);			
+		} else {
+			outVolts[j] = getVoltsFromPitch(chordArray[j],      rootNote);
+		}	
+	}
+}
+
 
 ChordDef ChordTable[NUM_CHORDS] {
 	{	0	,"None",{	-24	,	-24	,	-24	,	-24	,	-24	,	-24	},{	-24	,	-24	,	-24	,	-24	,	-24	,	-24	},{	-24	,	-24	,	-24	,	-24	,	-24	,	-24	}},
@@ -734,6 +751,82 @@ void getRootFromMode(int inMode, int inRoot, int inTonic, int *currRoot, int *qu
 	// 	<< std::endl;
 }
  
+
+std::string InversionDefinition::getName(int rootNote) {
+	if (inversion > 0) { 
+		int bassNote = (rootNote + formula[0]) % 12;
+		return music::noteNames[rootNote] + baseName + "/" + music::noteNames[bassNote];
+	} else {
+		return music::noteNames[rootNote] + baseName;
+	}
+}
+
+std::string InversionDefinition::getName(int mode, int key, int degree, int root) {
+	if (inversion > 0) { 
+		int bassNote = (root + formula[0]) % 12;
+		return music::NoteDegreeModeNames[key][degree][mode] + baseName + "/" + music::noteNames[bassNote];
+	} else {
+		return music::NoteDegreeModeNames[key][degree][mode] + baseName;
+	}
+}
+
+void ChordDefinition::generateInversions() {
+	for(size_t i = 0; i < formula.size(); i++) {
+		// i is number of inversions
+		InversionDefinition inv;
+		inv.inversion = i;
+		inv.baseName = name;
+
+		calculateInversion(formula, inv.formula, i);
+		inversions.push_back(inv);
+	}
+}
+
+void ChordDefinition::calculateInversion(std::vector<int> &inputF, std::vector<int> &outputF, int inv) {
+	outputF = inputF;
+	for (int i = 0; i < inv; i++) {
+		outputF[i] += 12; 
+	}
+	std::sort(outputF.begin(), outputF.end());
+
+	// Fill in missing notes
+	size_t nNotes = outputF.size();
+	for (size_t j = 0; j < (6 - nNotes); j++) {
+		outputF.push_back(-24 + outputF[j]); 
+	}
+}
+
+KnownChords::KnownChords() {
+	for(int i = 0; i < NUM_CHORDS; i++) {
+		ChordDefinition def;
+		def.id = i;
+		def.name = ChordTable[i].name;
+		for (int j = 0; j < 6; j++) {
+			if (music::ChordTable[i].root[j] >= 0) {
+				def.formula.push_back(ChordTable[i].root[j]);
+			}
+		}
+		def.generateInversions();
+		chords.push_back(def);
+	}
+}
+
+void KnownChords::dump() {
+	for(ChordDefinition chord: chords) {
+		std::cout << chord.name << std::endl;
+		for(InversionDefinition inv: chord.inversions) {
+			std::stringstream ss;
+			for(size_t i = 0; i < inv.formula.size(); i++) {
+				if(i != 0) {
+				    ss << ",";
+				}
+  				ss << inv.formula[i];
+			}
+			std::cout << inv.inversion << "(" << inv.formula.size() <<  ") = " << ss.str() << std::endl;
+		}
+	}
+}
+
 }
 
 }
