@@ -62,6 +62,8 @@ struct Progress2 : core::AHModule {
 			params[GATE_PARAM + i].config(0.0, 1.0, 0.0, "Gate active");
 		}
 
+		pState.knownChords = knownChords;
+
 		onReset();
 
 	}
