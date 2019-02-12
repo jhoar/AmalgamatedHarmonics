@@ -39,25 +39,13 @@ void RootItem::onAction(const event::Action &e) {
 }
 
 void DegreeItem::onAction(const event::Action &e) {
-    pChord->rootNote = degree;
+    pChord->modeDegree = degree;
     pChord->dirty = true;
 
     // Root and chord can get updated
     // From the input root, mode and degree, we can get the root chord note and quality (Major,Minor,Diminshed)
     music::getRootFromMode(pState->mode, pState->key, pChord->modeDegree, &(pChord->rootNote), &(pChord->quality));
 
-    // // Now get the actual chord from the main list
-    // switch(pState->chords[step].quality) {
-    // 	case music::MAJ: 
-    // 		pState->chords[step].chord = round(rescale(fabs(pState->chords[step].inQuality), 0.0f, 10.0f, 1.0f, 70.0f)); 
-    // 		break;
-    // 	case music::MIN: 
-    // 		pState->chords[step].chord = round(rescale(fabs(pState->chords[step].inQuality), 0.0f, 10.0f, 71.0f, 90.0f));
-    // 		break;
-    // 	case music::DIM: 
-    // 		pState->chords[step].chord = round(rescale(fabs(pState->chords[step].inQuality), 0.0f, 10.0f, 91.0f, 98.0f));
-    // 		break;		
-    // }
 }
 
 void RootChoice::onAction(const event::Action &e) {
@@ -93,12 +81,14 @@ void RootChoice::step() {
         return;
     }
 
+    ProgressChord &pC = pState->chords[pStep];
+
     if (pState->chordMode) {
-        text = music::NoteDegreeModeNames[pState->chords[pStep].rootNote][pState->chords[pStep].modeDegree][pState->mode];
-        int index = pState->chords[pStep].modeDegree * 3 + pState->chords[pStep].quality;
+        text = music::NoteDegreeModeNames[pC.rootNote][pC.modeDegree][pState->mode];
+        int index = pC.modeDegree * 3 + pC.quality;
         text += " " + music::degreeNames[index];
     } else {
-        text = music::noteNames[pState->chords[pStep].rootNote];
+        text = music::noteNames[pC.rootNote];
     }
 }
 // Root/Degree menu
@@ -109,19 +99,51 @@ void ChordItem::onAction(const event::Action &e)  {
     pChord->dirty = true;
 }
 
+struct ChordSubsetMenu : MenuItem {
+	ProgressState *pState;
+	int pStep;
+    int start;
+    int end;
+    Menu *createChildMenu() override {
+        Menu *menu = new Menu;
+        for (int i = start; i < end; i++) {
+            ChordItem *item = new ChordItem;
+            item->pChord = &(pState->chords[pStep]);
+            item->chord = i;
+            item->text = music::ChordTable[i].name;
+            menu->addChild(item);
+        }
+        return menu;
+    }
+};
+
+
 void ChordChoice::onAction(const event::Action &e) {
     if (!pState)
         return;
 
     ui::Menu *menu = createMenu();
-    menu->addChild(createMenuLabel("Chord"));
-    for (int i = 1; i < music::NUM_CHORDS; i++) {
-        ChordItem *item = new ChordItem;
-        item->pChord = &(pState->chords[pStep]);
-        item->chord = i;
-        item->text = music::ChordTable[i].name;
-        menu->addChild(item);
-    }
+    ChordSubsetMenu *majorItem = createMenuItem<ChordSubsetMenu>("Major");
+    majorItem->pState = pState;
+    majorItem->pStep = pStep;
+    majorItem->start = 1;
+    majorItem->end = 70;
+    menu->addChild(majorItem);
+
+    ChordSubsetMenu *minorItem = createMenuItem<ChordSubsetMenu>("Minor");
+    minorItem->pState = pState;
+    minorItem->pStep = pStep;
+    minorItem->start = 71;
+    minorItem->end = 90;
+    menu->addChild(minorItem);
+
+    ChordSubsetMenu *otherItem = createMenuItem<ChordSubsetMenu>("Other");
+    otherItem->pState = pState;
+    otherItem->pStep = pStep;
+    otherItem->start = 91;
+    otherItem->end = 99;
+    menu->addChild(otherItem);
+
 }
 
 void ChordChoice::step() {
@@ -132,12 +154,6 @@ void ChordChoice::step() {
 
     text = music::ChordTable[pState->chords[pStep].chord].name;
 
-    if (text.empty()) {
-        text = "()";
-        color.a = 0.5f;
-    } else {
-        color.a = 1.f;
-    }
 }
 // Chord menu
 
@@ -167,14 +183,9 @@ void InversionChoice::step() {
         text = "";
         return;
     }
+
     text = music::inversionNames[pState->chords[pStep].inversion];
-    if (text.empty()) {
-        text = "()";
-        color.a = 0.5f;
-    }
-    else {
-        color.a = 1.f;
-    }
+
 }
 // Inversion menu
 
