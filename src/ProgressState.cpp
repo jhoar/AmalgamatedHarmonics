@@ -197,35 +197,35 @@ void ProgressStepWidget::setPState(ProgressState *pState, int pStep) {
     math::Vec pos;
 
     RootChoice *rootChoice = createWidget<RootChoice>(pos);
-    rootChoice->box.size.x = box.size.x;
+    rootChoice->box.size.x = 150.0;
     rootChoice->pState = pState;
     rootChoice->pStep = pStep;
     addChild(rootChoice);
-    pos = rootChoice->box.getBottomLeft();
+    pos = rootChoice->box.getTopRight();
     this->rootChooser = rootChoice;
 
     this->separators[0] = createWidget<LedDisplaySeparator>(pos);
-    this->separators[0]->box.size.x = box.size.x;
+    this->separators[0]->box.size.x = box.size.x / 3.0;
     addChild(this->separators[0]);
 
     ChordChoice *chordChoice = createWidget<ChordChoice>(pos);
-    chordChoice->box.size.x = box.size.x;
+    chordChoice->box.size.x = 100.0;
     chordChoice->pState = pState;
     chordChoice->pStep = pStep;
     addChild(chordChoice);
-    pos = chordChoice->box.getBottomLeft();
+    pos = chordChoice->box.getTopRight();
     this->chordChooser = chordChoice;
 
     this->separators[1] = createWidget<LedDisplaySeparator>(pos);
-    this->separators[1]->box.size.x = box.size.x;
+    this->separators[1]->box.size.x = box.size.x / 3.0;
     addChild(this->separators[1]);
 
     InversionChoice *inversionChoice = createWidget<InversionChoice>(pos);
-    inversionChoice->box.size.x = box.size.x;
+    inversionChoice->box.size.x = 50.0;
     inversionChoice->pState = pState;
     inversionChoice->pStep = pStep;
     addChild(inversionChoice);
-    pos = inversionChoice->box.getBottomLeft();
+    pos = inversionChoice->box.getTopRight();
     this->inversionChooser = inversionChoice;
 
 }
@@ -237,10 +237,11 @@ void ProgressStateWidget::setPState(ProgressState *pState) {
     math::Vec pos;
     for (int i = 0; i < 8; i++) {
         ProgressStepWidget *pWidget = createWidget<ProgressStepWidget>(pos);
-        pWidget->box.size.x = (box.size.x - 5) / 8.0;
+        pWidget->box.size.x = box.size.x - 5;
+        pWidget->box.size.y = box.size.y / 8.0;
         pWidget->setPState(pState, i);
         addChild(pWidget);
-        pos = pWidget->box.getTopRight();
+        pos = pWidget->box.getBottomLeft();
         this->stepConfig[i] = pWidget;
     }
 }
