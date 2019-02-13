@@ -28,6 +28,7 @@ struct PolyProbe : core::AHModule {
 	bool hasCVIn = false;
 	bool gate[16];
 	float cv[16];
+	float gateCV[16];
 
 	PolyProbe() : core::AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {	}
 
@@ -55,8 +56,10 @@ struct PolyProbe : core::AHModule {
 			hasGateIn = true;
 			nGateChannels = inputs[POLYGATE_INPUT].getChannels();
 			for (int i = 0; i < nGateChannels; i++) {
-				if (inputs[POLYGATE_INPUT].getNormalVoltage(0.0, i) > 0.0f) {
+				float cvg = inputs[POLYGATE_INPUT].getVoltage(i);
+				if (cvg > 0.0f) {
 					gate[i] = true;
+					gateCV[i] = cvg;
 				} 
 			}
 		} 
@@ -88,6 +91,10 @@ struct PolyProbeDisplay : TransparentWidget {
 		nvgTextLetterSpacing(ctx.vg, -1);
 
 		char text[128];
+		char text1[128];
+
+		float scaleMin = 100.0f;
+		float scaleRange = 255.0f - scaleMin;
 
 		int j = 0;
 
@@ -126,21 +133,34 @@ struct PolyProbeDisplay : TransparentWidget {
 			if (i >= module->nCVChannels) {
 				nvgFillColor(ctx.vg, nvgRGBA(255, 0, 0, 0xff));
 				snprintf(text, sizeof(text), "--");
+				snprintf(text1, sizeof(text), "--");
+				nvgText(ctx.vg, box.pos.x + 5, box.pos.y + i * 16 + j * 16, text, NULL);
+				nvgText(ctx.vg, box.pos.x + 90, box.pos.y + i * 16 + j * 16, text1, NULL);
 			} else {
 				if (module->hasGateIn) {
 					if (module->gate[i]) {
+						float scale = (scaleRange * fabs(module->gateCV[i]) / 10.0) + scaleMin;
+						nvgFillColor(ctx.vg, nvgRGBA(0x00, (int)scale, int(scale), 0xFF));
+						snprintf(text,  sizeof(text), "%02d GATE", i);
+						nvgText(ctx.vg, box.pos.x + 5, box.pos.y + i * 16 + j * 16, text, NULL);
+						
 						nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
-						snprintf(text, sizeof(text), "%02d GATE          %f", i, module->cv[i]);
+						snprintf(text1, sizeof(text), "%f", module->cv[i]);
+						nvgText(ctx.vg, box.pos.x + 90, box.pos.y + i * 16 + j * 16, text1, NULL);
 					} else {
 						nvgFillColor(ctx.vg, nvgRGBA(255, 0, 0, 0xff));
-						snprintf(text, sizeof(text), "%02d NOGATE   %f", i, module->cv[i]);
+						snprintf(text,  sizeof(text), "%02d NOGATE", i);
+						snprintf(text1, sizeof(text), "%f", module->cv[i]);
+						nvgText(ctx.vg, box.pos.x + 5, box.pos.y + i * 16 + j * 16, text, NULL);
+						nvgText(ctx.vg, box.pos.x + 90, box.pos.y + i * 16 + j * 16, text1, NULL);
 					}
 				} else {
 					nvgFillColor(ctx.vg, nvgRGBA(255, 165, 0, 0xff));
 					snprintf(text, sizeof(text), "%02d NOGATE   %f", i, module->cv[i]);
+					nvgText(ctx.vg, box.pos.x + 5, box.pos.y + i * 16 + j * 16, text, NULL);
+					nvgText(ctx.vg, box.pos.x + 90, box.pos.y + i * 16 + j * 16, text1, NULL);
 				}
 			}
-			nvgText(ctx.vg, box.pos.x + 5, box.pos.y + i * 16 + j * 16, text, NULL);
 		}
 	}
 	
