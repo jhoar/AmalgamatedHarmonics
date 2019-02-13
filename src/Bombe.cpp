@@ -150,6 +150,8 @@ struct Bombe : core::AHModule {
 	int mode = 1; 	   // 0 = random chord, 1 = chord in key, 2 = chord in mode
 	int allowedInversions = 0; // 0 = root only, 1 = root + first, 2 = root, first, second
 
+	music::KnownChords knownChords;
+
 	std::string rootName = "";
 	std::string modeName = "";
 
@@ -239,16 +241,9 @@ void Bombe::step() {
 					default: modeSimple(lastValue, y);
 				}
 
-				// Determine which chord corresponds to the grid position
-				int *chordArray;
-				switch(buffer[0].inversion) {
-					case 0: 	chordArray = music::ChordTable[buffer[0].chord].root; 	break;
-					case 1: 	chordArray = music::ChordTable[buffer[0].chord].first; 	break;
-					case 2: 	chordArray = music::ChordTable[buffer[0].chord].second;	break;
-					default: 	chordArray = music::ChordTable[buffer[0].chord].root;
-				}
+				music::InversionDefinition &invDef = knownChords.chords[buffer[0].chord].inversions[buffer[0].inversion];
+				buffer[0].setVoltages(invDef.formula, offset);
 
-				buffer[0].setVoltages(chordArray, offset);
 			}
 		}
 
@@ -393,16 +388,14 @@ struct BombeDisplay : TransparentWidget {
 
 			BombeChord &bC = module->displayBuffer[i];
 
+			music::InversionDefinition &invDef = module->knownChords.chords[bC.chord].inversions[bC.inversion];
+
 			if (bC.chord != 0) {
 
 				if (bC.key != -1 && bC.mode != -1) {
-					chordName = music::NoteDegreeModeNames[bC.key][bC.modeDegree][bC.mode]  + " " 
-						+ music::ChordTable[bC.chord].name + " " 
-						+ music::inversionNames[bC.inversion];
+					chordName = invDef.getName(bC.mode, bC.key, bC.modeDegree, bC.rootNote);
 				} else {
-					chordName = music::noteNames[bC.rootNote] + " " 
-						+ music::ChordTable[bC.chord].name + " " 
-						+ music::inversionNames[bC.inversion];
+					chordName = invDef.getName(bC.rootNote);
 				}
 
 				if (bC.modeDegree != -1 && bC.quality != -1) { 

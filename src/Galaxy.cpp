@@ -163,6 +163,8 @@ struct Galaxy : core::AHModule {
 
 	music::Chord currChord;
 
+	music::KnownChords knownChords;
+
 	// int degree = 0;
 	// int quality = 0;
 	// int noteIndex = 0; 
@@ -269,14 +271,9 @@ void Galaxy::step() {
 		currChord.inversion = InversionMap[allowedInversions][rand() % QMAP_SIZE];
 		currChord.chord = ChordTable[currChord.quality];
 
-		// Determine which chord corresponds to the grid position
-		int *chordArray;
-		switch(currChord.inversion) {
-			case 0: 	chordArray = music::ChordTable[currChord.chord].root; 	break;
-			case 1: 	chordArray = music::ChordTable[currChord.chord].first; 	break;
-			case 2: 	chordArray = music::ChordTable[currChord.chord].second;	break;
-			default: 	chordArray = music::ChordTable[currChord.chord].root;
-		}
+		music::ChordDefinition &chordDef = knownChords.chords[currChord.chord];
+		music::InversionDefinition &invDef = chordDef.inversions[currChord.inversion];
+		currChord.setVoltages(invDef.formula, offset);
 
 		// std::cout << "End position: Root: " << currRoot << 
 		// 	" Mode: " << currMode << 
@@ -300,34 +297,21 @@ void Galaxy::step() {
 			lastInversion = currChord.inversion;
 		}
 
-		// Determine which notes corresponds to the chord
-		currChord.setVoltages(chordArray, offset);
-
 		int newlight = currChord.rootNote + (currChord.quality * N_NOTES);
 
 		if (changed) {
 
-			int chordIndex = ChordTable[currChord.quality];
-
 			if (mode == 2) {
 				if (haveMode) {
-					chordName = 
-						music::NoteDegreeModeNames[currRoot][currChord.modeDegree][currMode] +
-						music::ChordTable[chordIndex].name + " " + 
-						music::inversionNames[currChord.inversion];
+					chordName = invDef.getName(currMode, currRoot, currChord.modeDegree, currChord.rootNote);
 					chordExtName = degNames[currChord.modeDegree * 6 + currChord.quality];
 				} else {
-					chordName = 
-						music::noteNames[currChord.rootNote] + 
-						music::ChordTable[chordIndex].name + " " + 
-						music::inversionNames[currChord.inversion];
+					chordName = invDef.getName(currChord.rootNote);
 					chordExtName = "";
 				} 
 			} else {
-				chordName = 
-					music::noteNames[currChord.rootNote] + 
-					music::ChordTable[chordIndex].name + " " + 
-					music::inversionNames[currChord.inversion];
+				chordName = invDef.getName(currChord.rootNote);
+				chordExtName = "";
 			}
 
 			lights[NOTE_LIGHT + light].setBrightness(0.0f);
