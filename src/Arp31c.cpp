@@ -293,7 +293,9 @@ struct Arp31 : core::AHModule {
 	int arp = 0;
 	
 	int poll = 5000;
-		
+
+	bool eoc = false;
+
 	RightArp 		arp_right;
 	LeftArp 		arp_left;
 	RightLeftArp 	arp_rightleft;
@@ -349,6 +351,12 @@ void Arp31::step() {
 	// Have we been clocked?
 	if (clockStatus) {
 
+		// EOC was fired at last sequence step
+		if (eoc) {
+			eocPulse.trigger(digital::TRIGGER);
+			eoc = false;
+		}	
+
 		// If we are already running, process cycle
 		if (isRunning) {
 
@@ -357,8 +365,8 @@ void Arp31::step() {
 			// Reached the end of the pattern?
 			if (currArp->isArpeggioFinished()) {
 
-				// Pulse the EOC gate
-				eocPulse.trigger(digital::TRIGGER);
+				// Trigger EOC mechanism
+				eoc = true;
 
 				if (debugEnabled()) { std::cout << stepX << " " << id  << " Finished Cycle" << std::endl; }
 				restart = true;
@@ -462,7 +470,6 @@ void Arp31::step() {
 	outputs[OUT_OUTPUT].setVoltage(outVolts);
 
 	bool gPulse = gatePulse.process(delta);
-	bool cPulse = eocPulse.process(delta);
 	
 	bool gatesOn = isRunning;
 	if (gateMode == TRIGGER) {
@@ -471,6 +478,8 @@ void Arp31::step() {
 		gatesOn = gatesOn && !gPulse;
 	}
 	
+	bool cPulse = eocPulse.process(delta);
+
 	outputs[GATE_OUTPUT].setVoltage(gatesOn ? 10.0 : 0.0);
 	outputs[EOC_OUTPUT].setVoltage(cPulse ? 10.0 : 0.0);
 	

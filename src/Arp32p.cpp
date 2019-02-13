@@ -346,6 +346,7 @@ struct Arp32 : core::AHModule {
 	float rootPitch = 0.0;
 	bool isRunning = false;
 	int error = 0;
+	bool eoc = false;
 	
 	int inputPat = 0;
 	int inputLen = 0;
@@ -433,6 +434,12 @@ void Arp32::step() {
 
 	// Have we been clocked?
 	if (clockStatus) {
+
+		// EOC was fired at last sequence step
+		if (eoc) {
+			eocPulse.trigger(digital::TRIGGER);
+			eoc = false;
+		}	
 		
 		// If we are already running, process cycle
 		if (isRunning) {
@@ -442,8 +449,8 @@ void Arp32::step() {
 			// Reached the end of the pattern?
 			if (currPatt->isPatternFinished()) {
 
-				// Pulse the EOC gate
-				eocPulse.trigger(digital::TRIGGER);
+				// Trigger EOC mechanism
+				eoc = true;
 
 				if (debugEnabled()) { std::cout << stepX << " " << id  << " Finished Cycle" << std::endl; }
 				restart = true;
