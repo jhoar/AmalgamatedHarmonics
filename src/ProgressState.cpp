@@ -43,7 +43,7 @@ void DegreeItem::onAction(const event::Action &e) {
     pChord->dirty = true;
 
     // Root and chord can get updated
-    // From the input root, mode and degree, we can get the root chord note and quality (Major,Minor,Diminshed)
+    // From the input key, mode and degree, we can get the root chord note and quality (Major,Minor,Diminshed)
     music::getRootFromMode(pState->mode, pState->key, pChord->modeDegree, &(pChord->rootNote), &(pChord->quality));
 
 }
@@ -197,7 +197,7 @@ void ProgressStepWidget::setPState(ProgressState *pState, int pStep) {
     math::Vec pos;
 
     RootChoice *rootChoice = createWidget<RootChoice>(pos);
-    rootChoice->box.size.x = 150.0;
+    rootChoice->box.size.x = 170.0;
     rootChoice->pState = pState;
     rootChoice->pStep = pStep;
     addChild(rootChoice);
