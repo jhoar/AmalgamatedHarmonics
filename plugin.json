@@ -38,9 +38,14 @@
 			"description": "A toolkit of functions intended to support generative music creation",
 			"tags": ["NOISE","SAMPLE_AND_HOLD","LFO","RANDOM"]
 		},
+        "Imp": {
+			"name": "Imp",
+			"description": "A single channel trigger-to-gate and clock divider module",
+			"tags": ["CLOCK_MODULATOR"]
+		},
         "Imperfect2": {
 			"name": "Imperfect MkII",
-			"description": "A trigger-to-gate and clock divider module",
+			"description": "A multi-channel trigger-to-gate and clock divider module",
 			"tags": ["CLOCK_MODULATOR"]
 		},
         "Progress2": {

@@ -15,6 +15,7 @@ void init(rack::Plugin *p) {
 	p->addModel(modelCircle);
 	p->addModel(modelGalaxy);
 	p->addModel(modelGenerative);
+	p->addModel(modelImp);
 	p->addModel(modelImperfect2);
 	p->addModel(modelProgress2);
 	p->addModel(modelRuckus);

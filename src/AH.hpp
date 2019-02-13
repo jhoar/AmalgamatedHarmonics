@@ -20,6 +20,8 @@ extern Model *modelCircle;
 
 extern Model *modelImperfect2;
 
+extern Model *modelImp;
+
 extern Model *modelMuxDeMux;
 
 extern Model *modelPolyProbe;
