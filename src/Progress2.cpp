@@ -191,13 +191,13 @@ void Progress2::step() {
 		running = !running;
 	}
 
-	int numSteps = (int) clamp(roundf(params[STEPS_PARAM].getValue() + inputs[STEPS_INPUT].getVoltage()), 1.0f, 8.0f);
+	pState.nSteps = (int) clamp(roundf(params[STEPS_PARAM].getValue() + inputs[STEPS_INPUT].getVoltage()), 1.0f, 8.0f);
 
 	if (running) {
 		if (inputs[EXT_CLOCK_INPUT].isConnected()) {
 			// External clock
 			if (clockTrigger.process(inputs[EXT_CLOCK_INPUT].getVoltage())) {
-				setIndex(index + 1, numSteps);
+				setIndex(index + 1, pState.nSteps);
 			}
 		}
 		else {
@@ -205,14 +205,14 @@ void Progress2::step() {
 			float clockTime = powf(2.0f, params[CLOCK_PARAM].getValue() + inputs[CLOCK_INPUT].getVoltage());
 			phase += clockTime * delta;
 			if (phase >= 1.0f) {
-				setIndex(index + 1, numSteps);
+				setIndex(index + 1, pState.nSteps);
 			}
 		}
 	}
 
 	// Reset
 	if (resetTrigger.process(params[RESET_PARAM].getValue() + inputs[RESET_INPUT].getVoltage())) {
-		setIndex(0, numSteps);
+		setIndex(0, pState.nSteps);
 	}
 
 	bool update = false;

@@ -29,6 +29,7 @@ struct ProgressState {
 
 	int mode;
 	int key;
+	int nSteps;
 
 	bool dirty = true; // read on first run through
 	bool settingChanged = false;

@@ -83,12 +83,20 @@ void RootChoice::step() {
 
     ProgressChord &pC = pState->chords[pStep];
     music::InversionDefinition &inv = pState->knownChords.chords[pC.chord].inversions[pC.inversion];
+    
+    if(pState->nSteps > pStep) {
+        color = nvgRGBA(0x00, 0xFF, 0xFF, 0xFF);
+    } else {
+        color = nvgRGBA(0xFF, 0x00, 0x00, 0xFF);
+    }
+
+    text = std::to_string(pStep + 1) + ": ";
 
     if (pState->chordMode) {
-        text = inv.getName(pState->mode, pState->key, pC.modeDegree, pC.rootNote);
+        text += inv.getName(pState->mode, pState->key, pC.modeDegree, pC.rootNote);
         text += " " + music::degreeNames[pC.modeDegree * 3 + pC.quality];
     } else {
-        text = inv.getName(pC.rootNote);
+        text += inv.getName(pC.rootNote);
     }
 }
 // Root/Degree menu
@@ -152,6 +160,12 @@ void ChordChoice::step() {
         return;
     }
 
+    if(pState->nSteps > pStep) {
+        color = nvgRGBA(0x00, 0xFF, 0xFF, 0xFF);
+    } else {
+        color = nvgRGBA(0xFF, 0x00, 0x00, 0xFF);
+    }
+
     text = music::ChordTable[pState->chords[pStep].chord].name;
 
 }
@@ -182,6 +196,12 @@ void InversionChoice::step() {
     if (!pState) {
         text = "";
         return;
+    }
+
+    if(pState->nSteps > pStep) {
+        color = nvgRGBA(0x00, 0xFF, 0xFF, 0xFF);
+    } else {
+        color = nvgRGBA(0xFF, 0x00, 0x00, 0xFF);
     }
 
     text = music::inversionNames[pState->chords[pStep].inversion];
