@@ -76,59 +76,32 @@ struct Progress2 : core::AHModule {
 		// running
 		json_object_set_new(rootJ, "running", json_boolean(running));
 
-		// gates
-		json_t *gatesJ = json_array();
-		for (int i = 0; i < 8; i++) {
-			json_t *gateJ = json_integer((int) pState.chords[i].gate);
-			json_array_append_new(gatesJ, gateJ);
-		}
-		json_object_set_new(rootJ, "gates", gatesJ);
-
 		// gateMode
 		json_t *gateModeJ = json_integer((int) gateMode);
 		json_object_set_new(rootJ, "gateMode", gateModeJ);
 
-		// offset
-		json_t *offsetJ = json_integer((int) pState.offset);
-		json_object_set_new(rootJ, "offset", offsetJ);
-
-		// chordMode
-		json_t *chordModeJ = json_integer((int) pState.chordMode);
-		json_object_set_new(rootJ, "chordMode", chordModeJ);
+		// ProgressState
+		json_object_set_new(rootJ, "state", pState.toJson());
 
 		return rootJ;
 	}
 	
 	void dataFromJson(json_t *rootJ) override {
+
 		// running
 		json_t *runningJ = json_object_get(rootJ, "running");
 		if (runningJ)
 			running = json_is_true(runningJ);
-
-		// gates
-		json_t *gatesJ = json_object_get(rootJ, "gates");
-		if (gatesJ) {
-			for (int i = 0; i < 8; i++) {
-				json_t *gateJ = json_array_get(gatesJ, i);
-				if (gateJ)
-					pState.chords[i].gate = !!json_integer_value(gateJ);
-			}
-		}
 
 		// gateMode
 		json_t *gateModeJ = json_object_get(rootJ, "gateMode");
 		if (gateModeJ)
 			gateMode = (GateMode)json_integer_value(gateModeJ);
 
-		// offset
-		json_t *offsetJ = json_object_get(rootJ, "offset");
-		if (offsetJ)
-			pState.offset = json_integer_value(offsetJ);
-
-		// chordMode
-		json_t *chordModeJ = json_object_get(rootJ, "chordMode");
-		if (chordModeJ)
-			pState.chordMode = json_integer_value(chordModeJ);
+		// ProgressState
+		json_t *pStateJ = json_object_get(rootJ, "state");
+		if (pStateJ)
+			pState.fromJson(pStateJ);
 
 	}
 	

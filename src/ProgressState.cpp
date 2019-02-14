@@ -30,6 +30,127 @@ void ProgressState::setKey(int k) {
         dirty = true;
     }
 }
+
+json_t *ProgressState::toJson() {
+    json_t *rootJ = json_object();
+
+	// pChord
+    json_t *rootNotesJ      = json_array();
+    json_t *qualitysJ       = json_array();
+    json_t *chordsJ         = json_array();
+    json_t *modeDegreesJ    = json_array();
+    json_t *inversionsJ     = json_array();
+    json_t *gatesJ          = json_array();
+
+    for (int i = 0; i < 8; i++) {
+        json_t *rootNoteJ   = json_integer(chords[i].rootNote);
+        json_t *qualityJ    = json_integer(chords[i].quality);
+        json_t *chordJ      = json_integer(chords[i].chord);
+        json_t *modeDegreeJ = json_integer(chords[i].modeDegree);
+        json_t *inversionJ  = json_integer(chords[i].inversion);
+        json_t *gateJ       = json_boolean(chords[i].gate);
+
+        json_array_append_new(rootNotesJ,   rootNoteJ);
+        json_array_append_new(qualitysJ,    qualityJ);
+        json_array_append_new(chordsJ,      chordJ);
+        json_array_append_new(modeDegreesJ, modeDegreeJ);
+        json_array_append_new(inversionsJ,  inversionJ);
+        json_array_append_new(gatesJ,       gateJ);
+    }
+
+    json_object_set_new(rootJ, "rootnote",      rootNotesJ);
+    json_object_set_new(rootJ, "quality",       qualitysJ);
+    json_object_set_new(rootJ, "chord",         chordsJ);
+    json_object_set_new(rootJ, "modedegree",    modeDegreesJ);
+    json_object_set_new(rootJ, "inversion",     inversionsJ);
+    json_object_set_new(rootJ, "gate",          gatesJ);
+
+    // offset
+    json_t *offsetJ = json_integer((int) offset);
+    json_object_set_new(rootJ, "offset", offsetJ);
+
+    // chordMode
+    json_t *chordModeJ = json_integer((int) chordMode);
+    json_object_set_new(rootJ, "chordMode", chordModeJ);
+
+    return rootJ;
+}
+
+void ProgressState::fromJson(json_t *rootJ) {
+
+	// rootNote
+    json_t *rootNotesJ = json_object_get(rootJ, "rootnote");
+    if (rootNotesJ) {
+        for (int i = 0; i < 8; i++) {
+            json_t *rootNoteJ = json_array_get(rootNotesJ, i);
+            if (rootNoteJ)
+                chords[i].rootNote = json_integer_value(rootNoteJ);
+        }
+    }
+
+	// quality
+    json_t *qualitysJ = json_object_get(rootJ, "quality");
+    if (qualitysJ) {
+        for (int i = 0; i < 8; i++) {
+            json_t *qualityJ = json_array_get(qualitysJ, i);
+            if (qualityJ)
+                chords[i].quality = json_integer_value(qualityJ);
+        }
+    }
+
+	// chord
+    json_t *chordsJ = json_object_get(rootJ, "chord");
+    if (chordsJ) {
+        for (int i = 0; i < 8; i++) {
+            json_t *chordJ = json_array_get(chordsJ, i);
+            if (chordJ)
+                chords[i].chord = json_integer_value(chordJ);
+        }
+    }
+
+	// modeDegree
+    json_t *modeDegreesJ = json_object_get(rootJ, "modedegree");
+    if (modeDegreesJ) {
+        for (int i = 0; i < 8; i++) {
+            json_t *modeDegreeJ = json_array_get(modeDegreesJ, i);
+            if (modeDegreeJ)
+                chords[i].modeDegree = json_integer_value(modeDegreeJ);
+        }
+    }
+
+	// inversion
+    json_t *inversionsJ = json_object_get(rootJ, "inversion");
+    if (inversionsJ) {
+        for (int i = 0; i < 8; i++) {
+            json_t *inversionJ = json_array_get(inversionsJ, i);
+            if (inversionJ)
+                chords[i].rootNote = json_integer_value(inversionsJ);
+        }
+    }
+
+	// gates
+    json_t *gatesJ = json_object_get(rootJ, "gate");
+    if (gatesJ) {
+        for (int i = 0; i < 8; i++) {
+            json_t *gateJ = json_array_get(gatesJ, i);
+            if (gateJ)
+                chords[i].gate = json_boolean_value(gateJ);
+        }
+    }
+
+    // offset
+    json_t *offsetJ = json_object_get(rootJ, "offset");
+    if (offsetJ)
+        offset = json_integer_value(offsetJ);
+
+    // chordMode
+    json_t *chordModeJ = json_object_get(rootJ, "chordMode");
+    if (chordModeJ)
+        chordMode = json_integer_value(chordModeJ);
+
+}
+
+
 // ProgressState
 
 // Root/Degree menu

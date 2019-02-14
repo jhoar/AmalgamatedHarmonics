@@ -23,6 +23,8 @@ struct ProgressState {
 	music::KnownChords knownChords;
 
 	ProgressState();
+	json_t *toJson();
+	void fromJson(json_t *pStateJ);
 
 	void setMode(int m);
 	void setKey(int k);
