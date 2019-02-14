@@ -51,28 +51,42 @@ struct Imp : core::AHModule {
 	void step() override;
 	
 	void onReset() override {
-		delayState = false;
-		gateState = false;
-		delayTime = 0.0;
-		gateTime = 0.0;
+		coreDelayState = false;
+		coreGateState = false;
+		coreDelayTime = 0.0;
+		coreGateTime = 0.0;
+		for (int i = 0; i < 16; i++) {
+			delayState[i] = false;
+			gateState[i] = false;
+			delayTime[i] = 0.0;
+			gateTime[i] = 0.0;
+		}
 		bpm = 0.0;
 	}
 
-	bool delayState;
-	bool gateState;
-	float delayTime;
 	int delayTimeMs;
 	int delaySprMs;
-	float gateTime;
 	int gateTimeMs;
 	int gateSprMs;
 	float bpm;
 	int division;
 	int actDelayMs = 0;
 	int actGateMs = 0;
-	
-	digital::AHPulseGenerator delayPhase;
-	digital::AHPulseGenerator gatePhase;
+
+	bool coreDelayState;
+	bool coreGateState;
+	float coreDelayTime;
+	float coreGateTime;
+	digital::AHPulseGenerator coreDelayPhase;
+	digital::AHPulseGenerator coreGatePhase;
+
+	bool delayState[16];
+	bool gateState[16];
+	float delayTime[16];
+	float gateTime[16];
+	digital::AHPulseGenerator delayPhase[16];
+	digital::AHPulseGenerator gatePhase[16];
+
 	rack::dsp::SchmittTrigger inTrigger;
 
 	int counter = 0;
@@ -129,59 +143,92 @@ void Imp::step() {
 
 		if (counter % division == 0) { 
 
-			// check that we are not in the gate phase
-			if (!gatePhase.ishigh() && !delayPhase.ishigh()) {
+				// check that we are not in the gate phase
+			if (!coreGatePhase.ishigh() && !coreDelayPhase.ishigh()) {
 
-			// Determine delay and gate times for all active outputs
-				double rndD = clamp(digital::gaussrand(), -2.0f, 2.0f);
-				delayTime = clamp(dlyLen + dlySpr * rndD, 0.0f, 100.0f);
+				// Determine delay and gate times for all active outputs
+				coreDelayTime = clamp(dlyLen, 0.0f, 100.0f);
 			
 				// The modified gate time cannot be earlier than the start of the delay
-				double rndG = clamp(digital::gaussrand(), -2.0f, 2.0f);
-				gateTime = clamp(gateLen + gateSpr * rndG, digital::TRIGGER, 100.0f);
+				coreGateTime = clamp(gateLen, digital::TRIGGER, 100.0f);
 
 				if (debugEnabled()) { 
-					std::cout << stepX << " Delay: " << ": Len: " << dlyLen << " Spr: " << dlySpr << " r: " << rndD << " = " << delayTime << std::endl; 
-					std::cout << stepX << " Gate: " << ": Len: " << gateLen << ", Spr: " << gateSpr << " r: " << rndG << " = " << gateTime << std::endl; 
+					std::cout << stepX << " Delay: " << ": Len = " << delayTime << std::endl; 
+					std::cout << stepX << " Gate: " << ": Len = " << gateTime << std::endl; 
 				}
 
 				// Trigger the respective delay pulse generator
-				delayState = true;
-				if (delayPhase.trigger(delayTime)) {
-					actDelayMs = delayTime * 1000;
+				coreDelayState = true;
+				if (coreDelayPhase.trigger(coreDelayTime)) {
+					actDelayMs = coreDelayTime * 1000;
+				}
+			}
+
+			for (int i = 0; i < 16; i++) {
+
+				// check that we are not in the gate phase
+				if (!gatePhase[i].ishigh() && !delayPhase[i].ishigh()) {
+
+				// Determine delay and gate times for all active outputs
+					double rndD = clamp(digital::gaussrand(), -2.0f, 2.0f);
+					delayTime[i] = clamp(dlyLen + dlySpr * rndD, 0.0f, 100.0f);
+				
+					// The modified gate time cannot be earlier than the start of the delay
+					double rndG = clamp(digital::gaussrand(), -2.0f, 2.0f);
+					gateTime[i] = clamp(gateLen + gateSpr * rndG, digital::TRIGGER, 100.0f);
+
+					if (debugEnabled()) { 
+						std::cout << stepX << " Delay: " << ": Len: " << dlyLen << " Spr: " << dlySpr << " r: " << rndD << " = " << delayTime << std::endl; 
+						std::cout << stepX << " Gate: " << ": Len: " << gateLen << ", Spr: " << gateSpr << " r: " << rndG << " = " << gateTime << std::endl; 
+					}
+
+					// Trigger the respective delay pulse generator
+					delayPhase[i].trigger(delayTime[i]);
+					delayState[i] = true;
+
 				}
 			}
 		}
 	}
-	
-	if (delayState && !delayPhase.process(delta)) {
-		if (gatePhase.trigger(gateTime)) {
-			actGateMs = gateTime * 1000;
+
+	if (coreDelayState && !coreDelayPhase.process(delta)) {
+		if (coreGatePhase.trigger(coreGateTime)) {
+			actGateMs = coreGateTime * 1000;
 		}
-		gateState = true;
-		delayState = false;
+		coreGateState = true;
+		coreDelayState = false;
 	}
 
-	if (gatePhase.process(delta)) {
-		outputs[OUT_OUTPUT].setVoltage(10.0f);
-
+	if (coreGatePhase.process(delta)) {
 		lights[OUT_LIGHT].setBrightnessSmooth(1.0f);
 		lights[OUT_LIGHT + 1].setBrightnessSmooth(0.0f);
-
 	} else {
-		outputs[OUT_OUTPUT].setVoltage(0.0f);
-		gateState = false;
+		coreGateState = false;
 
-		if (delayState) {
+		if (coreDelayState) {
 			lights[OUT_LIGHT].setBrightnessSmooth(0.0f);
 			lights[OUT_LIGHT + 1].setBrightnessSmooth(1.0f);
 		} else {
 			lights[OUT_LIGHT].setBrightnessSmooth(0.0f);
 			lights[OUT_LIGHT + 1].setBrightnessSmooth(0.0f);
 		}
-		
 	}
-	
+
+	outputs[OUT_OUTPUT].setChannels(16);
+	for (int i = 0; i < 16; i++) {
+		if (delayState[i] && !delayPhase[i].process(delta)) {
+			gatePhase[i].trigger(gateTime[i]);
+			gateState[i] = true;
+			delayState[i] = false;
+		}
+
+		if (gatePhase[i].process(delta)) {
+			outputs[OUT_OUTPUT].setVoltage(10.0f, i);
+		} else {
+			outputs[OUT_OUTPUT].setVoltage(0.0f, i);
+			gateState[i] = false;
+		}
+	}	
 }
 
 struct ImpBox : TransparentWidget {
@@ -256,11 +303,6 @@ struct ImpWidget : ModuleWidget {
 	
 		setModule(module);
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Imp.svg")));
-
-		Vec v1 = gui::getPosition(gui::PORT, 1, 0, true, true);
-		Vec v2 = gui::getPosition(gui::PORT, 1, 1, true, true);
-
-		std::cout << v1.y - v2.y << std::endl;
 
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 1, 1, true, true), module, Imp::TRIG_INPUT));
 		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 1, 2, true, true), module, Imp::DELAY_PARAM));
