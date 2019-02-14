@@ -89,6 +89,11 @@ struct InversionChoice : gui::AHChoice {
 	void step() override;
 };
 
+struct KeyModeBox : gui::AHChoice {
+	ProgressState *pState;
+
+	void step() override;
+};
 
 struct ProgressStepWidget : LedDisplay {
 

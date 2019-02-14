@@ -354,7 +354,7 @@ struct Progress2Widget : ModuleWidget {
 			addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, i + 1, 5, true, false), module, Progress2::GATE_OUTPUT + i));
 		}
 		
-		ProgressStateWidget *stateWidget = createWidget<ProgressStateWidget>(Vec(5.0, 135.0));
+		ProgressStateWidget *stateWidget = createWidget<ProgressStateWidget>(Vec(5.0, 130.0));
 		stateWidget->box.size = Vec(335, 165);
 		stateWidget->setPState(module ? &module->pState : NULL);
 		addChild(stateWidget);

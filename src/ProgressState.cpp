@@ -125,7 +125,6 @@ struct ChordSubsetMenu : MenuItem {
     }
 };
 
-
 void ChordChoice::onAction(const event::Action &e) {
     if (!pState)
         return;
@@ -209,6 +208,16 @@ void InversionChoice::step() {
 }
 // Inversion menu
 
+void KeyModeBox::step() {
+    if (!pState) {
+        text = "";
+        return;
+    }
+
+    text = music::NoteDegreeModeNames[pState->key][0][pState->mode] + " " + music::modeNames[pState->mode];
+
+}
+
 // ProgressStepWidget
 void ProgressStepWidget::setPState(ProgressState *pState, int pStep) {
 
@@ -218,6 +227,7 @@ void ProgressStepWidget::setPState(ProgressState *pState, int pStep) {
 
     RootChoice *rootChoice = createWidget<RootChoice>(pos);
     rootChoice->box.size.x = 170.0;
+    rootChoice->textOffset.y = 10.0;
     rootChoice->pState = pState;
     rootChoice->pStep = pStep;
     addChild(rootChoice);
@@ -230,6 +240,7 @@ void ProgressStepWidget::setPState(ProgressState *pState, int pStep) {
 
     ChordChoice *chordChoice = createWidget<ChordChoice>(pos);
     chordChoice->box.size.x = 100.0;
+    chordChoice->textOffset.y = 10.0;
     chordChoice->pState = pState;
     chordChoice->pStep = pStep;
     addChild(chordChoice);
@@ -242,6 +253,7 @@ void ProgressStepWidget::setPState(ProgressState *pState, int pStep) {
 
     InversionChoice *inversionChoice = createWidget<InversionChoice>(pos);
     inversionChoice->box.size.x = 50.0;
+    inversionChoice->textOffset.y = 10.0;
     inversionChoice->pState = pState;
     inversionChoice->pStep = pStep;
     addChild(inversionChoice);
@@ -255,10 +267,17 @@ void ProgressStepWidget::setPState(ProgressState *pState, int pStep) {
 void ProgressStateWidget::setPState(ProgressState *pState) {
     clearChildren();
     math::Vec pos;
+
+    KeyModeBox *keyModeBox  = createWidget<KeyModeBox>(pos);
+    keyModeBox->box.size.x = 170.0;
+    keyModeBox->pState = pState;
+    addChild(keyModeBox);
+    pos = keyModeBox->box.getBottomLeft();
+
     for (int i = 0; i < 8; i++) {
         ProgressStepWidget *pWidget = createWidget<ProgressStepWidget>(pos);
         pWidget->box.size.x = box.size.x - 5;
-        pWidget->box.size.y = box.size.y / 8.0;
+        pWidget->box.size.y = box.size.y / 9.0;
         pWidget->setPState(pState, i);
         addChild(pWidget);
         pos = pWidget->box.getBottomLeft();
