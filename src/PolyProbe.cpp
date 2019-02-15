@@ -105,7 +105,7 @@ struct PolyProbeDisplay : TransparentWidget {
 				snprintf(text, sizeof(text), "CV In: %d", module->nCVChannels);
 			} else {
 				if (module->hasGateIn) {
-					nvgFillColor(ctx.vg, nvgRGBA(255, 0, 0, 0xff));
+					nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0x6F));
 					snprintf(text, sizeof(text), "CV In: %d (channel count mismatch)", module->nCVChannels);
 				} else {
 					nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
@@ -113,7 +113,7 @@ struct PolyProbeDisplay : TransparentWidget {
 				}
 			}
 		} else {
-			nvgFillColor(ctx.vg, nvgRGBA(255, 0, 0, 0xff));
+			nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0x6F));
 			snprintf(text, sizeof(text), "No CV in");
 		}
 		nvgText(ctx.vg, box.pos.x + 5, box.pos.y + j * 16, text, NULL);
@@ -123,7 +123,7 @@ struct PolyProbeDisplay : TransparentWidget {
 			nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
 			snprintf(text, sizeof(text), "Gate in: %d", module->nGateChannels);
 		} else {
-			nvgFillColor(ctx.vg, nvgRGBA(255, 0, 0, 0xff));
+			nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0x6F));
 			snprintf(text, sizeof(text), "No Gate in");
 		}
 		nvgText(ctx.vg, box.pos.x + 5, box.pos.y + j * 16, text, NULL);
@@ -131,7 +131,7 @@ struct PolyProbeDisplay : TransparentWidget {
 
 		for (int i = 0; i < 16; i++)  {
 			if (i >= module->nCVChannels) {
-				nvgFillColor(ctx.vg, nvgRGBA(255, 0, 0, 0xff));
+				nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0x6F));
 				snprintf(text, sizeof(text), "--");
 				snprintf(text1, sizeof(text), "--");
 				nvgText(ctx.vg, box.pos.x + 5, box.pos.y + i * 16 + j * 16, text, NULL);
@@ -148,7 +148,7 @@ struct PolyProbeDisplay : TransparentWidget {
 						snprintf(text1, sizeof(text), "%f", module->cv[i]);
 						nvgText(ctx.vg, box.pos.x + 90, box.pos.y + i * 16 + j * 16, text1, NULL);
 					} else {
-						nvgFillColor(ctx.vg, nvgRGBA(255, 0, 0, 0xff));
+						nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0x6F));
 						snprintf(text,  sizeof(text), "%02d NOGATE", i);
 						snprintf(text1, sizeof(text), "%f", module->cv[i]);
 						nvgText(ctx.vg, box.pos.x + 5, box.pos.y + i * 16 + j * 16, text, NULL);
@@ -156,7 +156,7 @@ struct PolyProbeDisplay : TransparentWidget {
 					}
 				} else {
 					nvgFillColor(ctx.vg, nvgRGBA(255, 165, 0, 0xff));
-					snprintf(text, sizeof(text), "%02d NOGATE   %f", i, module->cv[i]);
+					nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0x6F));
 					nvgText(ctx.vg, box.pos.x + 5, box.pos.y + i * 16 + j * 16, text, NULL);
 					nvgText(ctx.vg, box.pos.x + 90, box.pos.y + i * 16 + j * 16, text1, NULL);
 				}

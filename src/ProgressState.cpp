@@ -208,7 +208,7 @@ void RootChoice::step() {
     if(pState->nSteps > pStep) {
         color = nvgRGBA(0x00, 0xFF, 0xFF, 0xFF);
     } else {
-        color = nvgRGBA(0xFF, 0x00, 0x00, 0xFF);
+        color = nvgRGBA(0x00, 0xFF, 0xFF, 0x6F);
     }
 
     text = std::to_string(pStep + 1) + ": ";
@@ -283,7 +283,7 @@ void ChordChoice::step() {
     if(pState->nSteps > pStep) {
         color = nvgRGBA(0x00, 0xFF, 0xFF, 0xFF);
     } else {
-        color = nvgRGBA(0xFF, 0x00, 0x00, 0xFF);
+        color = nvgRGBA(0x00, 0xFF, 0xFF, 0x6F);
     }
 
     text = music::ChordTable[pState->chords[pStep].chord].name;
@@ -321,7 +321,7 @@ void InversionChoice::step() {
     if(pState->nSteps > pStep) {
         color = nvgRGBA(0x00, 0xFF, 0xFF, 0xFF);
     } else {
-        color = nvgRGBA(0xFF, 0x00, 0x00, 0xFF);
+        color = nvgRGBA(0x00, 0xFF, 0xFF, 0x6F);
     }
 
     text = music::inversionNames[pState->chords[pStep].inversion];
@@ -338,7 +338,7 @@ void KeyModeBox::step() {
     if(pState->chordMode) {
         color = nvgRGBA(0x00, 0xFF, 0xFF, 0xFF);
     } else {
-        color = nvgRGBA(0xFF, 0x00, 0x00, 0xFF);
+        color = nvgRGBA(0x00, 0xFF, 0xFF, 0x6F);
     }
 
     text = music::NoteDegreeModeNames[pState->key][0][pState->mode] + " " + music::modeNames[pState->mode];
