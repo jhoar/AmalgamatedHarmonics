@@ -228,49 +228,38 @@ void ChordItem::onAction(const event::Action &e)  {
     pChord->dirty = true;
 }
 
-struct ChordSubsetMenu : MenuItem {
-	ProgressState *pState;
-	int pStep;
-    int start;
-    int end;
-    Menu *createChildMenu() override {
-        Menu *menu = new Menu;
-        for (int i = start; i < end; i++) {
-            ChordItem *item = new ChordItem;
-            item->pChord = &(pState->chords[pStep]);
-            item->chord = i;
-            item->text = music::ChordTable[i].name;
-            menu->addChild(item);
-        }
-        return menu;
+Menu *ChordSubsetMenu::createChildMenu() {
+    Menu *menu = new Menu;
+    for (int i = start; i < end; i++) {
+        ChordItem *item = new ChordItem;
+        item->pChord = &(pState->chords[pStep]);
+        item->chord = i;
+        item->text = music::ChordTable[i].name;
+        menu->addChild(item);
     }
-};
+    return menu;
+}
 
 void ChordChoice::onAction(const event::Action &e) {
     if (!pState)
         return;
 
     ui::Menu *menu = createMenu();
-    ChordSubsetMenu *majorItem = createMenuItem<ChordSubsetMenu>("Major");
-    majorItem->pState = pState;
-    majorItem->pStep = pStep;
-    majorItem->start = 1;
-    majorItem->end = 70;
-    menu->addChild(majorItem);
+    for(int i = 1; i < music::NUM_CHORDS; i += 10) {
 
-    ChordSubsetMenu *minorItem = createMenuItem<ChordSubsetMenu>("Minor");
-    minorItem->pState = pState;
-    minorItem->pStep = pStep;
-    minorItem->start = 71;
-    minorItem->end = 90;
-    menu->addChild(minorItem);
+        int endNum = std::min(i + 10, music::NUM_CHORDS - 1);
 
-    ChordSubsetMenu *otherItem = createMenuItem<ChordSubsetMenu>("Other");
-    otherItem->pState = pState;
-    otherItem->pStep = pStep;
-    otherItem->start = 91;
-    otherItem->end = 99;
-    menu->addChild(otherItem);
+        std::string startName = music::ChordTable[i].name;
+        std::string endName = music::ChordTable[endNum].name;
+
+        ChordSubsetMenu *item = createMenuItem<ChordSubsetMenu>(startName + " - " + endName);
+        item->pState = pState;
+        item->pStep = pStep;
+        item->start = i;
+        item->end = endNum;
+        menu->addChild(item);
+
+    }
 
 }
 

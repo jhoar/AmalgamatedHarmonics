@@ -68,6 +68,14 @@ struct ChordItem : ui::MenuItem {
 	void onAction(const event::Action &e) override;
 };
 
+struct ChordSubsetMenu : MenuItem {
+	ProgressState *pState;
+	int pStep;
+    int start;
+    int end;
+    Menu *createChildMenu() override;
+};
+
 struct ChordChoice : gui::AHChoice {
 	ProgressState *pState;
 	int pStep;
