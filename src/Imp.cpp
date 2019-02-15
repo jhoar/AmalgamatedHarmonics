@@ -170,11 +170,11 @@ void Imp::step() {
 				if (!gatePhase[i].ishigh() && !delayPhase[i].ishigh()) {
 
 				// Determine delay and gate times for all active outputs
-					double rndD = clamp(digital::gaussrand(), -2.0f, 2.0f);
+					double rndD = clamp(random::normal(), -2.0f, 2.0f);
 					delayTime[i] = clamp(dlyLen + dlySpr * rndD, 0.0f, 100.0f);
 				
 					// The modified gate time cannot be earlier than the start of the delay
-					double rndG = clamp(digital::gaussrand(), -2.0f, 2.0f);
+					double rndG = clamp(random::normal(), -2.0f, 2.0f);
 					gateTime[i] = clamp(gateLen + gateSpr * rndG, digital::TRIGGER, 100.0f);
 
 					if (debugEnabled()) { 
