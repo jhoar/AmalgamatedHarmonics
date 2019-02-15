@@ -35,12 +35,12 @@ json_t *ProgressState::toJson() {
     json_t *rootJ = json_object();
 
 	// pChord
-    json_t *rootNotesJ      = json_array();
-    json_t *qualitysJ       = json_array();
-    json_t *chordsJ         = json_array();
-    json_t *modeDegreesJ    = json_array();
-    json_t *inversionsJ     = json_array();
-    json_t *gatesJ          = json_array();
+    json_t *rootNote_array      = json_array();
+    json_t *quality_array       = json_array();
+    json_t *chord_array         = json_array();
+    json_t *modeDegree_array    = json_array();
+    json_t *inversion_array     = json_array();
+    json_t *gate_array          = json_array();
 
     for (int i = 0; i < 8; i++) {
         json_t *rootNoteJ   = json_integer(chords[i].rootNote);
@@ -50,20 +50,20 @@ json_t *ProgressState::toJson() {
         json_t *inversionJ  = json_integer(chords[i].inversion);
         json_t *gateJ       = json_boolean(chords[i].gate);
 
-        json_array_append_new(rootNotesJ,   rootNoteJ);
-        json_array_append_new(qualitysJ,    qualityJ);
-        json_array_append_new(chordsJ,      chordJ);
-        json_array_append_new(modeDegreesJ, modeDegreeJ);
-        json_array_append_new(inversionsJ,  inversionJ);
-        json_array_append_new(gatesJ,       gateJ);
+        json_array_append_new(rootNote_array,   rootNoteJ);
+        json_array_append_new(quality_array,    qualityJ);
+        json_array_append_new(chord_array,      chordJ);
+        json_array_append_new(modeDegree_array, modeDegreeJ);
+        json_array_append_new(inversion_array,  inversionJ);
+        json_array_append_new(gate_array,       gateJ);
     }
 
-    json_object_set_new(rootJ, "rootnote",      rootNotesJ);
-    json_object_set_new(rootJ, "quality",       qualitysJ);
-    json_object_set_new(rootJ, "chord",         chordsJ);
-    json_object_set_new(rootJ, "modedegree",    modeDegreesJ);
-    json_object_set_new(rootJ, "inversion",     inversionsJ);
-    json_object_set_new(rootJ, "gate",          gatesJ);
+    json_object_set_new(rootJ, "rootnote",      rootNote_array);
+    json_object_set_new(rootJ, "quality",       quality_array);
+    json_object_set_new(rootJ, "chord",         chord_array);
+    json_object_set_new(rootJ, "modedegree",    modeDegree_array);
+    json_object_set_new(rootJ, "inversion",     inversion_array);
+    json_object_set_new(rootJ, "gate",          gate_array);
 
     // offset
     json_t *offsetJ = json_integer((int) offset);
@@ -79,60 +79,60 @@ json_t *ProgressState::toJson() {
 void ProgressState::fromJson(json_t *rootJ) {
 
 	// rootNote
-    json_t *rootNotesJ = json_object_get(rootJ, "rootnote");
-    if (rootNotesJ) {
+    json_t *rootNote_array = json_object_get(rootJ, "rootnote");
+    if (rootNote_array) {
         for (int i = 0; i < 8; i++) {
-            json_t *rootNoteJ = json_array_get(rootNotesJ, i);
+            json_t *rootNoteJ = json_array_get(rootNote_array, i);
             if (rootNoteJ)
                 chords[i].rootNote = json_integer_value(rootNoteJ);
         }
     }
 
 	// quality
-    json_t *qualitysJ = json_object_get(rootJ, "quality");
-    if (qualitysJ) {
+    json_t *quality_array = json_object_get(rootJ, "quality");
+    if (quality_array) {
         for (int i = 0; i < 8; i++) {
-            json_t *qualityJ = json_array_get(qualitysJ, i);
+            json_t *qualityJ = json_array_get(quality_array, i);
             if (qualityJ)
                 chords[i].quality = json_integer_value(qualityJ);
         }
     }
 
 	// chord
-    json_t *chordsJ = json_object_get(rootJ, "chord");
-    if (chordsJ) {
+    json_t *chord_array = json_object_get(rootJ, "chord");
+    if (chord_array) {
         for (int i = 0; i < 8; i++) {
-            json_t *chordJ = json_array_get(chordsJ, i);
+            json_t *chordJ = json_array_get(chord_array, i);
             if (chordJ)
                 chords[i].chord = json_integer_value(chordJ);
         }
     }
 
 	// modeDegree
-    json_t *modeDegreesJ = json_object_get(rootJ, "modedegree");
-    if (modeDegreesJ) {
+    json_t *modeDegree_array = json_object_get(rootJ, "modedegree");
+    if (modeDegree_array) {
         for (int i = 0; i < 8; i++) {
-            json_t *modeDegreeJ = json_array_get(modeDegreesJ, i);
+            json_t *modeDegreeJ = json_array_get(modeDegree_array, i);
             if (modeDegreeJ)
                 chords[i].modeDegree = json_integer_value(modeDegreeJ);
         }
     }
 
 	// inversion
-    json_t *inversionsJ = json_object_get(rootJ, "inversion");
-    if (inversionsJ) {
+    json_t *inversion_array = json_object_get(rootJ, "inversion");
+    if (inversion_array) {
         for (int i = 0; i < 8; i++) {
-            json_t *inversionJ = json_array_get(inversionsJ, i);
+            json_t *inversionJ = json_array_get(inversion_array, i);
             if (inversionJ)
-                chords[i].rootNote = json_integer_value(inversionsJ);
+                chords[i].inversion = json_integer_value(inversionJ);
         }
     }
 
 	// gates
-    json_t *gatesJ = json_object_get(rootJ, "gate");
-    if (gatesJ) {
+    json_t *gate_array = json_object_get(rootJ, "gate");
+    if (gate_array) {
         for (int i = 0; i < 8; i++) {
-            json_t *gateJ = json_array_get(gatesJ, i);
+            json_t *gateJ = json_array_get(gate_array, i);
             if (gateJ)
                 chords[i].gate = json_boolean_value(gateJ);
         }
@@ -333,6 +333,12 @@ void KeyModeBox::step() {
     if (!pState) {
         text = "";
         return;
+    }
+
+    if(pState->chordMode) {
+        color = nvgRGBA(0x00, 0xFF, 0xFF, 0xFF);
+    } else {
+        color = nvgRGBA(0xFF, 0x00, 0x00, 0xFF);
     }
 
     text = music::NoteDegreeModeNames[pState->key][0][pState->mode] + " " + music::modeNames[pState->mode];
