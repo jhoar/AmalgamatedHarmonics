@@ -359,6 +359,15 @@ struct ChordDef {
 	int	second[6];
 };
 
+extern ChordDef ChordTable[NUM_CHORDS];
+
+struct ChordFormula {
+	std::string name;
+	std::vector<int> root;
+};
+
+extern std::vector<ChordFormula> ChordTable2;
+
 enum Notes {
 	NOTE_C = 0,
 	NOTE_D_FLAT, // C Sharp
@@ -452,8 +461,6 @@ int getKeyFromVolts(float volts);
 
 void getRootFromMode(int inMode, int inRoot, int inTonic, int *currRoot, int *quality);
 
-extern ChordDef ChordTable[NUM_CHORDS];
-	
 extern int ModeQuality[7][7];
 
 extern int ModeOffset[7][7];
