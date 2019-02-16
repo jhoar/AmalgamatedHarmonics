@@ -3,7 +3,7 @@
 // ProgressState
 ProgressState::ProgressState() {
     for (int i = 0; i < 8; i++) {
-        chords[i].setVoltages(music::ChordTable[1].root, offset);
+        chords[i].setVoltages(music::defaultChord.formula, offset);
     }
 }
 
@@ -230,11 +230,11 @@ void ChordItem::onAction(const event::Action &e)  {
 
 Menu *ChordSubsetMenu::createChildMenu() {
     Menu *menu = new Menu;
-    for (int i = start; i < end; i++) {
+    for (int i = start; i <= end; i++) {
         ChordItem *item = new ChordItem;
         item->pChord = &(pState->chords[pStep]);
         item->chord = i;
-        item->text = music::ChordTable[i].name;
+        item->text = music::BasicChordSet[i].name;
         menu->addChild(item);
     }
     return menu;
@@ -244,13 +244,16 @@ void ChordChoice::onAction(const event::Action &e) {
     if (!pState)
         return;
 
+    size_t maxChords = music::BasicChordSet.size();
+
     ui::Menu *menu = createMenu();
-    for(int i = 1; i < music::NUM_CHORDS; i += 10) {
+    menu->addChild(createMenuLabel("Chord"));
+    for(size_t i = 0; i < maxChords; i += 9) {
 
-        int endNum = std::min(i + 10, music::NUM_CHORDS - 1);
+        int endNum = std::min(i + 9, maxChords - 1);
 
-        std::string startName = music::ChordTable[i].name;
-        std::string endName = music::ChordTable[endNum].name;
+        std::string startName = music::BasicChordSet[i].name;
+        std::string endName = music::BasicChordSet[endNum].name;
 
         ChordSubsetMenu *item = createMenuItem<ChordSubsetMenu>(startName + " - " + endName);
         item->pState = pState;
@@ -275,7 +278,7 @@ void ChordChoice::step() {
         color = nvgRGBA(0x00, 0xFF, 0xFF, 0x6F);
     }
 
-    text = music::ChordTable[pState->chords[pStep].chord].name;
+    text = music::BasicChordSet[pState->chords[pStep].chord].name;
 
 }
 // Chord menu

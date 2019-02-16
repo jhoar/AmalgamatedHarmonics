@@ -332,7 +332,7 @@ struct BpmCalculator {
 
 namespace music {
 
-const static int NUM_CHORDS = 99;
+const static int NUM_CHORDS = 99; // FIXME Remove this
 
 static constexpr float SEMITONE = 1.0 / 12.0;
 
@@ -366,7 +366,7 @@ struct ChordFormula {
 	std::vector<int> root;
 };
 
-extern std::vector<ChordFormula> ChordTable2;
+extern std::vector<ChordFormula> BasicChordSet;
 
 enum Notes {
 	NOTE_C = 0,
@@ -557,6 +557,7 @@ struct KnownChords {
 	void dump();
 };
 
+extern InversionDefinition defaultChord;
 
 } // namespace music
 

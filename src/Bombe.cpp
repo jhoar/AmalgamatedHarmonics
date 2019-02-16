@@ -59,11 +59,10 @@ struct Bombe : core::AHModule {
 		params[Y_PARAM].description = "The deviation of the next chord update from the mode rule";
 
 		for(int i = 0; i < BUFFERSIZE; i++) {
-			int *chordArray = music::ChordTable[buffer[i].chord].root;
-			for (int j = 0; j < 6; j++) {
-				buffer[i].outVolts[j] = music::getVoltsFromPitch(chordArray[j], buffer[i].rootNote) + 1.0;			
-			}
+			buffer[i].setVoltages(music::defaultChord.formula, offset);
 		}
+
+		// knownChords.dump();
 	}
 
 	void step() override;
@@ -118,15 +117,15 @@ struct Bombe : core::AHModule {
 
 	}
 
-	const static int N_CHORDS = 98;
+//	const static int N_CHORDS = 98;
 
-	int ChordMap[N_CHORDS] = {1,2,26,29,71,28,72,91,31,97,25,44,54,61,78,95,10,14,15,17,48,79,81,85,11,30,89,94,24,3,90,98,96,60,55,86,5,93,7,56,92,16,32,46,62,77,18,49,65,68,70,82,20,22,23,45,83,87,6,21,27,42,80,9,52,69,76,13,37,88,53,58,8,41,57,47,64,73,19,50,59,66,74,12,35,38,63,33,34,51,4,36,40,43,84,67,39,75};
+//	int ChordMap[N_CHORDS] = {1,2,26,29,71,28,72,91,31,97,25,44,54,61,78,95,10,14,15,17,48,79,81,85,11,30,89,94,24,3,90,98,96,60,55,86,5,93,7,56,92,16,32,46,62,77,18,49,65,68,70,82,20,22,23,45,83,87,6,21,27,42,80,9,52,69,76,13,37,88,53,58,8,41,57,47,64,73,19,50,59,66,74,12,35,38,63,33,34,51,4,36,40,43,84,67,39,75};
  	int MajorScale[7] = {0,2,4,5,7,9,11};
-	int Quality2Chord[N_QUALITIES] = { 1, 71, 91 }; // M, m, dim
+	int Quality2Chord[N_QUALITIES] = { 0, 1, 54 }; // M, m, dim
 	int QualityMap[3][QMAP_SIZE] = { 
-		{01,01,01,01,01,01,01,01,01,01,25,25,25,25,25,25,25,25,31,31},
-		{71,71,71,71,71,71,71,71,71,71,78,78,78,78,78,78,78,78,31,31},
-		{91,91,91,91,91,91,91,91,91,91,94,94,94,94,94,94,94,94,94,94}
+		{00,00,00,00,00,00,00,00,00,00,07,07,07,07,07,07,07,07,06,06}, // M Maj7 7
+		{01,01,01,01,01,01,01,01,01,01,38,38,38,38,38,38,38,38,06,06}, // m m7 7
+		{54,54,54,54,54,54,54,54,54,54,56,56,56,56,56,56,56,56,56,56}  // dim dimM7
 	};
 
 	int InversionMap[3][QMAP_SIZE] = { 
@@ -253,7 +252,7 @@ void Bombe::step() {
 		displayBuffer[0] = buffer[0];
 
 		// for(int i = 0; i < BUFFERSIZE; i++) {
-		// 	std::cout << buffer[i].rootNote << ",";
+		// 	std::cout << displayBuffer[i].chord << ",";
 		// }
 		// std::cout << std::endl;
 
@@ -326,9 +325,9 @@ void Bombe::modeRandom(BombeChord lastValue, float y) {
 	buffer[0].key = -1; 
 	buffer[0].mode = -1; 
 
-	float index = (float)(N_CHORDS - 1) * y;
-	int maxChord = (int)index + 1;
-	buffer[0].chord = ChordMap[rand() % maxChord]; 
+	float index = (float)(knownChords.chords.size()) * y;
+
+	buffer[0].chord = rand() % std::max(2, (int)index); // Major and minor chords always allowed
 	buffer[0].inversion = InversionMap[allowedInversions][rand() % QMAP_SIZE];
 
 }
@@ -340,7 +339,7 @@ void Bombe::modeKey(BombeChord lastValue, float y) {
 
 	music::getRootFromMode(currMode,currRoot,buffer[0].modeDegree,&(buffer[0].rootNote),&(buffer[0].quality));
 
-	buffer[0].chord = (rand() % (music::NUM_CHORDS - 1)) + 1; // Get the index into the main chord table
+	buffer[0].chord = (rand() % (knownChords.chords.size() - 1)); // Get the index into the main chord table
 	buffer[0].inversion = InversionMap[allowedInversions][rand() % QMAP_SIZE];
 	buffer[0].key = currRoot;
 	buffer[0].mode = currMode;
@@ -390,18 +389,14 @@ struct BombeDisplay : TransparentWidget {
 
 			music::InversionDefinition &invDef = module->knownChords.chords[bC.chord].inversions[bC.inversion];
 
-			if (bC.chord != 0) {
+			if (bC.key != -1 && bC.mode != -1) {
+				chordName = invDef.getName(bC.mode, bC.key, bC.modeDegree, bC.rootNote);
+			} else {
+				chordName = invDef.getName(bC.rootNote);
+			}
 
-				if (bC.key != -1 && bC.mode != -1) {
-					chordName = invDef.getName(bC.mode, bC.key, bC.modeDegree, bC.rootNote);
-				} else {
-					chordName = invDef.getName(bC.rootNote);
-				}
-
-				if (bC.modeDegree != -1 && bC.quality != -1) { 
-					chordExtName = music::degreeNames[bC.modeDegree * 3 + bC.quality];
-				}
-
+			if (bC.modeDegree != -1 && bC.quality != -1) { 
+				chordExtName = music::degreeNames[bC.modeDegree * 3 + bC.quality];
 			}
 
 			snprintf(text, sizeof(text), "%s %s", chordName.c_str(), chordExtName.c_str());

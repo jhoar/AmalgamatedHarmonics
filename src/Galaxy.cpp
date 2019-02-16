@@ -88,6 +88,7 @@ struct Galaxy : core::AHModule {
 
 		params[BAD_PARAM].config(0.0, 1.0, 0.0, "Bad", "%", 0.0f, 100.0f);
 		params[BAD_PARAM].description = "Deviation from chord selection rule for the mode";
+
 	}
 
 	void step() override;
@@ -142,7 +143,7 @@ struct Galaxy : core::AHModule {
 
 	}
 
-	int GalaxyChords[N_QUALITIES] = { 1, 31, 78, 25, 71, 91 }; // M, 7, m7, M7, m, dim
+	int GalaxyChords[N_QUALITIES] = { 0, 2, 83, 12, 1, 29 }; // M, 7, m7, M7, m, dim
 	int QualityMap[3][QMAP_SIZE] = { 
 		{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,1},
 		{4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,2,2,2,1},

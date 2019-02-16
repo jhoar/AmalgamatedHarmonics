@@ -169,10 +169,7 @@ double gaussrand() {
 namespace music {
 
 Chord::Chord() : rootNote(0), quality(0), chord(1), modeDegree(0), inversion(0) {
-	int *chordArray = music::ChordTable[chord].root;
-	for (int j = 0; j < 6; j++) {
-		outVolts[j] = getVoltsFromPitch(chordArray[j], rootNote);			
-	}
+	setVoltages(defaultChord.formula, 12);
 }
 
 void Chord::setVoltages(int *chordArray, int offset) {
@@ -306,45 +303,28 @@ ChordDef ChordTable[NUM_CHORDS] {
 	{	98	,"madd9",{	0	,	3	,	7	,	14	,	-24	,	-21	},{	12	,	3	,	7	,	14	,	-24	,	-21	},{	12	,	15	,	7	,	14	,	-12	,	-21	}},		
 };
 
-std::vector<ChordFormula> ChordTable2 {
+std::vector<ChordFormula> BasicChordSet {
 	{"M",			{	0	,	4	,	7}},
 	{"m",			{	0	,	3	,	7}},
-	{"7",			{	0	,	4	,	7	,	10}},
-	{"9",			{	0	,	4	,	7	,	10	,	14}},
-	{"11",			{	0	,	7	,	10	,	14	,	17}},
-	{"13",			{	0	,	4	,	7	,	10	,	14	,	21}},
+	{"5",			{	0	,	7	,	12}},
 	{"Msus2",		{	0	,	2	,	7}},
 	{"Msus4",		{	0	,	5	,	7}},
 	{"sus24",		{	0	,	2	,	5	,	7}},
-	{"Madd9",		{	0	,	4	,	7	,	14}},
-	{"Maddb9",		{	0	,	4	,	7	,	13}},
-	{"M6",			{	0	,	4	,	7	,	21}},
+	{"7",			{	0	,	4	,	7	,	10}},
 	{"M7",			{	0	,	4	,	7	,	11}},
-	{"M7#5",		{	0	,	4	,	8	,	11}},
-	{"M7#5sus4",	{	0	,	5	,	8	,	11}},
+	{"M7add13",		{	0	,	4	,	7	,	9	,	11	,	14	}},
 	{"M7#9#11",		{	0	,	4	,	7	,	11	,	15	,	18	}},
 	{"M7#11",		{	0	,	4	,	7	,	11	,	18}},
-	{"M7add13",		{	0	,	4	,	7	,	9	,	11	,	14	}},
-	{"M7b5",		{	0	,	4	,	6	,	11}},
-	{"M7b6",		{	0	,	4	,	8	,	11}},
 	{"M7b9",		{	0	,	4	,	7	,	11	,	13}},
-	{"M7sus4",		{	0	,	5	,	7	,	11}},
-	{"M9",			{	0	,	4	,	7	,	11	,	14}},
-	{"M9#5",		{	0	,	4	,	8	,	11	,	14}},
-	{"M9#5sus4",	{	0	,	5	,	8	,	11	,	14}},
-	{"M9#11",		{	0	,	4	,	7	,	11	,	14	,	18	}},
-	{"M9b5",		{	0	,	4	,	6	,	11	,	14}},
-	{"M9sus4",		{	0	,	5	,	7	,	11	,	14}},
-	{"M13",			{	0	,	4	,	7	,	11	,	14	,	21	}},
-	{"dim",			{	0	,	3	,	6}},
-	{"dim7",		{	0	,	3	,	6	,	21}},
-	{"dim7M7",		{	0	,	3	,	6	,	9	,	11}},
-	{"dimM7",		{	0	,	3	,	6	,	11}},
+	{"M7b5",		{	0	,	4	,	6	,	11}},
 	{"7#5",			{	0	,	4	,	8	,	10}},
-	{"7#5#9",		{	0	,	4	,	8	,	10	,	15}},
 	{"7#5b9",		{	0	,	4	,	8	,	10	,	13}},
+	{"7#5#9",		{	0	,	4	,	8	,	10	,	15}},
 	{"7#5b9#11",	{	0	,	4	,	8	,	10	,	13	,	18	}},
-	{"7#5sus4",		{	0	,	5	,	8	,	10}},
+	{"M7b6",		{	0	,	4	,	8	,	11}},
+	{"M7#5",		{	0	,	4	,	8	,	11}},
+	{"M7sus4",		{	0	,	5	,	7	,	11}},
+	{"M7#5sus4",	{	0	,	5	,	8	,	11}},
 	{"7#9",			{	0	,	4	,	7	,	10	,	15}},
 	{"7#9#11",		{	0	,	4	,	7	,	10	,	15	,	18	}},
 	{"7#9b13",		{	0	,	4	,	7	,	10	,	15	,	20	}},
@@ -362,22 +342,45 @@ std::vector<ChordFormula> ChordTable2 {
 	{"7sus4",		{	0	,	5	,	7	,	10}},
 	{"7sus4b9",		{	0	,	5	,	7	,	10	,	13}},
 	{"7sus4b9b13",	{	0	,	5	,	7	,	10	,	13	,	20	}},
+	{"m7",			{	0	,	3	,	7	,	10}},
+	{"mMaj7",		{	0	,	3	,	7	,	11}},
+	{"mMaj7b6",		{	0	,	3	,	7	,	8	,	11}},
+	{"m7add11",		{	0	,	3	,	7	,	10	,	17}},
+	{"m7#5",		{	0	,	3	,	8	,	10}},
+	{"m7b5",		{	0	,	3	,	6	,	10}},
+	{"9",			{	0	,	4	,	7	,	10	,	14}},
+	{"M9",			{	0	,	4	,	7	,	11	,	14}},
+	{"M9#11",		{	0	,	4	,	7	,	11	,	14	,	18	}},
+	{"Maddb9",		{	0	,	4	,	7	,	13}},
+	{"Madd9",		{	0	,	4	,	7	,	14}},
+	{"M9#5",		{	0	,	4	,	8	,	11	,	14}},
+	{"M9b5",		{	0	,	4	,	6	,	11	,	14}},
+	{"M9#5sus4",	{	0	,	5	,	8	,	11	,	14}},
+	{"M9sus4",		{	0	,	5	,	7	,	11	,	14}},
+	{"11",			{	0	,	7	,	10	,	14	,	17}},
+	{"dim",			{	0	,	3	,	6}},
+	{"dim7M7",		{	0	,	3	,	6	,	9	,	11}},
+	{"dimM7",		{	0	,	3	,	6	,	11}},
+	{"dim7",		{	0	,	3	,	6	,	21}},
+	{"9#11",		{	0	,	4	,	7	,	10	,	14	,	18	}},
 	{"9#5",			{	0	,	4	,	8	,	10	,	14}},
 	{"9#5#11",		{	0	,	4	,	8	,	10	,	14	,	18	}},
-	{"9#11",		{	0	,	4	,	7	,	10	,	14	,	18	}},
 	{"9b5",			{	0	,	4	,	6	,	10	,	14}},
 	{"9b13",		{	0	,	4	,	10	,	14	,	20}},
 	{"9no5",		{	0	,	4	,	10	,	14}},
 	{"9sus4",		{	0	,	5	,	7	,	10	,	14}},
 	{"11b9",		{	0	,	7	,	10	,	13	,	17}},
-	{"13b5",		{	0	,	4	,	6	,	9	,	10	,	14	}},
+	{"13",			{	0	,	4	,	7	,	10	,	14	,	21}},
+	{"M13",			{	0	,	4	,	7	,	11	,	14	,	21	}},
 	{"13b9",		{	0	,	4	,	7	,	10	,	13	,	21	}},
 	{"13#9",		{	0	,	4	,	7	,	10	,	15	,	21	}},
+	{"13b5",		{	0	,	4	,	6	,	9	,	10	,	14	}},
 	{"13no5",		{	0	,	4	,	10	,	14	,	21}},
 	{"13sus4",		{	0	,	5	,	7	,	10	,	14	,	21	}},
 	{"M#5",			{	0	,	4	,	8}},
 	{"M#5add9",		{	0	,	4	,	8	,	14}},
 	{"Mb5",			{	0	,	4	,	6}},
+	{"M6",			{	0	,	4	,	7	,	21}},
 	{"Mb6",			{	0	,	4	,	20}},
 	{"69#11",		{	0	,	4	,	7	,	9	,	14	,	18	}},
 	{"M6#11",		{	0	,	4	,	7	,	9	,	18}},
@@ -390,12 +393,6 @@ std::vector<ChordFormula> ChordTable2 {
 	{"m69",			{	0	,	3	,	7	,	9	,	14}},
 	{"mb6M7",		{	0	,	3	,	8	,	11}},
 	{"mb6b9",		{	0	,	3	,	8	,	13}},
-	{"m7",			{	0	,	3	,	7	,	10}},
-	{"mMaj7",		{	0	,	3	,	7	,	11}},
-	{"mMaj7b6",		{	0	,	3	,	7	,	8	,	11}},
-	{"m7add11",		{	0	,	3	,	7	,	10	,	17}},
-	{"m7#5",		{	0	,	3	,	8	,	10}},
-	{"m7b5",		{	0	,	3	,	6	,	10}},
 	{"m9",			{	0	,	3	,	7	,	10	,	14}},
 	{"m9b5",		{	0	,	3	,	10	,	14	,	18}},
 	{"mM9",			{	0	,	3	,	7	,	11	,	14}},
@@ -406,6 +403,8 @@ std::vector<ChordFormula> ChordTable2 {
 	{"madd4",		{	0	,	3	,	5	,	7}},
 	{"madd9",		{	0	,	3	,	7	,	14}},
 };
+
+InversionDefinition defaultChord {0, {0, 4, 7, 0, 4, 7}, "M"};
 
 std::string noteNames[12] = {
 	"C",
@@ -898,15 +897,11 @@ void ChordDefinition::calculateInversion(std::vector<int> &inputF, std::vector<i
 }
 
 KnownChords::KnownChords() {
-	for(int i = 0; i < NUM_CHORDS; i++) {
+	for(size_t i = 0; i < BasicChordSet.size(); i++) {
 		ChordDefinition def;
 		def.id = i;
-		def.name = ChordTable[i].name;
-		for (int j = 0; j < 6; j++) {
-			if (music::ChordTable[i].root[j] >= 0) {
-				def.formula.push_back(ChordTable[i].root[j]);
-			}
-		}
+		def.name = BasicChordSet[i].name;
+		def.formula = BasicChordSet[i].root;
 		def.generateInversions();
 		chords.push_back(def);
 	}
@@ -914,7 +909,7 @@ KnownChords::KnownChords() {
 
 void KnownChords::dump() {
 	for(ChordDefinition chord: chords) {
-		std::cout << chord.name << std::endl;
+		std::cout << chord.id << " = " << chord.name << std::endl;
 		for(InversionDefinition inv: chord.inversions) {
 			std::stringstream ss;
 			for(size_t i = 0; i < inv.formula.size(); i++) {
