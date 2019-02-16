@@ -61,7 +61,7 @@ struct Bombe : core::AHModule {
 		for(int i = 0; i < BUFFERSIZE; i++) {
 			int *chordArray = music::ChordTable[buffer[i].chord].root;
 			for (int j = 0; j < 6; j++) {
-				buffer[i].outVolts[j] = music::getVoltsFromPitch(chordArray[j], buffer[i].rootNote);			
+				buffer[i].outVolts[j] = music::getVoltsFromPitch(chordArray[j], buffer[i].rootNote) + 1.0;			
 			}
 		}
 	}
