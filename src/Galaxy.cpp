@@ -142,7 +142,7 @@ struct Galaxy : core::AHModule {
 
 	}
 
-	int ChordTable[N_QUALITIES] = { 1, 31, 78, 25, 71, 91 }; // M, 7, m7, M7, m, dim
+	int GalaxyChords[N_QUALITIES] = { 1, 31, 78, 25, 71, 91 }; // M, 7, m7, M7, m, dim
 	int QualityMap[3][QMAP_SIZE] = { 
 		{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,3,1},
 		{4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,2,2,2,1},
@@ -269,7 +269,7 @@ void Galaxy::step() {
 		}
 
 		currChord.inversion = InversionMap[allowedInversions][rand() % QMAP_SIZE];
-		currChord.chord = ChordTable[currChord.quality];
+		currChord.chord = GalaxyChords[currChord.quality];
 
 		music::ChordDefinition &chordDef = knownChords.chords[currChord.chord];
 		music::InversionDefinition &invDef = chordDef.inversions[currChord.inversion];
