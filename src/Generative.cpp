@@ -297,7 +297,7 @@ void Generative::step() {
 				float dlyLen = log2(params[DELAYL_PARAM].getValue());
 				float dlySpr = log2(params[DELAYS_PARAM].getValue());
 
-				double rndD = clamp(digital::gaussrand(), -2.0f, 2.0f);
+				double rndD = clamp(random::normal(), -2.0f, 2.0f);
 				delayTime = clamp(dlyLen + dlySpr * rndD, 0.0f, 100.0f);
 				
 				// Trigger the respective delay pulse generator
@@ -317,7 +317,7 @@ void Generative::step() {
 		float gateLen = log2(params[GATEL_PARAM].getValue());
 		float gateSpr = log2(params[GATES_PARAM].getValue());
 
-		double rndG = clamp(digital::gaussrand(), -2.0f, 2.0f);
+		double rndG = clamp(random::normal(), -2.0f, 2.0f);
 		gateTime = clamp(gateLen + gateSpr * rndG, digital::TRIGGER, 100.0f);
 
 		// Open the gate and set flags
