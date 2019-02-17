@@ -968,7 +968,7 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="2.1657895"
-     inkscape:cx="137.42345"
+     inkscape:cx="49.464763"
      inkscape:cy="164.13375"
      inkscape:current-layer="layer2"
      showgrid="false"
@@ -1660,24 +1660,6 @@
        ry="4.2187495"
        transform="matrix(0.97322123,0,0,-0.97911468,4.4970307,-103.43945)" />
     <rect
-       transform="scale(1,-1)"
-       ry="4.2187495"
-       y="-320.38666"
-       x="54.488243"
-       height="45"
-       width="35"
-       id="rect1618"
-       style="fill:#000000;fill-opacity:1;stroke-width:0.78504759" />
-    <rect
-       style="fill:#000000;fill-opacity:1;stroke-width:0.78504759"
-       id="rect1638"
-       width="35"
-       height="45"
-       x="102.48824"
-       y="-320.38666"
-       ry="4.2187495"
-       transform="scale(1,-1)" />
-    <rect
        style="fill:#000000;fill-opacity:1;stroke-width:0.78504759"
        id="rect1644"
        width="35"
@@ -1695,24 +1677,6 @@
        width="35"
        id="rect1646"
        style="fill:#000000;fill-opacity:1;stroke-width:0.78504759;filter:url(#filter3933)" />
-    <rect
-       style="fill:#000000;fill-opacity:1;stroke-width:0.78504759"
-       id="rect1648"
-       width="35"
-       height="45"
-       x="54.488243"
-       y="-320.38666"
-       ry="4.2187495"
-       transform="scale(1,-1)" />
-    <rect
-       transform="scale(1,-1)"
-       ry="4.2187495"
-       y="-320.38666"
-       x="102.48824"
-       height="45"
-       width="35"
-       id="rect1668"
-       style="fill:#000000;fill-opacity:1;stroke-width:0.78504759" />
     <rect
        transform="scale(1,-1)"
        ry="4.2187495"
@@ -1814,42 +1778,6 @@
          x="116.52991"
          id="tspan1700"
          sodipodi:role="line">P</tspan></text>
-    <rect
-       style="fill:#000000;fill-opacity:1;stroke-width:0.78504759"
-       id="rect1704"
-       width="35"
-       height="45"
-       x="198.48825"
-       y="-208.38666"
-       ry="4.2187495"
-       transform="scale(1,-1)" />
-    <rect
-       transform="matrix(0.97322123,0,0,-0.97911468,4.4970307,-215.43945)"
-       ry="4.2187495"
-       y="-432.38678"
-       x="150.48825"
-       height="45"
-       width="35"
-       id="rect1706"
-       style="fill:#000000;fill-opacity:1;stroke-width:0.78504759;filter:url(#filter3933)" />
-    <rect
-       style="fill:#000000;fill-opacity:1;stroke-width:0.78504759"
-       id="rect1708"
-       width="35"
-       height="45"
-       x="54.488243"
-       y="-208.38666"
-       ry="4.2187495"
-       transform="scale(1,-1)" />
-    <rect
-       transform="scale(1,-1)"
-       ry="4.2187495"
-       y="-208.38666"
-       x="102.48824"
-       height="45"
-       width="35"
-       id="rect1728"
-       style="fill:#000000;fill-opacity:1;stroke-width:0.78504759" />
     <rect
        transform="rotate(90)"
        style="opacity:1;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:1.11277878;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"

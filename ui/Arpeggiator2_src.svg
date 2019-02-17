@@ -968,7 +968,7 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.6921053"
-     inkscape:cx="-10.711459"
+     inkscape:cx="-123.29311"
      inkscape:cy="190"
      inkscape:current-layer="layer2"
      showgrid="false"
@@ -1560,15 +1560,6 @@
        ry="4.2187495"
        transform="scale(1,-1)" />
     <rect
-       transform="matrix(0.97358875,0,0,-0.97911468,8.9432919,-51.939398)"
-       ry="4.2187495"
-       y="-432.38678"
-       x="150.48825"
-       height="45"
-       width="35"
-       id="rect10538"
-       style="fill:#000000;fill-opacity:1;stroke-width:0.78504759;filter:url(#filter3933)" />
-    <rect
        style="fill:#000000;fill-opacity:1;stroke-width:0.78504759"
        id="rect10540"
        width="35"
@@ -1577,15 +1568,6 @@
        y="-371.88678"
        ry="4.2187495"
        transform="scale(1,-1)" />
-    <rect
-       transform="scale(1,-1)"
-       ry="4.2187495"
-       y="-371.88678"
-       x="84.988243"
-       height="45"
-       width="35"
-       id="rect11947"
-       style="fill:#000000;fill-opacity:1;stroke-width:0.78504759" />
     <text
        id="text10544"
        y="337.82428"
@@ -1744,15 +1726,6 @@
        id="rect4098"
        style="fill:#000000;fill-opacity:1;stroke-width:0.78504759" />
     <rect
-       style="fill:#000000;fill-opacity:1;stroke-width:0.78504759;filter:url(#filter3933)"
-       id="rect4100"
-       width="35"
-       height="45"
-       x="150.48825"
-       y="-432.38678"
-       ry="4.2187495"
-       transform="matrix(0.97358875,0,0,-0.97911468,8.9432919,-107.93945)" />
-    <rect
        transform="scale(1,-1)"
        ry="4.2187495"
        y="-315.88672"
@@ -1761,15 +1734,6 @@
        width="35"
        id="rect4102"
        style="fill:#000000;fill-opacity:1;stroke-width:0.78504759" />
-    <rect
-       style="fill:#000000;fill-opacity:1;stroke-width:0.78504759"
-       id="rect4104"
-       width="35"
-       height="45"
-       x="84.988243"
-       y="-315.88672"
-       ry="4.2187495"
-       transform="scale(1,-1)" />
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none"
@@ -1781,15 +1745,6 @@
          x="193.59502"
          y="281.88678"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">P.LEN</tspan></text>
-    <rect
-       style="fill:#000000;fill-opacity:1;stroke-width:0.78504759"
-       id="rect4110"
-       width="35"
-       height="45"
-       x="14.988245"
-       y="-315.88672"
-       ry="4.2187495"
-       transform="scale(1,-1)" />
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none"
