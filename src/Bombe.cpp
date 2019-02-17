@@ -62,7 +62,6 @@ struct Bombe : core::AHModule {
 			buffer[i].setVoltages(music::defaultChord.formula, offset);
 		}
 
-		// knownChords.dump();
 	}
 
 	void step() override;

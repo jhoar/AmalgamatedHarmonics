@@ -547,7 +547,7 @@ struct ChordDefinition {
 	std::vector<InversionDefinition> inversions;
 
 	void generateInversions();
-	void calculateInversion(std::vector<int> &inputF, std::vector<int> &outputF, int inv);
+	void calculateInversion(std::vector<int> &inputF, std::vector<int> &outputF, int inv, int rootOffset);
 };
 
 struct KnownChords {

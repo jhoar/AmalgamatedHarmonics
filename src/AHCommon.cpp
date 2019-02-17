@@ -871,21 +871,24 @@ std::string InversionDefinition::getName(int mode, int key, int degree, int root
 }
 
 void ChordDefinition::generateInversions() {
+
+	int rootOffset = (1 + formula.back() / 12) * 12;
+
 	for(size_t i = 0; i < formula.size(); i++) {
 		// i is number of inversions
 		InversionDefinition inv;
 		inv.inversion = i;
 		inv.baseName = name;
 
-		calculateInversion(formula, inv.formula, i);
+		calculateInversion(formula, inv.formula, i, rootOffset);
 		inversions.push_back(inv);
 	}
 }
 
-void ChordDefinition::calculateInversion(std::vector<int> &inputF, std::vector<int> &outputF, int inv) {
+void ChordDefinition::calculateInversion(std::vector<int> &inputF, std::vector<int> &outputF, int inv, int rootOffset) {
 	outputF = inputF;
 	for (int i = 0; i < inv; i++) {
-		outputF[i] += 12; 
+		outputF[i] += rootOffset; 
 	}
 	std::sort(outputF.begin(), outputF.end());
 
