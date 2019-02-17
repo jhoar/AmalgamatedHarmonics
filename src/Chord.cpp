@@ -110,6 +110,26 @@ struct Chord : core::AHModule {
 
 	}
 
+	json_t *dataToJson() override {
+		json_t *rootJ = json_object();
+
+		// polymode
+		json_t *polymodeJ = json_boolean(polymode);
+		json_object_set_new(rootJ, "polymode", polymodeJ);
+
+		return rootJ;
+	}
+	
+	void dataFromJson(json_t *rootJ) override {
+
+		// polymode
+		json_t *polymodeJ = json_object_get(rootJ, "polymode");
+		if (polymodeJ)
+			polymode = json_boolean_value(polymodeJ);
+
+	}
+
+
 	void process(const ProcessArgs &args) override;
 		
 	int poll = 50000;
@@ -118,6 +138,8 @@ struct Chord : core::AHModule {
 	rack::dsp::PulseGenerator triggerPulse;
 
 	EvenVCO oscillator[6];
+
+	bool polymode;
 
 };
 
@@ -133,16 +155,30 @@ void Chord::process(const ProcessArgs &args) {
 
 	for (int i = 0; i < NUM_PITCHES; i++) {
 
-		int index = PITCH_INPUT + i;
+		float inputPitchCV;
+		bool haveInput = false;
+
+		if (polymode) {
+			if (inputs[PITCH_INPUT + 1].getVoltage() > 0.0f) {
+				haveInput = true;
+			}
+			inputPitchCV = inputs[PITCH_INPUT].getVoltage();
+		} else {
+			if (inputs[PITCH_INPUT + i].isConnected()) {
+				haveInput = true;
+			}
+			inputPitchCV = inputs[PITCH_INPUT + i].getVoltage();
+		}
+
 		int side = i % 2;
 
-		float pitchCv = inputs[index].getVoltage() + params[OCTAVE_PARAM + i].getValue();
+		float pitchCv = inputPitchCV + params[OCTAVE_PARAM + i].getValue();
 		float pitchFine = params[DETUNE_PARAM + i].getValue() / 12.0; // +- 1V
 		float attn = params[ATTN_PARAM + i].getValue();
 		oscillator[i].pw = params[PW_PARAM + i].getValue() + params[PWM_PARAM + i].getValue() * inputs[PW_INPUT + i].getVoltage() / 10.0f;
 		oscillator[i].step(args.sampleTime, pitchFine + pitchCv); // 1V/OCT
 
-		if (inputs[index].isConnected()) {
+		if (haveInput) {
 
 			float amp = 0.0;
 			nP[side]++;
@@ -215,6 +251,43 @@ struct ChordWidget : ModuleWidget {
 		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 5, 9, true, true), module, Chord::OUT_OUTPUT + 1));
 
 	}
+
+	void appendContextMenu(Menu *menu) override {
+
+		Chord *chord = dynamic_cast<Chord*>(module);
+		assert(chord);
+
+		struct PolyModeItem : MenuItem {
+			Chord *module;
+			bool polymode;
+			void onAction(const event::Action &e) override {
+				module->polymode = polymode;
+			}
+		};
+
+		struct PolyModeMenu : MenuItem {
+			Chord *module;
+			Menu *createChildMenu() override {
+				Menu *menu = new Menu;
+				std::vector<bool> modes = {true, false};
+				std::vector<std::string> names = {"Poly", "Mono"};
+				for (size_t i = 0; i < modes.size(); i++) {
+					PolyModeItem *item = createMenuItem<PolyModeItem>(names[i], CHECKMARK(module->polymode == modes[i]));
+					item->module = module;
+					item->polymode = modes[i];
+					menu->addChild(item);
+				}
+				return menu;
+			}
+		};
+
+		menu->addChild(construct<MenuLabel>());
+		PolyModeMenu *polymodeItem = createMenuItem<PolyModeMenu>("Polyphony");
+		polymodeItem->module = chord;
+		menu->addChild(polymodeItem);
+
+	}
+
 };
 
 Model *modelChord = createModel<Chord, ChordWidget>("Chord");
