@@ -36,12 +36,13 @@ struct PolyProbe : core::AHModule {
 	
 		AHModule::step();
 
+		for (int i = 0; i < 16; i++) {
+			gate[i] = false;
+		}
+
 		if (!inputs[POLYGATE_INPUT].isConnected()) {
 			hasGateIn = false;
 			nGateChannels = 0;
-			for (int i = 0; i < 16; i++) {
-				gate[i] = false;
-			}
 		}
 
 		if (!inputs[POLYCV_INPUT].isConnected()) {
@@ -57,7 +58,7 @@ struct PolyProbe : core::AHModule {
 			nGateChannels = inputs[POLYGATE_INPUT].getChannels();
 			for (int i = 0; i < nGateChannels; i++) {
 				float cvg = inputs[POLYGATE_INPUT].getVoltage(i);
-				if (cvg > 0.0f) {
+				if (cvg != 0.0f) {
 					gate[i] = true;
 					gateCV[i] = cvg;
 				} 
@@ -133,7 +134,7 @@ struct PolyProbeDisplay : TransparentWidget {
 			if (i >= module->nCVChannels) {
 				nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0x6F));
 				snprintf(text, sizeof(text), "--");
-				snprintf(text1, sizeof(text), "--");
+				snprintf(text1, sizeof(text1), "--");
 				nvgText(ctx.vg, box.pos.x + 5, box.pos.y + i * 16 + j * 16, text, NULL);
 				nvgText(ctx.vg, box.pos.x + 90, box.pos.y + i * 16 + j * 16, text1, NULL);
 			} else {
@@ -145,18 +146,19 @@ struct PolyProbeDisplay : TransparentWidget {
 						nvgText(ctx.vg, box.pos.x + 5, box.pos.y + i * 16 + j * 16, text, NULL);
 						
 						nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
-						snprintf(text1, sizeof(text), "%f", module->cv[i]);
+						snprintf(text1, sizeof(text1), "%f", module->cv[i]);
 						nvgText(ctx.vg, box.pos.x + 90, box.pos.y + i * 16 + j * 16, text1, NULL);
 					} else {
 						nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0x6F));
 						snprintf(text,  sizeof(text), "%02d NOGATE", i);
-						snprintf(text1, sizeof(text), "%f", module->cv[i]);
+						snprintf(text1, sizeof(text1), "%f", module->cv[i]);
 						nvgText(ctx.vg, box.pos.x + 5, box.pos.y + i * 16 + j * 16, text, NULL);
 						nvgText(ctx.vg, box.pos.x + 90, box.pos.y + i * 16 + j * 16, text1, NULL);
 					}
 				} else {
-					nvgFillColor(ctx.vg, nvgRGBA(255, 165, 0, 0xff));
 					nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0x6F));
+					snprintf(text,  sizeof(text), "%02d NOGATE", i);
+					snprintf(text1, sizeof(text1), "%f", module->cv[i]);
 					nvgText(ctx.vg, box.pos.x + 5, box.pos.y + i * 16 + j * 16, text, NULL);
 					nvgText(ctx.vg, box.pos.x + 90, box.pos.y + i * 16 + j * 16, text1, NULL);
 				}
