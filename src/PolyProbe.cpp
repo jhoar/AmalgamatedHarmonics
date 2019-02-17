@@ -94,9 +94,6 @@ struct PolyProbeDisplay : TransparentWidget {
 		char text[128];
 		char text1[128];
 
-		float scaleMin = 100.0f;
-		float scaleRange = 255.0f - scaleMin;
-
 		int j = 0;
 
 		nvgTextAlign(ctx.vg, NVG_ALIGN_LEFT);
@@ -140,7 +137,8 @@ struct PolyProbeDisplay : TransparentWidget {
 			} else {
 				if (module->hasGateIn) {
 					if (module->gate[i]) {
-						float scale = (scaleRange * fabs(module->gateCV[i]) / 10.0) + scaleMin;
+
+						float scale = rescale(module->gateCV[i], -10.0f, 10.0f, 50.0f, 255.0f);
 						nvgFillColor(ctx.vg, nvgRGBA(0x00, (int)scale, int(scale), 0xFF));
 						snprintf(text,  sizeof(text), "%02d GATE", i);
 						nvgText(ctx.vg, box.pos.x + 5, box.pos.y + i * 16 + j * 16, text, NULL);
