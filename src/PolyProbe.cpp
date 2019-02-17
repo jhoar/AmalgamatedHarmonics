@@ -57,10 +57,9 @@ struct PolyProbe : core::AHModule {
 			hasGateIn = true;
 			nGateChannels = inputs[POLYGATE_INPUT].getChannels();
 			for (int i = 0; i < nGateChannels; i++) {
-				float cvg = inputs[POLYGATE_INPUT].getVoltage(i);
-				if (cvg != 0.0f) {
+				gateCV[i] = inputs[POLYGATE_INPUT].getVoltage(i);
+				if (gateCV[i] >= 10.0f) {
 					gate[i] = true;
-					gateCV[i] = cvg;
 				} 
 			}
 		} 
@@ -138,7 +137,8 @@ struct PolyProbeDisplay : TransparentWidget {
 				if (module->hasGateIn) {
 					if (module->gate[i]) {
 
-						float scale = rescale(module->gateCV[i], -10.0f, 10.0f, 50.0f, 255.0f);
+						float cv = clampSafe(module->gateCV[i], -10.0f, 10.0f);
+						float scale = rescale(cv, -10.0f, 10.0f, 50.0f, 255.0f);
 						nvgFillColor(ctx.vg, nvgRGBA(0x00, (int)scale, int(scale), 0xFF));
 						snprintf(text,  sizeof(text), "%02d GATE", i);
 						nvgText(ctx.vg, box.pos.x + 5, box.pos.y + i * 16 + j * 16, text, NULL);
@@ -147,14 +147,14 @@ struct PolyProbeDisplay : TransparentWidget {
 						snprintf(text1, sizeof(text1), "%f", module->cv[i]);
 						nvgText(ctx.vg, box.pos.x + 90, box.pos.y + i * 16 + j * 16, text1, NULL);
 					} else {
-						nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0x6F));
+						nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xbF));
 						snprintf(text,  sizeof(text), "%02d NOGATE", i);
 						snprintf(text1, sizeof(text1), "%f", module->cv[i]);
 						nvgText(ctx.vg, box.pos.x + 5, box.pos.y + i * 16 + j * 16, text, NULL);
 						nvgText(ctx.vg, box.pos.x + 90, box.pos.y + i * 16 + j * 16, text1, NULL);
 					}
 				} else {
-					nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0x6F));
+					nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xbF));
 					snprintf(text,  sizeof(text), "%02d NOGATE", i);
 					snprintf(text1, sizeof(text1), "%f", module->cv[i]);
 					nvgText(ctx.vg, box.pos.x + 5, box.pos.y + i * 16 + j * 16, text, NULL);
