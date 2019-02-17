@@ -319,7 +319,7 @@ struct Arp31 : core::AHModule {
 
 void Arp31::process(const ProcessArgs &args) {
 	
-	core::AHModule::step();
+	AHModule::step();
 
 	// Wait a few steps for the inputs to flow through Rack
 	if (stepX < 10) { 
@@ -469,7 +469,7 @@ void Arp31::process(const ProcessArgs &args) {
 	// Set the value
 	outputs[OUT_OUTPUT].setVoltage(outVolts);
 
-	bool gPulse = gatePulse.process(delta);
+	bool gPulse = gatePulse.process(args.sampleTime);
 	
 	bool gatesOn = isRunning;
 	if (gateMode == TRIGGER) {
@@ -478,7 +478,7 @@ void Arp31::process(const ProcessArgs &args) {
 		gatesOn = gatesOn && !gPulse;
 	}
 	
-	bool cPulse = eocPulse.process(delta);
+	bool cPulse = eocPulse.process(args.sampleTime);
 
 	outputs[GATE_OUTPUT].setVoltage(gatesOn ? 10.0 : 0.0);
 	outputs[EOC_OUTPUT].setVoltage(cPulse ? 10.0 : 0.0);

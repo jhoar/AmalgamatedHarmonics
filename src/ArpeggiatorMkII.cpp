@@ -672,7 +672,7 @@ void Arpeggiator2::process(const ProcessArgs &args) {
 	}
 	
 	// Update the trigger pulse and determine if it is still high
-	bool triggerHigh = triggerPulse.process(delta);
+	bool triggerHigh = triggerPulse.process(args.sampleTime);
 	if (debugEnabled()) { 
 		if (triggerHigh) {
 			std::cout << stepX << " " << id  << " Trigger is high" << std::endl;
@@ -887,9 +887,9 @@ void Arpeggiator2::process(const ProcessArgs &args) {
 	lights[LOCK_LIGHT].setBrightness(locked ? 1.0 : 0.0);
 	outputs[OUT_OUTPUT].setVoltage(outVolts);
 	
-	bool gPulse = gatePulse.process(delta);
-	bool sPulse = eosPulse.process(delta);
-	bool cPulse = eocPulse.process(delta);
+	bool gPulse = gatePulse.process(args.sampleTime);
+	bool sPulse = eosPulse.process(args.sampleTime);
+	bool cPulse = eocPulse.process(args.sampleTime);
 	
 	bool gatesOn = isRunning;
 	if (gateMode == TRIGGER) {

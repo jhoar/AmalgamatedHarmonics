@@ -195,7 +195,7 @@ struct Galaxy : core::AHModule {
 
 void Galaxy::process(const ProcessArgs &args) {
 	
-	core::AHModule::step();
+	AHModule::step();
 
 	int badLight = 0;
 

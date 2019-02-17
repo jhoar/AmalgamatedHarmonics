@@ -83,7 +83,7 @@ struct Circle : core::AHModule {
 
 void Circle::process(const ProcessArgs &args) {
 	
-	core::AHModule::step();
+	AHModule::step();
 
 	// Get inputs from Rack
 	float rotLInput		= inputs[ROTL_INPUT].getVoltage();

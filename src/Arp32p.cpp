@@ -382,7 +382,7 @@ struct Arp32 : core::AHModule {
 
 void Arp32::process(const ProcessArgs &args) {
 	
-	core::AHModule::step();
+	AHModule::step();
 
 	// Wait a few steps for the inputs to flow through Rack
 	if (stepX < 10) { 
@@ -535,8 +535,8 @@ void Arp32::process(const ProcessArgs &args) {
 	// Set the value
 	outputs[OUT_OUTPUT].setVoltage(outVolts);
 	
-	bool gPulse = gatePulse.process(delta);
-	bool cPulse = eocPulse.process(delta);
+	bool gPulse = gatePulse.process(args.sampleTime);
+	bool cPulse = eocPulse.process(args.sampleTime);
 	
 	bool gatesOn = isRunning;
 	if (gateMode == TRIGGER) {

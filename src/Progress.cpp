@@ -222,7 +222,7 @@ struct Progress : core::AHModule {
 
 void Progress::process(const ProcessArgs &args) {
 	
-	core::AHModule::step();
+	AHModule::step();
 	
 	// Run
 	if (runningTrigger.process(params[RUN_PARAM].getValue())) {
@@ -241,7 +241,7 @@ void Progress::process(const ProcessArgs &args) {
 		else {
 			// Internal clock
 			float clockTime = powf(2.0f, params[CLOCK_PARAM].getValue() + inputs[CLOCK_INPUT].getVoltage());
-			phase += clockTime * delta;
+			phase += clockTime * args.sampleTime;
 			if (phase >= 1.0f) {
 				setIndex(index + 1, numSteps);
 			}
@@ -402,7 +402,7 @@ void Progress::process(const ProcessArgs &args) {
 		}	
 	}
 	
-	bool pulse = gatePulse.process(delta);
+	bool pulse = gatePulse.process(args.sampleTime);
 	
 	// Gate buttons
 	for (int i = 0; i < 8; i++) {

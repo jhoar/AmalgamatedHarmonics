@@ -221,10 +221,10 @@ void Generative::process(const ProcessArgs &args) {
 
 	oscillator.setPitch(params[FREQ_PARAM].getValue() + params[FM_PARAM].getValue() * inputs[FM_INPUT].getVoltage());
 	oscillator.offset = offset;
-	oscillator.step(delta);
+	oscillator.step(args.sampleTime);
 
 	clock.setPitch(clamp(params[CLOCK_PARAM].getValue() + inputs[CLOCK_INPUT].getVoltage(), -2.0f, 6.0f));
-	clock.step(delta);
+	clock.step(args.sampleTime);
 
 	float wavem = fabs(fmodf(params[WAVE_PARAM].getValue() + inputs[WAVE_INPUT].getVoltage(), 4.0f));
 
@@ -307,7 +307,7 @@ void Generative::process(const ProcessArgs &args) {
 	}
 
 	// In delay state and finished waiting
-	if (delayState && !delayPhase.process(delta)) {
+	if (delayState && !delayPhase.process(args.sampleTime)) {
 
 		// set the target voltage
 		target = mixedSignal;
@@ -335,13 +335,13 @@ void Generative::process(const ProcessArgs &args) {
 
 		// Rise
 		if (target > current) {
-			current += slew * crossfade(1.0f, shapeScale * (target - current), shape) * delta;
+			current += slew * crossfade(1.0f, shapeScale * (target - current), shape) * args.sampleTime;
 			if (current > target) // Trap overshoot
 				current = target;
 		}
 		// Fall
 		else if (target < current) {
-			current -= slew * crossfade(1.0f, shapeScale * (current - target), shape) * delta;
+			current -= slew * crossfade(1.0f, shapeScale * (current - target), shape) * args.sampleTime;
 			if (current < target) // Trap overshoot
 				current = target;
 		}
@@ -356,7 +356,7 @@ void Generative::process(const ProcessArgs &args) {
 	}
 
 	// If the gate is open, set output to high
-	if (gatePhase.process(delta)) {
+	if (gatePhase.process(args.sampleTime)) {
 		outputs[GATE_OUTPUT].setVoltage(10.0f);
 
 		lights[GATE_LIGHT].setSmoothBrightness(1.0f, args.sampleTime);

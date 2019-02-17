@@ -83,7 +83,7 @@ struct SLN : core::AHModule {
 
 void SLN::process(const ProcessArgs &args) {
 	
-	core::AHModule::step();
+	AHModule::step();
 	
 	float noise;
 	int noiseType = params[NOISE_PARAM].getValue();
@@ -115,13 +115,13 @@ void SLN::process(const ProcessArgs &args) {
 
 	// Rise
 	if (target > current) {
-		current += slew * crossfade(1.0f, shapeScale * (target - current), shape) * delta;
+		current += slew * crossfade(1.0f, shapeScale * (target - current), shape) * args.sampleTime;
 		if (current > target) // Trap overshoot
 			current = target;
 	}
 	// Fall
 	else if (target < current) {
-		current -= slew * crossfade(1.0f, shapeScale * (current - target), shape) * delta;
+		current -= slew * crossfade(1.0f, shapeScale * (current - target), shape) * args.sampleTime;
 		if (current < target) // Trap overshoot
 			current = target;
 	}

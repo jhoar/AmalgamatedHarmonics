@@ -23,18 +23,8 @@ struct ParamEvent {
 
 struct AHModule : rack::Module {
 
-	float delta;
-	float rho;
-
 	AHModule(int numParams, int numInputs, int numOutputs, int numLights = 0) {
 		config(numParams, numInputs, numOutputs, numLights);
-		delta = APP->engine->getSampleTime();
-		rho   = APP->engine->getSampleRate();
-	}
-
-	void onSampleRateChange() override { 
-		delta = APP->engine->getSampleTime();
-		rho   = APP->engine->getSampleRate();
 	}
 
 	int stepX = 0;

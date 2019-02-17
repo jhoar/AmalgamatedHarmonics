@@ -90,7 +90,7 @@ struct Imperfect2 : core::AHModule {
 
 void Imperfect2::process(const ProcessArgs &args) {
 	
-	core::AHModule::step();
+	AHModule::step();
 
 	float dlyLen;
 	float dlySpr;
@@ -112,7 +112,7 @@ void Imperfect2::process(const ProcessArgs &args) {
 		// If we have an active input, we should forget about previous valid inputs
 		if (inputActive) {
 			
-			bpm[i] = bpmCalc[i].calculateBPM(delta, inputs[TRIG_INPUT + i].getVoltage());
+			bpm[i] = bpmCalc[i].calculateBPM(args.sampleTime, inputs[TRIG_INPUT + i].getVoltage());
 		
 			lastValidInput = -1;
 	
@@ -205,7 +205,7 @@ void Imperfect2::process(const ProcessArgs &args) {
 	
 	for (int i = 0; i < 4; i++) {
 	
-		if (delayState[i] && !delayPhase[i].process(delta)) {
+		if (delayState[i] && !delayPhase[i].process(args.sampleTime)) {
 			if (gatePhase[i].trigger(gateTime[i])) {
 				actGateMs[i] = gateTime[i] * 1000;
 			}
@@ -214,7 +214,7 @@ void Imperfect2::process(const ProcessArgs &args) {
 		}
 
 		
-		if (gatePhase[i].process(delta)) {
+		if (gatePhase[i].process(args.sampleTime)) {
 			outputs[OUT_OUTPUT + i].setVoltage(10.0f);
 
 			lights[OUT_LIGHT + i * 2].setSmoothBrightness(1.0f, args.sampleTime);

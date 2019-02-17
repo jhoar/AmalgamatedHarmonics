@@ -157,7 +157,7 @@ struct Ruckus : core::AHModule {
 
 void Ruckus::process(const ProcessArgs &args) {
 	
-	core::AHModule::step();
+	AHModule::step();
 		
 	for (int i = 0; i < 4; i++) {
 
@@ -249,7 +249,7 @@ void Ruckus::process(const ProcessArgs &args) {
 
 	for (int i = 0; i < 4; i++) {
 
-		if (xGate[i].process(delta) && xMute[i]) {
+		if (xGate[i].process(args.sampleTime) && xMute[i]) {
 			outputs[XOUT_OUTPUT + i].setVoltage(10.0f);		
 		} else {
 			outputs[XOUT_OUTPUT + i].setVoltage(0.0f);		
@@ -257,7 +257,7 @@ void Ruckus::process(const ProcessArgs &args) {
 		
 		lights[XMUTE_LIGHT + i].setBrightness(xMute[i] ? 1.0 : 0.0);
 
-		if (yGate[i].process(delta) && yMute[i]) {
+		if (yGate[i].process(args.sampleTime) && yMute[i]) {
 			outputs[YOUT_OUTPUT + i].setVoltage(10.0f);		
 		} else {
 			outputs[YOUT_OUTPUT + i].setVoltage(0.0f);		

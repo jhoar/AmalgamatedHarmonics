@@ -67,7 +67,7 @@ struct ScaleQuantizer2 : core::AHModule {
 
 void ScaleQuantizer2::process(const ProcessArgs &args) {
 	
-	core::AHModule::step();
+	AHModule::step();
 	
 	lastScale = currScale;
 	lastRoot = currRoot;
@@ -131,7 +131,7 @@ void ScaleQuantizer2::process(const ProcessArgs &args) {
 			lastPitch[i] = holdPitch[i];
 		} 
 			
-		if (triggerPulse[i].process(delta)) {
+		if (triggerPulse[i].process(args.sampleTime)) {
 			outputs[TRIG_OUTPUT + i].setVoltage(10.0f);
 		} else {
 			outputs[TRIG_OUTPUT + i].setVoltage(0.0f);

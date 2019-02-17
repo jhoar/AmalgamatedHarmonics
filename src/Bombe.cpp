@@ -161,7 +161,7 @@ struct Bombe : core::AHModule {
 
 void Bombe::process(const ProcessArgs &args) {
 	
-	core::AHModule::step();
+	AHModule::step();
 
 	// Get inputs from Rack
 	bool clocked = clockTrigger.process(inputs[CLOCK_INPUT].getVoltage());

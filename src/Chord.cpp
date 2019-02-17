@@ -140,7 +140,7 @@ void Chord::process(const ProcessArgs &args) {
 		float pitchFine = params[DETUNE_PARAM + i].getValue() / 12.0; // +- 1V
 		float attn = params[ATTN_PARAM + i].getValue();
 		oscillator[i].pw = params[PW_PARAM + i].getValue() + params[PWM_PARAM + i].getValue() * inputs[PW_INPUT + i].getVoltage() / 10.0f;
-		oscillator[i].step(delta, pitchFine + pitchCv); // 1V/OCT
+		oscillator[i].step(args.sampleTime, pitchFine + pitchCv); // 1V/OCT
 
 		if (inputs[index].isConnected()) {
 

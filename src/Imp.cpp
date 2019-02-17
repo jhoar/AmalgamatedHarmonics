@@ -97,7 +97,7 @@ struct Imp : core::AHModule {
 
 void Imp::process(const ProcessArgs &args) {
 	
-	core::AHModule::step();
+	AHModule::step();
 
 	float dlyLen;
 	float dlySpr;
@@ -114,7 +114,7 @@ void Imp::process(const ProcessArgs &args) {
 	// If we have an active input, we should forget about previous valid inputs
 	if (inputActive) {
 		
-		bpm = bpmCalc.calculateBPM(delta, inputs[TRIG_INPUT].getVoltage());
+		bpm = bpmCalc.calculateBPM(args.sampleTime, inputs[TRIG_INPUT].getVoltage());
 	
 		if (haveTrigger) {
 			if (debugEnabled()) { std::cout << stepX << " have active input and has received trigger" << std::endl; }
@@ -191,7 +191,7 @@ void Imp::process(const ProcessArgs &args) {
 		}
 	}
 
-	if (coreDelayState && !coreDelayPhase.process(delta)) {
+	if (coreDelayState && !coreDelayPhase.process(args.sampleTime)) {
 		if (coreGatePhase.trigger(coreGateTime)) {
 			actGateMs = coreGateTime * 1000;
 		}
@@ -199,7 +199,7 @@ void Imp::process(const ProcessArgs &args) {
 		coreDelayState = false;
 	}
 
-	if (coreGatePhase.process(delta)) {
+	if (coreGatePhase.process(args.sampleTime)) {
 		lights[OUT_LIGHT].setSmoothBrightness(1.0f, args.sampleTime);
 		lights[OUT_LIGHT + 1].setSmoothBrightness(0.0f, args.sampleTime);
 	} else {
@@ -216,13 +216,13 @@ void Imp::process(const ProcessArgs &args) {
 
 	outputs[OUT_OUTPUT].setChannels(16);
 	for (int i = 0; i < 16; i++) {
-		if (delayState[i] && !delayPhase[i].process(delta)) {
+		if (delayState[i] && !delayPhase[i].process(args.sampleTime)) {
 			gatePhase[i].trigger(gateTime[i]);
 			gateState[i] = true;
 			delayState[i] = false;
 		}
 
-		if (gatePhase[i].process(delta)) {
+		if (gatePhase[i].process(args.sampleTime)) {
 			outputs[OUT_OUTPUT].setVoltage(10.0f, i);
 		} else {
 			outputs[OUT_OUTPUT].setVoltage(0.0f, i);
