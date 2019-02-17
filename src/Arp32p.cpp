@@ -305,7 +305,7 @@ struct Arp32 : core::AHModule {
         debugFlag = false;
 	}
 
-	void step() override;
+	void process(const ProcessArgs &args) override;
 	
 	void onReset() override {
 		isRunning = false;
@@ -380,7 +380,7 @@ struct Arp32 : core::AHModule {
 };
 
 
-void Arp32::step() {
+void Arp32::process(const ProcessArgs &args) {
 	
 	core::AHModule::step();
 
@@ -559,7 +559,7 @@ struct Arp32Display : TransparentWidget {
 		font = APP->window->loadFont(asset::plugin(pluginInstance, "res/EurostileBold.ttf"));
 	}
 
-	void draw(const DrawContext &ctx) override {
+	void draw(const DrawArgs &ctx) override {
 	
 		Vec pos = Vec(0, 15);
 

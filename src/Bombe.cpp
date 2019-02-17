@@ -64,7 +64,7 @@ struct Bombe : core::AHModule {
 
 	}
 
-	void step() override;
+	void process(const ProcessArgs &args) override;
 	void modeRandom(BombeChord lastValue, float y);
 	void modeSimple(BombeChord lastValue, float y);
 	void modeKey(BombeChord lastValue, float y);
@@ -159,7 +159,7 @@ struct Bombe : core::AHModule {
 
 };
 
-void Bombe::step() {
+void Bombe::process(const ProcessArgs &args) {
 	
 	core::AHModule::step();
 
@@ -263,14 +263,14 @@ void Bombe::step() {
 	}
 
 	if (updated) { // Green Update
-		lights[LOCK_LIGHT].setBrightnessSmooth(1.0f);
-		lights[LOCK_LIGHT + 1].setBrightnessSmooth(0.0f);
+		lights[LOCK_LIGHT].setSmoothBrightness(1.0f, args.sampleTime);
+		lights[LOCK_LIGHT + 1].setSmoothBrightness(0.0f, args.sampleTime);
 	} else if (locked) { // Yellow locked
-		lights[LOCK_LIGHT].setBrightnessSmooth(0.0f);
-		lights[LOCK_LIGHT + 1].setBrightnessSmooth(1.0f);
+		lights[LOCK_LIGHT].setSmoothBrightness(0.0f, args.sampleTime);
+		lights[LOCK_LIGHT + 1].setSmoothBrightness(1.0f, args.sampleTime);
 	} else { // No change
-		lights[LOCK_LIGHT].setBrightnessSmooth(0.0f);
-		lights[LOCK_LIGHT + 1].setBrightnessSmooth(0.0f);
+		lights[LOCK_LIGHT].setSmoothBrightness(0.0f, args.sampleTime);
+		lights[LOCK_LIGHT + 1].setSmoothBrightness(0.0f, args.sampleTime);
 	}
 
 	// Set the output pitches 
@@ -370,7 +370,7 @@ struct BombeDisplay : TransparentWidget {
 		font = APP->window->loadFont(asset::plugin(pluginInstance, "res/EurostileBold.ttf"));
 	}
 
-	void draw(const DrawContext &ctx) override {
+	void draw(const DrawArgs &ctx) override {
 	
 		nvgFontSize(ctx.vg, 14);
 		nvgFontFaceId(ctx.vg, font->handle);

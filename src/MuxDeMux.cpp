@@ -30,7 +30,7 @@ struct MuxDeMux : core::AHModule {
 
 	bool mask = false;
 
-	void step() override {
+	void process(const ProcessArgs &args) override {
 	
 		AHModule::step();
 

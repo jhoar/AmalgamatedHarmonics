@@ -48,7 +48,7 @@ struct Imp : core::AHModule {
 
 	}
 	
-	void step() override;
+	void process(const ProcessArgs &args) override;
 	
 	void onReset() override {
 		coreDelayState = false;
@@ -95,7 +95,7 @@ struct Imp : core::AHModule {
 		
 };
 
-void Imp::step() {
+void Imp::process(const ProcessArgs &args) {
 	
 	core::AHModule::step();
 
@@ -200,17 +200,17 @@ void Imp::step() {
 	}
 
 	if (coreGatePhase.process(delta)) {
-		lights[OUT_LIGHT].setBrightnessSmooth(1.0f);
-		lights[OUT_LIGHT + 1].setBrightnessSmooth(0.0f);
+		lights[OUT_LIGHT].setSmoothBrightness(1.0f, args.sampleTime);
+		lights[OUT_LIGHT + 1].setSmoothBrightness(0.0f, args.sampleTime);
 	} else {
 		coreGateState = false;
 
 		if (coreDelayState) {
-			lights[OUT_LIGHT].setBrightnessSmooth(0.0f);
-			lights[OUT_LIGHT + 1].setBrightnessSmooth(1.0f);
+			lights[OUT_LIGHT].setSmoothBrightness(0.0f, args.sampleTime);
+			lights[OUT_LIGHT + 1].setSmoothBrightness(1.0f, args.sampleTime);
 		} else {
-			lights[OUT_LIGHT].setBrightnessSmooth(0.0f);
-			lights[OUT_LIGHT + 1].setBrightnessSmooth(0.0f);
+			lights[OUT_LIGHT].setSmoothBrightness(0.0f, args.sampleTime);
+			lights[OUT_LIGHT + 1].setSmoothBrightness(0.0f, args.sampleTime);
 		}
 	}
 
@@ -248,7 +248,7 @@ struct ImpBox : TransparentWidget {
 		font = APP->window->loadFont(asset::plugin(pluginInstance, "res/DSEG14ClassicMini-BoldItalic.ttf"));
 	}
 
-	void draw(const DrawContext &ctx) override {
+	void draw(const DrawArgs &ctx) override {
 	
 		Vec pos(15.0, 0.0);
 

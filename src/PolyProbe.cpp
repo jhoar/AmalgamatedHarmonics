@@ -32,7 +32,7 @@ struct PolyProbe : core::AHModule {
 
 	PolyProbe() : core::AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {	}
 
-	void step() override {
+	void process(const ProcessArgs &args) override {
 	
 		AHModule::step();
 
@@ -84,7 +84,7 @@ struct PolyProbeDisplay : TransparentWidget {
 		font = APP->window->loadFont(asset::plugin(pluginInstance, "res/EurostileBold.ttf"));
 	}
 
-	void draw(const DrawContext &ctx) override {
+	void draw(const DrawArgs &ctx) override {
 	
 		nvgFontSize(ctx.vg, 14);
 		nvgFontFaceId(ctx.vg, font->handle);

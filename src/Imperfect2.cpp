@@ -53,7 +53,7 @@ struct Imperfect2 : core::AHModule {
 
 	}
 	
-	void step() override;
+	void process(const ProcessArgs &args) override;
 	
 	void onReset() override {
 		for (int i = 0; i < 4; i++) {
@@ -88,7 +88,7 @@ struct Imperfect2 : core::AHModule {
 		
 };
 
-void Imperfect2::step() {
+void Imperfect2::process(const ProcessArgs &args) {
 	
 	core::AHModule::step();
 
@@ -217,19 +217,19 @@ void Imperfect2::step() {
 		if (gatePhase[i].process(delta)) {
 			outputs[OUT_OUTPUT + i].setVoltage(10.0f);
 
-			lights[OUT_LIGHT + i * 2].setBrightnessSmooth(1.0f);
-			lights[OUT_LIGHT + i * 2 + 1].setBrightnessSmooth(0.0f);
+			lights[OUT_LIGHT + i * 2].setSmoothBrightness(1.0f, args.sampleTime);
+			lights[OUT_LIGHT + i * 2 + 1].setSmoothBrightness(0.0f, args.sampleTime);
 
 		} else {
 			outputs[OUT_OUTPUT + i].setVoltage(0.0f);
 			gateState[i] = false;
 
 			if (delayState[i]) {
-				lights[OUT_LIGHT + i * 2].setBrightnessSmooth(0.0f);
-				lights[OUT_LIGHT + i * 2 + 1].setBrightnessSmooth(1.0f);
+				lights[OUT_LIGHT + i * 2].setSmoothBrightness(0.0f, args.sampleTime);
+				lights[OUT_LIGHT + i * 2 + 1].setSmoothBrightness(1.0f, args.sampleTime);
 			} else {
-				lights[OUT_LIGHT + i * 2].setBrightnessSmooth(0.0f);
-				lights[OUT_LIGHT + i * 2 + 1].setBrightnessSmooth(0.0f);
+				lights[OUT_LIGHT + i * 2].setSmoothBrightness(0.0f, args.sampleTime);
+				lights[OUT_LIGHT + i * 2 + 1].setSmoothBrightness(0.0f, args.sampleTime);
 			}
 			
 		}
@@ -255,7 +255,7 @@ struct Imperfect2Box : TransparentWidget {
 		font = APP->window->loadFont(asset::plugin(pluginInstance, "res/DSEG14ClassicMini-BoldItalic.ttf"));
 	}
 
-	void draw(const DrawContext &ctx) override {
+	void draw(const DrawArgs &ctx) override {
 	
 		Vec pos = Vec(0, 15);
 

@@ -110,7 +110,7 @@ struct Chord : core::AHModule {
 
 	}
 
-	void step() override;
+	void process(const ProcessArgs &args) override;
 		
 	int poll = 50000;
 
@@ -121,7 +121,7 @@ struct Chord : core::AHModule {
 
 };
 
-void Chord::step() {
+void Chord::process(const ProcessArgs &args) {
 	
 	AHModule::step();
 

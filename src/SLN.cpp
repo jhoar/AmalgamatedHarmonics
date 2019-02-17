@@ -61,7 +61,7 @@ struct SLN : core::AHModule {
 		params[ATTN_PARAM].config(0.0, 1.0, 1.0, "Level", "%", 0.0f, 100.0f);
 	}
 	
-	void step() override;
+	void process(const ProcessArgs &args) override;
 
 	rack::dsp::SchmittTrigger inTrigger;
 	bogaudio::dsp::WhiteNoiseGenerator white;
@@ -81,7 +81,7 @@ struct SLN : core::AHModule {
 	
 };
 
-void SLN::step() {
+void SLN::process(const ProcessArgs &args) {
 	
 	core::AHModule::step();
 	

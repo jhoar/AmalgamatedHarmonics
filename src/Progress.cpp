@@ -66,7 +66,7 @@ struct Progress : core::AHModule {
 
 	}
 	
-	void step() override;
+	void process(const ProcessArgs &args) override;
 	
 	enum ParamType {
 		ROOT_TYPE,
@@ -220,7 +220,7 @@ struct Progress : core::AHModule {
 	
 };
 
-void Progress::step() {
+void Progress::process(const ProcessArgs &args) {
 	
 	core::AHModule::step();
 	
@@ -422,22 +422,22 @@ void Progress::step() {
 		if (i == index) {
 			if (gates[i]) {
 				// Gate is on and active = flash green
-				lights[GATE_LIGHTS + i * 2].setBrightnessSmooth(1.0f);
-				lights[GATE_LIGHTS + i * 2 + 1].setBrightnessSmooth(0.0f);
+				lights[GATE_LIGHTS + i * 2].setSmoothBrightness(1.0f, args.sampleTime);
+				lights[GATE_LIGHTS + i * 2 + 1].setSmoothBrightness(0.0f, args.sampleTime);
 			} else {
 				// Gate is off and active = flash dull yellow
-				lights[GATE_LIGHTS + i * 2].setBrightnessSmooth(0.20f);
-				lights[GATE_LIGHTS + i * 2 + 1].setBrightnessSmooth(0.20f);
+				lights[GATE_LIGHTS + i * 2].setSmoothBrightness(0.20f, args.sampleTime);
+				lights[GATE_LIGHTS + i * 2 + 1].setSmoothBrightness(0.20f, args.sampleTime);
 			}
 		} else {
 			if (gates[i]) {
 				// Gate is on and not active = red
-				lights[GATE_LIGHTS + i * 2].setBrightnessSmooth(0.0f);
-				lights[GATE_LIGHTS + i * 2 + 1].setBrightnessSmooth(1.0f);
+				lights[GATE_LIGHTS + i * 2].setSmoothBrightness(0.0f, args.sampleTime);
+				lights[GATE_LIGHTS + i * 2 + 1].setSmoothBrightness(1.0f, args.sampleTime);
 			} else {
 				// Gate is off and not active = black
-				lights[GATE_LIGHTS + i * 2].setBrightnessSmooth(0.0f);
-				lights[GATE_LIGHTS + i * 2 + 1].setBrightnessSmooth(0.0f);
+				lights[GATE_LIGHTS + i * 2].setSmoothBrightness(0.0f, args.sampleTime);
+				lights[GATE_LIGHTS + i * 2 + 1].setSmoothBrightness(0.0f, args.sampleTime);
 			}			
 		}
 		
@@ -453,8 +453,8 @@ void Progress::step() {
 	// Outputs
 	outputs[GATES_OUTPUT].setVoltage(gatesOn ? 10.0f : 0.0f);
 	lights[RUNNING_LIGHT].setBrightness(running);
-	lights[RESET_LIGHT].setBrightnessSmooth(resetTrigger.isHigh());
-	lights[GATES_LIGHT].setBrightnessSmooth(pulse);
+	lights[RESET_LIGHT].setSmoothBrightness(resetTrigger.isHigh(), args.sampleTime);
+	lights[GATES_LIGHT].setSmoothBrightness(pulse, args.sampleTime);
 
 	// Set the output pitches 
 	for (int i = 0; i < NUM_PITCHES; i++) {

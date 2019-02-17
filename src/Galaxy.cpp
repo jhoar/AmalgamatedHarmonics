@@ -91,7 +91,7 @@ struct Galaxy : core::AHModule {
 
 	}
 
-	void step() override;
+	void process(const ProcessArgs &args) override;
 
 	void getFromRandom();
 	void getFromKey();
@@ -193,7 +193,7 @@ struct Galaxy : core::AHModule {
 	std::string chordExtName = "";
 };
 
-void Galaxy::step() {
+void Galaxy::process(const ProcessArgs &args) {
 	
 	core::AHModule::step();
 
@@ -325,14 +325,14 @@ void Galaxy::step() {
 	}
 
 	if (badLight == 1) { // Green (scale->key)
-		lights[BAD_LIGHT].setBrightnessSmooth(1.0f);
-		lights[BAD_LIGHT + 1].setBrightnessSmooth(0.0f);
+		lights[BAD_LIGHT].setSmoothBrightness(1.0f, args.sampleTime);
+		lights[BAD_LIGHT + 1].setSmoothBrightness(0.0f, args.sampleTime);
 	} else if (badLight == 2) { // Red (->random)
-		lights[BAD_LIGHT].setBrightnessSmooth(0.0f);
-		lights[BAD_LIGHT + 1].setBrightnessSmooth(1.0f);
+		lights[BAD_LIGHT].setSmoothBrightness(0.0f, args.sampleTime);
+		lights[BAD_LIGHT + 1].setSmoothBrightness(1.0f, args.sampleTime);
 	} else { // No change
-		lights[BAD_LIGHT].setBrightnessSmooth(0.0f);
-		lights[BAD_LIGHT + 1].setBrightnessSmooth(0.0f);
+		lights[BAD_LIGHT].setSmoothBrightness(0.0f, args.sampleTime);
+		lights[BAD_LIGHT + 1].setSmoothBrightness(0.0f, args.sampleTime);
 	}
 
 	// Set the output pitches 
@@ -421,7 +421,7 @@ struct GalaxyDisplay : TransparentWidget {
 		font = APP->window->loadFont(asset::plugin(pluginInstance, "res/EurostileBold.ttf"));
 	}
 
-	void draw(const DrawContext &ctx) override {
+	void draw(const DrawArgs &ctx) override {
 	
 		nvgFontSize(ctx.vg, 12);
 		nvgFontFaceId(ctx.vg, font->handle);

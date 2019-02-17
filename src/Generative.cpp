@@ -57,7 +57,6 @@ struct Generative : core::AHModule {
 		params[FREQ_PARAM].config(-8.0f, 10.0f, 1.0f, "Frequency");
 		params[FREQ_PARAM].description = "Core LFO frequency";
 
-
 		struct WaveParamQuantity : app::ParamQuantity {
 			std::string getDisplayValueString() override {
 				float v = getValue();
@@ -153,9 +152,9 @@ struct Generative : core::AHModule {
 
 	}
 	
-	void step() override;
+	void process(const ProcessArgs &args) override;
 
-		json_t *dataToJson() override {
+	json_t *dataToJson() override {
 		json_t *rootJ = json_object();
 
 		// quantise
@@ -216,7 +215,7 @@ struct Generative : core::AHModule {
 
 };
 
-void Generative::step() {
+void Generative::process(const ProcessArgs &args) {
 	
 	AHModule::step();
 
@@ -360,19 +359,19 @@ void Generative::step() {
 	if (gatePhase.process(delta)) {
 		outputs[GATE_OUTPUT].setVoltage(10.0f);
 
-		lights[GATE_LIGHT].setBrightnessSmooth(1.0f);
-		lights[GATE_LIGHT + 1].setBrightnessSmooth(0.0f);
+		lights[GATE_LIGHT].setSmoothBrightness(1.0f, args.sampleTime);
+		lights[GATE_LIGHT + 1].setSmoothBrightness(0.0f, args.sampleTime);
 
 	} else {
 		outputs[GATE_OUTPUT].setVoltage(0.0f);
 		gateState = false;
 
 		if (delayState) {
-			lights[GATE_LIGHT].setBrightnessSmooth(0.0f);
-			lights[GATE_LIGHT + 1].setBrightnessSmooth(1.0f);
+			lights[GATE_LIGHT].setSmoothBrightness(0.0f, args.sampleTime);
+			lights[GATE_LIGHT + 1].setSmoothBrightness(1.0f, args.sampleTime);
 		} else {
-			lights[GATE_LIGHT].setBrightnessSmooth(0.0f);
-			lights[GATE_LIGHT + 1].setBrightnessSmooth(0.0f);
+			lights[GATE_LIGHT].setSmoothBrightness(0.0f, args.sampleTime);
+			lights[GATE_LIGHT + 1].setSmoothBrightness(0.0f, args.sampleTime);
 		}
 
 	}

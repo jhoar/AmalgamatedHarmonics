@@ -68,7 +68,7 @@ struct Progress2 : core::AHModule {
 
 	}
 	
-	void step() override;
+	void process(const ProcessArgs &args) override;
 			
 	json_t *dataToJson() override {
 		json_t *rootJ = json_object();
@@ -155,7 +155,7 @@ struct Progress2 : core::AHModule {
 	
 };
 
-void Progress2::step() {
+void Progress2::process(const ProcessArgs &args) {
 	
 	core::AHModule::step();
 	
@@ -248,22 +248,22 @@ void Progress2::step() {
 		if (i == index) {
 			if (pState.chords[i].gate) {
 				// Gate is on and active = flash green
-				lights[GATE_LIGHTS + i * 2].setBrightnessSmooth(1.0f);
-				lights[GATE_LIGHTS + i * 2 + 1].setBrightnessSmooth(0.0f);
+				lights[GATE_LIGHTS + i * 2].setSmoothBrightness(1.0f, args.sampleTime);
+				lights[GATE_LIGHTS + i * 2 + 1].setSmoothBrightness(0.0f, args.sampleTime);
 			} else {
 				// Gate is off and active = flash dull yellow
-				lights[GATE_LIGHTS + i * 2].setBrightnessSmooth(0.20f);
-				lights[GATE_LIGHTS + i * 2 + 1].setBrightnessSmooth(0.20f);
+				lights[GATE_LIGHTS + i * 2].setSmoothBrightness(0.20f, args.sampleTime);
+				lights[GATE_LIGHTS + i * 2 + 1].setSmoothBrightness(0.20f, args.sampleTime);
 			}
 		} else {
 			if (pState.chords[i].gate) {
 				// Gate is on and not active = red
-				lights[GATE_LIGHTS + i * 2].setBrightnessSmooth(0.0f);
-				lights[GATE_LIGHTS + i * 2 + 1].setBrightnessSmooth(1.0f);
+				lights[GATE_LIGHTS + i * 2].setSmoothBrightness(0.0f, args.sampleTime);
+				lights[GATE_LIGHTS + i * 2 + 1].setSmoothBrightness(1.0f, args.sampleTime);
 			} else {
 				// Gate is off and not active = black
-				lights[GATE_LIGHTS + i * 2].setBrightnessSmooth(0.0f);
-				lights[GATE_LIGHTS + i * 2 + 1].setBrightnessSmooth(0.0f);
+				lights[GATE_LIGHTS + i * 2].setSmoothBrightness(0.0f, args.sampleTime);
+				lights[GATE_LIGHTS + i * 2 + 1].setSmoothBrightness(0.0f, args.sampleTime);
 			}			
 		}
 	}
@@ -278,8 +278,8 @@ void Progress2::step() {
 	// Outputs
 	outputs[GATES_OUTPUT].setVoltage(gatesOn ? 10.0f : 0.0f);
 	lights[RUNNING_LIGHT].setBrightness(running);
-	lights[RESET_LIGHT].setBrightnessSmooth(resetTrigger.isHigh());
-	lights[GATES_LIGHT].setBrightnessSmooth(pulse);
+	lights[RESET_LIGHT].setSmoothBrightness(resetTrigger.isHigh(), args.sampleTime);
+	lights[GATES_LIGHT].setSmoothBrightness(pulse, args.sampleTime);
 
 	// Set the output pitches 
 	outputs[PITCH_OUTPUT].setChannels(6);

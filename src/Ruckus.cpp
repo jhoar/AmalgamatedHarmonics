@@ -58,7 +58,7 @@ struct Ruckus : core::AHModule {
 
 	}
 	
-	void step() override;
+	void process(const ProcessArgs &args) override;
 
 	json_t *dataToJson() override {
 		json_t *rootJ = json_object();
@@ -155,7 +155,7 @@ struct Ruckus : core::AHModule {
 	
 };
 
-void Ruckus::step() {
+void Ruckus::process(const ProcessArgs &args) {
 	
 	core::AHModule::step();
 		
@@ -227,20 +227,20 @@ void Ruckus::step() {
 
 			switch (state[i]) {
 			case 0: 
-				lights[ACTIVE_LIGHT + i].setBrightnessSmooth(0.0f);
-				lights[TRIG_LIGHT + i].setBrightnessSmooth(0.0f);
+				lights[ACTIVE_LIGHT + i].setSmoothBrightness(0.0f, args.sampleTime);
+				lights[TRIG_LIGHT + i].setSmoothBrightness(0.0f, args.sampleTime);
 				break;
 			case 1:
-				lights[ACTIVE_LIGHT + i].setBrightnessSmooth(1.0f);
-				lights[TRIG_LIGHT + i].setBrightnessSmooth(0.0f);
+				lights[ACTIVE_LIGHT + i].setSmoothBrightness(1.0f, args.sampleTime);
+				lights[TRIG_LIGHT + i].setSmoothBrightness(0.0f, args.sampleTime);
 				break;
 			case 2:
-				lights[ACTIVE_LIGHT + i].setBrightnessSmooth(1.0f);
-				lights[TRIG_LIGHT + i].setBrightnessSmooth(1.0f);
+				lights[ACTIVE_LIGHT + i].setSmoothBrightness(1.0f, args.sampleTime);
+				lights[TRIG_LIGHT + i].setSmoothBrightness(1.0f, args.sampleTime);
 				break;
 			default:
-				lights[ACTIVE_LIGHT + i].setBrightnessSmooth(0.0f);
-				lights[TRIG_LIGHT + i].setBrightnessSmooth(0.0f);
+				lights[ACTIVE_LIGHT + i].setSmoothBrightness(0.0f, args.sampleTime);
+				lights[TRIG_LIGHT + i].setSmoothBrightness(0.0f, args.sampleTime);
 			}
 
 		}

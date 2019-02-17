@@ -46,7 +46,7 @@ struct Circle : core::AHModule {
 
 	}
 
-	void step() override;
+	void process(const ProcessArgs &args) override;
 	
 	json_t *dataToJson() override {
 		json_t *rootJ = json_object();
@@ -81,7 +81,7 @@ struct Circle : core::AHModule {
 		
 };
 
-void Circle::step() {
+void Circle::process(const ProcessArgs &args) {
 	
 	core::AHModule::step();
 

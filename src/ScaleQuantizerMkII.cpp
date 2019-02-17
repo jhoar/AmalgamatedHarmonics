@@ -47,7 +47,7 @@ struct ScaleQuantizer2 : core::AHModule {
 
 	}
 
-	void step() override;
+	void process(const ProcessArgs &args) override;
 
 	bool firstStep = true;
 	int lastScale = 0;
@@ -65,7 +65,7 @@ struct ScaleQuantizer2 : core::AHModule {
 
 };
 
-void ScaleQuantizer2::step() {
+void ScaleQuantizer2::process(const ProcessArgs &args) {
 	
 	core::AHModule::step();
 	

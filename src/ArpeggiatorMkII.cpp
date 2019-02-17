@@ -470,7 +470,7 @@ struct Arpeggiator2 : core::AHModule {
 
 	}
 
-	void step() override;
+	void process(const ProcessArgs &args) override;
 	
 	void onReset() override {
 		newSequence = 0;
@@ -579,7 +579,7 @@ struct Arpeggiator2 : core::AHModule {
 };
 
 
-void Arpeggiator2::step() {
+void Arpeggiator2::process(const ProcessArgs &args) {
 	
 	AHModule::step();
 
@@ -914,7 +914,7 @@ struct Arpeggiator2Display : TransparentWidget {
 		font = APP->window->loadFont(asset::plugin(pluginInstance, "res/EurostileBold.ttf"));
 	}
 
-	void draw(const DrawContext &ctx) override {
+	void draw(const DrawArgs &ctx) override {
 	
 		Vec pos = Vec(0, 15);
 
