@@ -345,6 +345,7 @@ void Galaxy::process(const ProcessArgs &args) {
 		}
 	} else {
 		for (int i = 0; i < NUM_PITCHES; i++) {
+			outputs[PITCH_OUTPUT + i].setChannels(1);
 			outputs[PITCH_OUTPUT + i].setVoltage(outVolts[i]);
 		}
 	}
@@ -544,7 +545,7 @@ struct GalaxyWidget : ModuleWidget {
 			Menu *createChildMenu() override {
 				Menu *menu = new Menu;
 				std::vector<bool> modes = {true, false};
-				std::vector<std::string> names = {"Poly", "Mono"};
+				std::vector<std::string> names = {"Poly cable", "Mono cable"};
 				for (size_t i = 0; i < modes.size(); i++) {
 					PolyModeItem *item = createMenuItem<PolyModeItem>(names[i], CHECKMARK(module->polymode == modes[i]));
 					item->module = module;
@@ -604,7 +605,7 @@ struct GalaxyWidget : ModuleWidget {
 		};
 
 		menu->addChild(construct<MenuLabel>());
-		PolyModeMenu *polymodeItem = createMenuItem<PolyModeMenu>("Polyphony");
+		PolyModeMenu *polymodeItem = createMenuItem<PolyModeMenu>("Output cables");
 		polymodeItem->module = galaxy;
 		menu->addChild(polymodeItem);
 
