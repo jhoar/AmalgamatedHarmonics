@@ -967,17 +967,17 @@
      borderopacity="1.0"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:zoom="3.5473684"
-     inkscape:cx="30.693967"
-     inkscape:cy="99.792284"
+     inkscape:zoom="2.1657895"
+     inkscape:cx="120.92345"
+     inkscape:cy="190"
      inkscape:current-layer="layer2"
      showgrid="false"
      units="mm"
-     inkscape:window-width="2675"
-     inkscape:window-height="1463"
-     inkscape:window-x="808"
-     inkscape:window-y="327"
-     inkscape:window-maximized="0"
+     inkscape:window-width="1780"
+     inkscape:window-height="1046"
+     inkscape:window-x="129"
+     inkscape:window-y="-11"
+     inkscape:window-maximized="1"
      showguides="false"
      inkscape:guide-bbox="true"
      inkscape:showpageshadow="false"
@@ -1408,26 +1408,6 @@
        id="rect1556"
        style="fill:#000000;fill-opacity:1;stroke-width:0.78504759;filter:url(#filter3933)" />
     <rect
-       style="fill:#000000;fill-opacity:1;stroke-width:0.78504759"
-       id="rect1558"
-       width="35"
-       height="45"
-       x="54.488243"
-       y="-376.38666"
-       ry="4.2187495"
-       transform="scale(1,-1)" />
-    <text
-       id="text1562"
-       y="340.38663"
-       x="52.608032"
-       style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
-       xml:space="preserve"><tspan
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1"
-         y="340.38663"
-         x="52.608032"
-         id="tspan1560"
-         sodipodi:role="line">INERTIA</tspan></text>
-    <rect
        transform="scale(1,-1)"
        ry="4.2187495"
        y="-376.38666"
@@ -1459,26 +1439,6 @@
          x="157.66273"
          y="340.38663"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">MODE</tspan></text>
-    <rect
-       transform="scale(1,-1)"
-       ry="4.2187495"
-       y="-376.38666"
-       x="102.48824"
-       height="45"
-       width="35"
-       id="rect1578"
-       style="fill:#000000;fill-opacity:1;stroke-width:0.78504759" />
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
-       x="106.48303"
-       y="340.32935"
-       id="text1582"><tspan
-         sodipodi:role="line"
-         id="tspan1580"
-         x="106.48303"
-         y="340.32935"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1">HOLD</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:37.33333206px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none"
@@ -1500,17 +1460,6 @@
          x="70.716072"
          y="382.35538"
          style="fill:#d4af37;fill-opacity:1" /></text>
-    <text
-       id="text1576"
-       y="340.32935"
-       x="194.9622"
-       style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;"
-       xml:space="preserve"><tspan
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;"
-         y="340.32935"
-         x="194.9622"
-         id="tspan1574"
-         sodipodi:role="line">GATE</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:39.76836014px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.99420899"

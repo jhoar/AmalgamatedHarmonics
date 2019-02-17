@@ -14,7 +14,7 @@
    height="380"
    id="svg11791"
    version="1.1"
-   inkscape:version="0.92.2 5c3e80d, 2017-08-06"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)"
    sodipodi:docname="ScaleQuantizerMkII_src.svg"
    inkscape:export-filename="/home/vortico/src/cpp/VCV/Rack/plugins/Befaco/res/Rampage.png"
    inkscape:export-xdpi="80.124367"
@@ -954,17 +954,17 @@
      borderopacity="1.0"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.6853183"
-     inkscape:cx="110.91843"
-     inkscape:cy="212.96924"
+     inkscape:zoom="2.1657895"
+     inkscape:cx="150"
+     inkscape:cy="121.63466"
      inkscape:current-layer="layer2"
      showgrid="false"
      units="mm"
-     inkscape:window-width="1137"
-     inkscape:window-height="856"
-     inkscape:window-x="167"
-     inkscape:window-y="48"
-     inkscape:window-maximized="0"
+     inkscape:window-width="1780"
+     inkscape:window-height="1046"
+     inkscape:window-x="129"
+     inkscape:window-y="-11"
+     inkscape:window-maximized="1"
      showguides="false"
      inkscape:guide-bbox="true"
      inkscape:showpageshadow="false"
@@ -1315,16 +1315,7 @@
        height="45"
        width="35"
        id="rect3073"
-       style="fill:#000000;fill-opacity:0;stroke-width:0.78504759" />
-    <rect
-       style="fill:#000000;fill-opacity:0;stroke-width:0.78504759"
-       id="rect3075"
-       width="35"
-       height="45"
-       x="102.48824"
-       y="-432.38678"
-       ry="4.2187495"
-       transform="scale(1,-1)" />
+       style="fill:#000000;fill-opacity:1;stroke-width:0.78504759" />
     <rect
        transform="scale(1,-1)"
        ry="4.2187495"
@@ -1333,7 +1324,7 @@
        height="45"
        width="35"
        id="rect3077"
-       style="fill:#000000;fill-opacity:0;stroke-width:0.78504759" />
+       style="fill:#000000;fill-opacity:1;stroke-width:0.78504759" />
     <g
        style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:condensed;font-size:24px;line-height:125%;font-family:Miso;-inkscape-font-specification:'Miso Bold Condensed';letter-spacing:-0.06px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
        id="text4395"
@@ -1359,55 +1350,23 @@
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none"
        x="57.595024"
-       y="398.47763"
+       y="398.38678"
        id="text5449"><tspan
          sodipodi:role="line"
          id="tspan5447"
          x="57.595024"
-         y="398.47763"
+         y="398.38678"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">KEY</tspan></text>
-    <rect
-       style="fill:#000000;fill-opacity:0;stroke-width:0.78504759"
-       id="rect2684"
-       width="35"
-       height="45"
-       x="14.988245"
-       y="-432.38678"
-       ry="4.2187495"
-       transform="scale(1,-1)" />
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:39.76836014px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.99420899"
-       x="16.713182"
-       y="396.17004"
-       id="text2688"
-       transform="scale(0.99420903,1.0058247)"><tspan
-         sodipodi:role="line"
-         id="tspan2686"
-         x="16.713182"
-         y="396.17004"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.60489655px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke-width:0.99420899">V/OCT</tspan></text>
-    <text
-       id="text2696"
-       y="398.47763"
-       x="104.05856"
-       style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
-       xml:space="preserve"><tspan
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1"
-         y="398.47763"
-         x="104.05856"
-         id="tspan2694"
-         sodipodi:role="line">SCALE</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none"
        x="260.85022"
-       y="398.47763"
+       y="398.32428"
        id="text2704"><tspan
          sodipodi:role="line"
          id="tspan2702"
          x="260.85022"
-         y="398.47763"
+         y="398.32428"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">TRANS</tspan></text>
     <text
        xml:space="preserve"
@@ -1822,26 +1781,6 @@
            y="450.72498"
            style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:18.66666603px;font-family:'Cooper Black';-inkscape-font-specification:'Cooper Black, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">H</tspan></text>
     </g>
-    <rect
-       style="fill:#000000;fill-opacity:0;stroke-width:0.78504759"
-       id="rect1228"
-       width="35"
-       height="45"
-       x="150.48825"
-       y="-432.38678"
-       ry="4.2187495"
-       transform="scale(1,-1)" />
-    <text
-       id="text1232"
-       y="398.47763"
-       x="157.11064"
-       style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
-       xml:space="preserve"><tspan
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1"
-         y="398.47763"
-         x="157.11064"
-         id="tspan1230"
-         sodipodi:role="line">TRIG</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;"
@@ -1969,7 +1908,7 @@
          id="tspan2303"
          sodipodi:role="line">Lo</tspan></text>
     <rect
-       style="fill:#000000;fill-opacity:0;stroke-width:0.78504759"
+       style="fill:#000000;fill-opacity:1;stroke-width:0.78504759"
        id="rect3090"
        width="35"
        height="45"
@@ -1979,12 +1918,12 @@
        transform="scale(1,-1)" />
     <text
        id="text3094"
-       y="398.47763"
+       y="398.32428"
        x="157.05856"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none"
        xml:space="preserve"><tspan
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1"
-         y="398.47763"
+         y="398.32428"
          x="157.05856"
          id="tspan3092"
          sodipodi:role="line">SCALE</tspan></text>

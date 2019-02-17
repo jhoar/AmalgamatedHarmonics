@@ -954,17 +954,17 @@
      borderopacity="1.0"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.3026316"
-     inkscape:cx="-147.52521"
-     inkscape:cy="155.25714"
+     inkscape:zoom="2.1657895"
+     inkscape:cx="67.5"
+     inkscape:cy="190"
      inkscape:current-layer="layer2"
      showgrid="false"
      units="mm"
-     inkscape:window-width="2044"
-     inkscape:window-height="1098"
-     inkscape:window-x="2315"
-     inkscape:window-y="493"
-     inkscape:window-maximized="0"
+     inkscape:window-width="1780"
+     inkscape:window-height="1046"
+     inkscape:window-x="129"
+     inkscape:window-y="-11"
+     inkscape:window-maximized="1"
      showguides="false"
      inkscape:guide-bbox="true"
      inkscape:showpageshadow="false"
@@ -1289,7 +1289,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -1432,46 +1432,46 @@
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;display:inline;fill:#d4af37;fill-opacity:1;stroke:none"
-       x="12.538082"
+       x="9.3740196"
        y="260.32425"
        id="text1696"><tspan
          sodipodi:role="line"
          id="tspan1694"
-         x="12.538082"
+         x="9.3740196"
          y="260.32425"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">GATE L</tspan></text>
     <text
        id="text1632"
        y="225.32425"
-       x="15.053707"
+       x="14.670895"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;display:inline;fill:#d4af37;fill-opacity:1;stroke:none"
        xml:space="preserve"><tspan
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1"
          y="225.32425"
-         x="15.053707"
+         x="14.670895"
          id="tspan1630"
          sodipodi:role="line">DLY S</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:40.00027466px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;display:inline;fill:#d4af37;fill-opacity:1;stroke:none;stroke-width:1.00000679"
-       x="12.154952"
+       x="8.607872"
        y="295.32626"
        id="text1636"
-       transform="scale(1.0000068,0.99999319)"><tspan
+       transform="scale(1.0000068,0.9999932)"><tspan
          sodipodi:role="line"
          id="tspan1634"
-         x="12.154952"
+         x="8.607872"
          y="295.32626"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66674042px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1;stroke-width:1.00000679">GATE S</tspan></text>
     <text
        id="text1692-5"
        y="155.38675"
-       x="24.019854"
+       x="32.603188"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;display:inline;fill:#d4af37;fill-opacity:1;stroke:none"
        xml:space="preserve"><tspan
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1"
          y="155.38675"
-         x="24.019854"
+         x="32.603188"
          id="tspan1690-5"
          sodipodi:role="line">IN</tspan></text>
     <rect
@@ -1498,12 +1498,12 @@
        transform="scale(1.0000068,0.9999932)"
        id="text6711"
        y="330.32648"
-       x="20.746159"
+       x="26.05591"
        style="font-style:normal;font-weight:normal;font-size:40.00027466px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;display:inline;fill:#d4af37;fill-opacity:1;stroke:none;stroke-width:1.00000679"
        xml:space="preserve"><tspan
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66674042px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1;stroke-width:1.00000679"
          y="330.32648"
-         x="20.746159"
+         x="26.05591"
          id="tspan6709"
          sodipodi:role="line">DIV</tspan></text>
     <path

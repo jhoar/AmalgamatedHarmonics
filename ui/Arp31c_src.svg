@@ -954,17 +954,17 @@
      borderopacity="1.0"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:zoom="3.9184211"
-     inkscape:cx="68.01041"
+     inkscape:zoom="2.1657895"
+     inkscape:cx="67.5"
      inkscape:cy="190"
      inkscape:current-layer="layer2"
      showgrid="false"
      units="mm"
-     inkscape:window-width="2319"
-     inkscape:window-height="1712"
-     inkscape:window-x="522"
-     inkscape:window-y="62"
-     inkscape:window-maximized="0"
+     inkscape:window-width="1780"
+     inkscape:window-height="1046"
+     inkscape:window-x="129"
+     inkscape:window-y="-11"
+     inkscape:window-maximized="1"
      showguides="false"
      inkscape:guide-bbox="true"
      inkscape:showpageshadow="false"
@@ -1341,13 +1341,13 @@
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:39.76836014px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none;stroke-width:0.99420899"
        x="26.072256"
-       y="115.71262"
+       y="116.14774"
        id="text2688"
        transform="scale(0.99420903,1.0058247)"><tspan
          sodipodi:role="line"
          id="tspan2686"
          x="26.072256"
-         y="115.71262"
+         y="116.14774"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.60489655px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1;stroke-width:0.99420899">CV</tspan></text>
     <text
        id="text7961"
@@ -1390,12 +1390,12 @@
        transform="scale(1,-1)" />
     <text
        id="text10544"
-       y="225.82425"
+       y="225.88676"
        x="22.524698"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none"
        xml:space="preserve"><tspan
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1"
-         y="225.82425"
+         y="225.88676"
          x="22.524698"
          id="tspan10542"
          sodipodi:role="line">ARP</tspan></text>
@@ -1430,15 +1430,6 @@
          x="-101.72372"
          y="231.99516" /></text>
     <rect
-       transform="scale(1,-1)"
-       ry="4.2187495"
-       y="-315.88672"
-       x="49.988243"
-       height="45"
-       width="35"
-       id="rect4102"
-       style="fill:#000000;fill-opacity:1;stroke-width:0.78504759" />
-    <rect
        style="fill:#000000;fill-opacity:1;stroke-width:0.78504759"
        id="rect4110"
        width="35"
@@ -1459,12 +1450,12 @@
     <text
        transform="scale(0.99420903,1.0058247)"
        id="text1541"
-       y="394.09125"
+       y="396.01755"
        x="22.75869"
        style="font-style:normal;font-weight:normal;font-size:39.76836014px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.99420899"
        xml:space="preserve"><tspan
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.60489655px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke-width:0.99420899"
-         y="394.09125"
+         y="396.01755"
          x="22.75869"
          id="tspan1539"
          sodipodi:role="line">OUT</tspan></text>
@@ -1472,21 +1463,21 @@
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
        x="92.717407"
-       y="396.32947"
+       y="398.267"
        id="text1547"><tspan
          sodipodi:role="line"
          id="tspan1545"
          x="92.717407"
-         y="396.32947"
+         y="398.267"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1">EOC</tspan></text>
     <text
        id="text1535"
-       y="396.38675"
+       y="398.32428"
        x="54.9622"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
        xml:space="preserve"><tspan
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1"
-         y="396.38675"
+         y="398.32428"
          x="54.9622"
          id="tspan1533"
          sodipodi:role="line">GATE</tspan></text>
@@ -1576,12 +1567,12 @@
     <text
        transform="scale(0.99420903,1.0058247)"
        id="text5166"
-       y="115.71262"
+       y="116.14774"
        x="55.685753"
        style="font-style:normal;font-weight:normal;font-size:39.76836014px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none;stroke-width:0.99420899"
        xml:space="preserve"><tspan
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.60489655px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1;stroke-width:0.99420899"
-         y="115.71262"
+         y="116.14774"
          x="55.685753"
          id="tspan5164"
          sodipodi:role="line">GATE</tspan></text>
