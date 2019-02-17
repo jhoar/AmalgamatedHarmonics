@@ -955,13 +955,13 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="2.1657895"
-     inkscape:cx="-57.829448"
+     inkscape:cx="42.535867"
      inkscape:cy="153.14216"
      inkscape:current-layer="layer2"
      showgrid="false"
      units="mm"
-     inkscape:window-width="5021"
-     inkscape:window-height="2126"
+     inkscape:window-width="1780"
+     inkscape:window-height="1046"
      inkscape:window-x="129"
      inkscape:window-y="-11"
      inkscape:window-maximized="1"
@@ -1698,5 +1698,21 @@
        id="path1148"
        style="display:inline;opacity:0.97000002;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        sodipodi:type="star" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;display:inline;fill:#d4af37;fill-opacity:1;stroke:none"
+       x="195.91937"
+       y="201.82426"
+       id="text1128"><tspan
+         sodipodi:role="line"
+         id="tspan1126"
+         x="195.91937"
+         y="201.82426"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">BIAS</tspan></text>
+    <path
+       inkscape:connector-curvature="0"
+       style="display:inline;opacity:1;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.9941355;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 208.70525,215.2832 v 47.86935 h -2.728 V 215.2832 Z"
+       id="rect1152" />
   </g>
 </svg>
