@@ -8,12 +8,14 @@ using namespace ah;
 struct MuxDeMux : core::AHModule {
 
 	enum ParamIds {
+		BIAS_PARAM,
 		NUM_PARAMS
 	};
 	enum InputIds {
 		ENUMS(MONO_INPUT,16),
 		POLYCV_INPUT,
 		POLYGATE_INPUT,
+		BIAS_INPUT,
 		NUM_INPUTS
 	};
 	enum OutputIds {
@@ -26,13 +28,24 @@ struct MuxDeMux : core::AHModule {
 		NUM_LIGHTS
 	};
 
-	MuxDeMux() : core::AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {	}
+	MuxDeMux() : core::AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
+		params[BIAS_PARAM].config(-10.0, 10.0, 10.0, "Bias", "V");
+		params[BIAS_PARAM].description = "Voltage for polyphonic output gates"; 
+	}
 
 	bool mask = false;
 
 	void process(const ProcessArgs &args) override {
 	
 		AHModule::step();
+
+		float bias = 10.0f;
+
+		if (inputs[BIAS_INPUT].isConnected()) {
+			bias = inputs[BIAS_INPUT].getVoltage();
+		} else {
+			bias = params[BIAS_PARAM].getValue();
+		}
 
 		// Process poly input
 		int i = 0;
@@ -71,7 +84,7 @@ struct MuxDeMux : core::AHModule {
 		for( ; j < maxChan; j++) {
 			if (inputs[MONO_INPUT + j].isConnected()) {
 				outputs[POLYCV_OUTPUT].setVoltage(inputs[MONO_INPUT + j].getVoltage(), j);
-				outputs[POLYGATE_OUTPUT].setVoltage(10.0, j);
+				outputs[POLYGATE_OUTPUT].setVoltage(bias, j);
 			} else {
 				outputs[POLYCV_OUTPUT].setVoltage(0.0, j);
 				outputs[POLYGATE_OUTPUT].setVoltage(0.0, j);
@@ -102,6 +115,8 @@ struct MuxDeMuxWidget : ModuleWidget {
 			addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 2, 1 + i - 8, true, true),  module, MuxDeMux::MONO_OUTPUT + i));
 		}
 
+		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 5, 3, true, true), module, MuxDeMux::BIAS_PARAM)); 
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 5, 4, true, true), module, MuxDeMux::BIAS_INPUT));
 
 		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 5, 6, true, true),  module, MuxDeMux::POLYCV_OUTPUT));
 		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 5, 8, true, true),  module, MuxDeMux::POLYGATE_OUTPUT));
