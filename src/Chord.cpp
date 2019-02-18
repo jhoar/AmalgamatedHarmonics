@@ -139,7 +139,8 @@ struct Chord : core::AHModule {
 
 	EvenVCO oscillator[6];
 
-	bool polymode;
+	bool polymode = false;
+	bool switchMode = false;
 
 };
 
@@ -153,9 +154,16 @@ void Chord::process(const ProcessArgs &args) {
 	float spread = params[SPREAD_PARAM].getValue();
 	float SQRT2_2 = sqrt(2.0) / 2.0;
 
+	if(switchMode) {
+		for (int i = 0; i < NUM_PITCHES; i++) {
+			oscillator[i].reset();
+		}
+		switchMode = false;
+	}
+
 	for (int i = 0; i < NUM_PITCHES; i++) {
 
-		float inputPitchCV;
+		float inputPitchCV = 0.0f;
 		bool haveInput = false;
 
 		if (polymode) {
@@ -202,7 +210,10 @@ void Chord::process(const ProcessArgs &args) {
 
 		}
 	}
-	
+
+	// if(stepX % 500 == 0)
+	// 	std::cout << nP[0] << " " << nP[1] << " " << out[0] << " " << out[1] << std::endl;
+
 	if (nP[0] > 0) {
 		out[0] = (out[0] * 5.0f) / (float)nP[0];
 	} 
@@ -210,8 +221,6 @@ void Chord::process(const ProcessArgs &args) {
 	if (nP[1] > 0) {
 		out[1] = (out[1] * 5.0f) / (float)nP[1];
 	} 
-
-	// std::cout << nPitches << " " << out[0] << " " << out[1] << std::endl;
 
 	if (outputs[OUT_OUTPUT].isConnected() && outputs[OUT_OUTPUT + 1].isConnected()) {
 		outputs[OUT_OUTPUT].setVoltage(out[0]);
@@ -262,6 +271,7 @@ struct ChordWidget : ModuleWidget {
 			bool polymode;
 			void onAction(const event::Action &e) override {
 				module->polymode = polymode;
+				module->switchMode = true;
 			}
 		};
 
@@ -282,7 +292,7 @@ struct ChordWidget : ModuleWidget {
 		};
 
 		menu->addChild(construct<MenuLabel>());
-		PolyModeMenu *polymodeItem = createMenuItem<PolyModeMenu>("Polyphony");
+		PolyModeMenu *polymodeItem = createMenuItem<PolyModeMenu>("Input cable mode");
 		polymodeItem->module = chord;
 		menu->addChild(polymodeItem);
 

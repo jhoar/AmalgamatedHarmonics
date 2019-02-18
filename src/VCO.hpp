@@ -97,6 +97,13 @@ struct EvenVCO {
 
 	EvenVCO() {	}
 
+	void reset() {
+		phase = 0.0;
+		sync = 0.0;
+		tri = 0.0;
+		halfPhase = false;
+	}
+
 	void step(float delta, float pitch) {
 		// Compute frequency, pitch is 1V/oct
 		float freq = dsp::FREQ_C4 * powf(2.0, pitch);
