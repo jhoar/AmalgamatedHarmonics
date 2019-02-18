@@ -1,5 +1,7 @@
 #pragma once
 
+#pragma GCC diagnostic ignored "-Warray-bounds"
+
 #include "rack.hpp"
 
 using namespace rack;
