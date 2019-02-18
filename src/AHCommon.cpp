@@ -408,16 +408,16 @@ InversionDefinition defaultChord {0, {0, 4, 7, 0, 4, 7}, "M"};
 
 std::string noteNames[12] = {
 	"C",
-	"C#/Db",
+	"Db",
 	"D",
-	"D#/Eb",
+	"Eb",
 	"E",
 	"F",
-	"F#/Gb",
+	"Gb",
 	"G",
-	"G#/Ab",
+	"Ab",
 	"A",
-	"A#/Bb",
+	"Bb",
 	"B",
 };
 
