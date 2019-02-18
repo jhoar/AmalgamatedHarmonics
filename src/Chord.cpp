@@ -167,10 +167,10 @@ void Chord::process(const ProcessArgs &args) {
 		bool haveInput = false;
 
 		if (polymode) {
-			if (inputs[PITCH_INPUT + 1].getVoltage() > 0.0f) {
+			if (inputs[PITCH_INPUT + 1].getVoltage(i) > 0.0f) {
 				haveInput = true;
 			}
-			inputPitchCV = inputs[PITCH_INPUT].getVoltage();
+			inputPitchCV = inputs[PITCH_INPUT].getVoltage(i);
 		} else {
 			if (inputs[PITCH_INPUT + i].isConnected()) {
 				haveInput = true;
