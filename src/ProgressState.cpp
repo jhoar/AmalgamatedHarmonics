@@ -211,7 +211,7 @@ void RootChoice::step() {
         color = nvgRGBA(0x00, 0xFF, 0xFF, 0x6F);
     }
 
-    text = std::to_string(pStep + 1) + ": ";
+    text = std::string("◊ ") + std::to_string(pStep + 1) + ": ";
 
     if (pState->chordMode) {
         text += inv.getName(pState->mode, pState->key, pC.modeDegree, pC.rootNote);
@@ -278,7 +278,7 @@ void ChordChoice::step() {
         color = nvgRGBA(0x00, 0xFF, 0xFF, 0x6F);
     }
 
-    text = music::BasicChordSet[pState->chords[pStep].chord].name;
+    text = std::string("◊ ") + music::BasicChordSet[pState->chords[pStep].chord].name;
 
 }
 // Chord menu
@@ -316,7 +316,7 @@ void InversionChoice::step() {
         color = nvgRGBA(0x00, 0xFF, 0xFF, 0x6F);
     }
 
-    text = music::inversionNames[pState->chords[pStep].inversion];
+    text = std::string("◊ ") + music::inversionNames[pState->chords[pStep].inversion];
 
 }
 // Inversion menu
@@ -345,7 +345,7 @@ void ProgressStepWidget::setPState(ProgressState *pState, int pStep) {
     math::Vec pos;
 
     RootChoice *rootChoice = createWidget<RootChoice>(pos);
-    rootChoice->box.size.x = 170.0;
+    rootChoice->box.size.x = 140.0;
     rootChoice->textOffset.y = 10.0;
     rootChoice->pState = pState;
     rootChoice->pStep = pStep;
@@ -358,7 +358,7 @@ void ProgressStepWidget::setPState(ProgressState *pState, int pStep) {
     addChild(this->separators[0]);
 
     ChordChoice *chordChoice = createWidget<ChordChoice>(pos);
-    chordChoice->box.size.x = 100.0;
+    chordChoice->box.size.x = 95.0;
     chordChoice->textOffset.y = 10.0;
     chordChoice->pState = pState;
     chordChoice->pStep = pStep;
@@ -371,7 +371,7 @@ void ProgressStepWidget::setPState(ProgressState *pState, int pStep) {
     addChild(this->separators[1]);
 
     InversionChoice *inversionChoice = createWidget<InversionChoice>(pos);
-    inversionChoice->box.size.x = 50.0;
+    inversionChoice->box.size.x = 40.0;
     inversionChoice->textOffset.y = 10.0;
     inversionChoice->pState = pState;
     inversionChoice->pStep = pStep;

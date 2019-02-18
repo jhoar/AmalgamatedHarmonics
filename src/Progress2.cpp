@@ -328,7 +328,7 @@ struct Progress2Widget : ModuleWidget {
 		}
 		
 		ProgressStateWidget *stateWidget = createWidget<ProgressStateWidget>(Vec(5.0, 130.0));
-		stateWidget->box.size = Vec(335, 165);
+		stateWidget->box.size = Vec(275, 165);
 		stateWidget->setPState(module ? &module->pState : NULL);
 		addChild(stateWidget);
 
