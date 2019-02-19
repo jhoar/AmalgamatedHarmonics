@@ -28,6 +28,8 @@ extern Model *modelMuxDeMux;
 
 extern Model *modelPolyProbe;
 
+extern Model *modelPolyScope;
+
 extern Model *modelProgress;
 
 extern Model *modelProgress2;

@@ -23,6 +23,7 @@ void init(rack::Plugin *p) {
 	p->addModel(modelSLN);
 	p->addModel(modelMuxDeMux);
 	p->addModel(modelPolyProbe);
+	p->addModel(modelPolyScope);
 
 	p->addModel(modelArpeggiator2);
 	p->addModel(modelProgress);

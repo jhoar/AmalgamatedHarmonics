@@ -73,6 +73,11 @@
 			"description": "Probe Polyphonic cable state",
 			"tags": ["UTILITY"]
 		},
+		"PolyScope": {
+			"name": "PolyScope",
+			"description": "Polyphonic scope",
+			"tags": ["VISUAL"]
+		},
         "Arpeggiator2": {
 			"name": "Arpeggiator MkII (deprecated)",
 			"description": "A multi-input arpeggiator",
