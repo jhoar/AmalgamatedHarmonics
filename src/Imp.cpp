@@ -48,6 +48,25 @@ struct Imp : core::AHModule {
 
 	}
 	
+	json_t *dataToJson() override {
+		json_t *rootJ = json_object();
+
+		// randomZero
+		json_t *randomZeroJ = json_boolean(randomZero);
+		json_object_set_new(rootJ, "randomzero", randomZeroJ);
+
+		return rootJ;
+	}
+	
+	void dataFromJson(json_t *rootJ) override {
+
+		// randomZero
+		json_t *randomZeroJ = json_object_get(rootJ, "randomzero");
+		if (randomZeroJ)
+			randomZero = json_boolean_value(randomZeroJ);
+
+	}
+
 	void process(const ProcessArgs &args) override;
 	
 	void onReset() override {
@@ -90,7 +109,8 @@ struct Imp : core::AHModule {
 	rack::dsp::SchmittTrigger inTrigger;
 
 	int counter = 0;
-	
+	bool randomZero = true;
+
 	digital::BpmCalculator bpmCalc;
 		
 };
@@ -109,9 +129,6 @@ void Imp::process(const ProcessArgs &args) {
 	bool inputActive = inputs[TRIG_INPUT].isConnected();
 	bool haveTrigger = inTrigger.process(inputs[TRIG_INPUT].getVoltage());
 	
-	// This is where we manage row-chaining/normalisation, i.e a row can be active without an
-	// input by receiving the input clock from a previous (higher) row
-	// If we have an active input, we should forget about previous valid inputs
 	if (inputActive) {
 		
 		bpm = bpmCalc.calculateBPM(args.sampleTime, inputs[TRIG_INPUT].getVoltage());
@@ -143,7 +160,7 @@ void Imp::process(const ProcessArgs &args) {
 
 		if (counter % division == 0) { 
 
-				// check that we are not in the gate phase
+			// check that we are not in the gate phase
 			if (!coreGatePhase.ishigh() && !coreDelayPhase.ishigh()) {
 
 				// Determine delay and gate times for all active outputs
@@ -169,17 +186,32 @@ void Imp::process(const ProcessArgs &args) {
 				// check that we are not in the gate phase
 				if (!gatePhase[i].ishigh() && !delayPhase[i].ishigh()) {
 
-				// Determine delay and gate times for all active outputs
-					double rndD = clamp(random::normal(), -2.0f, 2.0f);
-					delayTime[i] = clamp(dlyLen + dlySpr * rndD, 0.0f, 100.0f);
-				
-					// The modified gate time cannot be earlier than the start of the delay
-					double rndG = clamp(random::normal(), -2.0f, 2.0f);
-					gateTime[i] = clamp(gateLen + gateSpr * rndG, digital::TRIGGER, 100.0f);
+					if (i == 0 && !randomZero) {
 
-					if (debugEnabled()) { 
-						std::cout << stepX << " Delay: " << ": Len: " << dlyLen << " Spr: " << dlySpr << " r: " << rndD << " = " << delayTime << std::endl; 
-						std::cout << stepX << " Gate: " << ": Len: " << gateLen << ", Spr: " << gateSpr << " r: " << rndG << " = " << gateTime << std::endl; 
+						// Non-randomised delay and gate length
+						delayTime[i] = coreDelayTime;
+						gateTime[i] = coreGateTime;
+
+						if (debugEnabled()) { 
+							std::cout << stepX << " Delay: " << ": Len: " << dlyLen << " Spr: " << dlySpr << " = " << delayTime << std::endl; 
+							std::cout << stepX << " Gate: " << ": Len: " << gateLen << ", Spr: " << gateSpr << " = " << gateTime << std::endl; 
+						}
+
+					} else {
+
+						// Determine delay and gate times for all active outputs
+						double rndD = clamp(random::normal(), -2.0f, 2.0f);
+						delayTime[i] = clamp(dlyLen + dlySpr * rndD, 0.0f, 100.0f);
+					
+						// The modified gate time cannot be earlier than the start of the delay
+						double rndG = clamp(random::normal(), -2.0f, 2.0f);
+						gateTime[i] = clamp(gateLen + gateSpr * rndG, digital::TRIGGER, 100.0f);
+
+						if (debugEnabled()) { 
+							std::cout << stepX << " Delay: " << ": Len: " << dlyLen << " Spr: " << dlySpr << " r: " << rndD << " = " << delayTime << std::endl; 
+							std::cout << stepX << " Gate: " << ": Len: " << gateLen << ", Spr: " << gateSpr << " r: " << rndG << " = " << gateTime << std::endl; 
+						}
+
 					}
 
 					// Trigger the respective delay pulse generator
@@ -331,6 +363,43 @@ struct ImpWidget : ModuleWidget {
 			addChild(display);
 		}	
 	}
+
+		void appendContextMenu(Menu *menu) override {
+
+		Imp *imp = dynamic_cast<Imp*>(module);
+		assert(imp);
+
+		struct RandomZeroItem : MenuItem {
+			Imp *module;
+			bool randomZero;
+			void onAction(const event::Action &e) override {
+				module->randomZero = randomZero;
+			}
+		};
+
+		struct RandomZeroMenu : MenuItem {
+			Imp *module;
+			Menu *createChildMenu() override {
+				Menu *menu = new Menu;
+				std::vector<bool> modes = {true, false};
+				std::vector<std::string> names = {"Randomized", "Non-randomized"};
+				for (size_t i = 0; i < modes.size(); i++) {
+					RandomZeroItem *item = createMenuItem<RandomZeroItem>(names[i], CHECKMARK(module->randomZero == modes[i]));
+					item->module = module;
+					item->randomZero = modes[i];
+					menu->addChild(item);
+				}
+				return menu;
+			}
+		};
+
+		menu->addChild(construct<MenuLabel>());
+		RandomZeroMenu *randomZeroItem = createMenuItem<RandomZeroMenu>("Randomize first output");
+		randomZeroItem->module = imp;
+		menu->addChild(randomZeroItem);
+
+     }
+
 };
 
 Model *modelImp = createModel<Imp, ImpWidget>("Imp");
