@@ -2,8 +2,6 @@
 
 #include "AHCommon.hpp"
 
-#include "component.hpp"
-
 using namespace ah;
 
 struct ProgressChord : music::Chord {

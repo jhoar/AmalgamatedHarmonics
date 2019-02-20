@@ -1,5 +1,3 @@
-#include "component.hpp"
-
 #include "AH.hpp"
 #include "AHCommon.hpp"
 

@@ -3,7 +3,7 @@
 #include <iostream>
 
 #include "AH.hpp"
-#include "component.hpp"
+#include "componentlibrary.hpp"
 
 namespace ah {
 

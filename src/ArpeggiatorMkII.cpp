@@ -1,6 +1,5 @@
 #include "AH.hpp"
 #include "AHCommon.hpp"
-#include "component.hpp"
 
 #include <iostream>
 
