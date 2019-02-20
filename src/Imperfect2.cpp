@@ -35,14 +35,14 @@ struct Imperfect2 : core::AHModule {
 	Imperfect2() : core::AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
 
 		for (int i = 0; i < 4; i++) {
-			params[DELAY_PARAM + i].config(1.0f, 2.0f, 1.0f, "Delay length", "ms", 2.0f, 500.0f, -1000.0f);
+			params[DELAY_PARAM + i].config(1.0f, 2.0f, 1.0f, "Delay length", "ms", -2.0f, 1000.0f, 0.0f);
 
-			params[DELAYSPREAD_PARAM + i].config(1.0f, 2.0f, 1.0f, "Delay length spread", "ms", 2.0f, 500.0f, -1000.0f);
+			params[DELAYSPREAD_PARAM + i].config(1.0f, 2.0f, 1.0f, "Delay length spread", "ms", -2.0f, 1000.0f, 0.0f);
 			params[DELAYSPREAD_PARAM + i].description = "Magnitude of random time applied to delay length";
 
-			params[LENGTH_PARAM + i].config(1.001f, 2.0f, 1.001f, "Gate length", "ms", 2.0f, 500.0f, -1000.0f); // Always produce gate
+			params[LENGTH_PARAM + i].config(1.001f, 2.0f, 1.001f, "Gate length", "ms", -2.0f, 1000.0f, 0.0f); // Always produce gate
 
-			params[LENGTHSPREAD_PARAM + i].config(1.0, 2.0, 1.0f, "Gate length spread", "ms", 2.0f, 500.0f, -1000.0f);
+			params[LENGTHSPREAD_PARAM + i].config(1.0, 2.0, 1.0f, "Gate length spread", "ms", -2.0f, 1000.0f, 0.0f);
 			params[LENGTHSPREAD_PARAM + i].description = "Magnitude of random time applied to gate length";
 
 			params[DIVISION_PARAM + i].config(1, 64, 1, "Clock division");
