@@ -60,6 +60,8 @@ struct Generative : core::AHModule {
 		struct WaveParamQuantity : app::ParamQuantity {
 			std::string getDisplayValueString() override {
 				float v = getValue();
+				float r = math::eucMod(v, 1.0);
+				int f = (int)std::floor(v);
 
 				std::string dial;
 				std::string left;
@@ -67,9 +69,14 @@ struct Generative : core::AHModule {
 
 				if (math::chop(v) == 0.0 || v == 4.0f) {
 					return "Sine " + ParamQuantity::getDisplayValueString();
+				} else if (f == 1 && math::chop(r) == 0.0) {
+					return "Triangle " + ParamQuantity::getDisplayValueString();
+				} else if (f == 2 && math::chop(r) == 0.0) {
+					return "Saw " + ParamQuantity::getDisplayValueString();
+				} else if (f == 3 && math::chop(r) == 0.0) {
+					return "Square " + ParamQuantity::getDisplayValueString();
 				}
 
-				float r = math::eucMod(v, 1.0);
 				if (r < 0.3333f) {
 					dial = "|..";	
 				} else if (r > 0.6666f) {
@@ -78,7 +85,6 @@ struct Generative : core::AHModule {
 					dial = ".|.";	
 				}
 
-				int f = (int)std::floor(v);
 				switch(f) {
 					case 0:
 						left = "Sine";
