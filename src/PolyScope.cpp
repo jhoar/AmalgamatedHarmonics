@@ -8,6 +8,24 @@ static const int BUFFER_SIZE = 512;
 
 using namespace ah;
 
+std::array<NVGcolor, 16> colourMap = {
+nvgRGBA(255,	0,	0, 240),
+nvgRGBA(223,	0,	32, 240),
+nvgRGBA(191,	0,	64, 240),
+nvgRGBA(159,	0,	96, 240),
+nvgRGBA(128,	0,	128, 240),
+nvgRGBA(96,	0,	159, 240),
+nvgRGBA(64,	0,	191, 240),
+nvgRGBA(32,	0,	223, 240),
+nvgRGBA(0,	32,	223, 240),
+nvgRGBA(0,	64,	191, 240),
+nvgRGBA(0,	96,	159, 240),
+nvgRGBA(0,	128,	128, 240),
+nvgRGBA(0,	159,	96, 240),
+nvgRGBA(0,	191,	64, 240),
+nvgRGBA(0,	223,	32, 240),
+nvgRGBA(0,	255,	0, 240)};
+
 /** 
  * PolyScope, based on Andrew Belt's Scope module.
  */
@@ -118,7 +136,7 @@ struct PolyScopeDisplay : TransparentWidget {
 		}
 		nvgLineCap(args.vg, NVG_ROUND);
 		nvgMiterLimit(args.vg, 2.0f);
-		nvgStrokeWidth(args.vg, 2.0f);
+		nvgStrokeWidth(args.vg, 1.25f);
 		nvgGlobalCompositeOperation(args.vg, NVG_LIGHTER);
 		nvgStroke(args.vg);
 		nvgResetScissor(args.vg);
@@ -140,7 +158,7 @@ struct PolyScopeDisplay : TransparentWidget {
 		}
 
 		for (int i = 0; i < 16; i++) {
-			nvgStrokeColor(args.vg, nvgRGBA(0xe1 - (0xf * i), 0x02, 0xf * i, 0xe0));
+			nvgStrokeColor(args.vg, colourMap[i]);
 			drawWaveform(args, values[i]);
 		}
 	}
