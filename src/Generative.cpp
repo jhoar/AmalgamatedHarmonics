@@ -60,59 +60,45 @@ struct Generative : core::AHModule {
 		struct WaveParamQuantity : app::ParamQuantity {
 			std::string getDisplayValueString() override {
 				float v = getValue();
-				if (v == 0.f) {
+
+				std::string dial;
+				std::string left;
+				std::string right;
+
+				if (math::chop(v) == 0.0 || v == 4.0f) {
 					return "Sine " + ParamQuantity::getDisplayValueString();
-				}
-				if (v == 1.f) {
-					return "Triangle " + ParamQuantity::getDisplayValueString();
-				}
-				if (v == 2.f) {
-					return "Saw " + ParamQuantity::getDisplayValueString();
-				}
-				if (v == 3.f) {
-					return "Square " + ParamQuantity::getDisplayValueString();
-				}
-				if (v == 4.f) {
-					return "Sine " + ParamQuantity::getDisplayValueString();
-				}
-				if (v > 0.f && v < 1.f/3.f) {
-					return "Sine|..Triangle " + ParamQuantity::getDisplayValueString();
-				}
-				if (v >= 1.f/3.f && v < 2.f/3.f) {
-					return "Sine.|.Triangle " + ParamQuantity::getDisplayValueString();		
-				}
-				if (v >= 2.f/3.f && v < 1.f) {
-					return "Sine..|Triangle " + ParamQuantity::getDisplayValueString();
-				}
-				if (v > 1.f && v < 4.f/3.f) {
-					return "Triangle|..Saw " + ParamQuantity::getDisplayValueString();
-				}
-				if (v >= 4.f/3.f && v < 5.f/3.f) {
-					return "Triangle.|.Saw " + ParamQuantity::getDisplayValueString();		
-				}
-				if (v >= 5.f/3.f && v < 2.f) {
-					return "Triangle..|Saw " + ParamQuantity::getDisplayValueString();
-				}
-				if (v > 2.f && v < 7.f/3.f) {
-					return "Saw|..Square " + ParamQuantity::getDisplayValueString();
-				}
-				if (v >= 7.f/3.f && v < 8.f/3.f) {
-					return "Saw.|.Square " + ParamQuantity::getDisplayValueString();		
-				}
-				if (v >= 8.f/3.f && v < 3.f) {
-					return "Saw..|Square " + ParamQuantity::getDisplayValueString();
-				}
-				if (v > 3.f && v < 10.f/3.f) {
-					return "Square|..Sine " + ParamQuantity::getDisplayValueString();
-				}
-				if (v >= 10.f/3.f && v < 11.f/3.f) {
-					return "Square.|.Sine " + ParamQuantity::getDisplayValueString();		
-				}
-				if (v >= 11.f/3.f && v < 4.f) {
-					return "Square..|Sine " + ParamQuantity::getDisplayValueString();
 				}
 
-				return "Sine (probably) " + ParamQuantity::getDisplayValueString();
+				float r = math::eucMod(v, 1.0);
+				if (r < 0.3333f) {
+					dial = "|..";	
+				} else if (r > 0.6666f) {
+					dial = "..|";	
+				} else {
+					dial = ".|.";	
+				}
+
+				int f = (int)std::floor(v);
+				switch(f) {
+					case 0:
+						left = "Sine";
+						right = "Triangle ";
+						break;
+					case 1:
+						left = "Triangle";
+						right = "Saw ";
+						break;
+					case 2:
+						left = "Saw";
+						right = "Square ";
+						break;
+					case 3:
+						left = "Square";
+						right = "Sine ";
+						break;
+				}
+
+				return left + dial + right + ParamQuantity::getDisplayValueString();
 
 			}
 		};
