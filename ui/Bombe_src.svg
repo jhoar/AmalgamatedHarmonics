@@ -969,14 +969,14 @@
      inkscape:pageshadow="2"
      inkscape:zoom="2.1657895"
      inkscape:cx="119.07655"
-     inkscape:cy="190"
+     inkscape:cy="42.247875"
      inkscape:current-layer="layer2"
      showgrid="false"
      units="mm"
-     inkscape:window-width="1780"
-     inkscape:window-height="1046"
-     inkscape:window-x="129"
-     inkscape:window-y="-11"
+     inkscape:window-width="1187"
+     inkscape:window-height="697"
+     inkscape:window-x="85"
+     inkscape:window-y="-8"
      inkscape:window-maximized="1"
      showguides="false"
      inkscape:guide-bbox="true"
@@ -1546,9 +1546,9 @@
          y="226.38676"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">X</tspan></text>
     <rect
-       style="fill:#d4af37;fill-opacity:1;stroke-width:1.31871581"
+       style="fill:#d4af37;fill-opacity:1;stroke-width:0.92248851"
        id="rect4634"
-       width="71.523468"
+       width="35"
        height="62.135891"
        x="14.988245"
        y="-449.52267"
@@ -1660,35 +1660,5 @@
          x="25.932911"
          y="441.75082"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.60489655px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.99420899">CV</tspan></text>
-    <path
-       transform="matrix(1.0806724,0.57665211,-0.55278499,1.1273317,130.21086,104.64909)"
-       inkscape:transform-center-y="-1.7704976"
-       inkscape:transform-center-x="-0.0087335528"
-       d="m 76.627278,232.54102 -3.137955,9.25351 5.843863,7.83093 -9.77029,-0.12489 -5.641802,7.97774 -2.900417,-9.33069 -9.330689,-2.90042 7.977735,-5.6418 -0.124881,-9.77029 7.830927,5.84386 z"
-       inkscape:randomized="0"
-       inkscape:rounded="0"
-       inkscape:flatsided="false"
-       sodipodi:arg2="-0.15707963"
-       sodipodi:arg1="-0.78539816"
-       sodipodi:r2="7.3570223"
-       sodipodi:r1="14.714044"
-       sodipodi:cy="242.94542"
-       sodipodi:cx="66.222878"
-       sodipodi:sides="5"
-       id="path4640"
-       style="display:inline;opacity:0.97000002;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       sodipodi:type="star" />
-    <text
-       transform="scale(0.99420903,1.0058247)"
-       id="text4644"
-       y="441.75082"
-       x="55.427837"
-       style="font-style:normal;font-weight:normal;font-size:39.76836014px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.99420899"
-       xml:space="preserve"><tspan
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.60489655px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.99420899"
-         y="441.75082"
-         x="55.427837"
-         id="tspan4642"
-         sodipodi:role="line">GATE</tspan></text>
   </g>
 </svg>

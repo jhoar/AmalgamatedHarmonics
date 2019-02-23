@@ -968,15 +968,15 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="2.1657895"
-     inkscape:cx="120.92345"
-     inkscape:cy="190"
-     inkscape:current-layer="layer2"
+     inkscape:cx="38.274605"
+     inkscape:cy="-13.159171"
+     inkscape:current-layer="g4666"
      showgrid="false"
      units="mm"
-     inkscape:window-width="1780"
-     inkscape:window-height="1046"
-     inkscape:window-x="129"
-     inkscape:window-y="-11"
+     inkscape:window-width="1187"
+     inkscape:window-height="697"
+     inkscape:window-x="85"
+     inkscape:window-y="-8"
      inkscape:window-maximized="1"
      showguides="false"
      inkscape:guide-bbox="true"
@@ -1581,9 +1581,9 @@
          y="-449.52267"
          x="14.988245"
          height="62.135891"
-         width="71.523468"
+         width="35"
          id="rect4634"
-         style="fill:#d4af37;fill-opacity:1;stroke-width:1.31871581" />
+         style="fill:#d4af37;fill-opacity:1;stroke-width:0.92248851" />
       <rect
          style="fill:#d4af37;fill-opacity:1;stroke-width:1.922966"
          id="rect1115"
@@ -1690,36 +1690,6 @@
            x="25.932911"
            id="tspan4636"
            sodipodi:role="line">CV</tspan></text>
-      <path
-         sodipodi:type="star"
-         style="display:inline;opacity:0.97000002;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         id="path4640"
-         sodipodi:sides="5"
-         sodipodi:cx="66.222878"
-         sodipodi:cy="242.94542"
-         sodipodi:r1="14.714044"
-         sodipodi:r2="7.3570223"
-         sodipodi:arg1="-0.78539816"
-         sodipodi:arg2="-0.15707963"
-         inkscape:flatsided="false"
-         inkscape:rounded="0"
-         inkscape:randomized="0"
-         d="m 76.627278,232.54102 -3.137955,9.25351 5.843863,7.83093 -9.77029,-0.12489 -5.641802,7.97774 -2.900417,-9.33069 -9.330689,-2.90042 7.977735,-5.6418 -0.124881,-9.77029 7.830927,5.84386 z"
-         inkscape:transform-center-x="-0.0087335528"
-         inkscape:transform-center-y="-1.7704976"
-         transform="matrix(1.0806724,0.57665211,-0.55278499,1.1273317,130.21086,104.64909)" />
-      <text
-         xml:space="preserve"
-         style="font-style:normal;font-weight:normal;font-size:39.76836014px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.99420899"
-         x="55.427837"
-         y="441.75082"
-         id="text4644"
-         transform="scale(0.99420903,1.0058247)"><tspan
-           sodipodi:role="line"
-           id="tspan4642"
-           x="55.427837"
-           y="441.75082"
-           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.60489655px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.99420899">GATE</tspan></text>
     </g>
   </g>
 </svg>
