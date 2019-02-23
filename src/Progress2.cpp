@@ -296,7 +296,7 @@ struct Progress2Widget : ModuleWidget {
 
 		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 4, 0, true, false), module, Progress2::KEY_PARAM));
 		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 5, 0, true, false), module, Progress2::MODE_PARAM));
-		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 6, 1, true, false), module, Progress2::PART_PARAM));
+		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 6, 0, true, false), module, Progress2::PART_PARAM));
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 4, 1, true, false), module, Progress2::KEY_INPUT));
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 5, 1, true, false), module, Progress2::MODE_INPUT));
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 6, 1, true, false), module, Progress2::PART_INPUT));
