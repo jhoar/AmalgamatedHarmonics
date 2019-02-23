@@ -29,6 +29,7 @@ struct Progress2 : core::AHModule {
 		EXT_CLOCK_INPUT,
 		RESET_INPUT,
 		STEPS_INPUT,
+		PART_INPUT,
 		NUM_INPUTS
 	};
 	enum OutputIds {
@@ -200,7 +201,12 @@ void Progress2::process(const ProcessArgs &args) {
 		pState.setKey(params[KEY_PARAM].getValue());
 	}
 
-	pState.setPart((int)params[PART_PARAM].getValue());
+	if (inputs[PART_INPUT].isConnected()) {
+		float pVal = math::clamp(inputs[PART_INPUT].getVoltage(), 0.0f, 10.0f);
+		pState.setPart((int)math::rescale(pVal, 0.0f, 10.0f, 0, 31));
+	} else {
+		pState.setPart(params[PART_PARAM].getValue());
+	}
 
 	// Update
 	pState.update();
@@ -293,6 +299,7 @@ struct Progress2Widget : ModuleWidget {
 		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 6, 1, true, false), module, Progress2::PART_PARAM));
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 4, 1, true, false), module, Progress2::KEY_INPUT));
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 5, 1, true, false), module, Progress2::MODE_INPUT));
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 6, 1, true, false), module, Progress2::PART_INPUT));
 
 		addChild(createLight<MediumLight<GreenLight>>(gui::getPosition(gui::LIGHT, 0, 5, true, false), module, Progress2::GATES_LIGHT));
 		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 7, 0, true, false), module, Progress2::GATES_OUTPUT));
