@@ -17,19 +17,29 @@ struct ProgressState {
 	int offset = 24; 	// Repeated notes in chord and expressed in the chord definition as being transposed 2 octaves lower. 
 						// When played this offset needs to be removed (or the notes removed, or the notes transposed to an octave higher)
 	
-	ProgressChord chords[8];
 	music::KnownChords knownChords;
+
+	ProgressChord parts[32][8];
 
 	ProgressState();
 	json_t *toJson();
 	void fromJson(json_t *pStateJ);
 
+	void onReset();
+	void update();
+	void toggleGate(int step);
+	bool gateState(int step);
+	float *getChordVoltages(int step);
+	ProgressChord *getChord(int step);
+
 	void setMode(int m);
 	void setKey(int k);
+	void setPart(int p);
 
-	int mode;
-	int key;
-	int nSteps;
+	int mode = 0;
+	int key = 0;
+	int currentPart = 0;
+	int nSteps = 1;
 
 	bool dirty = true; // read on first run through
 	bool settingChanged = false;

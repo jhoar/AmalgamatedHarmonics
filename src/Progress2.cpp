@@ -19,6 +19,7 @@ struct Progress2 : core::AHModule {
 		KEY_PARAM,
 		MODE_PARAM,
 		ENUMS(GATE_PARAM,8),
+		PART_PARAM,
 		NUM_PARAMS
 	};
 	enum InputIds {
@@ -57,6 +58,8 @@ struct Progress2 : core::AHModule {
 
 		params[MODE_PARAM].config(0.0, 6.0, 0.0, "Mode"); 
 		params[MODE_PARAM].description = "Mode from which chords are selected"; 
+
+		params[PART_PARAM].config(0.0, 31.0, 0.0, "Part"); 
 
 		for (int i = 0; i < 8; i++) {
 			params[GATE_PARAM + i].config(0.0, 1.0, 0.0, "Gate active");
@@ -139,9 +142,7 @@ struct Progress2 : core::AHModule {
 	GateMode gateMode = CONTINUOUS;
 	
 	void onReset() override {
-		for (int i = 0; i < 8; i++) {
-			pState.chords[i].gate = true;
-		}
+		pState.onReset();
 	}
 	
 	void setIndex(int index, int nSteps) {
@@ -188,14 +189,6 @@ void Progress2::process(const ProcessArgs &args) {
 		setIndex(0, pState.nSteps);
 	}
 
-	bool update = false;
-
-	// Updated modes
-	if (pState.settingChanged) {
-		update = true;
-		pState.settingChanged = false;
-	}
-
 	if (inputs[MODE_INPUT].isConnected()) {
 		pState.setMode(music::getModeFromVolts(inputs[MODE_INPUT].getVoltage()));
 	} else {
@@ -207,36 +200,22 @@ void Progress2::process(const ProcessArgs &args) {
 	} else {
 		pState.setKey(params[KEY_PARAM].getValue());
 	}
-	
-	if (pState.chordMode && pState.dirty) { // Input changes so force re-read
-		pState.dirty = false;
-		update = true;
-	}
+
+	pState.setPart((int)params[PART_PARAM].getValue());
 
 	// Update
-	for (int step = 0; step < 8; step++) {
+	pState.update();
 
-		if (pState.chords[step].dirty || update) { // Also reset if key or mode or module settings has changed
-
-			pState.chords[step].dirty = false;
-
-			music::ChordDefinition &chordDef = knownChords.chords[pState.chords[step].chord];
-			std::vector<int> &invDef = chordDef.inversions[pState.chords[step].inversion].formula;
-			pState.chords[step].setVoltages(invDef, pState.offset);
-
-		}
-	}
-	
 	// So, after all that, we calculate the pitch output
 	bool pulse = gatePulse.process(args.sampleTime);
 	
 	// Gate buttons
 	for (int i = 0; i < 8; i++) {
 		if (gateTriggers[i].process(params[GATE_PARAM + i].getValue())) {
-			pState.chords[i].gate = !pState.chords[i].gate;
+			pState.toggleGate(i);
 		}
 		
-		bool gateOn = (running && i == index && pState.chords[i].gate);
+		bool gateOn = (running && i == index && pState.gateState(i));
 		if (gateMode == TRIGGER) {
 			gateOn = gateOn && pulse;
 		} else if (gateMode == RETRIGGER) {
@@ -246,7 +225,7 @@ void Progress2::process(const ProcessArgs &args) {
 		outputs[GATE_OUTPUT + i].setVoltage(gateOn ? 10.0f : 0.0f);	
 		
 		if (i == index) {
-			if (pState.chords[i].gate) {
+			if (pState.gateState(i)) {
 				// Gate is on and active = flash green
 				lights[GATE_LIGHTS + i * 2].setSmoothBrightness(1.0f, args.sampleTime);
 				lights[GATE_LIGHTS + i * 2 + 1].setSmoothBrightness(0.0f, args.sampleTime);
@@ -256,7 +235,7 @@ void Progress2::process(const ProcessArgs &args) {
 				lights[GATE_LIGHTS + i * 2 + 1].setSmoothBrightness(0.20f, args.sampleTime);
 			}
 		} else {
-			if (pState.chords[i].gate) {
+			if (pState.gateState(i)) {
 				// Gate is on and not active = red
 				lights[GATE_LIGHTS + i * 2].setSmoothBrightness(0.0f, args.sampleTime);
 				lights[GATE_LIGHTS + i * 2 + 1].setSmoothBrightness(1.0f, args.sampleTime);
@@ -268,7 +247,7 @@ void Progress2::process(const ProcessArgs &args) {
 		}
 	}
 
-	bool gatesOn = (running && pState.chords[index].gate);
+	bool gatesOn = (running && pState.gateState(index));
 	if (gateMode == TRIGGER) {
 		gatesOn = gatesOn && pulse;
 	} else if (gateMode == RETRIGGER) {
@@ -284,8 +263,9 @@ void Progress2::process(const ProcessArgs &args) {
 	// Set the output pitches 
 	outputs[PITCH_OUTPUT].setChannels(6);
 	outputs[PITCH_OUTPUT + 1].setChannels(6);
+	float *volts = pState.getChordVoltages(index);
 	for (int i = 0; i < NUM_PITCHES; i++) {
-		outputs[PITCH_OUTPUT].setVoltage(pState.chords[index].outVolts[i], i);
+		outputs[PITCH_OUTPUT].setVoltage(volts[i], i);
 		outputs[PITCH_OUTPUT + 1].setVoltage(10.0, i);
 	}
 	
@@ -313,6 +293,7 @@ struct Progress2Widget : ModuleWidget {
 
 		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 4, 0, true, false), module, Progress2::KEY_PARAM));
 		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 5, 0, true, false), module, Progress2::MODE_PARAM));
+		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 6, 1, true, false), module, Progress2::PART_PARAM));
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 4, 1, true, false), module, Progress2::KEY_INPUT));
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 5, 1, true, false), module, Progress2::MODE_INPUT));
 

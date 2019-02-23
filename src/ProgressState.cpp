@@ -2,9 +2,63 @@
 
 // ProgressState
 ProgressState::ProgressState() {
-    for (int i = 0; i < 8; i++) {
-        chords[i].setVoltages(music::defaultChord.formula, offset);
+    onReset();
+}
+
+void ProgressState::onReset() {
+    for (int i = 0; i < 32; i++) {
+        for (int step = 0; step < 8; step++) {
+            parts[i][step].setVoltages(music::defaultChord.formula, offset);
+    		parts[i][step].gate = true;
+        }
     }
+}
+
+void ProgressState::update() {
+
+	bool globalUpdate = false;
+
+    	// Updated modes
+	if (settingChanged) {
+		settingChanged = false;
+		globalUpdate = true;
+	}
+
+	if (chordMode && dirty) { // Input changes so force re-read
+		dirty = false;
+		globalUpdate = true;
+	}
+
+	for (int step = 0; step < 8; step++) {
+
+		if (parts[currentPart][step].dirty || globalUpdate) { // Also reset if key or mode or module settings has changed
+			parts[currentPart][step].dirty = false;
+
+            int chordIndex = parts[currentPart][step].chord;
+            int invIndex = parts[currentPart][step].inversion;
+
+			music::ChordDefinition &chordDef = knownChords.chords[chordIndex];
+			std::vector<int> &invDef = chordDef.inversions[invIndex].formula;
+			parts[currentPart][step].setVoltages(invDef, offset);
+
+		}
+	}
+}
+
+void ProgressState::toggleGate(int step) {
+	parts[currentPart][step].gate = !parts[currentPart][step].gate;
+}
+
+bool ProgressState::gateState(int step) {
+    return parts[currentPart][step].gate;
+}
+
+float *ProgressState::getChordVoltages(int step) {
+    return parts[currentPart][step].outVolts;
+}
+
+ProgressChord *ProgressState::getChord(int step) {
+    return &(parts[currentPart][step]);
 }
 
 void ProgressState::setMode(int m) {
@@ -12,7 +66,10 @@ void ProgressState::setMode(int m) {
         mode = m;
         if(chordMode) { 
             for (int i = 0; i < 8; i++) {
-                music::getRootFromMode(mode, key, chords[i].modeDegree, &(chords[i].rootNote), &(chords[i].quality));
+                music::getRootFromMode(mode, key, 
+                parts[currentPart][i].modeDegree, 
+                &(parts[currentPart][i].rootNote), 
+                &(parts[currentPart][i].quality));
             }
         }
         dirty = true;
@@ -24,12 +81,32 @@ void ProgressState::setKey(int k) {
         key = k;
         if(chordMode) { 
             for (int i = 0; i < 8; i++) {
-                music::getRootFromMode(mode, key, chords[i].modeDegree, &(chords[i].rootNote), &(chords[i].quality));
+                music::getRootFromMode(mode, key, 
+                parts[currentPart][i].modeDegree, 
+                &(parts[currentPart][i].rootNote), 
+                &(parts[currentPart][i].quality));
             }
         }
         dirty = true;
     }
 }
+
+void ProgressState::setPart(int p) {
+    if (currentPart != p) {
+        currentPart = p;
+        if(chordMode) { 
+            for (int i = 0; i < 8; i++) {
+                music::getRootFromMode(mode, key, 
+                parts[currentPart][i].modeDegree, 
+                &(parts[currentPart][i].rootNote), 
+                &(parts[currentPart][i].quality));
+            }
+        }
+        dirty = true;
+    }
+}
+
+
 
 json_t *ProgressState::toJson() {
     json_t *rootJ = json_object();
@@ -42,20 +119,22 @@ json_t *ProgressState::toJson() {
     json_t *inversion_array     = json_array();
     json_t *gate_array          = json_array();
 
-    for (int i = 0; i < 8; i++) {
-        json_t *rootNoteJ   = json_integer(chords[i].rootNote);
-        json_t *qualityJ    = json_integer(chords[i].quality);
-        json_t *chordJ      = json_integer(chords[i].chord);
-        json_t *modeDegreeJ = json_integer(chords[i].modeDegree);
-        json_t *inversionJ  = json_integer(chords[i].inversion);
-        json_t *gateJ       = json_boolean(chords[i].gate);
+    for (int part = 0; part < 32; part++) {
+        for (int step = 0; step < 8; step++) {
+            json_t *rootNoteJ   = json_integer(parts[part][step].rootNote);
+            json_t *qualityJ    = json_integer(parts[part][step].quality);
+            json_t *chordJ      = json_integer(parts[part][step].chord);
+            json_t *modeDegreeJ = json_integer(parts[part][step].modeDegree);
+            json_t *inversionJ  = json_integer(parts[part][step].inversion);
+            json_t *gateJ       = json_boolean(parts[part][step].gate);
 
-        json_array_append_new(rootNote_array,   rootNoteJ);
-        json_array_append_new(quality_array,    qualityJ);
-        json_array_append_new(chord_array,      chordJ);
-        json_array_append_new(modeDegree_array, modeDegreeJ);
-        json_array_append_new(inversion_array,  inversionJ);
-        json_array_append_new(gate_array,       gateJ);
+            json_array_append_new(rootNote_array,   rootNoteJ);
+            json_array_append_new(quality_array,    qualityJ);
+            json_array_append_new(chord_array,      chordJ);
+            json_array_append_new(modeDegree_array, modeDegreeJ);
+            json_array_append_new(inversion_array,  inversionJ);
+            json_array_append_new(gate_array,       gateJ);
+        }
     }
 
     json_object_set_new(rootJ, "rootnote",      rootNote_array);
@@ -76,65 +155,79 @@ json_t *ProgressState::toJson() {
     return rootJ;
 }
 
+
+
 void ProgressState::fromJson(json_t *rootJ) {
 
 	// rootNote
     json_t *rootNote_array = json_object_get(rootJ, "rootnote");
     if (rootNote_array) {
-        for (int i = 0; i < 8; i++) {
-            json_t *rootNoteJ = json_array_get(rootNote_array, i);
-            if (rootNoteJ)
-                chords[i].rootNote = json_integer_value(rootNoteJ);
+        for (int part = 0; part < 32; part++) {
+            for (int step = 0; step < 8; step++) {
+                json_t *rootNoteJ = json_array_get(rootNote_array, part * 8 + step);
+                if (rootNoteJ)
+                    parts[part][step].rootNote = json_integer_value(rootNoteJ);
+            }
         }
     }
 
 	// quality
     json_t *quality_array = json_object_get(rootJ, "quality");
     if (quality_array) {
-        for (int i = 0; i < 8; i++) {
-            json_t *qualityJ = json_array_get(quality_array, i);
-            if (qualityJ)
-                chords[i].quality = json_integer_value(qualityJ);
+        for (int part = 0; part < 32; part++) {
+            for (int step = 0; step < 8; step++) {
+                json_t *qualityJ = json_array_get(quality_array, part * 8 + step);
+                if (qualityJ)
+                    parts[part][step].quality = json_integer_value(qualityJ);
+            }
         }
     }
 
 	// chord
     json_t *chord_array = json_object_get(rootJ, "chord");
     if (chord_array) {
-        for (int i = 0; i < 8; i++) {
-            json_t *chordJ = json_array_get(chord_array, i);
-            if (chordJ)
-                chords[i].chord = json_integer_value(chordJ);
+        for (int part = 0; part < 32; part++) {
+            for (int step = 0; step < 8; step++) {
+                json_t *chordJ = json_array_get(chord_array, part * 8 + step);
+                if (chordJ)
+                    parts[part][step].chord = json_integer_value(chordJ);
+            }
         }
     }
 
 	// modeDegree
     json_t *modeDegree_array = json_object_get(rootJ, "modedegree");
     if (modeDegree_array) {
-        for (int i = 0; i < 8; i++) {
-            json_t *modeDegreeJ = json_array_get(modeDegree_array, i);
-            if (modeDegreeJ)
-                chords[i].modeDegree = json_integer_value(modeDegreeJ);
+        for (int part = 0; part < 32; part++) {
+            for (int step = 0; step < 8; step++) {
+                json_t *modeDegreeJ = json_array_get(modeDegree_array, part * 8 + step);
+                if (modeDegreeJ)
+                    parts[part][step].modeDegree = json_integer_value(modeDegreeJ);
+            }
         }
     }
 
 	// inversion
     json_t *inversion_array = json_object_get(rootJ, "inversion");
     if (inversion_array) {
-        for (int i = 0; i < 8; i++) {
-            json_t *inversionJ = json_array_get(inversion_array, i);
-            if (inversionJ)
-                chords[i].inversion = json_integer_value(inversionJ);
+        for (int part = 0; part < 32; part++) {
+            for (int step = 0; step < 8; step++) {
+                json_t *inversionJ = json_array_get(inversion_array, part * 8 + step);
+                if (inversionJ)
+                    parts[part][step].inversion = json_integer_value(inversionJ);
+            }
         }
     }
 
 	// gates
     json_t *gate_array = json_object_get(rootJ, "gate");
     if (gate_array) {
-        for (int i = 0; i < 8; i++) {
-            json_t *gateJ = json_array_get(gate_array, i);
-            if (gateJ)
-                chords[i].gate = json_boolean_value(gateJ);
+        for (int part = 0; part < 32; part++) {
+            for (int step = 0; step < 8; step++) {
+                json_t *gateJ = json_array_get(gate_array, part * 8 + step);
+                if (gateJ)
+                    parts[part][step].gate = json_boolean_value(gateJ);
+            }
         }
     }
 
@@ -149,7 +242,6 @@ void ProgressState::fromJson(json_t *rootJ) {
         chordMode = json_integer_value(chordModeJ);
 
 }
-
 
 // ProgressState
 
@@ -173,13 +265,15 @@ void RootChoice::onAction(const event::Action &e) {
     if (!pState)
         return;
 
+    ProgressChord *pChord = pState->getChord(pStep);
+
     ui::Menu *menu = createMenu();
     if (pState->chordMode) {
         menu->addChild(createMenuLabel("Degree"));
         for (int i = 0; i < music::NUM_DEGREES; i++) {
             DegreeItem *item = new DegreeItem;
             item->pState = pState;
-            item->pChord = &(pState->chords[pStep]);
+            item->pChord = pChord;
             item->degree = i;
             item->text = music::degreeNames[i * 3];
             menu->addChild(item);
@@ -188,7 +282,7 @@ void RootChoice::onAction(const event::Action &e) {
         menu->addChild(createMenuLabel("Root Note"));
         for (int i = 0; i < music::NUM_NOTES; i++) {
             RootItem *item = new RootItem;
-            item->pChord = &(pState->chords[pStep]);
+            item->pChord = pChord;
             item->root = i;
             item->text = music::noteNames[i];
             menu->addChild(item);
@@ -202,8 +296,8 @@ void RootChoice::step() {
         return;
     }
 
-    ProgressChord &pC = pState->chords[pStep];
-    music::InversionDefinition &inv = pState->knownChords.chords[pC.chord].inversions[pC.inversion];
+    ProgressChord *pC = pState->getChord(pStep);
+    music::InversionDefinition &inv = pState->knownChords.chords[pC->chord].inversions[pC->inversion];
     
     if(pState->nSteps > pStep) {
         color = nvgRGBA(0x00, 0xFF, 0xFF, 0xFF);
@@ -214,10 +308,10 @@ void RootChoice::step() {
     text = std::string("◊ ") + std::to_string(pStep + 1) + ": ";
 
     if (pState->chordMode) {
-        text += inv.getName(pState->mode, pState->key, pC.modeDegree, pC.rootNote);
-        text += " " + music::degreeNames[pC.modeDegree * 3 + pC.quality];
+        text += inv.getName(pState->mode, pState->key, pC->modeDegree, pC->rootNote);
+        text += " " + music::degreeNames[pC->modeDegree * 3 + pC->quality];
     } else {
-        text += inv.getName(pC.rootNote);
+        text += inv.getName(pC->rootNote);
     }
 }
 // Root/Degree menu
@@ -229,10 +323,13 @@ void ChordItem::onAction(const event::Action &e)  {
 }
 
 Menu *ChordSubsetMenu::createChildMenu() {
+
+    ProgressChord *pChord = pState->getChord(pStep);
+
     Menu *menu = new Menu;
     for (int i = start; i <= end; i++) {
         ChordItem *item = new ChordItem;
-        item->pChord = &(pState->chords[pStep]);
+        item->pChord = pChord;
         item->chord = i;
         item->text = music::BasicChordSet[i].name;
         menu->addChild(item);
@@ -278,7 +375,9 @@ void ChordChoice::step() {
         color = nvgRGBA(0x00, 0xFF, 0xFF, 0x6F);
     }
 
-    text = std::string("◊ ") + music::BasicChordSet[pState->chords[pStep].chord].name;
+    ProgressChord *pChord = pState->getChord(pStep);
+
+    text = std::string("◊ ") + music::BasicChordSet[pChord->chord].name;
 
 }
 // Chord menu
@@ -293,11 +392,13 @@ void InversionChoice::onAction(const event::Action &e) {
     if (!pState)
         return;
 
+    ProgressChord *pChord = pState->getChord(pStep);
+
     ui::Menu *menu = createMenu();
     menu->addChild(createMenuLabel("Inversion"));
     for (int i = 0; i < music::NUM_INV; i++) {
         InversionItem *item = new InversionItem;
-        item->pChord = &(pState->chords[pStep]);
+        item->pChord = pChord;
         item->inversion = i;
         item->text = music::inversionNames[i];
         menu->addChild(item);
@@ -316,7 +417,9 @@ void InversionChoice::step() {
         color = nvgRGBA(0x00, 0xFF, 0xFF, 0x6F);
     }
 
-    text = std::string("◊ ") + music::inversionNames[pState->chords[pStep].inversion];
+    ProgressChord *pChord = pState->getChord(pStep);
+
+    text = std::string("◊ ") + music::inversionNames[pChord->inversion];
 
 }
 // Inversion menu
