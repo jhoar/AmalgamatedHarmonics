@@ -282,17 +282,12 @@ struct Arp31 : core::AHModule {
 	rack::dsp::PulseGenerator gatePulse;
 	rack::dsp::PulseGenerator eocPulse;
 
-	bool locked = false;
-
+	int id = 0;
+	int currLight = 0;
 	float outVolts = 0;
 	bool isRunning = false;
-	int error = 0;
-	
 	int inputArp = 0;
 	int arp = 0;
-	
-	int poll = 5000;
-
 	bool eoc = false;
 
 	RightArp 		arp_right;
@@ -310,9 +305,6 @@ struct Arp31 : core::AHModule {
 	
 	std::vector<float> pitches;
 	std::vector<int> pitchIndex;
-
-	int id = 0;
-	int currLight = 0;
 
 };
 
@@ -338,7 +330,7 @@ void Arp31::process(const ProcessArgs &args) {
 	int offset = params[OFFSET_PARAM].getValue();
 
 	// Process inputs
-	bool clockStatus	= clockTrigger.process(clockInput);
+	bool clockStatus = clockTrigger.process(clockInput);
 	
 	// If there is no clock input, then force that we are not running
 	if (!clockActive) {

@@ -233,12 +233,6 @@ void Galaxy::process(const ProcessArgs &args) {
 		bool changed = false;
 		bool haveMode = false;
 
-		// std::cout << "Str position: Root: " << currRoot << 
-		// 	" Mode: " << currMode << 
-		// 	" degree: " << degree << 
-		// 	" quality: " << quality <<
-		// 	" noteIndex: " << noteIndex << std::endl;
-
 		if (mode == 0) {
 			getFromRandom();
 		} else if (mode == 1) {
@@ -275,13 +269,6 @@ void Galaxy::process(const ProcessArgs &args) {
 		music::ChordDefinition &chordDef = knownChords.chords[currChord.chord];
 		music::InversionDefinition &invDef = chordDef.inversions[currChord.inversion];
 		currChord.setVoltages(invDef.formula, offset);
-
-		// std::cout << "End position: Root: " << currRoot << 
-		// 	" Mode: " << currMode << 
-		// 	" Degree: " << degree << 
-		// 	" Quality: " << quality <<
-		// 	" Inversion: " << inversion << " " << chordArray <<
-		// 	" NoteIndex: " << noteIndex << std::endl << std::endl;
 
 		if (currChord.quality != lastQuality) {
 			changed = true;
@@ -360,7 +347,9 @@ void Galaxy::getFromRandom() {
 	int radSign = rand() % 2 ? 1 : -1;
 	int radialInput = radSign * (rand() % 2 + 1); // -2 to 2
 
-	// std::cout << "Rotate: " << rotateInput << "  Radial: " << radialInput << std::endl;
+	if(debugEnabled(5000)) {
+		std::cout << "Rotate: " << rotateInput << "  Radial: " << radialInput << std::endl;
+	}
 
 	// Determine move around the grid
 	currChord.quality += rotateInput;
@@ -379,7 +368,9 @@ void Galaxy::getFromKey() {
 	int radSign = rand() % 2 ? 1 : -1;
 	int radialInput = radSign * (rand() % 2 + 1); // -2 to 2
 
-	// std::cout << "Rotate: " << rotateInput << "  Radial: " << radialInput << std::endl;
+	if(debugEnabled(5000)) {
+		std::cout << "Rotate: " << rotateInput << "  Radial: " << radialInput << std::endl;
+	}
 
 	// Determine move around the grid
 	currChord.quality += rotateInput;

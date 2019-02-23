@@ -34,7 +34,15 @@ struct AHModule : rack::Module {
 	inline bool debugEnabled() {
 		return debugFlag;
 	}
-	
+
+	inline bool debugEnabled(int poll) {
+		if (debugFlag && stepX % poll == 0) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 	bool receiveEvents = false;
 	int keepStateDisplay = 0;
 	std::string paramState = ">";

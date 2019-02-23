@@ -211,9 +211,6 @@ void Chord::process(const ProcessArgs &args) {
 		}
 	}
 
-	// if(stepX % 500 == 0)
-	// 	std::cout << nP[0] << " " << nP[1] << " " << out[0] << " " << out[1] << std::endl;
-
 	if (nP[0] > 0) {
 		out[0] = (out[0] * 5.0f) / (float)nP[0];
 	} 
@@ -221,6 +218,10 @@ void Chord::process(const ProcessArgs &args) {
 	if (nP[1] > 0) {
 		out[1] = (out[1] * 5.0f) / (float)nP[1];
 	} 
+
+	if (debugEnabled(5000)) {
+		std::cout << nP[0] << " " << nP[1] << " " << out[0] << " " << out[1] << std::endl;
+	}
 
 	if (outputs[OUT_OUTPUT].isConnected() && outputs[OUT_OUTPUT + 1].isConnected()) {
 		outputs[OUT_OUTPUT].setVoltage(out[0]);

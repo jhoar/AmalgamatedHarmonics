@@ -340,10 +340,10 @@ struct Arp32 : core::AHModule {
 	rack::dsp::PulseGenerator gatePulse;
 	rack::dsp::PulseGenerator eocPulse;
 
+	int id = 0;
 	float outVolts = 0;
 	float rootPitch = 0.0;
 	bool isRunning = false;
-	int error = 0;
 	bool eoc = false;
 	
 	int inputPat = 0;
@@ -356,8 +356,6 @@ struct Arp32 : core::AHModule {
 	float trans = 0;
 	float scale = 0;
 
-	int poll = 5000;
-		
 	DivergePattern			patt_diverge; 
 	ConvergePattern 		patt_converge; 
 	ReturnPattern 			patt_return;
@@ -373,8 +371,6 @@ struct Arp32 : core::AHModule {
 	Pattern *currPatt = &patt_diverge;
 	Pattern *uiPatt = &ui_patt_diverge;
 	
-	int id = 0;
-
 };
 
 
@@ -415,11 +411,11 @@ void Arp32::process(const ProcessArgs &args) {
 	int offset = params[OFFSET_PARAM].getValue();
 
 	// Process inputs
-	bool clockStatus	= clockTrigger.process(clockInput);
+	bool clockStatus = clockTrigger.process(clockInput);
 	
 	// Need to understand why this happens
 	if (inputLen == 0) {
-		if (debugEnabled()) { std::cout << stepX << " " << id  << " InputLen == 0, aborting" << std::endl; }
+		if (debugEnabled(5000)) { std::cout << stepX << " " << id  << " InputLen == 0, aborting" << std::endl; }
 		return; // No inputs, no music
 	}
 	

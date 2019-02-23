@@ -364,7 +364,7 @@ struct ImpWidget : ModuleWidget {
 		}	
 	}
 
-		void appendContextMenu(Menu *menu) override {
+	void appendContextMenu(Menu *menu) override {
 
 		Imp *imp = dynamic_cast<Imp*>(module);
 		assert(imp);
