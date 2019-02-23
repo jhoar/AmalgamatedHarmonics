@@ -79,13 +79,16 @@ struct PolyProbeDisplay : TransparentWidget {
 	
 	PolyProbe *module;
 	std::shared_ptr<Font> font;
-
+	
 	PolyProbeDisplay() {
 		font = APP->window->loadFont(asset::plugin(pluginInstance, "res/EurostileBold.ttf"));
 	}
 
 	void draw(const DrawArgs &ctx) override {
-	
+		if (!module->stepX % 4 != 0) {
+			return;
+		}
+
 		nvgFontSize(ctx.vg, 14);
 		nvgFontFaceId(ctx.vg, font->handle);
 		nvgTextLetterSpacing(ctx.vg, -1);
