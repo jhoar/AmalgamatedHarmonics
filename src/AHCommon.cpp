@@ -168,7 +168,7 @@ double gaussrand() {
 
 namespace music {
 
-Chord::Chord() : rootNote(0), quality(0), chord(1), modeDegree(0), inversion(0) {
+Chord::Chord() : rootNote(0), quality(0), chord(0), modeDegree(0), inversion(0) {
 	setVoltages(defaultChord.formula, 12);
 }
 
