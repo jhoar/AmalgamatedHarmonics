@@ -73,10 +73,6 @@ struct Bombe : core::AHModule {
 	json_t *dataToJson() override {
 		json_t *rootJ = json_object();
 
-		// polymode
-		json_t *polymodeJ = json_boolean(polymode);
-		json_object_set_new(rootJ, "polymode", polymodeJ);
-
 		// offset
 		json_t *offsetJ = json_integer((int) offset);
 		json_object_set_new(rootJ, "offset", offsetJ);
@@ -93,11 +89,6 @@ struct Bombe : core::AHModule {
 	}
 	
 	void dataFromJson(json_t *rootJ) override {
-
-		// polymode
-		json_t *polymodeJ = json_object_get(rootJ, "polymode");
-		if (polymodeJ)
-			polymode = json_boolean_value(polymodeJ);
 
 		// offset
 		json_t *offsetJ = json_object_get(rootJ, "offset");
@@ -136,8 +127,6 @@ struct Bombe : core::AHModule {
 	int poll = 50000;
 
 	rack::dsp::SchmittTrigger clockTrigger;
-
-	bool polymode = false;
 
 	int currRoot = 1;
 	int currMode = 1;
@@ -274,18 +263,10 @@ void Bombe::process(const ProcessArgs &args) {
 	}
 
 	// Set the output pitches 
-	if (polymode) {
-		outputs[PITCH_OUTPUT].setChannels(6);
-		outputs[PITCH_OUTPUT + 1].setChannels(6);
-		for (int i = 0; i < NUM_PITCHES; i++) {
-			outputs[PITCH_OUTPUT].setVoltage(buffer[0].outVolts[i], i);
-			outputs[PITCH_OUTPUT + 1].setVoltage(10.0, i);
-		}
-	} else {
-		for (int i = 0; i < NUM_PITCHES; i++) {
-			outputs[PITCH_OUTPUT + i].setChannels(1);
-			outputs[PITCH_OUTPUT + i].setVoltage(buffer[0].outVolts[i]);
-		}
+	outputs[PITCH_OUTPUT].setChannels(6);
+	for (int i = 0; i < NUM_PITCHES; i++) {
+		outputs[PITCH_OUTPUT].setVoltage(buffer[0].outVolts[i], i);
+		outputs[PITCH_OUTPUT + i].setVoltage(buffer[0].outVolts[i]);
 	}
 }
 
@@ -477,14 +458,6 @@ struct BombeWidget : ModuleWidget {
 		Bombe *bombe = dynamic_cast<Bombe*>(module);
 		assert(bombe);
 
-		struct PolyModeItem : MenuItem {
-			Bombe *module;
-			bool polymode;
-			void onAction(const event::Action &e) override {
-				module->polymode = polymode;
-			}
-		};
-
 		struct OffsetItem : MenuItem {
 			Bombe *module;
 			int offset;
@@ -506,22 +479,6 @@ struct BombeWidget : ModuleWidget {
 			int allowedInversions;
 			void onAction(const event::Action &e) override {
 				module->allowedInversions = allowedInversions;
-			}
-		};
-
-		struct PolyModeMenu : MenuItem {
-			Bombe *module;
-			Menu *createChildMenu() override {
-				Menu *menu = new Menu;
-				std::vector<bool> modes = {true, false};
-				std::vector<std::string> names = {"Poly cable", "Mono cable"};
-				for (size_t i = 0; i < modes.size(); i++) {
-					PolyModeItem *item = createMenuItem<PolyModeItem>(names[i], CHECKMARK(module->polymode == modes[i]));
-					item->module = module;
-					item->polymode = modes[i];
-					menu->addChild(item);
-				}
-				return menu;
 			}
 		};
 
@@ -574,10 +531,6 @@ struct BombeWidget : ModuleWidget {
 		};
 
 		menu->addChild(construct<MenuLabel>());
-		PolyModeMenu *polymodeItem = createMenuItem<PolyModeMenu>("Output cables");
-		polymodeItem->module = bombe;
-		menu->addChild(polymodeItem);
-
 		OffsetMenu *offsetItem = createMenuItem<OffsetMenu>("Repeat Notes");
 		offsetItem->module = bombe;
 		menu->addChild(offsetItem);

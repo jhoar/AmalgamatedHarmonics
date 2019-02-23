@@ -34,7 +34,6 @@ struct Progress2 : core::AHModule {
 	enum OutputIds {
 		GATES_OUTPUT,
 		PITCH_OUTPUT,
-		POLYGATE_OUTPUT,
 		ENUMS(GATE_OUTPUT,8),
 		NUM_OUTPUTS
 	};
@@ -262,11 +261,9 @@ void Progress2::process(const ProcessArgs &args) {
 
 	// Set the output pitches 
 	outputs[PITCH_OUTPUT].setChannels(6);
-	outputs[PITCH_OUTPUT + 1].setChannels(6);
 	float *volts = pState.getChordVoltages(index);
 	for (int i = 0; i < NUM_PITCHES; i++) {
 		outputs[PITCH_OUTPUT].setVoltage(volts[i], i);
-		outputs[PITCH_OUTPUT + 1].setVoltage(10.0, i);
 	}
 	
 }
@@ -298,9 +295,8 @@ struct Progress2Widget : ModuleWidget {
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 5, 1, true, false), module, Progress2::MODE_INPUT));
 
 		addChild(createLight<MediumLight<GreenLight>>(gui::getPosition(gui::LIGHT, 0, 5, true, false), module, Progress2::GATES_LIGHT));
-		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 6, 0, true, false), module, Progress2::GATES_OUTPUT));
-		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 7, 0, true, false), module, Progress2::PITCH_OUTPUT));
-		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 8, 0, true, false), module, Progress2::POLYGATE_OUTPUT));
+		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 7, 0, true, false), module, Progress2::GATES_OUTPUT));
+		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 8, 0, true, false), module, Progress2::PITCH_OUTPUT));
 
 		for (int i = 0; i < 8; i++) {
 			addParam(createParam<gui::AHButton>(gui::getPosition(gui::BUTTON, i + 1, 8, true, true, 0.0f, -4.0f), module, Progress2::GATE_PARAM + i));
