@@ -161,21 +161,32 @@ void Chord::process(const ProcessArgs &args) {
 		switchMode = false;
 	}
 
+	bool haveGateIn = inputs[PITCH_INPUT + 1].isConnected();
+
 	for (int i = 0; i < NUM_PITCHES; i++) {
 
 		float inputPitchCV = 0.0f;
 		bool haveInput = false;
-
+		
 		if (polymode) {
-			if (inputs[PITCH_INPUT + 1].getVoltage(i) > 0.0f) {
+			if (haveGateIn) {
+				if (inputs[PITCH_INPUT + 1].getVoltage(i) > 0.0f) {
+					haveInput = true;
+					inputPitchCV = inputs[PITCH_INPUT].getVoltage(i);
+				} else {
+					inputPitchCV = 0.0;
+				}
+			} else {
 				haveInput = true;
+				inputPitchCV = inputs[PITCH_INPUT].getVoltage(i);
 			}
-			inputPitchCV = inputs[PITCH_INPUT].getVoltage(i);
 		} else {
 			if (inputs[PITCH_INPUT + i].isConnected()) {
 				haveInput = true;
+				inputPitchCV = inputs[PITCH_INPUT + i].getVoltage();
+			} else {
+				inputPitchCV = 0.0;
 			}
-			inputPitchCV = inputs[PITCH_INPUT + i].getVoltage();
 		}
 
 		int side = i % 2;
