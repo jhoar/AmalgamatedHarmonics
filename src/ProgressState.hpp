@@ -9,6 +9,12 @@ struct ProgressChord : music::Chord {
 	bool gate;
 	bool dirty;
 
+	void reset() {
+		music::Chord::reset();
+		gate = true;
+		dirty = true;
+	}
+
 };
 
 struct ProgressState {
@@ -27,10 +33,12 @@ struct ProgressState {
 
 	void onReset();
 	void update();
-	void toggleGate(int step);
-	bool gateState(int step);
-	float *getChordVoltages(int step);
-	ProgressChord *getChord(int step);
+	
+	void toggleGate(int part, int step);
+	bool gateState(int part, int step);
+	void calculateVoltages(int part, int step);
+	float *getChordVoltages(int part, int step);
+	ProgressChord *getChord(int part, int step);
 
 	void setMode(int m);
 	void setKey(int k);
@@ -41,8 +49,8 @@ struct ProgressState {
 	int currentPart = 0;
 	int nSteps = 1;
 
-	bool dirty = true; // read on first run through
-	bool settingChanged = false;
+	bool dirty;
+	bool settingChanged;
 
 };
 
@@ -107,7 +115,7 @@ struct InversionChoice : gui::AHChoice {
 	void step() override;
 };
 
-struct KeyModeBox : gui::AHChoice {
+struct StatusBox : gui::AHChoice {
 	ProgressState *pState;
 
 	void step() override;

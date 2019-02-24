@@ -217,10 +217,10 @@ void Progress2::process(const ProcessArgs &args) {
 	// Gate buttons
 	for (int i = 0; i < 8; i++) {
 		if (gateTriggers[i].process(params[GATE_PARAM + i].getValue())) {
-			pState.toggleGate(i);
+			pState.toggleGate(pState.currentPart, i);
 		}
 		
-		bool gateOn = (running && i == index && pState.gateState(i));
+		bool gateOn = (running && i == index && pState.gateState(pState.currentPart, i));
 		if (gateMode == TRIGGER) {
 			gateOn = gateOn && pulse;
 		} else if (gateMode == RETRIGGER) {
@@ -230,7 +230,7 @@ void Progress2::process(const ProcessArgs &args) {
 		outputs[GATE_OUTPUT + i].setVoltage(gateOn ? 10.0f : 0.0f);	
 		
 		if (i == index) {
-			if (pState.gateState(i)) {
+			if (pState.gateState(pState.currentPart, i)) {
 				// Gate is on and active = flash green
 				lights[GATE_LIGHTS + i * 2].setSmoothBrightness(1.0f, args.sampleTime);
 				lights[GATE_LIGHTS + i * 2 + 1].setSmoothBrightness(0.0f, args.sampleTime);
@@ -240,7 +240,7 @@ void Progress2::process(const ProcessArgs &args) {
 				lights[GATE_LIGHTS + i * 2 + 1].setSmoothBrightness(0.20f, args.sampleTime);
 			}
 		} else {
-			if (pState.gateState(i)) {
+			if (pState.gateState(pState.currentPart, i)) {
 				// Gate is on and not active = red
 				lights[GATE_LIGHTS + i * 2].setSmoothBrightness(0.0f, args.sampleTime);
 				lights[GATE_LIGHTS + i * 2 + 1].setSmoothBrightness(1.0f, args.sampleTime);
@@ -252,7 +252,7 @@ void Progress2::process(const ProcessArgs &args) {
 		}
 	}
 
-	bool gatesOn = (running && pState.gateState(index));
+	bool gatesOn = (running && pState.gateState(pState.currentPart, index));
 	if (gateMode == TRIGGER) {
 		gatesOn = gatesOn && pulse;
 	} else if (gateMode == RETRIGGER) {
@@ -267,7 +267,7 @@ void Progress2::process(const ProcessArgs &args) {
 
 	// Set the output pitches 
 	outputs[PITCH_OUTPUT].setChannels(6);
-	float *volts = pState.getChordVoltages(index);
+	float *volts = pState.getChordVoltages(pState.currentPart, index);
 	for (int i = 0; i < NUM_PITCHES; i++) {
 		outputs[PITCH_OUTPUT].setVoltage(volts[i], i);
 	}

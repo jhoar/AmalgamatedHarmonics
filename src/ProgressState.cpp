@@ -6,12 +6,24 @@ ProgressState::ProgressState() {
 }
 
 void ProgressState::onReset() {
-    for (int i = 0; i < 32; i++) {
+    for (int part = 0; part < 32; part++) {
         for (int step = 0; step < 8; step++) {
-            parts[i][step].setVoltages(music::defaultChord.formula, offset);
-    		parts[i][step].gate = true;
+            parts[part][step].reset();
+            calculateVoltages(part,step);
         }
     }
+	settingChanged = true;
+}
+
+void ProgressState::calculateVoltages(int part, int step) {
+
+        int chordIndex = parts[part][step].chord;
+        int invIndex = parts[part][step].inversion;
+
+        music::ChordDefinition &chordDef = knownChords.chords[chordIndex];
+        std::vector<int> &invDef = chordDef.inversions[invIndex].formula;
+        parts[part][step].setVoltages(invDef, offset);
+
 }
 
 void ProgressState::update() {
@@ -24,7 +36,8 @@ void ProgressState::update() {
 		globalUpdate = true;
 	}
 
-	if (chordMode && dirty) { // Input changes so force re-read
+    // Input changes so force re-read
+	if (chordMode && dirty) { 
 		dirty = false;
 		globalUpdate = true;
 	}
@@ -33,32 +46,25 @@ void ProgressState::update() {
 
 		if (parts[currentPart][step].dirty || globalUpdate) { // Also reset if key or mode or module settings has changed
 			parts[currentPart][step].dirty = false;
-
-            int chordIndex = parts[currentPart][step].chord;
-            int invIndex = parts[currentPart][step].inversion;
-
-			music::ChordDefinition &chordDef = knownChords.chords[chordIndex];
-			std::vector<int> &invDef = chordDef.inversions[invIndex].formula;
-			parts[currentPart][step].setVoltages(invDef, offset);
-
+            calculateVoltages(currentPart,step);
 		}
 	}
 }
 
-void ProgressState::toggleGate(int step) {
-	parts[currentPart][step].gate = !parts[currentPart][step].gate;
+void ProgressState::toggleGate(int part, int step) {
+	parts[part][step].gate = !parts[part][step].gate;
 }
 
-bool ProgressState::gateState(int step) {
-    return parts[currentPart][step].gate;
+bool ProgressState::gateState(int part, int step) {
+    return parts[part][step].gate;
 }
 
-float *ProgressState::getChordVoltages(int step) {
-    return parts[currentPart][step].outVolts;
+float *ProgressState::getChordVoltages(int part, int step) {
+    return parts[part][step].outVolts;
 }
 
-ProgressChord *ProgressState::getChord(int step) {
-    return &(parts[currentPart][step]);
+ProgressChord *ProgressState::getChord(int part, int step) {
+    return &(parts[part][step]);
 }
 
 void ProgressState::setMode(int m) {
@@ -265,7 +271,7 @@ void RootChoice::onAction(const event::Action &e) {
     if (!pState)
         return;
 
-    ProgressChord *pChord = pState->getChord(pStep);
+    ProgressChord *pChord = pState->getChord(pState->currentPart, pStep);
 
     ui::Menu *menu = createMenu();
     if (pState->chordMode) {
@@ -296,7 +302,7 @@ void RootChoice::step() {
         return;
     }
 
-    ProgressChord *pC = pState->getChord(pStep);
+    ProgressChord *pC = pState->getChord(pState->currentPart, pStep);
     music::InversionDefinition &inv = pState->knownChords.chords[pC->chord].inversions[pC->inversion];
     
     if(pState->nSteps > pStep) {
@@ -324,7 +330,7 @@ void ChordItem::onAction(const event::Action &e)  {
 
 Menu *ChordSubsetMenu::createChildMenu() {
 
-    ProgressChord *pChord = pState->getChord(pStep);
+    ProgressChord *pChord = pState->getChord(pState->currentPart, pStep);
 
     Menu *menu = new Menu;
     for (int i = start; i <= end; i++) {
@@ -375,7 +381,7 @@ void ChordChoice::step() {
         color = nvgRGBA(0x00, 0xFF, 0xFF, 0x6F);
     }
 
-    ProgressChord *pChord = pState->getChord(pStep);
+    ProgressChord *pChord = pState->getChord(pState->currentPart, pStep);
 
     text = std::string("◊ ") + music::BasicChordSet[pChord->chord].name;
 
@@ -392,7 +398,7 @@ void InversionChoice::onAction(const event::Action &e) {
     if (!pState)
         return;
 
-    ProgressChord *pChord = pState->getChord(pStep);
+    ProgressChord *pChord = pState->getChord(pState->currentPart, pStep);
 
     ui::Menu *menu = createMenu();
     menu->addChild(createMenuLabel("Inversion"));
@@ -417,14 +423,14 @@ void InversionChoice::step() {
         color = nvgRGBA(0x00, 0xFF, 0xFF, 0x6F);
     }
 
-    ProgressChord *pChord = pState->getChord(pStep);
+    ProgressChord *pChord = pState->getChord(pState->currentPart, pStep);
 
     text = std::string("◊ ") + music::inversionNames[pChord->inversion];
 
 }
 // Inversion menu
 
-void KeyModeBox::step() {
+void StatusBox::step() {
     if (!pState) {
         text = "";
         return;
@@ -436,7 +442,7 @@ void KeyModeBox::step() {
         color = nvgRGBA(0x00, 0xFF, 0xFF, 0x6F);
     }
 
-    text = music::NoteDegreeModeNames[pState->key][0][pState->mode] + " " + music::modeNames[pState->mode];
+    text = "Part " + std::to_string(pState->currentPart) + " " + music::NoteDegreeModeNames[pState->key][0][pState->mode] + " " + music::modeNames[pState->mode];
 
 }
 
@@ -490,11 +496,11 @@ void ProgressStateWidget::setPState(ProgressState *pState) {
     clearChildren();
     math::Vec pos;
 
-    KeyModeBox *keyModeBox  = createWidget<KeyModeBox>(pos);
-    keyModeBox->box.size.x = 170.0;
-    keyModeBox->pState = pState;
-    addChild(keyModeBox);
-    pos = keyModeBox->box.getBottomLeft();
+    StatusBox *statusBox  = createWidget<StatusBox>(pos);
+    statusBox->box.size.x = 170.0;
+    statusBox->pState = pState;
+    addChild(statusBox);
+    pos = statusBox->box.getBottomLeft();
 
     for (int i = 0; i < 8; i++) {
         ProgressStepWidget *pWidget = createWidget<ProgressStepWidget>(pos);

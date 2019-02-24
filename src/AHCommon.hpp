@@ -344,6 +344,13 @@ struct Chord {
 	float outVolts[6];
 
 	Chord();
+	void reset() {
+		rootNote = 0;
+		quality = 0;
+		chord = 0;
+		modeDegree = 0;
+		inversion = 0;
+	}
 	void setVoltages(int *chordArray, int offset);
 	void setVoltages(std::vector<int> &chordArray, int offset);
 
