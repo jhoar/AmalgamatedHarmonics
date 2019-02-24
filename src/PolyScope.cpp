@@ -109,9 +109,7 @@ struct PolyScopeDisplay : TransparentWidget {
 	int frame = 0;
 	std::shared_ptr<Font> font;
 
-	PolyScopeDisplay() {
-		font = APP->window->loadFont(asset::plugin(pluginInstance, "res/sudo/Sudo.ttf"));
-	}
+	PolyScopeDisplay() { }
 
 	void drawWaveform(const DrawArgs &args, float *valuesX) {
 		if (!valuesX)
