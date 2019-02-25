@@ -9,10 +9,9 @@ void ProgressState::onReset() {
     for (int part = 0; part < 32; part++) {
         for (int step = 0; step < 8; step++) {
             parts[part][step].reset();
-            calculateVoltages(part,step);
         }
     }
-	settingChanged = true;
+	stateChanged = true;
 }
 
 void ProgressState::calculateVoltages(int part, int step) {
@@ -28,27 +27,35 @@ void ProgressState::calculateVoltages(int part, int step) {
 
 void ProgressState::update() {
 
-	bool globalUpdate = false;
+    if (stateChanged) {
+        for (int step = 0; step < 8; step++) {
+            if(chordMode) { 
+                music::getRootFromMode(mode, key, 
+                parts[currentPart][step].modeDegree, 
+                &(parts[currentPart][step].rootNote), 
+                &(parts[currentPart][step].quality));
+            }
 
-    	// Updated modes
-	if (settingChanged) {
-		settingChanged = false;
-		globalUpdate = true;
-	}
+            if (parts[currentPart][step].dirty || stateChanged) { // Also reset if key or mode or module settings has changed
+                parts[currentPart][step].dirty = false;
+                calculateVoltages(currentPart,step);
+            }
+        }
+        stateChanged = false;
+    }
 
-    // Input changes so force re-read
-	if (chordMode && dirty) { 
-		dirty = false;
-		globalUpdate = true;
-	}
-
-	for (int step = 0; step < 8; step++) {
-
-		if (parts[currentPart][step].dirty || globalUpdate) { // Also reset if key or mode or module settings has changed
-			parts[currentPart][step].dirty = false;
+    if (modeChanged) {
+        for (int step = 0; step < 8; step++) {
+            if(chordMode) { 
+                music::getRootFromMode(mode, key, 
+                parts[currentPart][step].modeDegree, 
+                &(parts[currentPart][step].rootNote), 
+                &(parts[currentPart][step].quality));
+            }
             calculateVoltages(currentPart,step);
-		}
-	}
+        }
+    }
+
 }
 
 void ProgressState::copyPartFrom(int src) {
@@ -60,10 +67,8 @@ void ProgressState::copyPartFrom(int src) {
         parts[currentPart][step] = parts[src][step];
     }
      
-    settingChanged = true;
+    stateChanged = true;
 }
-
-
 
 void ProgressState::toggleGate(int part, int step) {
 	parts[part][step].gate = !parts[part][step].gate;
@@ -84,49 +89,23 @@ ProgressChord *ProgressState::getChord(int part, int step) {
 void ProgressState::setMode(int m) {
     if (mode != m) {
         mode = m;
-        if(chordMode) { 
-            for (int i = 0; i < 8; i++) {
-                music::getRootFromMode(mode, key, 
-                parts[currentPart][i].modeDegree, 
-                &(parts[currentPart][i].rootNote), 
-                &(parts[currentPart][i].quality));
-            }
-        }
-        dirty = true;
+        stateChanged = true;
     }
 }
 
 void ProgressState::setKey(int k) {
     if (key != k) {
         key = k;
-        if(chordMode) { 
-            for (int i = 0; i < 8; i++) {
-                music::getRootFromMode(mode, key, 
-                parts[currentPart][i].modeDegree, 
-                &(parts[currentPart][i].rootNote), 
-                &(parts[currentPart][i].quality));
-            }
-        }
-        dirty = true;
+        stateChanged = true;
     }
 }
 
 void ProgressState::setPart(int p) {
     if (currentPart != p) {
         currentPart = p;
-        if(chordMode) { 
-            for (int i = 0; i < 8; i++) {
-                music::getRootFromMode(mode, key, 
-                parts[currentPart][i].modeDegree, 
-                &(parts[currentPart][i].rootNote), 
-                &(parts[currentPart][i].quality));
-            }
-        }
-        dirty = true;
+        stateChanged = true;
     }
 }
-
-
 
 json_t *ProgressState::toJson() {
     json_t *rootJ = json_object();
@@ -174,8 +153,6 @@ json_t *ProgressState::toJson() {
 
     return rootJ;
 }
-
-
 
 void ProgressState::fromJson(json_t *rootJ) {
 

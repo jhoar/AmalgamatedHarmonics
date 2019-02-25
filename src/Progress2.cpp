@@ -348,7 +348,7 @@ struct Progress2Widget : ModuleWidget {
 			int offset;
 			void onAction(const event::Action &e) override {
 				module->pState.offset = offset;
-				module->pState.settingChanged = true;
+				module->pState.stateChanged = true;
 			}
 		};
 
@@ -357,7 +357,7 @@ struct Progress2Widget : ModuleWidget {
 			int chordMode;
 			void onAction(const event::Action &e) override {
 				module->pState.chordMode = chordMode;
-				module->pState.settingChanged = true;
+				module->pState.modeChanged = true;
 			}
 		};
 

@@ -51,8 +51,8 @@ struct ProgressState {
 	int currentPart = 0;
 	int nSteps = 1;
 
-	bool dirty;
-	bool settingChanged;
+	bool stateChanged;
+	bool modeChanged;
 
 };
 
