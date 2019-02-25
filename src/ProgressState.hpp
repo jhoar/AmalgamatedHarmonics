@@ -56,6 +56,7 @@ struct ProgressState {
 
 };
 
+// Menu Items
 struct RootItem : ui::MenuItem {
 	ProgressChord *pChord;
 	int root;
@@ -71,6 +72,29 @@ struct DegreeItem : ui::MenuItem {
 	void onAction(const event::Action &e) override;
 };
 
+struct ChordItem : ui::MenuItem {
+	ProgressChord *pChord;
+	int chord;
+
+	void onAction(const event::Action &e) override;
+};
+
+struct OctaveItem : ui::MenuItem {
+	ProgressChord *pChord;
+	ProgressState *pState;
+	int octave;
+
+	void onAction(const event::Action &e) override;
+};
+
+struct InversionItem : ui::MenuItem {
+	ProgressChord *pChord;
+	int inversion;
+
+	void onAction(const event::Action &e) override;
+};
+
+// Menus
 struct RootChoice : gui::AHChoice {
 	ProgressState *pState;
 	int pStep;
@@ -79,19 +103,12 @@ struct RootChoice : gui::AHChoice {
 	void step() override;
 };
 
-struct ChordItem : ui::MenuItem {
-	ProgressChord *pChord;
-	int chord;
-
-	void onAction(const event::Action &e) override;
-};
-
-struct ChordSubsetMenu : MenuItem {
+struct DegreeChoice : gui::AHChoice {
 	ProgressState *pState;
 	int pStep;
-    int start;
-    int end;
-    Menu *createChildMenu() override;
+
+	void onAction(const event::Action &e) override;
+	void step() override;
 };
 
 struct ChordChoice : gui::AHChoice {
@@ -102,11 +119,21 @@ struct ChordChoice : gui::AHChoice {
 	void step() override;
 };
 
-struct InversionItem : ui::MenuItem {
-	ProgressChord *pChord;
-	int inversion;
+// Chord submenu
+struct ChordSubsetMenu : MenuItem {
+	ProgressState *pState;
+	int pStep;
+    int start;
+    int end;
+    Menu *createChildMenu() override;
+};
+
+struct OctaveChoice : gui::AHChoice {
+	ProgressState *pState;
+	int pStep;
 
 	void onAction(const event::Action &e) override;
+	void step() override;
 };
 
 struct InversionChoice : gui::AHChoice {
@@ -125,10 +152,11 @@ struct StatusBox : gui::AHChoice {
 
 struct ProgressStepWidget : LedDisplay {
 
-	RootChoice *rootChooser;
 	ChordChoice *chordChooser;
+	RootChoice *rootChooser;
+	DegreeChoice *degreeChooser;
 	InversionChoice *inversionChooser;
-	LedDisplaySeparator *separators[2];
+	OctaveChoice *octaveChooser;
 
 	void setPState(ProgressState *pState, int pStep);
 };

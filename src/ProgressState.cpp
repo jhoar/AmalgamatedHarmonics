@@ -99,6 +99,7 @@ json_t *ProgressState::toJson() {
     json_t *chord_array         = json_array();
     json_t *modeDegree_array    = json_array();
     json_t *inversion_array     = json_array();
+    json_t *octave_array        = json_array();
     json_t *gate_array          = json_array();
 
     for (int part = 0; part < 32; part++) {
@@ -108,6 +109,7 @@ json_t *ProgressState::toJson() {
             json_t *chordJ      = json_integer(parts[part][step].chord);
             json_t *modeDegreeJ = json_integer(parts[part][step].modeDegree);
             json_t *inversionJ  = json_integer(parts[part][step].inversion);
+            json_t *octaveJ     = json_integer(parts[part][step].octave);
             json_t *gateJ       = json_boolean(parts[part][step].gate);
 
             json_array_append_new(rootNote_array,   rootNoteJ);
@@ -115,6 +117,7 @@ json_t *ProgressState::toJson() {
             json_array_append_new(chord_array,      chordJ);
             json_array_append_new(modeDegree_array, modeDegreeJ);
             json_array_append_new(inversion_array,  inversionJ);
+            json_array_append_new(octave_array,     octaveJ);
             json_array_append_new(gate_array,       gateJ);
         }
     }
@@ -124,6 +127,7 @@ json_t *ProgressState::toJson() {
     json_object_set_new(rootJ, "chord",         chord_array);
     json_object_set_new(rootJ, "modedegree",    modeDegree_array);
     json_object_set_new(rootJ, "inversion",     inversion_array);
+    json_object_set_new(rootJ, "octave",        octave_array);
     json_object_set_new(rootJ, "gate",          gate_array);
 
     // offset
@@ -199,6 +203,18 @@ void ProgressState::fromJson(json_t *rootJ) {
         }
     }
 
+	// octave
+    json_t *octave_array = json_object_get(rootJ, "octave");
+    if (octave_array) {
+        for (int part = 0; part < 32; part++) {
+            for (int step = 0; step < 8; step++) {
+                json_t *octaveJ = json_array_get(octave_array, part * 8 + step);
+                if (octaveJ)
+                    parts[part][step].octave = json_integer_value(octaveJ);
+            }
+        }
+    }
+
 	// gates
     json_t *gate_array = json_object_get(rootJ, "gate");
     if (gate_array) {
@@ -225,20 +241,10 @@ void ProgressState::fromJson(json_t *rootJ) {
 
 // ProgressState
 
-// Root/Degree menu
+// Root menu
 void RootItem::onAction(const event::Action &e) {
     pChord->rootNote = root;
     pChord->dirty = true;
-}
-
-void DegreeItem::onAction(const event::Action &e) {
-    pChord->modeDegree = degree;
-    pChord->dirty = true;
-
-    // Root and chord can get updated
-    // From the input key, mode and degree, we can get the root chord note and quality (Major,Minor,Diminshed)
-    music::getRootFromMode(pState->mode, pState->key, pChord->modeDegree, &(pChord->rootNote), &(pChord->quality));
-
 }
 
 void RootChoice::onAction(const event::Action &e) {
@@ -248,25 +254,13 @@ void RootChoice::onAction(const event::Action &e) {
     ProgressChord *pChord = pState->getChord(pState->currentPart, pStep);
 
     ui::Menu *menu = createMenu();
-    if (pState->chordMode) {
-        menu->addChild(createMenuLabel("Degree"));
-        for (int i = 0; i < music::NUM_DEGREES; i++) {
-            DegreeItem *item = new DegreeItem;
-            item->pState = pState;
-            item->pChord = pChord;
-            item->degree = i;
-            item->text = music::degreeNames[i * 3];
-            menu->addChild(item);
-        }
-    } else {
-        menu->addChild(createMenuLabel("Root Note"));
-        for (int i = 0; i < music::NUM_NOTES; i++) {
-            RootItem *item = new RootItem;
-            item->pChord = pChord;
-            item->root = i;
-            item->text = music::noteNames[i];
-            menu->addChild(item);
-        }
+    menu->addChild(createMenuLabel("Root Note"));
+    for (int i = 0; i < music::NUM_NOTES; i++) {
+        RootItem *item = new RootItem;
+        item->pChord = pChord;
+        item->root = i;
+        item->text = music::noteNames[i];
+        menu->addChild(item);
     }
 }
 
@@ -277,26 +271,68 @@ void RootChoice::step() {
     }
 
     ProgressChord *pC = pState->getChord(pState->currentPart, pStep);
-    music::InversionDefinition &inv = pState->knownChords.chords[pC->chord].inversions[pC->inversion];
     
-    if(pState->nSteps > pStep) {
+    if(!pState->chordMode && pState->nSteps > pStep) {
         color = nvgRGBA(0x00, 0xFF, 0xFF, 0xFF);
     } else {
         color = nvgRGBA(0x00, 0xFF, 0xFF, 0x6F);
     }
 
-    text = std::string("◊ ") + std::to_string(pStep + 1) + ": ";
+    text = std::string("◊ ") + music::noteNames[pC->rootNote];
+    
+}
+// Root 
 
-    if (pState->chordMode) {
-        text += inv.getName(pState->mode, pState->key, pC->modeDegree, pC->rootNote);
-        text += " " + music::degreeNames[pC->modeDegree * 3 + pC->quality];
-    } else {
-        text += inv.getName(pC->rootNote);
+// Degree
+void DegreeItem::onAction(const event::Action &e) {
+    pChord->modeDegree = degree;
+    pChord->dirty = true;
+
+    // Root and chord can get updated
+    // From the input key, mode and degree, we can get the root chord note and quality (Major,Minor,Diminshed)
+    // FIXME Still needed?
+    music::getRootFromMode(pState->mode, pState->key, pChord->modeDegree, &(pChord->rootNote), &(pChord->quality));
+
+}
+
+void DegreeChoice::onAction(const event::Action &e) {
+        if (!pState)
+        return;
+
+    ProgressChord *pChord = pState->getChord(pState->currentPart, pStep);
+
+    ui::Menu *menu = createMenu();
+    menu->addChild(createMenuLabel("Degree"));
+    for (int i = 0; i < music::NUM_DEGREES; i++) {
+        DegreeItem *item = new DegreeItem;
+        item->pState = pState;
+        item->pChord = pChord;
+        item->degree = i;
+        item->text = music::degreeNames[i * 3];
+        menu->addChild(item);
     }
 }
-// Root/Degree menu
 
-// Chord menu
+void DegreeChoice::step() {
+    if (!pState) {
+        text = "";
+        return;
+    }
+
+    ProgressChord *pC = pState->getChord(pState->currentPart, pStep);
+
+    if(pState->chordMode && pState->nSteps > pStep) {
+        color = nvgRGBA(0x00, 0xFF, 0xFF, 0xFF);
+    } else {
+        color = nvgRGBA(0x00, 0xFF, 0xFF, 0x6F);
+    }
+
+    text = std::string("◊ ") + music::degreeNames[pC->modeDegree * 3];
+
+}
+// Degree
+
+// Chord 
 void ChordItem::onAction(const event::Action &e)  {
     pChord->chord = chord;
     pChord->dirty = true;
@@ -349,6 +385,57 @@ void ChordChoice::step() {
         return;
     }
 
+    ProgressChord *pC = pState->getChord(pState->currentPart, pStep);
+    music::InversionDefinition &inv = pState->knownChords.chords[pC->chord].inversions[pC->inversion];
+
+    if(pState->nSteps > pStep) {
+        color = nvgRGBA(0x00, 0xFF, 0xFF, 0xFF);
+    } else {
+        color = nvgRGBA(0x00, 0xFF, 0xFF, 0x6F);
+    }
+
+    text = std::to_string(pStep) + std::string(": ◊ ");
+
+    if (pState->chordMode) {
+        text += inv.getName(pState->mode, pState->key, pC->modeDegree, pC->rootNote);
+        text += " " + music::degreeNames[pC->modeDegree * 3 + pC->quality];
+    } else {
+        text += inv.getName(pC->rootNote);
+    }
+
+}
+
+// Chord menu
+
+// Octave
+void OctaveItem::onAction(const event::Action &e) {
+    pChord->octave = octave;
+    pChord->dirty = true;
+}
+
+void OctaveChoice::onAction(const event::Action &e) {
+    if (!pState)
+        return;
+
+    ProgressChord *pChord = pState->getChord(pState->currentPart, pStep);
+
+    ui::Menu *menu = createMenu();
+    menu->addChild(createMenuLabel("Octave"));
+    for (int i = -5; i < 6; i++) {
+        OctaveItem *item = new OctaveItem;
+        item->pChord = pChord;
+        item->octave = i;
+        item->text = std::to_string(i);
+        menu->addChild(item);
+    }
+}
+
+void OctaveChoice::step() {
+    if (!pState) {
+        text = "";
+        return;
+    }
+
     if(pState->nSteps > pStep) {
         color = nvgRGBA(0x00, 0xFF, 0xFF, 0xFF);
     } else {
@@ -357,12 +444,12 @@ void ChordChoice::step() {
 
     ProgressChord *pChord = pState->getChord(pState->currentPart, pStep);
 
-    text = std::string("◊ ") + music::BasicChordSet[pChord->chord].name;
+    text = std::string("◊ ") + std::to_string(pChord->octave);
 
 }
-// Chord menu
+// Octave 
 
-// Inversion menu
+// Inversion 
 void InversionItem::onAction(const event::Action &e) {
     pChord->inversion = inversion;
     pChord->dirty = true;
@@ -402,7 +489,7 @@ void InversionChoice::step() {
     text = std::string("◊ ") + music::inversionNames[pChord->inversion];
 
 }
-// Inversion menu
+// Inversion 
 
 void StatusBox::step() {
     if (!pState) {
@@ -427,21 +514,8 @@ void ProgressStepWidget::setPState(ProgressState *pState, int pStep) {
 
     math::Vec pos;
 
-    RootChoice *rootChoice = createWidget<RootChoice>(pos);
-    rootChoice->box.size.x = 140.0;
-    rootChoice->textOffset.y = 10.0;
-    rootChoice->pState = pState;
-    rootChoice->pStep = pStep;
-    addChild(rootChoice);
-    pos = rootChoice->box.getTopRight();
-    this->rootChooser = rootChoice;
-
-    this->separators[0] = createWidget<LedDisplaySeparator>(pos);
-    this->separators[0]->box.size.x = box.size.x / 3.0;
-    addChild(this->separators[0]);
-
     ChordChoice *chordChoice = createWidget<ChordChoice>(pos);
-    chordChoice->box.size.x = 95.0;
+    chordChoice->box.size.x = 155.0;
     chordChoice->textOffset.y = 10.0;
     chordChoice->pState = pState;
     chordChoice->pStep = pStep;
@@ -449,18 +523,41 @@ void ProgressStepWidget::setPState(ProgressState *pState, int pStep) {
     pos = chordChoice->box.getTopRight();
     this->chordChooser = chordChoice;
 
-    this->separators[1] = createWidget<LedDisplaySeparator>(pos);
-    this->separators[1]->box.size.x = box.size.x / 3.0;
-    addChild(this->separators[1]);
+    RootChoice *rootChoice = createWidget<RootChoice>(pos);
+    rootChoice->box.size.x = 35.0;
+    rootChoice->textOffset.y = 10.0;
+    rootChoice->pState = pState;
+    rootChoice->pStep = pStep;
+    addChild(rootChoice);
+    pos = rootChoice->box.getTopRight();
+    this->rootChooser = rootChoice;
+
+    DegreeChoice *degreeChoice = createWidget<DegreeChoice>(pos);
+    degreeChoice->box.size.x = 30.0;
+    degreeChoice->textOffset.y = 10.0;
+    degreeChoice->pState = pState;
+    degreeChoice->pStep = pStep;
+    addChild(degreeChoice);
+    pos = degreeChoice->box.getTopRight();
+    this->degreeChooser = degreeChoice;
 
     InversionChoice *inversionChoice = createWidget<InversionChoice>(pos);
-    inversionChoice->box.size.x = 40.0;
+    inversionChoice->box.size.x = 35.0;
     inversionChoice->textOffset.y = 10.0;
     inversionChoice->pState = pState;
     inversionChoice->pStep = pStep;
     addChild(inversionChoice);
     pos = inversionChoice->box.getTopRight();
     this->inversionChooser = inversionChoice;
+
+    OctaveChoice *octaveChoice = createWidget<OctaveChoice>(pos);
+    octaveChoice->box.size.x = 35.0;
+    octaveChoice->textOffset.y = 10.0;
+    octaveChoice->pState = pState;
+    octaveChoice->pStep = pStep;
+    addChild(octaveChoice);
+    pos = octaveChoice->box.getTopRight();
+    this->octaveChooser = octaveChoice;
 
 }
 // ProgressStepWidget

@@ -168,7 +168,7 @@ double gaussrand() {
 
 namespace music {
 
-Chord::Chord() : rootNote(0), quality(0), chord(0), modeDegree(0), inversion(0) {
+Chord::Chord() : rootNote(0), quality(0), chord(0), modeDegree(0), inversion(0), octave(0) {
 	setVoltages(defaultChord.formula, 12);
 }
 
@@ -179,9 +179,9 @@ void Chord::setVoltages(int *chordArray, int offset) {
 			if (offset == 0) { // if offset = 0, randomise offset per note
 				off = (rand() % 3 + 1) * 12;
 			}
-			outVolts[j] = getVoltsFromPitch(chordArray[j] + off,rootNote);			
+			outVolts[j] = getVoltsFromPitch(chordArray[j] + off,rootNote) + octave;
 		} else {
-			outVolts[j] = getVoltsFromPitch(chordArray[j],      rootNote);
+			outVolts[j] = getVoltsFromPitch(chordArray[j],      rootNote) + octave;
 		}	
 	}
 }
@@ -193,9 +193,9 @@ void Chord::setVoltages(std::vector<int> &chordArray, int offset) {
 			if (offset == 0) { // if offset = 0, randomise offset per note
 				off = (rand() % 3 + 1) * 12;
 			}
-			outVolts[j] = getVoltsFromPitch(chordArray[j] + off,rootNote);			
+			outVolts[j] = getVoltsFromPitch(chordArray[j] + off,rootNote) + octave;
 		} else {
-			outVolts[j] = getVoltsFromPitch(chordArray[j],      rootNote);
+			outVolts[j] = getVoltsFromPitch(chordArray[j],      rootNote) + octave;
 		}	
 	}
 }
