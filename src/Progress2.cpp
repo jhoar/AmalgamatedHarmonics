@@ -20,6 +20,8 @@ struct Progress2 : core::AHModule {
 		MODE_PARAM,
 		ENUMS(GATE_PARAM,8),
 		PART_PARAM,
+		COPYBTN_PARAM,
+		COPYSRC_PARAM,
 		NUM_PARAMS
 	};
 	enum InputIds {
@@ -43,6 +45,7 @@ struct Progress2 : core::AHModule {
 		RESET_LIGHT,
 		GATES_LIGHT,
 		ENUMS(GATE_LIGHTS,16),
+		COPYBTN_LIGHT,
 		NUM_LIGHTS
 	};
 
@@ -52,6 +55,7 @@ struct Progress2 : core::AHModule {
 		params[RUN_PARAM].config(0.0, 1.0, 0.0, "Run");
 		params[RESET_PARAM].config(0.0, 1.0, 0.0, "Reset");
 		params[STEPS_PARAM].config(1.0, 8.0, 8.0, "Steps");
+		params[COPYSRC_PARAM].config(1.0, 8.0, 8.0, "Steps");
 
 		params[KEY_PARAM].config(0.0, 11.0, 0.0, "Key");
 		params[KEY_PARAM].description = "Key from which chords are selected"; 
@@ -60,12 +64,12 @@ struct Progress2 : core::AHModule {
 		params[MODE_PARAM].description = "Mode from which chords are selected"; 
 
 		params[PART_PARAM].config(0.0, 31.0, 0.0, "Part"); 
+		params[COPYBTN_PARAM].config(0.0, 1.0, 0.0, "Copy a part to here");
+		params[COPYSRC_PARAM].config(0.0, 31.0, 8.0, "Source part to copy from");
 
 		for (int i = 0; i < 8; i++) {
 			params[GATE_PARAM + i].config(0.0, 1.0, 0.0, "Gate active");
 		}
-
-		pState.knownChords = knownChords;
 
 		onReset();
 
@@ -108,8 +112,6 @@ struct Progress2 : core::AHModule {
 
 	}
 	
-	music::KnownChords knownChords;
-
 	bool running = true;
 	
 	// for external clock
@@ -119,6 +121,7 @@ struct Progress2 : core::AHModule {
 	rack::dsp::SchmittTrigger runningTrigger;
 	rack::dsp::SchmittTrigger resetTrigger;
 	rack::dsp::SchmittTrigger gateTriggers[8];
+	rack::dsp::SchmittTrigger copyTrigger;
 		
 	rack::dsp::PulseGenerator gatePulse;
 
@@ -163,6 +166,10 @@ void Progress2::process(const ProcessArgs &args) {
 	// Run
 	if (runningTrigger.process(params[RUN_PARAM].getValue())) {
 		running = !running;
+	}
+
+	if (copyTrigger.process(params[COPYBTN_PARAM].getValue())) {
+		pState.copyPartFrom(params[COPYSRC_PARAM].getValue());
 	}
 
 	pState.nSteps = (int) clamp(roundf(params[STEPS_PARAM].getValue() + inputs[STEPS_INPUT].getVoltage()), 1.0f, 8.0f);
@@ -263,6 +270,7 @@ void Progress2::process(const ProcessArgs &args) {
 	outputs[GATES_OUTPUT].setVoltage(gatesOn ? 10.0f : 0.0f);
 	lights[RUNNING_LIGHT].setBrightness(running);
 	lights[RESET_LIGHT].setSmoothBrightness(resetTrigger.isHigh(), args.sampleTime);
+	lights[COPYBTN_LIGHT].setSmoothBrightness(copyTrigger.isHigh(), args.sampleTime);
 	lights[GATES_LIGHT].setSmoothBrightness(pulse, args.sampleTime);
 
 	// Set the output pitches 
@@ -300,6 +308,10 @@ struct Progress2Widget : ModuleWidget {
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 4, 1, true, false), module, Progress2::KEY_INPUT));
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 5, 1, true, false), module, Progress2::MODE_INPUT));
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 6, 1, true, false), module, Progress2::PART_INPUT));
+
+		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 7, 1, true, false), module, Progress2::COPYSRC_PARAM));
+		addParam(createParam<gui::AHButton>(gui::getPosition(gui::BUTTON, 8, 1, true, false), module, Progress2::COPYBTN_PARAM));
+		addChild(createLight<MediumLight<GreenLight>>(gui::getPosition(gui::LIGHT, 8, 1, true, false), module, Progress2::COPYBTN_LIGHT));
 
 		addChild(createLight<MediumLight<GreenLight>>(gui::getPosition(gui::LIGHT, 0, 5, true, false), module, Progress2::GATES_LIGHT));
 		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 7, 0, true, false), module, Progress2::GATES_OUTPUT));

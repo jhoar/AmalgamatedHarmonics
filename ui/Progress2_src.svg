@@ -954,9 +954,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.1657895"
-     inkscape:cx="274.68162"
-     inkscape:cy="300.81409"
+     inkscape:zoom="1.3894737"
+     inkscape:cx="172.5"
+     inkscape:cy="190"
      inkscape:current-layer="layer2"
      showgrid="false"
      units="mm"
@@ -1792,5 +1792,37 @@
        x="134.07573"
        y="-243.85225"
        transform="rotate(90)" />
+    <text
+       transform="scale(0.99420903,1.0058247)"
+       id="text1141"
+       y="172.38269"
+       x="269.17542"
+       style="font-style:normal;font-weight:normal;font-size:39.76836014px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;display:inline;fill:#d4af37;fill-opacity:1;stroke:none;stroke-width:0.99420899"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.60489655px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1;stroke-width:0.99420899"
+         y="172.38269"
+         x="269.17542"
+         id="tspan1139"
+         sodipodi:role="line">SRC</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:39.76836014px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;display:inline;fill:#d4af37;fill-opacity:1;stroke:none;stroke-width:0.99420899"
+       x="300.92801"
+       y="172.38269"
+       id="text1145"
+       transform="scale(0.99420903,1.0058247)"><tspan
+         sodipodi:role="line"
+         id="tspan1143"
+         x="300.92801"
+         y="172.38269"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.60489655px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1;stroke-width:0.99420899">COPY</tspan></text>
+    <rect
+       transform="scale(-1)"
+       y="-193.3744"
+       x="-310.02899"
+       height="2.7279999"
+       width="33.475422"
+       id="rect1148"
+       style="display:inline;opacity:1;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.83134216;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
   </g>
 </svg>

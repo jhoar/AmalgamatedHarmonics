@@ -51,6 +51,20 @@ void ProgressState::update() {
 	}
 }
 
+void ProgressState::copyPartFrom(int src) {
+    if (src == currentPart) {
+        return;
+    }
+
+    for (int step = 0; step < 8; step++) {
+        parts[currentPart][step] = parts[src][step];
+    }
+     
+    settingChanged = true;
+}
+
+
+
 void ProgressState::toggleGate(int part, int step) {
 	parts[part][step].gate = !parts[part][step].gate;
 }

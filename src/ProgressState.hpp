@@ -40,6 +40,8 @@ struct ProgressState {
 	float *getChordVoltages(int part, int step);
 	ProgressChord *getChord(int part, int step);
 
+	void copyPartFrom(int src);
+
 	void setMode(int m);
 	void setKey(int k);
 	void setPart(int p);
