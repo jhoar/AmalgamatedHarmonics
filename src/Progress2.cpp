@@ -55,7 +55,7 @@ struct Progress2 : core::AHModule {
 		params[RUN_PARAM].config(0.0, 1.0, 0.0, "Run");
 		params[RESET_PARAM].config(0.0, 1.0, 0.0, "Reset");
 		params[STEPS_PARAM].config(1.0, 8.0, 8.0, "Steps");
-		params[COPYSRC_PARAM].config(1.0, 8.0, 8.0, "Steps");
+		params[COPYSRC_PARAM].config(0.0, 31.0, 0.0, "Steps");
 
 		params[KEY_PARAM].config(0.0, 11.0, 0.0, "Key");
 		params[KEY_PARAM].description = "Key from which chords are selected"; 

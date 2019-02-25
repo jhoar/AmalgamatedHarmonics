@@ -15,38 +15,19 @@ void ProgressState::onReset() {
 }
 
 void ProgressState::calculateVoltages(int part, int step) {
+    int chordIndex = parts[part][step].chord;
+    int invIndex = parts[part][step].inversion;
 
-        int chordIndex = parts[part][step].chord;
-        int invIndex = parts[part][step].inversion;
-
-        music::ChordDefinition &chordDef = knownChords.chords[chordIndex];
-        std::vector<int> &invDef = chordDef.inversions[invIndex].formula;
-        parts[part][step].setVoltages(invDef, offset);
-
+    music::ChordDefinition &chordDef = knownChords.chords[chordIndex];
+    std::vector<int> &invDef = chordDef.inversions[invIndex].formula;
+    parts[part][step].setVoltages(invDef, offset);
 }
 
 void ProgressState::update() {
 
-    if (stateChanged) {
-        for (int step = 0; step < 8; step++) {
-            if(chordMode) { 
-                music::getRootFromMode(mode, key, 
-                parts[currentPart][step].modeDegree, 
-                &(parts[currentPart][step].rootNote), 
-                &(parts[currentPart][step].quality));
-            }
-
-            if (parts[currentPart][step].dirty || stateChanged) { // Also reset if key or mode or module settings has changed
-                parts[currentPart][step].dirty = false;
-                calculateVoltages(currentPart,step);
-            }
-        }
-        stateChanged = false;
-    }
-
-    if (modeChanged) {
-        for (int step = 0; step < 8; step++) {
-            if(chordMode) { 
+    for (int step = 0; step < 8; step++) {
+        if (modeChanged || stateChanged || parts[currentPart][step].dirty) {
+            if(chordMode && modeChanged) { 
                 music::getRootFromMode(mode, key, 
                 parts[currentPart][step].modeDegree, 
                 &(parts[currentPart][step].rootNote), 
@@ -54,6 +35,8 @@ void ProgressState::update() {
             }
             calculateVoltages(currentPart,step);
         }
+        parts[currentPart][step].dirty = false;
+        stateChanged = false;
     }
 
 }
