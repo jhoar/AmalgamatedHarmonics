@@ -8,11 +8,13 @@ struct ProgressChord : music::Chord {
 
 	bool gate;
 	bool dirty;
+	int  note;
 
 	void reset() {
 		music::Chord::reset();
 		gate = true;
 		dirty = true;
+		note = 0;
 	}
 
 };

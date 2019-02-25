@@ -26,15 +26,22 @@ void ProgressState::calculateVoltages(int part, int step) {
 void ProgressState::update() {
 
     for (int step = 0; step < 8; step++) {
-        if (modeChanged || stateChanged || parts[currentPart][step].dirty) {
-            if(chordMode && modeChanged) { 
+        if (modeChanged) {
+            if(chordMode) { 
                 music::getRootFromMode(mode, key, 
                 parts[currentPart][step].modeDegree, 
                 &(parts[currentPart][step].rootNote), 
                 &(parts[currentPart][step].quality));
+            } else {
+                parts[currentPart][step].rootNote = parts[currentPart][step].note;
             }
             calculateVoltages(currentPart,step);
         }
+
+        if (stateChanged || parts[currentPart][step].dirty) {
+            calculateVoltages(currentPart,step);
+        }
+
         parts[currentPart][step].dirty = false;
         stateChanged = false;
     }
@@ -95,6 +102,7 @@ json_t *ProgressState::toJson() {
 
 	// pChord
     json_t *rootNote_array      = json_array();
+    json_t *note_array          = json_array();
     json_t *quality_array       = json_array();
     json_t *chord_array         = json_array();
     json_t *modeDegree_array    = json_array();
@@ -105,6 +113,7 @@ json_t *ProgressState::toJson() {
     for (int part = 0; part < 32; part++) {
         for (int step = 0; step < 8; step++) {
             json_t *rootNoteJ   = json_integer(parts[part][step].rootNote);
+            json_t *noteJ       = json_integer(parts[part][step].note);
             json_t *qualityJ    = json_integer(parts[part][step].quality);
             json_t *chordJ      = json_integer(parts[part][step].chord);
             json_t *modeDegreeJ = json_integer(parts[part][step].modeDegree);
@@ -113,6 +122,7 @@ json_t *ProgressState::toJson() {
             json_t *gateJ       = json_boolean(parts[part][step].gate);
 
             json_array_append_new(rootNote_array,   rootNoteJ);
+            json_array_append_new(note_array,       noteJ);
             json_array_append_new(quality_array,    qualityJ);
             json_array_append_new(chord_array,      chordJ);
             json_array_append_new(modeDegree_array, modeDegreeJ);
@@ -123,6 +133,7 @@ json_t *ProgressState::toJson() {
     }
 
     json_object_set_new(rootJ, "rootnote",      rootNote_array);
+    json_object_set_new(rootJ, "note",          note_array);
     json_object_set_new(rootJ, "quality",       quality_array);
     json_object_set_new(rootJ, "chord",         chord_array);
     json_object_set_new(rootJ, "modedegree",    modeDegree_array);
@@ -151,6 +162,18 @@ void ProgressState::fromJson(json_t *rootJ) {
                 json_t *rootNoteJ = json_array_get(rootNote_array, part * 8 + step);
                 if (rootNoteJ)
                     parts[part][step].rootNote = json_integer_value(rootNoteJ);
+            }
+        }
+    }
+
+	// rootNote
+    json_t *note_array = json_object_get(rootJ, "note");
+    if (note_array) {
+        for (int part = 0; part < 32; part++) {
+            for (int step = 0; step < 8; step++) {
+                json_t *noteJ = json_array_get(note_array, part * 8 + step);
+                if (noteJ)
+                    parts[part][step].note = json_integer_value(noteJ);
             }
         }
     }
@@ -243,7 +266,7 @@ void ProgressState::fromJson(json_t *rootJ) {
 
 // Root menu
 void RootItem::onAction(const event::Action &e) {
-    pChord->rootNote = root;
+    pChord->note = root;
     pChord->dirty = true;
 }
 
@@ -278,7 +301,7 @@ void RootChoice::step() {
         color = nvgRGBA(0x00, 0xFF, 0xFF, 0x6F);
     }
 
-    text = std::string("◊ ") + music::noteNames[pC->rootNote];
+    text = std::string("◊ ") + music::noteNames[pC->note];
     
 }
 // Root 
