@@ -39,6 +39,12 @@ void ProgressState::update() {
         }
 
         if (stateChanged || parts[currentPart][step].dirty) {
+            if(chordMode) { 
+                music::getRootFromMode(mode, key, 
+                parts[currentPart][step].modeDegree, 
+                &(parts[currentPart][step].rootNote), 
+                &(parts[currentPart][step].quality));
+            }
             calculateVoltages(currentPart,step);
         }
 
@@ -331,7 +337,7 @@ void DegreeChoice::onAction(const event::Action &e) {
         item->pState = pState;
         item->pChord = pChord;
         item->degree = i;
-        item->text = music::degreeNames[i * 3];
+        item->text = music::degreeNames[i * 3 + music::ModeQuality[pState->mode][i]];
         menu->addChild(item);
     }
 }
@@ -350,7 +356,8 @@ void DegreeChoice::step() {
         color = nvgRGBA(0x00, 0xFF, 0xFF, 0x6F);
     }
 
-    text = std::string("◊ ") + music::degreeNames[pC->modeDegree * 3];
+    text = std::string("◊ ") + 
+        music::degreeNames[pC->modeDegree * 3 + music::ModeQuality[pState->mode][pC->quality]];
 
 }
 // Degree
