@@ -281,7 +281,7 @@ struct ChordWidget : ModuleWidget {
 		struct PolyModeItem : MenuItem {
 			Chord *module;
 			bool polymode;
-			void onAction(const event::Action &e) override {
+			void onAction(const ActionEvent &e) override {
 				module->polymode = polymode;
 				module->switchMode = true;
 			}

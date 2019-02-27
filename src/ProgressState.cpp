@@ -271,12 +271,12 @@ void ProgressState::fromJson(json_t *rootJ) {
 // ProgressState
 
 // Root menu
-void RootItem::onAction(const event::Action &e) {
+void RootItem::onAction(const ActionEvent &e) {
     pChord->note = root;
     pChord->dirty = true;
 }
 
-void RootChoice::onAction(const event::Action &e) {
+void RootChoice::onAction(const ActionEvent &e) {
     if (!pState)
         return;
 
@@ -313,7 +313,7 @@ void RootChoice::step() {
 // Root 
 
 // Degree
-void DegreeItem::onAction(const event::Action &e) {
+void DegreeItem::onAction(const ActionEvent &e) {
     pChord->modeDegree = degree;
     pChord->dirty = true;
 
@@ -324,7 +324,7 @@ void DegreeItem::onAction(const event::Action &e) {
 
 }
 
-void DegreeChoice::onAction(const event::Action &e) {
+void DegreeChoice::onAction(const ActionEvent &e) {
         if (!pState)
         return;
 
@@ -363,7 +363,7 @@ void DegreeChoice::step() {
 // Degree
 
 // Chord 
-void ChordItem::onAction(const event::Action &e)  {
+void ChordItem::onAction(const ActionEvent &e)  {
     pChord->chord = chord;
     pChord->dirty = true;
 }
@@ -383,7 +383,7 @@ Menu *ChordSubsetMenu::createChildMenu() {
     return menu;
 }
 
-void ChordChoice::onAction(const event::Action &e) {
+void ChordChoice::onAction(const ActionEvent &e) {
     if (!pState)
         return;
 
@@ -438,12 +438,12 @@ void ChordChoice::step() {
 // Chord menu
 
 // Octave
-void OctaveItem::onAction(const event::Action &e) {
+void OctaveItem::onAction(const ActionEvent &e) {
     pChord->octave = octave;
     pChord->dirty = true;
 }
 
-void OctaveChoice::onAction(const event::Action &e) {
+void OctaveChoice::onAction(const ActionEvent &e) {
     if (!pState)
         return;
 
@@ -480,12 +480,12 @@ void OctaveChoice::step() {
 // Octave 
 
 // Inversion 
-void InversionItem::onAction(const event::Action &e) {
+void InversionItem::onAction(const ActionEvent &e) {
     pChord->inversion = inversion;
     pChord->dirty = true;
 }
 
-void InversionChoice::onAction(const event::Action &e) {
+void InversionChoice::onAction(const ActionEvent &e) {
     if (!pState)
         return;
 

@@ -632,7 +632,7 @@ struct Arp32Widget : ModuleWidget {
 		struct GateModeItem : MenuItem {
 			Arp32 *module;
 			Arp32::GateMode gateMode;
-			void onAction(const event::Action &e) override {
+			void onAction(const ActionEvent &e) override {
 				module->gateMode = gateMode;
 			}
 		};

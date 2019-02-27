@@ -533,7 +533,7 @@ struct ProgressWidget : ModuleWidget {
 		struct GateModeItem : MenuItem {
 			Progress *module;
 			Progress::GateMode gateMode;
-			void onAction(const event::Action &e) override {
+			void onAction(const ActionEvent &e) override {
 				module->gateMode = gateMode;
 			}
 		};

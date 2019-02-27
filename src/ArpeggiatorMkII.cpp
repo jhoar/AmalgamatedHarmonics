@@ -1000,7 +1000,7 @@ struct Arpeggiator2Widget : ModuleWidget {
 		struct GateModeItem : MenuItem {
 			Arpeggiator2 *module;
 			Arpeggiator2::GateMode gateMode;
-			void onAction(const event::Action &e) override {
+			void onAction(const ActionEvent &e) override {
 				module->gateMode = gateMode;
 			}
 		};
