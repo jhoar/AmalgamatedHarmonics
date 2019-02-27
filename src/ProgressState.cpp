@@ -316,12 +316,6 @@ void RootChoice::step() {
 void DegreeItem::onAction(const ActionEvent &e) {
     pChord->modeDegree = degree;
     pChord->dirty = true;
-
-    // Root and chord can get updated
-    // From the input key, mode and degree, we can get the root chord note and quality (Major,Minor,Diminshed)
-    // FIXME Still needed?
-    music::getRootFromMode(pState->mode, pState->key, pChord->modeDegree, &(pChord->rootNote), &(pChord->quality));
-
 }
 
 void DegreeChoice::onAction(const ActionEvent &e) {
