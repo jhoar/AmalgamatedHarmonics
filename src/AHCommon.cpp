@@ -164,7 +164,7 @@ double gaussrand() {
  	return Z;
 }
 
-}
+} // digital
 
 namespace music {
 
@@ -926,6 +926,6 @@ void KnownChords::dump() {
 	}
 }
 
-}
+} // music
 
-}
+} // ah
