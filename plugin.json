@@ -9,87 +9,115 @@
 	"authorUrl": "https://github.com/jhoar/AmalgamatedHarmonics/wiki",
 	"sourceUrl": "https://github.com/jhoar/AmalgamatedHarmonics",
 	"version": "1.0.0",
-	"modules": {
-		"Arp31": {
+	"modules": [
+		{
+			"slug": "Arp31" ,
 			"name": "Arp 3.1 - Chord",
 			"description": "Arpeggios over a chord",
-			"tags": ["ARPEGGIATOR"]
+			"tags": ["Arpeggiator"]
 		},
-        "Arp32": {
+		{
+			"slug": "Arp32",
 			"name": "Arp 3.2 - Pattern",
 			"description": "Pattern arpeggios",
-			"tags": ["ARPEGGIATOR"]
+			"tags": ["Arpeggiator"]
 		},
-        "Bombe": {
+        {
+			"slug": "Bombe",
 			"name": "Bombe",
 			"description": "A semi-random shift-register chord generator and looper",
-			"tags": ["SEQUENCER"]
+			"tags": ["Sequencer","Polyphonic"]
 		},
-        "Circle": {
+        {
+			"slug": "Circle",
 			"name": "Fifths and Fourths",
 			"description": "An implementation of the Circle of Fifths",
-			"tags": ["SEQUENCER"]
+			"tags": ["Utility"]
 		},
-        "Galaxy": {
+        {
+			"slug": "Chord",
+			"name": "D'acchord",
+			"description": "Six voice VCO",
+			"tags": ["VCO","Polyphonic"]
+		},
+        {
+			"slug": "Galaxy",
 			"name": "Galaxy",
 			"description": "Semi-random chord generation",
-			"tags": ["SEQUENCER"]
+			"tags": ["Sequencer","Polyphonic"]
 		},
-        "Generative": {
+        {
+			"slug": "Generative",
 			"name": "Generative",
 			"description": "A toolkit of functions intended to support generative music creation",
-			"tags": ["NOISE","SAMPLE_AND_HOLD","LFO","RANDOM"]
+			"tags": ["Noise","Sample and hold","LFO","Random","Clock generator"]
 		},
-        "Imp": {
+        {
+			"slug": "Imp",
 			"name": "Imp",
 			"description": "A single channel trigger-to-gate and clock divider module",
-			"tags": ["CLOCK_MODULATOR"]
+			"tags": ["Clock modulator","Polyphonic"]
 		},
-        "Imperfect2": {
+        {
+			"slug": "Imperfect2",
 			"name": "Imperfect MkII",
 			"description": "A multi-channel trigger-to-gate and clock divider module",
-			"tags": ["CLOCK_MODULATOR"]
+			"tags": ["Clock modulator"]
 		},
-        "Progress2": {
-			"name": "Progress MKII",
+        {
+			"slug": "Progress2",
+			"name": "Progress MkII",
 			"description": "A chord sequencer",
-			"tags": ["SEQUENCER"]
+			"tags": ["Sequencer","Polyphonic"]
 		},
-        "Ruckus": {
+        {
+			"slug": "Ruckus",
 			"name": "Ruckus",
 			"description": "A trigger sequencer based on summed clock-dividers",
-			"tags": ["SEQUENCER"]
+			"tags": ["Sequencer"]
 		},
-        "SLN": {
+        {
+			"slug": "ScaleQuantizer2",
+			"name": "Scale Quantizer MkII",
+			"description": "Scale-aware quantizer",
+			"tags": ["Quantizer"]
+		},
+        {
+			"slug": "SLN",
 			"name": "SLN",
 			"description": "Slew-Limited Noise ",
-			"tags": ["SAMPLE_AND_HOLD","NOISE"]
+			"tags": ["Sample and hold","Noise"]
 		},
-		"MuxDeMux": {
+		{
+			"slug": "MuxDeMux",
 			"name": "MuxDeMux",
 			"description": "Multiplexer/Demultiplexer for polyphonic cables",
-			"tags": ["UTILITY"]
+			"tags": ["Utility","Polyphonic"]
 		},
-		"PolyProbe": {
+		{
+			"slug": "PolyProbe",
 			"name": "PolyProbe",
-			"description": "Probe Polyphonic cable state",
-			"tags": ["UTILITY"]
+			"description": "Display polyphonic cable voltages",
+			"tags": ["Visual"]
 		},
-		"PolyScope": {
+		{
+			"slug": "PolyScope",
 			"name": "PolyScope",
-			"description": "Polyphonic scope",
-			"tags": ["VISUAL"]
+			"description": "Polyphonic 'Scope",
+			"tags": ["Visual"]
 		},
-        "Arpeggiator2": {
+        {
+			"slug": "Arpeggiator2",
 			"name": "Arpeggiator MkII (deprecated)",
 			"description": "A multi-input arpeggiator",
-			"tags": ["ARPEGGIATOR"]
+			"tags": ["Arpeggiator"]
 		},
-		"Progress": {
+		{
+			"slug": "Progress",
 			"name": "Progress  (deprecated)",
 			"description": "A chord sequencer",
-			"tags": ["SEQUENCER"]
+			"tags": ["Sequencer"]
 		}
-	}
+	]
 }
 
