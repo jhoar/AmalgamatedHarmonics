@@ -105,18 +105,6 @@
 			"name": "PolyScope",
 			"description": "Polyphonic 'Scope",
 			"tags": ["Visual"]
-		},
-        {
-			"slug": "Arpeggiator2",
-			"name": "Arpeggiator MkII (deprecated)",
-			"description": "A multi-input arpeggiator",
-			"tags": ["Arpeggiator"]
-		},
-		{
-			"slug": "Progress",
-			"name": "Progress  (deprecated)",
-			"description": "A chord sequencer",
-			"tags": ["Sequencer"]
 		}
 	]
 }
