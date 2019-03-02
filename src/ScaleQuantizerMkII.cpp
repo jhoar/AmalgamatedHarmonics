@@ -54,11 +54,13 @@ struct ScaleQuantizer2 : core::AHModule {
 	int lastRoot = 0;
 	float lastTrans = -10000.0f;
 	
-	dsp::SchmittTrigger holdTrigger[8];
+	dsp::SchmittTrigger holdTrigger[8][16];
 	dsp::PulseGenerator triggerPulse[8][16];
 
 	float holdPitch[8][16] = {};
 	float lastPitch[8][16] = {};
+
+	bool holdState[8][16];
 	
 	int currScale = 0;
 	int currRoot = 0;
@@ -100,36 +102,35 @@ void ScaleQuantizer2::process(const ProcessArgs &args) {
 	}
 	
 	for (int i = 0; i < 8; i++) {
-		float holdInput		= inputs[HOLD_INPUT + i].getVoltage();
-		bool  holdActive	= inputs[HOLD_INPUT + i].isConnected();
-		bool  holdStatus	= holdTrigger[i].process(holdInput);
 		float shift 		= params[SHIFT_PARAM + i].getValue();
+		int nCVChannels 	= inputs[IN_INPUT + i].getChannels();
+		int nHoldChannels 	= inputs[HOLD_INPUT + i].getChannels();
 
-		int nChannels = inputs[IN_INPUT + i].getChannels();
-		outputs[OUT_OUTPUT + i].setChannels(nChannels);
-		outputs[TRIG_OUTPUT + i].setChannels(nChannels);
+		outputs[OUT_OUTPUT + i].setChannels(nCVChannels);
+		outputs[TRIG_OUTPUT + i].setChannels(nCVChannels);
 
-		for (int j = 0; j < nChannels; j++) {
+		// process triggers
+		for (int j = 0; j < nCVChannels; j++) {
+			holdState[i][j] = holdTrigger[i][j].process(inputs[HOLD_INPUT + i].getVoltage(j));
+		}
 
+		for (int j = 0; j < nCVChannels; j++) {
 			float volts = inputs[IN_INPUT + i].getVoltage(j);
+			int holdChannel = (nHoldChannels == 1) ? 0 : j;
 
-			if (holdActive) { 
-				
-				// Sample the pitch
-				if (holdStatus && inputs[IN_INPUT + i].isConnected()) {
+			// Hold input connected
+			if (nHoldChannels) {
+				// If triggered, sample pitch
+				if (holdState[i][holdChannel]) {
 					holdPitch[i][j] = music::getPitchFromVolts(volts, currRoot, currScale, &currNote, &currDegree);
 				}
-				
 			} else {
-
-				if (inputs[IN_INPUT + i].isConnected()) { 
-					holdPitch[i][j] = music::getPitchFromVolts(volts, currRoot, currScale, &currNote, &currDegree);
-				} 
-				
+				holdPitch[i][j] = music::getPitchFromVolts(volts, currRoot, currScale, &currNote, &currDegree);
 			}
-			
-			// If the quantises pitch has changed
+					
+			// If the quantised pitch has changed
 			if (lastPitch[i][j] != holdPitch[i][j]) {
+
 				// Record the pitch
 				lastPitch[i][j] = holdPitch[i][j];
 
