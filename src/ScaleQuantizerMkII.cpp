@@ -55,10 +55,10 @@ struct ScaleQuantizer2 : core::AHModule {
 	float lastTrans = -10000.0f;
 	
 	dsp::SchmittTrigger holdTrigger[8];
-	dsp::PulseGenerator triggerPulse[8];
+	dsp::PulseGenerator triggerPulse[8][16];
 
-	float holdPitch[8] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0};
-	float lastPitch[8] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0};
+	float holdPitch[8][16] = {};
+	float lastPitch[8][16] = {};
 	
 	int currScale = 0;
 	int currRoot = 0;
@@ -103,41 +103,49 @@ void ScaleQuantizer2::process(const ProcessArgs &args) {
 		float holdInput		= inputs[HOLD_INPUT + i].getVoltage();
 		bool  holdActive	= inputs[HOLD_INPUT + i].isConnected();
 		bool  holdStatus	= holdTrigger[i].process(holdInput);
+		float shift 		= params[SHIFT_PARAM + i].getValue();
 
-		float volts = inputs[IN_INPUT + i].getVoltage();
-		float shift = params[SHIFT_PARAM + i].getValue();
+		int nChannels = inputs[IN_INPUT + i].getChannels();
+		outputs[OUT_OUTPUT + i].setChannels(nChannels);
+		outputs[TRIG_OUTPUT + i].setChannels(nChannels);
 
-		if (holdActive) { 
-			
-			// Sample the pitch
-			if (holdStatus && inputs[IN_INPUT + i].isConnected()) {
-				holdPitch[i] = music::getPitchFromVolts(volts, currRoot, currScale, &currNote, &currDegree);
+		for (int j = 0; j < nChannels; j++) {
+
+			float volts = inputs[IN_INPUT + i].getVoltage(j);
+
+			if (holdActive) { 
+				
+				// Sample the pitch
+				if (holdStatus && inputs[IN_INPUT + i].isConnected()) {
+					holdPitch[i][j] = music::getPitchFromVolts(volts, currRoot, currScale, &currNote, &currDegree);
+				}
+				
+			} else {
+
+				if (inputs[IN_INPUT + i].isConnected()) { 
+					holdPitch[i][j] = music::getPitchFromVolts(volts, currRoot, currScale, &currNote, &currDegree);
+				} 
+				
 			}
 			
-		} else {
+			// If the quantises pitch has changed
+			if (lastPitch[i][j] != holdPitch[i][j]) {
+				// Record the pitch
+				lastPitch[i][j] = holdPitch[i][j];
 
-			if (inputs[IN_INPUT + i].isConnected()) { 
-				holdPitch[i] = music::getPitchFromVolts(volts, currRoot, currScale, &currNote, &currDegree);
+				// Pulse the gate
+				triggerPulse[i][j].trigger(digital::TRIGGER);
 			} 
-			
-		}
-		
-		// If the quantised pitch has changed
-		if (lastPitch[i] != holdPitch[i]) {
-			// Pulse the gate
-			triggerPulse[i].trigger(digital::TRIGGER);
-			
-			// Record the pitch
-			lastPitch[i] = holdPitch[i];
-		} 
-			
-		if (triggerPulse[i].process(args.sampleTime)) {
-			outputs[TRIG_OUTPUT + i].setVoltage(10.0f);
-		} else {
-			outputs[TRIG_OUTPUT + i].setVoltage(0.0f);
-		}
 
-		outputs[OUT_OUTPUT + i].setVoltage(holdPitch[i] + shift + trans);
+			outputs[OUT_OUTPUT + i].setVoltage(holdPitch[i][j] + shift + trans, j);
+
+			if (triggerPulse[i][j].process(args.sampleTime)) {
+				outputs[TRIG_OUTPUT + i].setVoltage(10.0f, j);
+			} else {
+				outputs[TRIG_OUTPUT + i].setVoltage(0.0f, j);
+			}
+
+		}
 
 	}
 
