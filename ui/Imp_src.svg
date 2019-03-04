@@ -960,10 +960,10 @@
      inkscape:current-layer="layer2"
      showgrid="false"
      units="mm"
-     inkscape:window-width="1780"
-     inkscape:window-height="1046"
-     inkscape:window-x="129"
-     inkscape:window-y="-11"
+     inkscape:window-width="3347"
+     inkscape:window-height="1417"
+     inkscape:window-x="85"
+     inkscape:window-y="-8"
      inkscape:window-maximized="1"
      showguides="false"
      inkscape:guide-bbox="true"
@@ -1414,8 +1414,8 @@
          id="tspan19595"
          sodipodi:role="line" /></text>
     <path
-       style="display:inline;opacity:1;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:2.14230061;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="M 68.852245,398.40445 V 138.28749 h -2.728 v 260.11696 z"
+       style="display:inline;opacity:1;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:2.22438788;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 68.852245,398.40445 V 117.97157 h -2.728 v 280.43288 z"
        id="path3827"
        inkscape:connector-curvature="0" />
     <text
@@ -1466,14 +1466,14 @@
     <text
        id="text1692-5"
        y="155.38675"
-       x="32.603188"
+       x="36.139645"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;display:inline;fill:#d4af37;fill-opacity:1;stroke:none"
        xml:space="preserve"><tspan
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1"
          y="155.38675"
-         x="32.603188"
+         x="36.139645"
          id="tspan1690-5"
-         sodipodi:role="line">IN</tspan></text>
+         sodipodi:role="line">P</tspan></text>
     <rect
        style="display:inline;fill:#d4af37;fill-opacity:1;stroke-width:1.00945282"
        id="rect2684"
@@ -1513,5 +1513,16 @@
        inkscape:transform-center-y="-1.7704976"
        d="m 84.47466,391.56656 -8.50631,8.62227 1.98649,12.19793 -10.48945,-5.77485 -10.506915,5.7402 2.023465,-12.19131 -8.48011,-8.6503 11.740021,-1.7598 5.265915,-11.08637 5.232268,11.10369 z"
        id="path1148" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;display:inline;fill:#d4af37;fill-opacity:1;stroke:none"
+       x="32.603188"
+       y="120.38676"
+       id="text1105"><tspan
+         sodipodi:role="line"
+         id="tspan1103"
+         x="32.603188"
+         y="120.38676"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">IN</tspan></text>
   </g>
 </svg>

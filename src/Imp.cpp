@@ -13,6 +13,7 @@ struct Imp : core::AHModule {
 		LENGTH_PARAM,
 		LENGTHSPREAD_PARAM,
 		DIVISION_PARAM,
+		PROB_PARAM,
 		NUM_PARAMS
 	};
 	enum InputIds {
@@ -29,6 +30,8 @@ struct Imp : core::AHModule {
 	};
 
 	Imp() : core::AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
+
+		params[PROB_PARAM].config(0.0, 1.0, 1.0, "Clock-tick probability", "%", 0.0f, 100.0f);
 
 		params[DELAY_PARAM].config(1.0f, 2.0f, 1.0f, "Delay length", "ms", -2.0f, 1000.0f, 0.0f);
 
@@ -91,6 +94,7 @@ struct Imp : core::AHModule {
 	int division;
 	int actDelayMs = 0;
 	int actGateMs = 0;
+	float prob;
 
 	bool coreDelayState;
 	bool coreGateState;
@@ -149,6 +153,7 @@ void Imp::process(const ProcessArgs &args) {
 	delaySprMs = dlySpr * 2000; // scaled by ±2 below
 	gateTimeMs = gateLen * 1000;
 	gateSprMs = gateSpr * 2000; // scaled by ±2 below
+	prob = params[PROB_PARAM].getValue() * 100.0f;
 			
 	if (generateSignal) {
 
@@ -158,7 +163,8 @@ void Imp::process(const ProcessArgs &args) {
 			std::cout << stepX << " Div: " << ": Target: " << division << " Cnt: " << counter << " Exp: " << counter % division << std::endl; 
 		}
 
-		if (counter % division == 0) { 
+		// Check clock division and Bern. gate
+		if ((counter % division == 0) && (random::uniform() < params[PROB_PARAM].getValue())) { 
 
 			// check that we are not in the gate phase
 			if (!coreGatePhase.ishigh() && !coreDelayPhase.ishigh()) {
@@ -268,6 +274,7 @@ struct ImpBox : TransparentWidget {
 	Imp *module;
 	std::shared_ptr<Font> font;
 	float *bpm;
+	float *prob;
 	int *dly;
 	int *dlySpr;
 	int *gate;
@@ -298,8 +305,11 @@ struct ImpBox : TransparentWidget {
 		} else {
 			snprintf(text, sizeof(text), "%.1f", *bpm);
 		}
+		nvgText(ctx.vg, pos.x + 75, pos.y + -1 * n, text, NULL);
+
+		snprintf(text, sizeof(text), "%.1f", *prob);
 		nvgText(ctx.vg, pos.x + 75, pos.y, text, NULL);
-		
+
 		snprintf(text, sizeof(text), "%d", *dly);
 		nvgText(ctx.vg, pos.x + 75, pos.y + 1 * n, text, NULL);
 
@@ -319,11 +329,12 @@ struct ImpBox : TransparentWidget {
 		snprintf(text, sizeof(text), "%d", *division);
 		nvgText(ctx.vg, pos.x + 75, pos.y + 5 * n, text, NULL);
 		
-		snprintf(text, sizeof(text), "%d", *actDly);
+		snprintf(text, sizeof(text), "%d", *actGate);
 		nvgText(ctx.vg, pos.x + 75, pos.y + 6 * n, text, NULL);
 
-		snprintf(text, sizeof(text), "%d", *actGate);
-		nvgText(ctx.vg, pos.x, pos.y + 6 * n, text, NULL);
+		nvgTextAlign(ctx.vg, NVGalign::NVG_ALIGN_RIGHT);
+		snprintf(text, sizeof(text), "%d", *actDly);
+		nvgText(ctx.vg, pos.x + 27.5, pos.y + 6 * n, text, NULL);
 
 	}
 	
@@ -336,7 +347,8 @@ struct ImpWidget : ModuleWidget {
 		setModule(module);
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Imp.svg")));
 
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 1, 1, true, true), module, Imp::TRIG_INPUT));
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 1, 0, true, true), module, Imp::TRIG_INPUT));
+		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 1, 1, true, true), module, Imp::PROB_PARAM));
 		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 1, 2, true, true), module, Imp::DELAY_PARAM));
 		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 1, 3, true, true), module, Imp::DELAYSPREAD_PARAM));
 		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 1, 4, true, true), module, Imp::LENGTH_PARAM)); 
@@ -352,6 +364,7 @@ struct ImpWidget : ModuleWidget {
 			display->box.size = Vec(20, 200);
 
 			display->bpm = &(module->bpm);
+			display->prob = &(module->prob);
 			display->dly = &(module->delayTimeMs);
 			display->dlySpr = &(module->delaySprMs);
 			display->gate = &(module->gateTimeMs);
