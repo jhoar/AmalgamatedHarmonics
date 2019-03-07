@@ -74,19 +74,14 @@ void ScaleQuantizer2::process(const ProcessArgs &args) {
 	lastScale = currScale;
 	lastRoot = currRoot;
 
-	int currNote = 0;
-	int currDegree = 0;
-
 	if (inputs[KEY_INPUT].isConnected()) {
-		float fRoot = inputs[KEY_INPUT].getVoltage();
-		currRoot = music::getKeyFromVolts(fRoot);
+		currRoot = music::getKeyFromVolts(inputs[KEY_INPUT].getVoltage());
 	} else {
 		currRoot = params[KEY_PARAM].getValue();
 	}
 	
 	if (inputs[SCALE_INPUT].isConnected()) {
-		float fScale = inputs[SCALE_INPUT].getVoltage();
-		currScale = music::getScaleFromVolts(fScale);
+		currScale = music::getScaleFromVolts(inputs[SCALE_INPUT].getVoltage());
 	} else {
 		currScale = params[SCALE_PARAM].getValue();
 	}
@@ -100,34 +95,38 @@ void ScaleQuantizer2::process(const ProcessArgs &args) {
 			trans = lastTrans;
 		}
 	}
-	
+
 	for (int i = 0; i < 8; i++) {
 		float shift 		= params[SHIFT_PARAM + i].getValue();
 		int nCVChannels 	= inputs[IN_INPUT + i].getChannels();
 		int nHoldChannels 	= inputs[HOLD_INPUT + i].getChannels();
+		int nChannels 		= std::max(nCVChannels,nHoldChannels);
 
-		outputs[OUT_OUTPUT + i].setChannels(nCVChannels);
-		outputs[TRIG_OUTPUT + i].setChannels(nCVChannels);
+		outputs[OUT_OUTPUT + i].setChannels(nChannels);
+		outputs[TRIG_OUTPUT + i].setChannels(nChannels);
 
-		// process triggers
-		for (int j = 0; j < nCVChannels; j++) {
+		for (int j = 0; j < nChannels; j++) {
+
 			holdState[i][j] = holdTrigger[i][j].process(inputs[HOLD_INPUT + i].getVoltage(j));
-		}
 
-		for (int j = 0; j < nCVChannels; j++) {
-			float volts = inputs[IN_INPUT + i].getVoltage(j);
-			int holdChannel = (nHoldChannels == 1) ? 0 : j;
-
-			// Hold input connected
-			if (nHoldChannels) {
-				// If triggered, sample pitch
-				if (holdState[i][holdChannel]) {
-					holdPitch[i][j] = music::getPitchFromVolts(volts, currRoot, currScale, &currNote, &currDegree);
+			if (nHoldChannels == 0) {
+				holdPitch[i][j] = music::getPitchFromVolts(inputs[IN_INPUT + i].getVoltage(j), currRoot, currScale);
+			} else if (nHoldChannels == 1) {
+				if (holdState[i][0]) { // Use channel 0 for hold
+					holdPitch[i][j] = music::getPitchFromVolts(inputs[IN_INPUT + i].getVoltage(j), currRoot, currScale);
 				}
 			} else {
-				holdPitch[i][j] = music::getPitchFromVolts(volts, currRoot, currScale, &currNote, &currDegree);
+				if (nCVChannels == 1) {
+					if (holdState[i][j]) {
+						holdPitch[i][j] = music::getPitchFromVolts(inputs[IN_INPUT + i].getVoltage(0), currRoot, currScale); // (re)-sample channel 0
+					}
+				} else {
+					if (holdState[i][j]) {
+						holdPitch[i][j] = music::getPitchFromVolts(inputs[IN_INPUT + i].getVoltage(j), currRoot, currScale);
+					}
+				}
 			}
-					
+
 			// If the quantised pitch has changed
 			if (lastPitch[i][j] != holdPitch[i][j]) {
 
