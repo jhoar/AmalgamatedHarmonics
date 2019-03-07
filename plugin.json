@@ -80,7 +80,7 @@
 			"slug": "ScaleQuantizer2",
 			"name": "Scale Quantizer MkII",
 			"description": "Scale-aware quantizer",
-			"tags": ["Quantizer"]
+			"tags": ["Quantizer","Polyphonic"]
 		},
         {
 			"slug": "SLN",
@@ -98,13 +98,13 @@
 			"slug": "PolyProbe",
 			"name": "PolyProbe",
 			"description": "Display polyphonic cable voltages",
-			"tags": ["Visual"]
+			"tags": ["Visual","Polyphonic"]
 		},
 		{
 			"slug": "PolyScope",
 			"name": "PolyScope",
 			"description": "Polyphonic 'Scope",
-			"tags": ["Visual"]
+			"tags": ["Visual","Polyphonic"]
 		},
         {
 			"slug": "Arpeggiator2",
