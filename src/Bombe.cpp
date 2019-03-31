@@ -45,18 +45,18 @@ struct Bombe : core::AHModule {
 	
 	Bombe() : core::AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
 
-		params[KEY_PARAM].config(0.0, 11.0, 0.0, "Key");
-		params[KEY_PARAM].description = "Key from which chords are selected"; 
+		configParam(KEY_PARAM, 0.0, 11.0, 0.0, "Key");
+		paramQuantities[KEY_PARAM]->description = "Key from which chords are selected"; 
 
-		params[MODE_PARAM].config(0.0, 6.0, 0.0, "Mode"); 
-		params[MODE_PARAM].description = "Mode from which chords are selected"; 
+		configParam(MODE_PARAM, 0.0, 6.0, 0.0, "Mode"); 
+		paramQuantities[MODE_PARAM]->description = "Mode from which chords are selected"; 
 
-		params[LENGTH_PARAM].config(2.0, 16.0, 4.0, "Length of loop"); 
-		params[X_PARAM].config(0.0, 1.0, 0.5, "Update probability", "%", 0.0f, -100.0f, 100.0f);
-		params[X_PARAM].description = "Probability that the next chord will be changed";
+		configParam(LENGTH_PARAM, 2.0, 16.0, 4.0, "Length of loop"); 
+		configParam(X_PARAM, 0.0, 1.0, 0.5, "Update probability", "%", 0.0f, -100.0f, 100.0f);
+		paramQuantities[X_PARAM]->description = "Probability that the next chord will be changed";
 
-		params[Y_PARAM].config(0.0, 1.0, 0.5, "Deviation probability", "%", 0.0f, 100.0f);
-		params[Y_PARAM].description = "The deviation of the next chord update from the mode rule";
+		configParam(Y_PARAM, 0.0, 1.0, 0.5, "Deviation probability", "%", 0.0f, 100.0f);
+		paramQuantities[Y_PARAM]->description = "The deviation of the next chord update from the mode rule";
 
 		for(int i = 0; i < BUFFERSIZE; i++) {
 			buffer[i].setVoltages(music::defaultChord.formula, offset);

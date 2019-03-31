@@ -37,20 +37,20 @@ struct Ruckus : core::AHModule {
 
 		for (int y = 0; y < 4; y++) {
 
-			params[XMUTE_PARAM + y].config(0.0, 1.0, 0.0, "Output active");
-			params[XMUTE_PARAM + y].description = "Output clock-chain";
+			configParam(XMUTE_PARAM + y, 0.0, 1.0, 0.0, "Output active");
+			paramQuantities[XMUTE_PARAM + y]->description = "Output clock-chain";
 
-			params[YMUTE_PARAM + y].config(0.0, 1.0, 0.0, "Output active");
-			params[XMUTE_PARAM + y].description = "Output clock-chain";
+			configParam(YMUTE_PARAM + y, 0.0, 1.0, 0.0, "Output active");
+			paramQuantities[XMUTE_PARAM + y]->description = "Output clock-chain";
 
 			for (int x = 0; x < 4; x++) {
 				int i = y * 4 + x;
-				params[DIV_PARAM + i].config(0, 64, 0, "Clock division");
+				configParam(DIV_PARAM + i, 0, 64, 0, "Clock division");
 
-				params[PROB_PARAM + i].config(0.0f, 1.0f, 1.0f, "Clock-tick probability", "%", 0.0f, 100.0f);
+				configParam(PROB_PARAM + i, 0.0f, 1.0f, 1.0f, "Clock-tick probability", "%", 0.0f, 100.0f);
 
-				params[SHIFT_PARAM + i].config(-64.0f, 64.0f, 0.0f, "Clock shift");
-				params[SHIFT_PARAM + i].description = "Relative clock shift w.r.t. master clock";
+				configParam(SHIFT_PARAM + i, -64.0f, 64.0f, 0.0f, "Clock shift");
+				paramQuantities[SHIFT_PARAM + i]->description = "Relative clock shift w.r.t. master clock";
 			}
 		}
 

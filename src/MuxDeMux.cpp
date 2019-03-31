@@ -29,8 +29,8 @@ struct MuxDeMux : core::AHModule {
 	};
 
 	MuxDeMux() : core::AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
-		params[BIAS_PARAM].config(-10.0, 10.0, 10.0, "Bias", "V");
-		params[BIAS_PARAM].description = "Voltage for polyphonic output gates"; 
+		configParam(BIAS_PARAM, -10.0, 10.0, 10.0, "Bias", "V");
+		paramQuantities[BIAS_PARAM]->description = "Voltage for polyphonic output gates"; 
 	}
 
 	bool mask = false;

@@ -55,9 +55,9 @@ struct PolyScope : core::AHModule {
 
 	PolyScope() : core::AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) { 
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
-		params[SCALE_PARAM].config(-2.0f, 2.0f, 0.0f);
-		params[SPREAD_PARAM].config(0.0f, 3.0f, 1.5f);
-		params[TIME_PARAM].config(6.0f, 16.0f, 14.0f);
+		configParam(SCALE_PARAM, -2.0f, 2.0f, 0.0f);
+		configParam(SPREAD_PARAM, 0.0f, 3.0f, 1.5f);
+		configParam(TIME_PARAM, 6.0f, 16.0f, 14.0f);
 	}
 
 	void process(const ProcessArgs &args) override {

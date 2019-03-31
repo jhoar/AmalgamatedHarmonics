@@ -80,14 +80,14 @@ struct Galaxy : core::AHModule {
 	};
 	
 	Galaxy() : core::AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
-		params[KEY_PARAM].config<gui::KeyParamQuantity>(0.0, 11.0, 0.0, "Key");
-		params[KEY_PARAM].description = "Key from which chords are selected"; 
+		configParam(KEY_PARAM, 0.0, 11.0, 0.0, "Key");
+		paramQuantities[KEY_PARAM]->description = "Key from which chords are selected"; 
 
-		params[MODE_PARAM].config<gui::ModeParamQuantity>(0.0, 6.0, 0.0, "Mode");
-		params[MODE_PARAM].description = "Mode from which chord are selected"; 
+		configParam(MODE_PARAM, 0.0, 6.0, 0.0, "Mode");
+		paramQuantities[MODE_PARAM]->description = "Mode from which chord are selected"; 
 
-		params[BAD_PARAM].config(0.0, 1.0, 0.0, "Bad", "%", 0.0f, 100.0f);
-		params[BAD_PARAM].description = "Deviation from chord selection rule for the mode";
+		configParam(BAD_PARAM, 0.0, 1.0, 0.0, "Bad", "%", 0.0f, 100.0f);
+		paramQuantities[BAD_PARAM]->description = "Deviation from chord selection rule for the mode";
 
 	}
 

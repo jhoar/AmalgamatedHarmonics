@@ -54,10 +54,10 @@ struct Generative : core::AHModule {
 	Generative() : core::AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) { 
 
 		// LFO section
-		params[FREQ_PARAM].config(-8.0f, 10.0f, 1.0f, "Frequency");
-		params[FREQ_PARAM].description = "Core LFO frequency";
+		configParam(FREQ_PARAM, -8.0f, 10.0f, 1.0f, "Frequency");
+		// params[FREQ_PARAM].description = "Core LFO frequency";
 
-		struct WaveParamQuantity : app::ParamQuantity {
+		struct WaveParamQuantity : engine::ParamQuantity {
 			std::string getDisplayValueString() override {
 				float v = getValue();
 				float r = math::eucMod(v, 1.0);
@@ -109,38 +109,38 @@ struct Generative : core::AHModule {
 			}
 		};
 
-		params[WAVE_PARAM].config<WaveParamQuantity>(0.0f, 4.0f, 1.5f, "Waveform");
-		params[WAVE_PARAM].description = "Continuous: Sine - Triangle - Saw - Square - Sine";
+		configParam(WAVE_PARAM, 0.0f, 4.0f, 1.5f, "Waveform");
+		paramQuantities[WAVE_PARAM]->description = "Continuous: Sine - Triangle - Saw - Square - Sine";
 
-		params[FM_PARAM].config(0.0f, 1.0f, 0.5f, "Frequency Modulation CV");
+		configParam(FM_PARAM, 0.0f, 1.0f, 0.5f, "Frequency Modulation CV");
 
-		params[AM_PARAM].config(0.0f, 1.0f, 0.5f, "Amplitude Modulation Mix");
-		params[AM_PARAM].description = "Mix between the FM modulated LFO and the voltage supplied in AM input";
+		configParam(AM_PARAM, 0.0f, 1.0f, 0.5f, "Amplitude Modulation Mix");
+		paramQuantities[AM_PARAM]->description = "Mix between the FM modulated LFO and the voltage supplied in AM input";
 
-		params[NOISE_PARAM].config(0.0f, 1.0f, 0.5f, "Noise Mix");
-		params[NOISE_PARAM].description = "Mix between the FM-AM modulated LFO and the internal noise source";
+		configParam(NOISE_PARAM, 0.0f, 1.0f, 0.5f, "Noise Mix");
+		paramQuantities[NOISE_PARAM]->description = "Mix between the FM-AM modulated LFO and the internal noise source";
 
-		params[CLOCK_PARAM].config(-2.0, 6.0, 1.0, "Clock frequency");
+		configParam(CLOCK_PARAM, -2.0, 6.0, 1.0, "Clock frequency");
 		
-		params[PROB_PARAM].config(0.0, 1.0, 1.0, "Clock-tick probability", "%", 0.0f, 100.0f);
+		configParam(PROB_PARAM, 0.0, 1.0, 1.0, "Clock-tick probability", "%", 0.0f, 100.0f);
 
-		params[DELAYL_PARAM].config(1.0f, 2.0f, 1.0f, "Delay length", "ms", 2.0f, 500.0f, -1000.0f);
+		configParam(DELAYL_PARAM, 1.0f, 2.0f, 1.0f, "Delay length", "ms", 2.0f, 500.0f, -1000.0f);
 
-		params[GATEL_PARAM].config(1.0f, 2.0f, 1.0f, "Gate length", "ms", 2.0f, 500.0f, -1000.0f);
+		configParam(GATEL_PARAM, 1.0f, 2.0f, 1.0f, "Gate length", "ms", 2.0f, 500.0f, -1000.0f);
 
-		params[DELAYS_PARAM].config(1.0f, 2.0f, 1.0f, "Delay length spread", "ms", 2.0f, 500.0f, -1000.0f);
-		params[DELAYS_PARAM].description = "Magnitude of random time applied to delay length";
+		configParam(DELAYS_PARAM, 1.0f, 2.0f, 1.0f, "Delay length spread", "ms", 2.0f, 500.0f, -1000.0f);
+		paramQuantities[DELAYS_PARAM]->description = "Magnitude of random time applied to delay length";
 
-		params[GATES_PARAM].config(1.0f, 2.0f, 1.0f, "Gate length spread", "ms", 2.0f, 500.0f, -1000.0f);
-		params[GATES_PARAM].description = "Magnitude of random time applied to gate length";
+		configParam(GATES_PARAM, 1.0f, 2.0f, 1.0f, "Gate length spread", "ms", 2.0f, 500.0f, -1000.0f);
+		paramQuantities[GATES_PARAM]->description = "Magnitude of random time applied to gate length";
 
-		params[SLOPE_PARAM].config(0.0, 1.0, 0.0, "Slope");
-		params[SLOPE_PARAM].description = "Linear to exponential slope";
+		configParam(SLOPE_PARAM, 0.0, 1.0, 0.0, "Slope");
+		paramQuantities[SLOPE_PARAM]->description = "Linear to exponential slope";
 
-		params[SPEED_PARAM].config(0.0, 1.0, 0.0, "Inertia", "%", 0.0f, 100.0f);
-		params[SPEED_PARAM].description = "Resistance of the signal to change";
+		configParam(SPEED_PARAM, 0.0, 1.0, 0.0, "Inertia", "%", 0.0f, 100.0f);
+		paramQuantities[SPEED_PARAM]->description = "Resistance of the signal to change";
 
-		params[ATTN_PARAM].config(0.0, 1.0, 1.0, "Level", "%", 0.0f, 100.0f);
+		configParam(ATTN_PARAM, 0.0, 1.0, 1.0, "Level", "%", 0.0f, 100.0f);
 
 	}
 	

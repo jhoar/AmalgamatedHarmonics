@@ -51,24 +51,24 @@ struct Progress2 : core::AHModule {
 
 	Progress2() : core::AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) { 
 
-		params[CLOCK_PARAM].config(-2.0, 6.0, 2.0, "Frequency");
-		params[RUN_PARAM].config(0.0, 1.0, 0.0, "Run");
-		params[RESET_PARAM].config(0.0, 1.0, 0.0, "Reset");
-		params[STEPS_PARAM].config(1.0, 8.0, 8.0, "Steps");
-		params[COPYSRC_PARAM].config(0.0, 31.0, 0.0, "Steps");
+		configParam(CLOCK_PARAM, -2.0, 6.0, 2.0, "Frequency");
+		configParam(RUN_PARAM, 0.0, 1.0, 0.0, "Run");
+		configParam(RESET_PARAM, 0.0, 1.0, 0.0, "Reset");
+		configParam(STEPS_PARAM, 1.0, 8.0, 8.0, "Steps");
+		configParam(COPYSRC_PARAM, 0.0, 31.0, 0.0, "Steps");
 
-		params[KEY_PARAM].config(0.0, 11.0, 0.0, "Key");
-		params[KEY_PARAM].description = "Key from which chords are selected"; 
+		configParam(KEY_PARAM, 0.0, 11.0, 0.0, "Key");
+		paramQuantities[KEY_PARAM]->description = "Key from which chords are selected"; 
 
-		params[MODE_PARAM].config(0.0, 6.0, 0.0, "Mode"); 
-		params[MODE_PARAM].description = "Mode from which chords are selected"; 
+		configParam(MODE_PARAM, 0.0, 6.0, 0.0, "Mode"); 
+		paramQuantities[MODE_PARAM]->description = "Mode from which chords are selected"; 
 
-		params[PART_PARAM].config(0.0, 31.0, 0.0, "Part"); 
-		params[COPYBTN_PARAM].config(0.0, 1.0, 0.0, "Copy a part to here");
-		params[COPYSRC_PARAM].config(0.0, 31.0, 8.0, "Source part to copy from");
+		configParam(PART_PARAM, 0.0, 31.0, 0.0, "Part"); 
+		configParam(COPYBTN_PARAM, 0.0, 1.0, 0.0, "Copy a part to here");
+		configParam(COPYSRC_PARAM, 0.0, 31.0, 8.0, "Source part to copy from");
 
 		for (int i = 0; i < 8; i++) {
-			params[GATE_PARAM + i].config(0.0, 1.0, 0.0, "Gate active");
+			configParam(GATE_PARAM + i, 0.0, 1.0, 0.0, "Gate active");
 		}
 
 		onReset();

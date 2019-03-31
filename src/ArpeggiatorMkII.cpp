@@ -446,22 +446,22 @@ struct Arpeggiator2 : core::AHModule {
 	
 	Arpeggiator2() : core::AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
 
-		params[LOCK_PARAM].config(0.0, 1.0, 0.0, "Input lock");
+		configParam(LOCK_PARAM, 0.0, 1.0, 0.0, "Input lock");
 
-		params[TRIGGER_PARAM].config(0.0, 1.0, 0.0, "Trigger one sequence");
+		configParam(TRIGGER_PARAM, 0.0, 1.0, 0.0, "Trigger one sequence");
 
-		params[ARP_PARAM].config(0.0, 3.0, 0.0, "Arpeggio"); 
-		params[ARP_PARAM].description = "Arpeggio over input notes"; 
+		configParam(ARP_PARAM, 0.0, 3.0, 0.0, "Arpeggio"); 
+		paramQuantities[ARP_PARAM]->description = "Arpeggio over input notes"; 
 
-		params[SCALE_PARAM].config(0, 2, 0, "Step size"); 
-		params[SCALE_PARAM].description = "Size of each step, semitones or major or minor intervals"; 
+		configParam(SCALE_PARAM, 0, 2, 0, "Step size"); 
+		paramQuantities[SCALE_PARAM]->description = "Size of each step, semitones or major or minor intervals"; 
 		
-		params[PATT_PARAM].config(0.0, 5.0, 0.0, "Pattern"); 
-		params[ARP_PARAM].description = "Pattern applied to note arpeggio as a whole"; 
+		configParam(PATT_PARAM, 0.0, 5.0, 0.0, "Pattern"); 
+		paramQuantities[ARP_PARAM]->description = "Pattern applied to note arpeggio as a whole"; 
 
-		params[TRANS_PARAM].config(-24, 24, 0, "Pattern steps"); 
+		configParam(TRANS_PARAM, -24, 24, 0, "Pattern steps"); 
 
-		params[LENGTH_PARAM].config(1.0, 16.0, 1.0); 
+		configParam(LENGTH_PARAM, 1.0, 16.0, 1.0); 
 
 		onReset();
 		id = rand();

@@ -235,10 +235,10 @@ struct Arp31 : core::AHModule {
 	};
 	
 	Arp31() : core::AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
-		params[OFFSET_PARAM].config(0.0, 10.0, 0.0, "Start offset");
-		params[OFFSET_PARAM].description = "Number of steps into the arpeggio to start";
+		configParam(OFFSET_PARAM, 0.0, 10.0, 0.0, "Start offset");
+		paramQuantities[OFFSET_PARAM]->description = "Number of steps into the arpeggio to start";
 
-		params[ARP_PARAM].config(0.0, 3.0, 0.0, "Arpeggio type"); 
+		configParam(ARP_PARAM, 0.0, 3.0, 0.0, "Arpeggio type"); 
 
 		onReset();
 		id = rand();

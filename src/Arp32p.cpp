@@ -270,17 +270,17 @@ struct Arp32 : core::AHModule {
 	};
 	
 	Arp32() : core::AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
-		params[PATT_PARAM].config(0.0, 4.0, 0.0, "Pattern"); 
+		configParam(PATT_PARAM, 0.0, 4.0, 0.0, "Pattern"); 
 
-		params[TRANS_PARAM].config(-24, 24, 1, "Pattern magnitude"); 
-		params[TRANS_PARAM].description = "'Distance' of the start/end point of the pattern w.r.t the root note";
+		configParam(TRANS_PARAM, -24, 24, 1, "Pattern magnitude"); 
+		paramQuantities[TRANS_PARAM]->description = "'Distance' of the start/end point of the pattern w.r.t the root note";
 		
-		params[LENGTH_PARAM].config(1.0, 16.0, 1.0, "Pattern steps");
+		configParam(LENGTH_PARAM, 1.0, 16.0, 1.0, "Pattern steps");
 
-		params[OFFSET_PARAM].config(0.0, 10.0, 0.0, "Start offset"); 
-		params[OFFSET_PARAM].description = "Number of steps into the arpeggio to start";
+		configParam(OFFSET_PARAM, 0.0, 10.0, 0.0, "Start offset"); 
+		paramQuantities[OFFSET_PARAM]->description = "Number of steps into the arpeggio to start";
 
-		struct ScaleParamQuantity : app::ParamQuantity {
+		struct ScaleParamQuantity : engine::ParamQuantity {
 			std::string getDisplayValueString() override {
 				int v = (int)getValue();
 				if (v == 0) {
@@ -295,8 +295,8 @@ struct Arp32 : core::AHModule {
 				return "Semitone (probably) " + ParamQuantity::getDisplayValueString();
 			}
 		};
-		params[SCALE_PARAM].config<ScaleParamQuantity>(0, 2, 0, "Step size"); 
-		params[SCALE_PARAM].description = "Size of each step, semitones or major or minor intervals"; 
+		configParam(SCALE_PARAM, 0, 2, 0, "Step size"); 
+		paramQuantities[SCALE_PARAM]->description = "Size of each step, semitones or major or minor intervals"; 
 
 		onReset();
 		id = rand();

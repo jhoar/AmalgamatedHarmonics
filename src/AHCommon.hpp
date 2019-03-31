@@ -186,11 +186,11 @@ struct AHTrimpotNoSnap : AHKnob {
 	}
 };
 
-struct KeyParamQuantity : app::ParamQuantity {
+struct KeyParamQuantity : engine::ParamQuantity {
 	std::string getDisplayValueString() override;
 };
 
-struct ModeParamQuantity : app::ParamQuantity {
+struct ModeParamQuantity : engine::ParamQuantity {
 	std::string getDisplayValueString() override;
 };
 

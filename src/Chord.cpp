@@ -47,7 +47,7 @@ struct Chord : core::AHModule {
 			voicePosRad[i] = voicePosDeg[i] * 0.5 * PI_180;
 		}
 
-		struct WaveParamQuantity : app::ParamQuantity {
+		struct WaveParamQuantity : engine::ParamQuantity {
 			std::string getDisplayValueString() override {
 				int v = (int)getValue();
 				switch (v)
@@ -74,7 +74,7 @@ struct Chord : core::AHModule {
 			}
 		};
 
-		struct PanParamQuantity : app::ParamQuantity {
+		struct PanParamQuantity : engine::ParamQuantity {
 
 			float e = 1.0f / (90.0f * 0.5 * (core::PI / 180.0));
 
@@ -96,17 +96,17 @@ struct Chord : core::AHModule {
 		};
 
 		for (int n = 0; n < 6; n++) {
-			params[WAVE_PARAM + n].config<WaveParamQuantity>(0.0f, 4.0f, 0.0f, "Waveform");
-			params[OCTAVE_PARAM + n].config(-3.0f, 3.0f, 0.0f, "Octave");
-			params[DETUNE_PARAM + n].config(-1.0f, 1.0f, 0.0f, "Fine tune", "V");
-			params[PW_PARAM + n].config(-1.0f, 1.0f, 0.0f, "Pulse width");
-			params[PWM_PARAM + n].config(0.0f, 1.0f, 0.0f, "Pulse width modulation CV");
-			params[ATTN_PARAM + n].config(0.0f, 1.0f, 1.0f, "Level", "%", 0.0f, 100.0f);
-			params[PAN_PARAM + n].config<PanParamQuantity>(-posMax, posMax, voicePosRad[n], "Stereo pan (L-R)", "", 0.0f, -1.0f / voicePosRad[0]);
+			configParam(WAVE_PARAM + n, 0.0f, 4.0f, 0.0f, "Waveform");
+			configParam(OCTAVE_PARAM + n, -3.0f, 3.0f, 0.0f, "Octave");
+			configParam(DETUNE_PARAM + n, -1.0f, 1.0f, 0.0f, "Fine tune", "V");
+			configParam(PW_PARAM + n, -1.0f, 1.0f, 0.0f, "Pulse width");
+			configParam(PWM_PARAM + n, 0.0f, 1.0f, 0.0f, "Pulse width modulation CV");
+			configParam(ATTN_PARAM + n, 0.0f, 1.0f, 1.0f, "Level", "%", 0.0f, 100.0f);
+			configParam(PAN_PARAM + n, -posMax, posMax, voicePosRad[n], "Stereo pan (L-R)", "", 0.0f, -1.0f / voicePosRad[0]);
 		}
 
-		params[SPREAD_PARAM].config(0.0f, 1.0f, 1.0f, "Spread");
-		params[SPREAD_PARAM].description = "Spread of voices across stereo field";
+		configParam(SPREAD_PARAM, 0.0f, 1.0f, 1.0f, "Spread");
+		paramQuantities[SPREAD_PARAM]->description = "Spread of voices across stereo field";
 
 	}
 

@@ -29,13 +29,13 @@ struct SLN : core::AHModule {
 	};
 
 	SLN() : core::AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
-		params[SPEED_PARAM].config(0.0, 1.0, 0.0, "Inertia", "%", 0.0f, 100.0f);
-		params[SPEED_PARAM].description = "Resistance of the signal to change";
+		configParam(SPEED_PARAM, 0.0, 1.0, 0.0, "Inertia", "%", 0.0f, 100.0f);
+		paramQuantities[SPEED_PARAM]->description = "Resistance of the signal to change";
 
-		params[SLOPE_PARAM].config(0.0, 1.0, 0.0, "Slope");
-		params[SLOPE_PARAM].description = "Linear to exponential slope";
+		configParam(SLOPE_PARAM, 0.0, 1.0, 0.0, "Slope");
+		paramQuantities[SLOPE_PARAM]->description = "Linear to exponential slope";
 
-		struct NoiseParamQuantity : app::ParamQuantity {
+		struct NoiseParamQuantity : engine::ParamQuantity {
 			std::string getDisplayValueString() override {
 				int v = (int)getValue();
 				switch (v)
@@ -55,10 +55,10 @@ struct SLN : core::AHModule {
 				}
 			}
 		};
-		params[NOISE_PARAM].config<NoiseParamQuantity>(0.0, 2.0, 0.0, "Noise type");
-		params[NOISE_PARAM].description = "White, pink (1/f) or brown (1/f^2) noise";
+		configParam(NOISE_PARAM, 0.0, 2.0, 0.0, "Noise type");
+		paramQuantities[NOISE_PARAM]->description = "White, pink (1/f) or brown (1/f^2) noise";
 
-		params[ATTN_PARAM].config(0.0, 1.0, 1.0, "Level", "%", 0.0f, 100.0f);
+		configParam(ATTN_PARAM, 0.0, 1.0, 1.0, "Level", "%", 0.0f, 100.0f);
 	}
 	
 	void process(const ProcessArgs &args) override;
