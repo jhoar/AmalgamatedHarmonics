@@ -426,7 +426,7 @@ struct GenerativeWidget : ModuleWidget {
 
 			struct GenModeItem : MenuItem {
 				Generative *gen;
-				void onAction(const ActionEvent &e) override {
+				void onAction(const rack::event::Action &e) override {
 					gen->quantise ^= 1;
 				}
 				void step() override {
@@ -437,7 +437,7 @@ struct GenerativeWidget : ModuleWidget {
 
 			struct GenOffsetItem : MenuItem {
 				Generative *gen;
-				void onAction(const ActionEvent &e) override {
+				void onAction(const rack::event::Action &e) override {
 					gen->offset ^= 1;
 				}
 				void step() override {

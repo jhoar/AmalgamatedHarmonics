@@ -249,7 +249,7 @@ struct CircleWidget : ModuleWidget {
 		struct ScalingItem : MenuItem {
 			Circle *module;
 			Circle::Scaling voltScale;
-			void onAction(const ActionEvent &e) override {
+			void onAction(const rack::event::Action &e) override {
 				module->voltScale = voltScale;
 			}
 		};

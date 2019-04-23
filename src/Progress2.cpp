@@ -338,7 +338,7 @@ struct Progress2Widget : ModuleWidget {
 		struct GateModeItem : MenuItem {
 			Progress2 *module;
 			Progress2::GateMode gateMode;
-			void onAction(const ActionEvent &e) override {
+			void onAction(const rack::event::Action &e) override {
 				module->gateMode = gateMode;
 			}
 		};
@@ -346,7 +346,7 @@ struct Progress2Widget : ModuleWidget {
 		struct OffsetItem : MenuItem {
 			Progress2 *module;
 			int offset;
-			void onAction(const ActionEvent &e) override {
+			void onAction(const rack::event::Action &e) override {
 				module->pState.offset = offset;
 				module->pState.stateChanged = true;
 			}
@@ -355,7 +355,7 @@ struct Progress2Widget : ModuleWidget {
 		struct ChordModeItem : MenuItem {
 			Progress2 *module;
 			int chordMode;
-			void onAction(const ActionEvent &e) override {
+			void onAction(const rack::event::Action &e) override {
 				module->pState.chordMode = chordMode;
 				module->pState.modeChanged = true;
 			}

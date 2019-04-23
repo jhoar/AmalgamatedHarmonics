@@ -540,7 +540,7 @@ struct Arp31Widget : ModuleWidget {
 		struct GateModeItem : MenuItem {
 			Arp31 *module;
 			Arp31::GateMode gateMode;
-			void onAction(const ActionEvent &e) override {
+			void onAction(const rack::event::Action &e) override {
 				module->gateMode = gateMode;
 			}
 		};

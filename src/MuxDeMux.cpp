@@ -138,7 +138,7 @@ struct MuxDeMuxWidget : ModuleWidget {
 		struct MaskItem : MenuItem {
 			MuxDeMux *module;
 			bool mask;
-			void onAction(const ActionEvent &e) override {
+			void onAction(const rack::event::Action &e) override {
 				module->mask = mask;
 			}
 		};

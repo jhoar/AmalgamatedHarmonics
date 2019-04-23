@@ -134,7 +134,7 @@ struct AHButton : SVGSwitch {
 };
 
 struct AHKnob : RoundKnob, AHParamWidget {
-	void onChange(const ChangeEvent & e) override { 
+	void onChange(const rack::event::Change & e) override { 
 		// One off cast, don't want to subclass from ParamWidget, so have to grab it here
 		if (!AHParamWidget::mod) {
 			AHParamWidget::mod = static_cast<core::AHModule *>(paramQuantity->module);

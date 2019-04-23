@@ -271,12 +271,12 @@ void ProgressState::fromJson(json_t *rootJ) {
 // ProgressState
 
 // Root menu
-void RootItem::onAction(const ActionEvent &e) {
+void RootItem::onAction(const rack::event::Action &e) {
     pChord->note = root;
     pChord->dirty = true;
 }
 
-void RootChoice::onAction(const ActionEvent &e) {
+void RootChoice::onAction(const rack::event::Action &e) {
     if (!pState)
         return;
 
@@ -313,12 +313,12 @@ void RootChoice::step() {
 // Root 
 
 // Degree
-void DegreeItem::onAction(const ActionEvent &e) {
+void DegreeItem::onAction(const rack::event::Action &e) {
     pChord->modeDegree = degree;
     pChord->dirty = true;
 }
 
-void DegreeChoice::onAction(const ActionEvent &e) {
+void DegreeChoice::onAction(const rack::event::Action &e) {
         if (!pState)
         return;
 
@@ -357,7 +357,7 @@ void DegreeChoice::step() {
 // Degree
 
 // Chord 
-void ChordItem::onAction(const ActionEvent &e)  {
+void ChordItem::onAction(const rack::event::Action &e)  {
     pChord->chord = chord;
     pChord->dirty = true;
 }
@@ -377,7 +377,7 @@ Menu *ChordSubsetMenu::createChildMenu() {
     return menu;
 }
 
-void ChordChoice::onAction(const ActionEvent &e) {
+void ChordChoice::onAction(const rack::event::Action &e) {
     if (!pState)
         return;
 
@@ -432,12 +432,12 @@ void ChordChoice::step() {
 // Chord menu
 
 // Octave
-void OctaveItem::onAction(const ActionEvent &e) {
+void OctaveItem::onAction(const rack::event::Action &e) {
     pChord->octave = octave;
     pChord->dirty = true;
 }
 
-void OctaveChoice::onAction(const ActionEvent &e) {
+void OctaveChoice::onAction(const rack::event::Action &e) {
     if (!pState)
         return;
 
@@ -474,12 +474,12 @@ void OctaveChoice::step() {
 // Octave 
 
 // Inversion 
-void InversionItem::onAction(const ActionEvent &e) {
+void InversionItem::onAction(const rack::event::Action &e) {
     pChord->inversion = inversion;
     pChord->dirty = true;
 }
 
-void InversionChoice::onAction(const ActionEvent &e) {
+void InversionChoice::onAction(const rack::event::Action &e) {
     if (!pState)
         return;
 

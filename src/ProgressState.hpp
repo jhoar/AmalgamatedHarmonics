@@ -63,7 +63,7 @@ struct RootItem : ui::MenuItem {
 	ProgressChord *pChord;
 	int root;
 
-	void onAction(const ActionEvent &e) override;
+	void onAction(const rack::event::Action &e) override;
 };
 
 struct DegreeItem : ui::MenuItem {
@@ -71,14 +71,14 @@ struct DegreeItem : ui::MenuItem {
 	ProgressState *pState;
 	int degree;
 
-	void onAction(const ActionEvent &e) override;
+	void onAction(const rack::event::Action &e) override;
 };
 
 struct ChordItem : ui::MenuItem {
 	ProgressChord *pChord;
 	int chord;
 
-	void onAction(const ActionEvent &e) override;
+	void onAction(const rack::event::Action &e) override;
 };
 
 struct OctaveItem : ui::MenuItem {
@@ -86,14 +86,14 @@ struct OctaveItem : ui::MenuItem {
 	ProgressState *pState;
 	int octave;
 
-	void onAction(const ActionEvent &e) override;
+	void onAction(const rack::event::Action &e) override;
 };
 
 struct InversionItem : ui::MenuItem {
 	ProgressChord *pChord;
 	int inversion;
 
-	void onAction(const ActionEvent &e) override;
+	void onAction(const rack::event::Action &e) override;
 };
 
 // Menus
@@ -101,7 +101,7 @@ struct RootChoice : gui::AHChoice {
 	ProgressState *pState;
 	int pStep;
 
-	void onAction(const ActionEvent &e) override;
+	void onAction(const rack::event::Action &e) override;
 	void step() override;
 };
 
@@ -109,7 +109,7 @@ struct DegreeChoice : gui::AHChoice {
 	ProgressState *pState;
 	int pStep;
 
-	void onAction(const ActionEvent &e) override;
+	void onAction(const rack::event::Action &e) override;
 	void step() override;
 };
 
@@ -117,7 +117,7 @@ struct ChordChoice : gui::AHChoice {
 	ProgressState *pState;
 	int pStep;
 
-	void onAction(const ActionEvent &e) override;
+	void onAction(const rack::event::Action &e) override;
 	void step() override;
 };
 
@@ -134,7 +134,7 @@ struct OctaveChoice : gui::AHChoice {
 	ProgressState *pState;
 	int pStep;
 
-	void onAction(const ActionEvent &e) override;
+	void onAction(const rack::event::Action &e) override;
 	void step() override;
 };
 
@@ -142,7 +142,7 @@ struct InversionChoice : gui::AHChoice {
 	ProgressState *pState;
 	int pStep;
 
-	void onAction(const ActionEvent &e) override;
+	void onAction(const rack::event::Action &e) override;
 	void step() override;
 };
 

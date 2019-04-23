@@ -484,7 +484,7 @@ struct GalaxyWidget : ModuleWidget {
 		struct OffsetItem : MenuItem {
 			Galaxy *module;
 			int offset;
-			void onAction(const ActionEvent &e) override {
+			void onAction(const rack::event::Action &e) override {
 				module->offset = offset;
 			}
 		};
@@ -492,7 +492,7 @@ struct GalaxyWidget : ModuleWidget {
 		struct ModeItem : MenuItem {
 			Galaxy *module;
 			int mode;
-			void onAction(const ActionEvent &e) override {
+			void onAction(const rack::event::Action &e) override {
 				module->mode = mode;
 			}
 		};
@@ -500,7 +500,7 @@ struct GalaxyWidget : ModuleWidget {
 		struct InversionItem : MenuItem {
 			Galaxy *module;
 			int allowedInversions;
-			void onAction(const ActionEvent &e) override {
+			void onAction(const rack::event::Action &e) override {
 				module->allowedInversions = allowedInversions;
 			}
 		};

@@ -385,7 +385,7 @@ struct ImpWidget : ModuleWidget {
 		struct RandomZeroItem : MenuItem {
 			Imp *module;
 			bool randomZero;
-			void onAction(const ActionEvent &e) override {
+			void onAction(const rack::event::Action &e) override {
 				module->randomZero = randomZero;
 			}
 		};

@@ -461,7 +461,7 @@ struct BombeWidget : ModuleWidget {
 		struct OffsetItem : MenuItem {
 			Bombe *module;
 			int offset;
-			void onAction(const ActionEvent &e) override {
+			void onAction(const rack::event::Action &e) override {
 				module->offset = offset;
 			}
 		};
@@ -469,7 +469,7 @@ struct BombeWidget : ModuleWidget {
 		struct ModeItem : MenuItem {
 			Bombe *module;
 			int mode;
-			void onAction(const ActionEvent &e) override {
+			void onAction(const rack::event::Action &e) override {
 				module->mode = mode;
 			}
 		};
@@ -477,7 +477,7 @@ struct BombeWidget : ModuleWidget {
 		struct InversionItem : MenuItem {
 			Bombe *module;
 			int allowedInversions;
-			void onAction(const ActionEvent &e) override {
+			void onAction(const rack::event::Action &e) override {
 				module->allowedInversions = allowedInversions;
 			}
 		};
