@@ -14,7 +14,6 @@ struct MuxDeMux : core::AHModule {
 	enum InputIds {
 		ENUMS(MONO_INPUT,16),
 		POLYCV_INPUT,
-		POLYGATE_INPUT,
 		BIAS_INPUT,
 		NUM_INPUTS
 	};
@@ -50,15 +49,7 @@ struct MuxDeMux : core::AHModule {
 		// Process poly input
 		int i = 0;
 		for( ; i < inputs[POLYCV_INPUT].getChannels(); i++) {
-			if (mask && inputs[POLYGATE_INPUT].isConnected()) { // mask -- set to 0.0v every input where the gate is low
-				if (inputs[POLYGATE_INPUT].getVoltage(i) > 0.0f) {
-					outputs[MONO_OUTPUT + i].setVoltage(inputs[POLYCV_INPUT].getVoltage(i));		
-				} else {
-					outputs[MONO_OUTPUT + i].setVoltage(0.0f);		
-				}
-			} else { // Passthrough -- either no gate or ignore gate and set mono output from poly channel
-				outputs[MONO_OUTPUT + i].setVoltage(inputs[POLYCV_INPUT].getVoltage(i));
-			}
+			outputs[MONO_OUTPUT + i].setVoltage(inputs[POLYCV_INPUT].getVoltage(i));		
 		}
 
 		for( ; i < engine::PORT_MAX_CHANNELS; i++) {
@@ -106,7 +97,6 @@ struct MuxDeMuxWidget : ModuleWidget {
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/MuxDeMux.svg")));
 
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 1, true, true), module, MuxDeMux::POLYCV_INPUT));
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 3, true, true), module, MuxDeMux::POLYGATE_INPUT));
 		for (int i = 0; i < 8; i++) {
 			addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 1, 1 + i, true, true),  module, MuxDeMux::MONO_OUTPUT + i));
 		}
@@ -129,43 +119,6 @@ struct MuxDeMuxWidget : ModuleWidget {
 		}
 
 	}
-
-	void appendContextMenu(Menu *menu) override {
-
-		MuxDeMux *mdm = dynamic_cast<MuxDeMux*>(module);
-		assert(mdm);
-
-		struct MaskItem : MenuItem {
-			MuxDeMux *module;
-			bool mask;
-			void onAction(const rack::event::Action &e) override {
-				module->mask = mask;
-			}
-		};
-
-		struct MaskMenu : MenuItem {
-			MuxDeMux *module;
-			Menu *createChildMenu() override {
-				Menu *menu = new Menu;
-				std::vector<bool> modes = {true, false};
-				std::vector<std::string> names = {"Mask", "Passthrough"};
-				for (size_t i = 0; i < modes.size(); i++) {
-					MaskItem *item = createMenuItem<MaskItem>(names[i], CHECKMARK(module->mask == modes[i]));
-					item->module = module;
-					item->mask = modes[i];
-					menu->addChild(item);
-				}
-				return menu;
-			}
-		};
-
-		menu->addChild(construct<MenuLabel>());
-		MaskMenu *item = createMenuItem<MaskMenu>("Mask polyphonic input CV");
-		item->module = mdm;
-		menu->addChild(item);
-
-     }
-
 
 };
 
