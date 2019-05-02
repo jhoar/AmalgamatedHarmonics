@@ -411,7 +411,6 @@ void ChordChoice::step() {
 
     if (pState->chordMode) {
         text += inv.getName(pState->mode, pState->key, pC->modeDegree, pC->rootNote);
-        text += " " + music::degreeNames[pC->modeDegree * 3 + pC->quality];
     } else {
         text += inv.getName(pC->rootNote);
     }
