@@ -26,7 +26,7 @@ void ProgressState::calculateVoltages(int part, int step) {
 void ProgressState::update() {
 
     for (int step = 0; step < 8; step++) {
-        if (modeChanged) {
+        if (modeChanged || stateChanged || parts[currentPart][step].dirty) {
             if(chordMode) { 
                 music::getRootFromMode(mode, key, 
                 parts[currentPart][step].modeDegree, 
@@ -37,17 +37,6 @@ void ProgressState::update() {
             }
             calculateVoltages(currentPart,step);
         }
-
-        if (stateChanged || parts[currentPart][step].dirty) {
-            if(chordMode) { 
-                music::getRootFromMode(mode, key, 
-                parts[currentPart][step].modeDegree, 
-                &(parts[currentPart][step].rootNote), 
-                &(parts[currentPart][step].quality));
-            }
-            calculateVoltages(currentPart,step);
-        }
-
         parts[currentPart][step].dirty = false;
         stateChanged = false;
     }
