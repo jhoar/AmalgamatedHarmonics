@@ -109,7 +109,7 @@ struct Generative : core::AHModule {
 			}
 		};
 
-		configParam(WAVE_PARAM, 0.0f, 4.0f, 1.5f, "Waveform");
+		configParam<WaveParamQuantity>(WAVE_PARAM, 0.0f, 4.0f, 1.5f, "Waveform");
 		paramQuantities[WAVE_PARAM]->description = "Continuous: Sine - Triangle - Saw - Square - Sine";
 
 		configParam(FM_PARAM, 0.0f, 1.0f, 0.5f, "Frequency Modulation CV");
