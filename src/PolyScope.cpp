@@ -54,7 +54,6 @@ struct PolyScope : core::AHModule {
 	dsp::SchmittTrigger resetTrigger;
 
 	PolyScope() : core::AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) { 
-		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 		configParam(SCALE_PARAM, -2.0f, 2.0f, 0.0f);
 		configParam(SPREAD_PARAM, 0.0f, 3.0f, 1.5f);
 		configParam(TIME_PARAM, 6.0f, 16.0f, 14.0f);
