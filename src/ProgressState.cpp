@@ -320,7 +320,7 @@ void DegreeChoice::onAction(const rack::event::Action &e) {
         item->pState = pState;
         item->pChord = pChord;
         item->degree = i;
-        item->text = music::degreeNames[i * 3 + music::ModeQuality[pState->mode][i]];
+        item->text = music::DegreeString[pState->mode][i];
         menu->addChild(item);
     }
 }
@@ -339,8 +339,7 @@ void DegreeChoice::step() {
         color = nvgRGBA(0x00, 0xFF, 0xFF, 0x6F);
     }
 
-    text = std::string("◊ ") + 
-        music::degreeNames[pC->modeDegree * 3 + music::ModeQuality[pState->mode][pC->quality]];
+    text = std::string("◊ ") + music::DegreeString[pState->mode][pC->modeDegree];
 
 }
 // Degree

@@ -81,7 +81,7 @@ struct Progress : core::AHModule {
 					music::noteNames[currRoot[e.pId]] + 
 					music::ChordTable[currChord[e.pId]].name + " " +  
 					music::inversionNames[currInv[e.pId]] + " " + "[" + 
-					music::degreeNames[currDegree[e.pId] * 3 + currQuality[e.pId]] + "]"; 
+					music::DegreeString[currMode][currDegree[e.pId]] + "]";
 			} else {
 				paramState = "> " + 
 					music::noteNames[currRoot[e.pId]] + 

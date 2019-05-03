@@ -472,6 +472,8 @@ extern int ModeQuality[7][7];
 
 extern int ModeOffset[7][7];
 
+extern std::string DegreeString[7][7];
+
 // NOTE_C = 0,
 // NOTE_D_FLAT, // C Sharp
 // NOTE_D,
@@ -530,8 +532,6 @@ extern std::string intervalNames[13];
 
 extern std::string modeNames[7];
 
-extern std::string degreeNames[21];
-	
 extern std::string inversionNames[3];
 
 extern std::string qualityNames[3];

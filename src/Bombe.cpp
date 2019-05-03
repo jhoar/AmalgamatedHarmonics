@@ -377,7 +377,7 @@ struct BombeDisplay : TransparentWidget {
 			}
 
 			if (bC.modeDegree != -1 && bC.quality != -1) { 
-				chordExtName = music::degreeNames[bC.modeDegree * 3 + bC.quality];
+				chordExtName = music::DegreeString[bC.mode][bC.modeDegree];
 			}
 
 			snprintf(text, sizeof(text), "%s %s", chordName.c_str(), chordExtName.c_str());

@@ -461,30 +461,6 @@ std::string modeNames[7] {
 	"Aeolian (m)",
 	"Locrian"
 };
-
-std::string degreeNames[21] { // Degree * 3 + Quality
-	"I",
-	"i",
-	"i°",
-	"II",
-	"ii",
-	"ii°",
-	"III",
-	"iii",
-	"iii°",
-	"IV",
-	"iv",
-	"iv°",
-	"V",
-	"v",
-	"v°",
-	"VI",
-	"vi",
-	"vi°",
-	"VII",
-	"vii",
-	"vii°"
-};
 	
 std::string inversionNames[3] {
 	"(R)",
@@ -604,6 +580,17 @@ int ModeQuality[7][7] {
 	{MIN,DIM,MAJ,MIN,MIN,MAJ,MAJ}, // Aeolian
 	{DIM,MAJ,MIN,MIN,MAJ,MAJ,MIN}  // Locrian
 };
+
+std::string DegreeString[7][7] {
+	{"I","ii","iii","IV","V","vi","vii°"}, // Ionian
+	{"i","ii","III","IV","v","vi°","VII"}, // Dorian
+	{"i","II","II","iv","v°","VI","vii"}, // Phrygian
+	{"I","II","iii","iv°","V","vi","vii"}, // Lydian
+	{"I","ii","iii°","IV","v","vi","VII"}, // Mixolydian
+	{"i","ii°","III","iv","v","VI","VII"}, // Aeolian
+	{"i°","II","iii","iv","V","VI","vii"}  // Locrian
+};
+
 
 int ModeOffset[7][7] {
 	{0,0,0,0,0,0,0},     // Ionian
