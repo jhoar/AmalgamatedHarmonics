@@ -143,7 +143,7 @@ struct Progress2 : core::AHModule {
 		CONTINUOUS,
 	};
 	GateMode gateMode = CONTINUOUS;
-	
+
 	void onReset() override {
 		pState.onReset();
 	}
@@ -354,7 +354,7 @@ struct Progress2Widget : ModuleWidget {
 
 		struct ChordModeItem : MenuItem {
 			Progress2 *module;
-			int chordMode;
+			ChordMode chordMode;
 			void onAction(const rack::event::Action &e) override {
 				module->pState.chordMode = chordMode;
 				module->pState.modeChanged = true;
@@ -397,8 +397,8 @@ struct Progress2Widget : ModuleWidget {
 			Progress2 *module;
 			Menu *createChildMenu() override {
 				Menu *menu = new Menu;
-				std::vector<int> chordModes = {0, 1};
-				std::vector<std::string> names = {"Normal Chords", "Chords from Mode"};
+				std::vector<ChordMode> chordModes = {ChordMode::NORMAL, ChordMode::MODE, ChordMode::COERCE};
+				std::vector<std::string> names = {"Normal Chords", "Chords from Mode", "Chord from Mode (coerce)"};
 				for (size_t i = 0; i < chordModes.size(); i++) {
 					ChordModeItem *item = createMenuItem<ChordModeItem>(names[i], CHECKMARK(module->pState.chordMode == chordModes[i]));
 					item->module = module;

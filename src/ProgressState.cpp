@@ -27,14 +27,36 @@ void ProgressState::update() {
 
     for (int step = 0; step < 8; step++) {
         if (modeChanged || stateChanged || parts[currentPart][step].dirty) {
-            if(chordMode) { 
-                music::getRootFromMode(mode, key, 
-                parts[currentPart][step].modeDegree, 
-                &(parts[currentPart][step].rootNote), 
-                &(parts[currentPart][step].quality));
-            } else {
-                parts[currentPart][step].rootNote = parts[currentPart][step].note;
+            switch(chordMode) {
+                case ChordMode::NORMAL:
+                    parts[currentPart][step].rootNote = parts[currentPart][step].note;
+                    break;
+                case ChordMode::MODE:
+                    music::getRootFromMode(mode, key, 
+                    parts[currentPart][step].modeDegree, 
+                    &(parts[currentPart][step].rootNote), 
+                    &(parts[currentPart][step].quality));
+                    break;
+                case ChordMode::COERCE:
+                    music::getRootFromMode(mode, key, 
+                    parts[currentPart][step].modeDegree, 
+                    &(parts[currentPart][step].rootNote), 
+                    &(parts[currentPart][step].quality));
+
+                    // Force chord
+                    switch(parts[currentPart][step].quality) {
+                        case music::Quality::MAJ:
+                            parts[currentPart][step].chord = 0;
+                            break;
+                        case music::Quality::MIN:
+                            parts[currentPart][step].chord = 1;
+                            break;
+                        case music::Quality::DIM:
+                            parts[currentPart][step].chord = 54;
+                            break;
+                    }
             }
+
             calculateVoltages(currentPart,step);
         }
         parts[currentPart][step].dirty = false;
@@ -253,7 +275,7 @@ void ProgressState::fromJson(json_t *rootJ) {
     // chordMode
     json_t *chordModeJ = json_object_get(rootJ, "chordMode");
     if (chordModeJ)
-        chordMode = json_integer_value(chordModeJ);
+        chordMode = (ChordMode)json_integer_value(chordModeJ);
 
 }
 
