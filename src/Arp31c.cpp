@@ -7,7 +7,7 @@ struct Arpeggio {
 
 	virtual std::string getName() = 0;
 
-	virtual void initialise(int nPitches, int offset) = 0;
+	virtual void initialise(int nPitches, int offset, bool repeatEnds) = 0;
 	
 	virtual void advance() = 0;
 	
@@ -40,7 +40,7 @@ struct RightArp : Arpeggio {
 		return "Right";
 	};
 
-	void initialise(int np, int offset) override {
+	void initialise(int np, int offset, bool repeatEnds) override {
 
 		if (offset != 0) {
 			index = offset % np;
@@ -77,7 +77,7 @@ struct LeftArp : Arpeggio {
 		return "Left";
 	};
 	
-	void initialise(int np, int offset) override {
+	void initialise(int np, int offset, bool repeatEnds) override {
 
 		if (offset != 0) {
 			offset = offset % np;
@@ -117,11 +117,11 @@ struct RightLeftArp : Arpeggio {
 		return "RightLeft";
 	};	
 
-	void initialise(int np, int offset) override {
+	void initialise(int np, int offset, bool repeatEnds) override {
 
 		nPitches = np;
 		mag = np - 1;
-		end = 2 * mag - 1; 
+		end = 2 * mag - 1;
 
 		if (end < 1) {
 			end = 1;
@@ -135,6 +135,10 @@ struct RightLeftArp : Arpeggio {
 			if (offset > 0) {
 				end++;
 			}
+		}
+
+		if (repeatEnds) {
+			end++;
 		}
 
 	}
@@ -166,7 +170,7 @@ struct LeftRightArp : Arpeggio {
 		return "LeftRight";
 	};	
 
-	void initialise(int np, int offset) override {
+	void initialise(int np, int offset, bool repeatEnds) override {
 
 		nPitches = np;
 		mag = np - 1;
@@ -184,6 +188,10 @@ struct LeftRightArp : Arpeggio {
 			if (offset > 0) {
 				end++;
 			}
+		}
+
+		if (repeatEnds) {
+			end++;
 		}
 
 	}
@@ -258,6 +266,10 @@ struct Arp31 : core::AHModule {
 		json_t *gateModeJ = json_integer((int) gateMode);
 		json_object_set_new(rootJ, "gateMode", gateModeJ);
 
+		// repeatMode
+		json_t *repeatModeJ = json_boolean((bool) repeatEnd);
+		json_object_set_new(rootJ, "repeatMode", repeatModeJ);
+
 		return rootJ;
 	}
 	
@@ -268,6 +280,14 @@ struct Arp31 : core::AHModule {
 		if (gateModeJ) {
 			gateMode = (GateMode)json_integer_value(gateModeJ);
 		}
+
+		// repeatMode
+		json_t *repeatModeJ = json_object_get(rootJ, "repeatMode");
+		
+		if (repeatModeJ) {
+			repeatEnd = json_boolean_value(repeatModeJ);
+		}
+
 	}
 	
 	enum GateMode {
@@ -289,6 +309,7 @@ struct Arp31 : core::AHModule {
 	int inputArp = 0;
 	int arp = 0;
 	bool eoc = false;
+	bool repeatEnd = false;
 
 	RightArp 		arp_right;
 	LeftArp 		arp_left;
@@ -438,7 +459,7 @@ void Arp31::process(const ProcessArgs &args) {
 
 		if (debugEnabled()) { std::cout << stepX << " " << id  << " Initiatise new Cycle: Pattern: " << currArp->getName() << " nPitches: " << pitches.size() << std::endl; }
 		
-		currArp->initialise(pitches.size(), offset);
+		currArp->initialise(pitches.size(), offset, repeatEnd);
 
 		// Start
 		isRunning = true;
@@ -455,7 +476,7 @@ void Arp31::process(const ProcessArgs &args) {
 	};
 	
 	// Initialise UI Arp
-	uiArp->initialise(pitches.size() ? pitches.size() : 1, offset);
+	uiArp->initialise(pitches.size() ? pitches.size() : 1, offset, repeatEnd);
 	
 	// Set the value
 	outputs[OUT_OUTPUT].setVoltage(outVolts);
@@ -561,10 +582,39 @@ struct Arp31Widget : ModuleWidget {
 			}
 		};
 
+		struct RepeatModeItem : MenuItem {
+			Arp31 *module;
+			bool repeatEnd;
+			void onAction(const rack::event::Action &e) override {
+				module->repeatEnd = repeatEnd;
+			}
+		};
+
+		struct RepeatModeMenu : MenuItem {
+			Arp31 *module;
+			Menu *createChildMenu() override {
+				Menu *menu = new Menu;
+				std::vector<bool> modes = {false, true};
+				std::vector<std::string> names = {"Omit last note", "Play last note"};
+				for (size_t i = 0; i < modes.size(); i++) {
+					RepeatModeItem *item = createMenuItem<RepeatModeItem>(names[i], CHECKMARK(module->repeatEnd == modes[i]));
+					item->module = module;
+					item->repeatEnd = modes[i];
+					menu->addChild(item);
+				}
+				return menu;
+			}
+		};
+
+
 		menu->addChild(construct<MenuLabel>());
-		GateModeMenu *item = createMenuItem<GateModeMenu>("Gate Mode");
-		item->module = arp;
-		menu->addChild(item);
+		GateModeMenu *gitem = createMenuItem<GateModeMenu>("Gate Mode");
+		gitem->module = arp;
+		menu->addChild(gitem);
+
+		RepeatModeMenu *ritem = createMenuItem<RepeatModeMenu>("Play last note");
+		ritem->module = arp;
+		menu->addChild(ritem);
 
      }
 	 
