@@ -581,17 +581,6 @@ int ModeQuality[7][7] {
 	{DIM,MAJ,MIN,MIN,MAJ,MAJ,MIN}  // Locrian
 };
 
-std::string DegreeString[7][7] {
-	{"I","ii","iii","IV","V","vi","vii°"}, // Ionian
-	{"i","ii","III","IV","v","vi°","VII"}, // Dorian
-	{"i","II","II","iv","v°","VI","vii"}, // Phrygian
-	{"I","II","iii","iv°","V","vi","vii"}, // Lydian
-	{"I","ii","iii°","IV","v","vi","VII"}, // Mixolydian
-	{"i","ii°","III","iv","v","VI","VII"}, // Aeolian
-	{"i°","II","iii","iv","V","VI","vii"}  // Locrian
-};
-
-
 int ModeOffset[7][7] {
 	{0,0,0,0,0,0,0},     // Ionian
 	{0,0,-1,0,0,0,-1},  // Dorian
@@ -600,6 +589,16 @@ int ModeOffset[7][7] {
 	{0,0,0,0,0,0,-1},    // Mixolydian
 	{0,0,-1,0,0,-1,-1},  // Aeolian
 	{0,-1,-1,0,-1,-1,-1} // Locrian
+};
+
+std::string DegreeString[7][7] {
+	{"I","ii","iii","IV","V","vi","vii°"}, // Ionian
+	{"i","ii","bIII","IV","v","vi°","bVII"}, // Dorian
+	{"i","bII","bIII","iv","v°","bVI","bvii"}, // Phrygian
+	{"I","II","iii","#iv°","V","vi","vii"}, // Lydian
+	{"I","ii","iii°","IV","v","vi","bVII"}, // Mixolydian
+	{"i","ii°","bIII","iv","v","bVI","bVII"}, // Aeolian
+	{"i°","bII","biii","iv","bV","bVI","bvii"}  // Locrian
 };
 
 //0	1	2	3	4	5	6	7	8	9	10	11	12
