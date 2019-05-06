@@ -398,7 +398,7 @@ struct Progress2Widget : ModuleWidget {
 			Menu *createChildMenu() override {
 				Menu *menu = new Menu;
 				std::vector<ChordMode> chordModes = {ChordMode::NORMAL, ChordMode::MODE, ChordMode::COERCE};
-				std::vector<std::string> names = {"Normal Chords", "Chords from Mode", "Chord from Mode (coerce)"};
+				std::vector<std::string> names = {"All Chords", "Chords from Mode", "Chords from Mode (coerce)"};
 				for (size_t i = 0; i < chordModes.size(); i++) {
 					ChordModeItem *item = createMenuItem<ChordModeItem>(names[i], CHECKMARK(module->pState.chordMode == chordModes[i]));
 					item->module = module;
@@ -410,7 +410,7 @@ struct Progress2Widget : ModuleWidget {
 		};
 
 		menu->addChild(construct<MenuLabel>());
-		ChordModeMenu *chordItem = createMenuItem<ChordModeMenu>("Chord Mode");
+		ChordModeMenu *chordItem = createMenuItem<ChordModeMenu>("Chord Selection");
 		chordItem->module = progress;
 		menu->addChild(chordItem);
 
