@@ -51,7 +51,7 @@ struct Progress2 : core::AHModule {
 
 	Progress2() : core::AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) { 
 
-		configParam(CLOCK_PARAM, -2.0, 6.0, 2.0, "Frequency");
+		configParam(CLOCK_PARAM, -2.0, 6.0, 2.0, "Clock tempo", " bpm", 2.f, 60.f);
 		configParam(RUN_PARAM, 0.0, 1.0, 0.0, "Run");
 		configParam(RESET_PARAM, 0.0, 1.0, 0.0, "Reset");
 		configParam(STEPS_PARAM, 1.0, 8.0, 8.0, "Steps");

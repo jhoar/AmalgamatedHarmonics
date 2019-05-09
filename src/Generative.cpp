@@ -120,7 +120,7 @@ struct Generative : core::AHModule {
 		configParam(NOISE_PARAM, 0.0f, 1.0f, 0.5f, "Noise Mix");
 		paramQuantities[NOISE_PARAM]->description = "Mix between the FM-AM modulated LFO and the internal noise source";
 
-		configParam(CLOCK_PARAM, -2.0, 6.0, 1.0, "Clock frequency");
+		configParam(CLOCK_PARAM, -2.0, 6.0, 1.0, "Clock tempo", " bpm", 2.f, 60.f);
 		
 		configParam(PROB_PARAM, 0.0, 1.0, 1.0, "Clock-tick probability", "%", 0.0f, 100.0f);
 
