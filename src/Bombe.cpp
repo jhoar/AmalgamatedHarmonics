@@ -353,7 +353,11 @@ struct BombeDisplay : TransparentWidget {
 	}
 
 	void draw(const DrawArgs &ctx) override {
-	
+
+		if (module == NULL) {
+			return;
+	    }
+
 		nvgFontSize(ctx.vg, 14);
 		nvgFontFaceId(ctx.vg, font->handle);
 		nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));

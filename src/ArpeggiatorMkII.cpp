@@ -914,6 +914,10 @@ struct Arpeggiator2Display : TransparentWidget {
 	}
 
 	void draw(const DrawArgs &ctx) override {
+
+		if (module == NULL) {
+			return;
+	    }
 	
 		Vec pos = Vec(0, 15);
 

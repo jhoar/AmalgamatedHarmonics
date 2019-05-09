@@ -289,6 +289,10 @@ struct ImpBox : TransparentWidget {
 
 	void draw(const DrawArgs &ctx) override {
 	
+		if (module == NULL) {
+			return;
+	    }
+
 		Vec pos(15.0, 0.0);
 
 		float n = 35.0;

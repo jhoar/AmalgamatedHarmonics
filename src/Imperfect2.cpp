@@ -256,6 +256,10 @@ struct Imperfect2Box : TransparentWidget {
 	}
 
 	void draw(const DrawArgs &ctx) override {
+
+		if (module == NULL) {
+			return;
+	    }
 	
 		Vec pos = Vec(0, 15);
 
@@ -325,7 +329,6 @@ struct Imperfect2Widget : ModuleWidget {
 			addChild(createLight<MediumLight<GreenRedLight>>(gui::getPosition(gui::LIGHT, 10, i * 2 + 1, true, true), module, Imperfect2::OUT_LIGHT + i * 2));
 			addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 11, i * 2+ 1, true, true), module, Imperfect2::OUT_OUTPUT + i));
 		}
-
 
 		if (module != NULL) {
 

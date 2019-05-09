@@ -396,6 +396,10 @@ struct GalaxyDisplay : TransparentWidget {
 	}
 
 	void draw(const DrawArgs &ctx) override {
+
+		if (module == NULL) {
+			return;
+	    }
 	
 		nvgFontSize(ctx.vg, 12);
 		nvgFontFaceId(ctx.vg, font->handle);

@@ -507,7 +507,11 @@ struct Arp31Display : TransparentWidget {
 	}
 
 	void draw(const DrawArgs &ctx) override {
-	
+
+		if (module == NULL) {
+			return;
+		}
+
 		Vec pos = Vec(0, 15);
 
 		nvgFontSize(ctx.vg, 16);
