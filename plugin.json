@@ -8,6 +8,7 @@
 	"pluginUrl": "https://github.com/jhoar/AmalgamatedHarmonics/wiki",
 	"authorUrl": "https://github.com/jhoar/AmalgamatedHarmonics/wiki",
 	"sourceUrl": "https://github.com/jhoar/AmalgamatedHarmonics",
+	"changelogUrl": "https://github.com/jhoar/AmalgamatedHarmonics/releases",
 	"version": "1.0.0",
 	"modules": [
 		{
