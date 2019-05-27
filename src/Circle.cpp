@@ -1,11 +1,11 @@
 #include "AH.hpp"
-#include "Core.hpp"
-#include "UI.hpp"
-#include "dsp/digital.hpp"
+#include "AHCommon.hpp"
 
 #include <iostream>
 
-struct Circle : AHModule {
+using namespace ah;
+
+struct Circle : core::AHModule {
 
 	enum ParamIds {
 		KEY_PARAM,
@@ -36,10 +36,19 @@ struct Circle : AHModule {
 	};
 	Scaling voltScale = FIFTHS;
 	
-	Circle() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
-	void step() override;
+	Circle() : core::AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
+
+		configParam(KEY_PARAM, 0.0, 11.0, 0.0, "Key"); 
+		paramQuantities[KEY_PARAM]->description = "Starting key for progression";
+
+		configParam(MODE_PARAM, 0.0, 6.0, 0.0, "Mode"); 
+		paramQuantities[MODE_PARAM]->description = "Mode of progression";
+
+	}
+
+	void process(const ProcessArgs &args) override;
 	
-	json_t *toJson() override {
+	json_t *dataToJson() override {
 		json_t *rootJ = json_object();
 
 		// gateMode
@@ -49,7 +58,7 @@ struct Circle : AHModule {
 		return rootJ;
 	}
 	
-	void fromJson(json_t *rootJ) override {
+	void dataFromJson(json_t *rootJ) override {
 		// gateMode
 		json_t *scaleModeJ = json_object_get(rootJ, "scale");
 		
@@ -58,10 +67,10 @@ struct Circle : AHModule {
 		}
 	}
 	
-	SchmittTrigger rotLTrigger;
-	SchmittTrigger rotRTrigger;
+	rack::dsp::SchmittTrigger rotLTrigger;
+	rack::dsp::SchmittTrigger rotRTrigger;
 	
-	PulseGenerator stepPulse;
+	rack::dsp::PulseGenerator stepPulse;
 	
 	int baseKeyIndex = 0;
 	int curKeyIndex = 0;
@@ -72,33 +81,33 @@ struct Circle : AHModule {
 		
 };
 
-void Circle::step() {
+void Circle::process(const ProcessArgs &args) {
 	
 	AHModule::step();
 
 	// Get inputs from Rack
-	float rotLInput		= inputs[ROTL_INPUT].value;
-	float rotRInput		= inputs[ROTR_INPUT].value;
+	float rotLInput		= inputs[ROTL_INPUT].getVoltage();
+	float rotRInput		= inputs[ROTR_INPUT].getVoltage();
 	
 	int newKeyIndex = 0;
 	int deg;
-	if (inputs[KEY_INPUT].active) {
-		float fRoot = inputs[KEY_INPUT].value;
+	if (inputs[KEY_INPUT].isConnected()) {
+		float fRoot = inputs[KEY_INPUT].getVoltage();
 		if (voltScale == FIFTHS) {
-			newKeyIndex = CoreUtil().getKeyFromVolts(fRoot);
+			newKeyIndex = music::getKeyFromVolts(fRoot);
 		} else {
-			CoreUtil().getPitchFromVolts(fRoot, Core::NOTE_C, Core::SCALE_CHROMATIC, &newKeyIndex, &deg);
+			music::getPitchFromVolts(fRoot, music::NOTE_C, music::SCALE_CHROMATIC, &newKeyIndex, &deg);
 		}
 	} else {
-		newKeyIndex = params[KEY_PARAM].value;
+		newKeyIndex = params[KEY_PARAM].getValue();
 	}
 
 	int newMode = 0;
-	if (inputs[MODE_INPUT].active) {
-		float fMode = inputs[MODE_INPUT].value;
+	if (inputs[MODE_INPUT].isConnected()) {
+		float fMode = inputs[MODE_INPUT].getVoltage();
 		newMode = round(rescale(fabs(fMode), 0.0f, 10.0f, 0.0f, 6.0f)); 
 	} else {
-		newMode = params[MODE_PARAM].value;
+		newMode = params[MODE_PARAM].getValue();
 	}
 
 	curMode = newMode;
@@ -158,131 +167,118 @@ void Circle::step() {
 	int baseKey;
 
 	if (voltScale == FIFTHS) {
-		curKey = CoreUtil().CIRCLE_FIFTHS[curKeyIndex];
-		baseKey = CoreUtil().CIRCLE_FIFTHS[baseKeyIndex];
+		curKey = music::CIRCLE_FIFTHS[curKeyIndex];
+		baseKey = music::CIRCLE_FIFTHS[baseKeyIndex];
 	} else {
 		curKey = curKeyIndex;
 		baseKey = baseKeyIndex;		
 	}
 
 
-	float keyVolts = CoreUtil().getVoltsFromKey(curKey);
-	float modeVolts = CoreUtil().getVoltsFromMode(curMode);
+	float keyVolts = music::getVoltsFromKey(curKey);
+	float modeVolts = music::getVoltsFromMode(curMode);
 	
-	for (int i = 0; i < Core::NUM_NOTES; i++) {
-		lights[CKEY_LIGHT + i].value = 0.0;
-		lights[BKEY_LIGHT + i].value = 0.0;
+	for (int i = 0; i < music::NUM_NOTES; i++) {
+		lights[CKEY_LIGHT + i].setBrightness(0.0);
+		lights[BKEY_LIGHT + i].setBrightness(0.0);
 	}
 
-	lights[CKEY_LIGHT + curKey].value = 1.0;
-	lights[BKEY_LIGHT + baseKey].value = 1.0;
+	lights[CKEY_LIGHT + curKey].setBrightness(10.0);
+	lights[BKEY_LIGHT + baseKey].setBrightness(10.0);
 	
-	for (int i = 0; i < Core::NUM_MODES; i++) {
-		lights[MODE_LIGHT + i].value = 0.0;
+	for (int i = 0; i < music::NUM_MODES; i++) {
+		lights[MODE_LIGHT + i].setBrightness(0.0);
 	}
-	lights[MODE_LIGHT + curMode].value = 1.0;
+	lights[MODE_LIGHT + curMode].setBrightness(10.0);
 		
-	outputs[KEY_OUTPUT].value = keyVolts;
-	outputs[MODE_OUTPUT].value = modeVolts;
+	outputs[KEY_OUTPUT].setVoltage(keyVolts);
+	outputs[MODE_OUTPUT].setVoltage(modeVolts);
 	
 }
 
 struct CircleWidget : ModuleWidget {
-	CircleWidget(Circle *module);
-	Menu *createContextMenu() override;
+
+	CircleWidget(Circle *module) {
+		
+		setModule(module);
+		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Circle.svg")));
+
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 0, true, false), module, Circle::ROTL_INPUT));
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 5, 0, true, false), module, Circle::ROTR_INPUT));
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 5, true, false), module, Circle::KEY_INPUT));
+		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 1, 5, true, false), module, Circle::KEY_PARAM)); 
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 2, 5, true, false), module, Circle::MODE_INPUT));
+		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 3, 5, true, false), module, Circle::MODE_PARAM)); 
+
+		float div = (core::PI * 2) / 12.0;
+
+		for (int i = 0; i < 12; i++) {
+
+			float cosDiv = cos(div * i);
+			float sinDiv = sin(div * i);
+		
+			float xPos  = sinDiv * 52.5;
+			float yPos  = cosDiv * 52.5;
+			float xxPos = sinDiv * 60.0;
+			float yyPos = cosDiv * 60.0;
+
+	//		gui::calculateKeyboard(i, xSpace, xOffset, 230.0, &xPos, &yPos, &scale);
+			addChild(createLight<SmallLight<GreenLight>>(Vec(xxPos + 116.5, 149.5 - yyPos), module, Circle::CKEY_LIGHT + music::CIRCLE_FIFTHS[i]));
+
+	//		gui::calculateKeyboard(i, xSpace, xOffset + 72.0, 165.0, &xPos, &yPos, &scale);
+			addChild(createLight<SmallLight<RedLight>>(Vec(xPos + 116.5, 149.5 - yPos), module, Circle::BKEY_LIGHT + music::CIRCLE_FIFTHS[i]));
+		}
+		
+		float xOffset = 18.0;
+		
+		for (int i = 0; i < 7; i++) {
+			float xPos = 2 * xOffset + i * 18.2;
+			addChild(createLight<SmallLight<GreenLight>>(Vec(xPos, 280.0), module, Circle::MODE_LIGHT + i));
+		}
+
+		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 4, 5, true, false), module, Circle::KEY_OUTPUT));
+		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 5, 5, true, false), module, Circle::MODE_OUTPUT));
+
+	}
+
+	void appendContextMenu(Menu *menu) override {
+
+		Circle *circle = dynamic_cast<Circle*>(module);
+		assert(circle);
+
+		struct ScalingItem : MenuItem {
+			Circle *module;
+			Circle::Scaling voltScale;
+			void onAction(const rack::event::Action &e) override {
+				module->voltScale = voltScale;
+			}
+		};
+
+		struct ScalingMenu : MenuItem {
+			Circle *module;
+			Menu *createChildMenu() override {
+				Menu *menu = new Menu;
+				std::vector<Circle::Scaling> modes = {Circle::FIFTHS, Circle::CHROMATIC};
+				std::vector<std::string> names = {"Fifths", "Chromatic (V/OCT)"};
+				for (size_t i = 0; i < modes.size(); i++) {
+					ScalingItem *item = createMenuItem<ScalingItem>(names[i], CHECKMARK(module->voltScale == modes[i]));
+					item->module = module;
+					item->voltScale = modes[i];
+					menu->addChild(item);
+				}
+				return menu;
+			}
+		};
+
+		menu->addChild(construct<MenuLabel>());
+		ScalingMenu *item = createMenuItem<ScalingMenu>("Root Volt Scaling");
+		item->module = circle;
+		menu->addChild(item);
+
+     }
+	 
 };
 
-CircleWidget::CircleWidget(Circle *module) : ModuleWidget(module) {
-	
-	UI ui;
-	
-	box.size = Vec(240, 380);
-
-	{
-		SVGPanel *panel = new SVGPanel();
-		panel->box.size = box.size;
-		panel->setBackground(SVG::load(assetPlugin(plugin, "res/Circle.svg")));
-		addChild(panel);
-	}
-
-	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 0, true, false), Port::INPUT, module, Circle::ROTL_INPUT));
-	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 5, 0, true, false), Port::INPUT, module, Circle::ROTR_INPUT));
-	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 5, true, false), Port::INPUT, module, Circle::KEY_INPUT));
-	addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 1, 5, true, false), module, Circle::KEY_PARAM, 0.0, 11.0, 0.0)); 
-	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 2, 5, true, false), Port::INPUT, module, Circle::MODE_INPUT));
-	addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 3, 5, true, false), module, Circle::MODE_PARAM, 0.0, 6.0, 0.0)); 
-
-	float div = (PI * 2) / 12.0;
-
-	for (int i = 0; i < 12; i++) {
-
-		float cosDiv = cos(div * i);
-		float sinDiv = sin(div * i);
-	
-		float xPos  = sinDiv * 52.5;
-		float yPos  = cosDiv * 52.5;
-		float xxPos = sinDiv * 60.0;
-		float yyPos = cosDiv * 60.0;
-
-//		ui.calculateKeyboard(i, xSpace, xOffset, 230.0, &xPos, &yPos, &scale);
-		addChild(ModuleLightWidget::create<SmallLight<GreenLight>>(Vec(xxPos + 116.5, 149.5 - yyPos), module, Circle::CKEY_LIGHT + CoreUtil().CIRCLE_FIFTHS[i]));
-
-//		ui.calculateKeyboard(i, xSpace, xOffset + 72.0, 165.0, &xPos, &yPos, &scale);
-		addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(xPos + 116.5, 149.5 - yPos), module, Circle::BKEY_LIGHT + CoreUtil().CIRCLE_FIFTHS[i]));
-	}
-	
-	float xOffset = 18.0;
-	
-	for (int i = 0; i < 7; i++) {
-		float xPos = 2 * xOffset + i * 18.2;
-		addChild(ModuleLightWidget::create<SmallLight<GreenLight>>(Vec(xPos, 280.0), module, Circle::MODE_LIGHT + i));
-	}
-
-	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 4, 5, true, false), Port::OUTPUT, module, Circle::KEY_OUTPUT));
-	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 5, 5, true, false), Port::OUTPUT, module, Circle::MODE_OUTPUT));
-
-}
-
-
-struct CircleScalingItem : MenuItem {
-	Circle *circle;
-	Circle::Scaling scalingMode;
-	void onAction(EventAction &e) override {
-		circle->voltScale = scalingMode;
-	}
-	void step() override {
-		rightText = (circle->voltScale == scalingMode) ? "✔" : "";
-	}
-};
-
-Menu *CircleWidget::createContextMenu() {
-	Menu *menu = ModuleWidget::createContextMenu();
-
-	MenuLabel *spacerLabel = new MenuLabel();
-	menu->addChild(spacerLabel);
-
-	Circle *circle = dynamic_cast<Circle*>(module);
-	assert(circle);
-
-	MenuLabel *modeLabel = new MenuLabel();
-	modeLabel->text = "Root Volt Scaling";
-	menu->addChild(modeLabel);
-
-	CircleScalingItem *fifthsItem = new CircleScalingItem();
-	fifthsItem->text = "Fifths";
-	fifthsItem->circle = circle;
-	fifthsItem->scalingMode = Circle::FIFTHS;
-	menu->addChild(fifthsItem);
-
-	CircleScalingItem *chromaticItem = new CircleScalingItem();
-	chromaticItem->text = "Chromatic (V/OCT)";
-	chromaticItem->circle = circle;
-	chromaticItem->scalingMode = Circle::CHROMATIC;
-	menu->addChild(chromaticItem);
-
-	return menu;
-}
-
-Model *modelCircle = Model::create<Circle, CircleWidget>( "Amalgamated Harmonics", "Circle", "Fifths and Fourths", SEQUENCER_TAG);
+Model *modelCircle = createModel<Circle, CircleWidget>("Circle");
 
 // ♯♭

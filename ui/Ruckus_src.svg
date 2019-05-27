@@ -14,7 +14,7 @@
    height="380"
    id="svg11791"
    version="1.1"
-   inkscape:version="0.92.2 5c3e80d, 2017-08-06"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)"
    sodipodi:docname="Ruckus_src.svg"
    inkscape:export-filename="/home/vortico/src/cpp/VCV/Rack/plugins/Befaco/res/Rampage.png"
    inkscape:export-xdpi="80.124367"
@@ -954,9 +954,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.6894737"
-     inkscape:cx="147.64798"
-     inkscape:cy="213.67601"
+     inkscape:zoom="1.6657895"
+     inkscape:cx="196.20063"
+     inkscape:cy="190"
      inkscape:current-layer="layer2"
      showgrid="false"
      units="mm"
@@ -1409,15 +1409,6 @@
          x="268.388"
          id="tspan19595"
          sodipodi:role="line" /></text>
-    <rect
-       style="display:inline;fill:#000000;fill-opacity:1;stroke-width:0.78504759"
-       id="rect2684"
-       width="35"
-       height="45"
-       x="329.98825"
-       y="-410.38678"
-       ry="4.2187495"
-       transform="scale(1,-1)" />
     <path
        style="fill:none;stroke:#ff0000;stroke-width:2.728;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:0.69999999;stroke-dasharray:none;stroke-opacity:1"
        d="m 67.725837,118.37466 v 273.2382 z"

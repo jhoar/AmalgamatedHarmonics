@@ -1,16 +1,16 @@
 #pragma once
 
+#pragma GCC diagnostic ignored "-Warray-bounds"
+
 #include "rack.hpp"
 
 using namespace rack;
 
-extern Plugin *plugin;
+extern Plugin *pluginInstance;
 
 ////////////////////
 // module widgets
 ////////////////////
-
-extern Model *modelArpeggiator;
 
 extern Model *modelArpeggiator2;
 
@@ -20,15 +20,21 @@ extern Model *modelArp32;
 
 extern Model *modelCircle;
 
-extern Model *modelImperfect;
-
 extern Model *modelImperfect2;
+
+extern Model *modelImp;
+
+extern Model *modelMuxDeMux;
+
+extern Model *modelPolyProbe;
+
+extern Model *modelPolyScope;
 
 extern Model *modelProgress;
 
-extern Model *modelRuckus;
+extern Model *modelProgress2;
 
-extern Model *modelScaleQuantizer;
+extern Model *modelRuckus;
 
 extern Model *modelScaleQuantizer2;
 

@@ -1,14 +1,14 @@
-#include "util/common.hpp"
-#include "dsp/digital.hpp"
+#include "common.hpp"
 
 #include "dsp/noise.hpp"
 
 #include "AH.hpp"
-#include "Core.hpp"
-#include "UI.hpp"
+#include "AHCommon.hpp"
 #include "VCO.hpp"
 
-struct Generative : AHModule {
+using namespace ah;
+
+struct Generative : core::AHModule {
 
 	enum ParamIds {
 		FREQ_PARAM,
@@ -51,11 +51,102 @@ struct Generative : AHModule {
 		NUM_LIGHTS
 	};
 
-	Generative() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) { }
-	
-	void step() override;
+	Generative() : core::AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) { 
 
-		json_t *toJson() override {
+		// LFO section
+		configParam(FREQ_PARAM, -8.0f, 10.0f, 1.0f, "Frequency");
+		// params[FREQ_PARAM].description = "Core LFO frequency";
+
+		struct WaveParamQuantity : engine::ParamQuantity {
+			std::string getDisplayValueString() override {
+				float v = getValue();
+				float r = math::eucMod(v, 1.0);
+				int f = (int)std::floor(v);
+
+				std::string dial;
+				std::string left;
+				std::string right;
+
+				if (math::chop(v) == 0.0 || v == 4.0f) {
+					return "Sine " + ParamQuantity::getDisplayValueString();
+				} else if (f == 1 && math::chop(r) == 0.0) {
+					return "Triangle " + ParamQuantity::getDisplayValueString();
+				} else if (f == 2 && math::chop(r) == 0.0) {
+					return "Saw " + ParamQuantity::getDisplayValueString();
+				} else if (f == 3 && math::chop(r) == 0.0) {
+					return "Square " + ParamQuantity::getDisplayValueString();
+				}
+
+				if (r < 0.3333f) {
+					dial = "|..";	
+				} else if (r > 0.6666f) {
+					dial = "..|";	
+				} else {
+					dial = ".|.";	
+				}
+
+				switch(f) {
+					case 0:
+						left = "Sine";
+						right = "Triangle ";
+						break;
+					case 1:
+						left = "Triangle";
+						right = "Saw ";
+						break;
+					case 2:
+						left = "Saw";
+						right = "Square ";
+						break;
+					case 3:
+						left = "Square";
+						right = "Sine ";
+						break;
+				}
+
+				return left + dial + right + ParamQuantity::getDisplayValueString();
+
+			}
+		};
+
+		configParam<WaveParamQuantity>(WAVE_PARAM, 0.0f, 4.0f, 1.5f, "Waveform");
+		paramQuantities[WAVE_PARAM]->description = "Continuous: Sine - Triangle - Saw - Square - Sine";
+
+		configParam(FM_PARAM, 0.0f, 1.0f, 0.5f, "Frequency Modulation CV");
+
+		configParam(AM_PARAM, 0.0f, 1.0f, 0.5f, "Amplitude Modulation Mix");
+		paramQuantities[AM_PARAM]->description = "Mix between the FM modulated LFO and the voltage supplied in AM input";
+
+		configParam(NOISE_PARAM, 0.0f, 1.0f, 0.5f, "Noise Mix");
+		paramQuantities[NOISE_PARAM]->description = "Mix between the FM-AM modulated LFO and the internal noise source";
+
+		configParam(CLOCK_PARAM, -2.0, 6.0, 1.0, "Clock tempo", " bpm", 2.f, 60.f);
+		
+		configParam(PROB_PARAM, 0.0, 1.0, 1.0, "Clock-tick probability", "%", 0.0f, 100.0f);
+
+		configParam(DELAYL_PARAM, 1.0f, 2.0f, 1.0f, "Delay length", "ms", 2.0f, 500.0f, -1000.0f);
+
+		configParam(GATEL_PARAM, 1.0f, 2.0f, 1.0f, "Gate length", "ms", 2.0f, 500.0f, -1000.0f);
+
+		configParam(DELAYS_PARAM, 1.0f, 2.0f, 1.0f, "Delay length spread", "ms", 2.0f, 500.0f, -1000.0f);
+		paramQuantities[DELAYS_PARAM]->description = "Magnitude of random time applied to delay length";
+
+		configParam(GATES_PARAM, 1.0f, 2.0f, 1.0f, "Gate length spread", "ms", 2.0f, 500.0f, -1000.0f);
+		paramQuantities[GATES_PARAM]->description = "Magnitude of random time applied to gate length";
+
+		configParam(SLOPE_PARAM, 0.0, 1.0, 0.0, "Slope");
+		paramQuantities[SLOPE_PARAM]->description = "Linear to exponential slope";
+
+		configParam(SPEED_PARAM, 0.0, 1.0, 0.0, "Inertia", "%", 0.0f, 100.0f);
+		paramQuantities[SPEED_PARAM]->description = "Resistance of the signal to change";
+
+		configParam(ATTN_PARAM, 0.0, 1.0, 1.0, "Level", "%", 0.0f, 100.0f);
+
+	}
+	
+	void process(const ProcessArgs &args) override;
+
+	json_t *dataToJson() override {
 		json_t *rootJ = json_object();
 
 		// quantise
@@ -70,7 +161,7 @@ struct Generative : AHModule {
 		return rootJ;
 	}
 	
-	void fromJson(json_t *rootJ) override {
+	void dataFromJson(json_t *rootJ) override {
 		// quantise
 		json_t *quantiseJ = json_object_get(rootJ, "quantise");
 		
@@ -87,17 +178,14 @@ struct Generative : AHModule {
 
 	}
 
-
-	Core core;
-
-	SchmittTrigger sampleTrigger;
-	SchmittTrigger holdTrigger;
-	SchmittTrigger clockTrigger;
+	rack::dsp::SchmittTrigger sampleTrigger;
+	rack::dsp::SchmittTrigger holdTrigger;
+	rack::dsp::SchmittTrigger clockTrigger;
 	bogaudio::dsp::PinkNoiseGenerator pink;
 	LowFrequencyOscillator oscillator;
 	LowFrequencyOscillator clock;
-	AHPulseGenerator delayPhase;
-	AHPulseGenerator gatePhase;
+	digital::AHPulseGenerator delayPhase;
+	digital::AHPulseGenerator gatePhase;
 
 	float target = 0.0f;
 	float current = 0.0f;
@@ -119,18 +207,18 @@ struct Generative : AHModule {
 
 };
 
-void Generative::step() {
+void Generative::process(const ProcessArgs &args) {
 	
 	AHModule::step();
 
-	oscillator.setPitch(params[FREQ_PARAM].value + params[FM_PARAM].value * inputs[FM_INPUT].value);
+	oscillator.setPitch(params[FREQ_PARAM].getValue() + params[FM_PARAM].getValue() * inputs[FM_INPUT].getVoltage());
 	oscillator.offset = offset;
-	oscillator.step(delta);
+	oscillator.step(args.sampleTime);
 
-	clock.setPitch(clamp(params[CLOCK_PARAM].value + inputs[CLOCK_INPUT].value, -2.0f, 6.0f));
-	clock.step(delta);
+	clock.setPitch(clamp(params[CLOCK_PARAM].getValue() + inputs[CLOCK_INPUT].getVoltage(), -2.0f, 6.0f));
+	clock.step(args.sampleTime);
 
-	float wavem = fabs(fmodf(params[WAVE_PARAM].value + inputs[WAVE_INPUT].value, 4.0f));
+	float wavem = fabs(fmodf(params[WAVE_PARAM].getValue() + inputs[WAVE_INPUT].getVoltage(), 4.0f));
 
 	float interp = 0.0f;
 	bool toss = false;
@@ -147,18 +235,18 @@ void Generative::step() {
 
 	// Capture (pink) noise
 	float noise = clamp(pink.next() * 7.5f, -5.0f, 5.0f); // -5V to 5V
-	float range = params[ATTN_PARAM].value;
+	float range = params[ATTN_PARAM].getValue();
 
 	// Shift the noise floor
 	if (offset) {
 		noise += 5.0f;
 	} 
 
-	float noiseLevel = clamp(params[NOISE_PARAM].value + inputs[NOISE_INPUT].value, 0.0f, 1.0f);
+	float noiseLevel = clamp(params[NOISE_PARAM].getValue() + inputs[NOISE_INPUT].getVoltage(), 0.0f, 1.0f);
 
 	// Mixed the input AM signal or noise
-	if (inputs[AM_INPUT].active) {
-		interp = crossfade(interp, inputs[AM_INPUT].value, params[AM_PARAM].value) * range;
+	if (inputs[AM_INPUT].isConnected()) {
+		interp = crossfade(interp, inputs[AM_INPUT].getVoltage(), params[AM_PARAM].getValue()) * range;
 	} else {
 		interp *= range;
 	}
@@ -167,9 +255,9 @@ void Generative::step() {
 	float mixedSignal = (noise * noiseLevel + interp * (1.0f - noiseLevel));
 
 	// Process gate
-	bool sampleActive = inputs[SAMPLE_INPUT].active;
-	float sample = inputs[SAMPLE_INPUT].value;
-	bool hold = inputs[HOLD_INPUT].value > 0.000001f;
+	bool sampleActive = inputs[SAMPLE_INPUT].isConnected();
+	float sample = inputs[SAMPLE_INPUT].getVoltage();
+	bool hold = inputs[HOLD_INPUT].getVoltage() > 0.000001f;
 
 	bool isClocked = false;
 
@@ -190,17 +278,17 @@ void Generative::step() {
 		if (!delayPhase.ishigh() && !gatePhase.ishigh()) {
 
 			// Check against prob control
-			float threshold = clamp(params[PROB_PARAM].value + inputs[PROB_INPUT].value / 10.f, 0.f, 1.f);
-			toss = (randomUniform() < threshold);
+			float threshold = clamp(params[PROB_PARAM].getValue() + inputs[PROB_INPUT].getVoltage() / 10.f, 0.f, 1.f);
+			toss = (random::uniform() < threshold);
 
 			// Tick is valid
 			if (toss) {
 
 				// Determine delay time
-				float dlyLen = log2(params[DELAYL_PARAM].value);
-				float dlySpr = log2(params[DELAYS_PARAM].value);
+				float dlyLen = log2(params[DELAYL_PARAM].getValue());
+				float dlySpr = log2(params[DELAYS_PARAM].getValue());
 
-				double rndD = clamp(core.gaussrand(), -2.0f, 2.0f);
+				double rndD = clamp(random::normal(), -2.0f, 2.0f);
 				delayTime = clamp(dlyLen + dlySpr * rndD, 0.0f, 100.0f);
 				
 				// Trigger the respective delay pulse generator
@@ -211,17 +299,17 @@ void Generative::step() {
 	}
 
 	// In delay state and finished waiting
-	if (delayState && !delayPhase.process(delta)) {
+	if (delayState && !delayPhase.process(args.sampleTime)) {
 
 		// set the target voltage
 		target = mixedSignal;
 
 		// Determine gate time
-		float gateLen = log2(params[GATEL_PARAM].value);
-		float gateSpr = log2(params[GATES_PARAM].value);
+		float gateLen = log2(params[GATEL_PARAM].getValue());
+		float gateSpr = log2(params[GATES_PARAM].getValue());
 
-		double rndG = clamp(core.gaussrand(), -2.0f, 2.0f);
-		gateTime = clamp(gateLen + gateSpr * rndG, Core::TRIGGER, 100.0f);
+		double rndG = clamp(random::normal(), -2.0f, 2.0f);
+		gateTime = clamp(gateLen + gateSpr * rndG, digital::TRIGGER, 100.0f);
 
 		// Open the gate and set flags
 		gatePhase.trigger(gateTime);
@@ -233,19 +321,19 @@ void Generative::step() {
 	if (!hold) {
 
 		// Curve calc
-		float shape = params[SLOPE_PARAM].value;
-		float speed = params[SPEED_PARAM].value;	
+		float shape = params[SLOPE_PARAM].getValue();
+		float speed = params[SPEED_PARAM].getValue();	
 		float slew = slewMax * powf(slewRatio, speed);
 
 		// Rise
 		if (target > current) {
-			current += slew * crossfade(1.0f, shapeScale * (target - current), shape) * delta;
+			current += slew * crossfade(1.0f, shapeScale * (target - current), shape) * args.sampleTime;
 			if (current > target) // Trap overshoot
 				current = target;
 		}
 		// Fall
 		else if (target < current) {
-			current -= slew * crossfade(1.0f, shapeScale * (current - target), shape) * delta;
+			current -= slew * crossfade(1.0f, shapeScale * (current - target), shape) * args.sampleTime;
 			if (current < target) // Trap overshoot
 				current = target;
 		}
@@ -254,94 +342,81 @@ void Generative::step() {
 	// Quantise or not
 	float out;
 	if (quantise) {
-		int i;
-		int d;
-		out = CoreUtil().getPitchFromVolts(current, Core::NOTE_C, Core::SCALE_CHROMATIC, &i, &d);
+		out = music::getPitchFromVolts(current, music::NOTE_C, music::SCALE_CHROMATIC);
 	} else {
 		out = current;
 	}
 
 	// If the gate is open, set output to high
-	if (gatePhase.process(delta)) {
-		outputs[GATE_OUTPUT].value = 10.0f;
+	if (gatePhase.process(args.sampleTime)) {
+		outputs[GATE_OUTPUT].setVoltage(10.0f);
 
-		lights[GATE_LIGHT].setBrightnessSmooth(1.0f);
-		lights[GATE_LIGHT + 1].setBrightnessSmooth(0.0f);
+		lights[GATE_LIGHT].setSmoothBrightness(1.0f, args.sampleTime);
+		lights[GATE_LIGHT + 1].setSmoothBrightness(0.0f, args.sampleTime);
 
 	} else {
-		outputs[GATE_OUTPUT].value = 0.0f;
+		outputs[GATE_OUTPUT].setVoltage(0.0f);
 		gateState = false;
 
 		if (delayState) {
-			lights[GATE_LIGHT].setBrightnessSmooth(0.0f);
-			lights[GATE_LIGHT + 1].setBrightnessSmooth(1.0f);
+			lights[GATE_LIGHT].setSmoothBrightness(0.0f, args.sampleTime);
+			lights[GATE_LIGHT + 1].setSmoothBrightness(1.0f, args.sampleTime);
 		} else {
-			lights[GATE_LIGHT].setBrightnessSmooth(0.0f);
-			lights[GATE_LIGHT + 1].setBrightnessSmooth(0.0f);
+			lights[GATE_LIGHT].setSmoothBrightness(0.0f, args.sampleTime);
+			lights[GATE_LIGHT + 1].setSmoothBrightness(0.0f, args.sampleTime);
 		}
 
 	}
 
-	outputs[OUT_OUTPUT].value = out;
-	outputs[NOISE_OUTPUT].value = noise * 2.0;
-	outputs[LFO_OUTPUT].value = interp;
-	outputs[MIXED_OUTPUT].value = mixedSignal;
+	outputs[OUT_OUTPUT].setVoltage(out);
+	outputs[NOISE_OUTPUT].setVoltage(noise * 2.0);
+	outputs[LFO_OUTPUT].setVoltage(interp);
+	outputs[MIXED_OUTPUT].setVoltage(mixedSignal);
 	
 }
 
 struct GenerativeWidget : ModuleWidget {
 	
-	GenerativeWidget(Generative *module) : ModuleWidget(module) {
+	GenerativeWidget(Generative *module) {
 		
-		UI ui;
-		
-		box.size = Vec(240, 380);
-
-		{
-			SVGPanel *panel = new SVGPanel();
-			panel->box.size = box.size;
-			panel->setBackground(SVG::load(assetPlugin(plugin, "res/Generative.svg")));
-			addChild(panel);
-		}
+		setModule(module);
+		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Generative.svg")));
 
 		// LFO section
-		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 0, 0, false, false), module, Generative::FREQ_PARAM, -8.0f, 10.0f, 1.0f));
-		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 1, 0, false, false), module, Generative::WAVE_PARAM, 0.0f, 4.0f, 1.5f));
-		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 2, 0, false, false), module, Generative::FM_PARAM, 0.0f, 1.0f, 0.5f));
-		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 3, 0, false, false), module, Generative::AM_PARAM, 0.0f, 1.0f, 0.5f));
-		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 4, 0, false, false), module, Generative::NOISE_PARAM, 0.0f, 1.0f, 0.5f));
-		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 1, 1, false, false), Port::INPUT, module, Generative::WAVE_INPUT));
-		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 2, 1, false, false), Port::INPUT, module, Generative::FM_INPUT));
-		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 3, 1, false, false), Port::INPUT, module, Generative::AM_INPUT));
-		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 4, 1, false, false), Port::INPUT, module, Generative::NOISE_INPUT));
+		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 0, 0, false, false), module, Generative::FREQ_PARAM));
+		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 1, 0, false, false), module, Generative::WAVE_PARAM));
+		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 2, 0, false, false), module, Generative::FM_PARAM));
+		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 3, 0, false, false), module, Generative::AM_PARAM));
+		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 4, 0, false, false), module, Generative::NOISE_PARAM));
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 1, 1, false, false), module, Generative::WAVE_INPUT));
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 2, 1, false, false), module, Generative::FM_INPUT));
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 3, 1, false, false), module, Generative::AM_INPUT));
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 4, 1, false, false), module, Generative::NOISE_INPUT));
 
 		// Gate Section
-		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 2, false, false), Port::INPUT, module, Generative::SAMPLE_INPUT));
-		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 1, 2, false, false), module, Generative::CLOCK_PARAM, -2.0, 6.0, 1.0));
-		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 2, 2, false, false), module, Generative::PROB_PARAM, 0.0, 1.0, 1.0));
-		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 3, 2, false, false), module, Generative::DELAYL_PARAM, 1.0f, 2.0f, 1.0f));
-		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 4, 2, false, false), module, Generative::GATEL_PARAM, 1.0f, 2.0f, 1.0f));
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 2, false, false), module, Generative::SAMPLE_INPUT));
+		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 1, 2, false, false), module, Generative::CLOCK_PARAM));
+		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 2, 2, false, false), module, Generative::PROB_PARAM));
+		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 3, 2, false, false), module, Generative::DELAYL_PARAM));
+		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 4, 2, false, false), module, Generative::GATEL_PARAM));
 
-		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 1, 3, false, false), Port::INPUT, module, Generative::CLOCK_INPUT));
-		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 2, 3, false, false), Port::INPUT, module, Generative::PROB_INPUT));
-		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 3, 3, false, false), module, Generative::DELAYS_PARAM, 1.0f, 2.0f, 1.0f));
-		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 4, 3, false, false), module, Generative::GATES_PARAM, 1.0f, 2.0f, 1.0f));
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 1, 3, false, false), module, Generative::CLOCK_INPUT));
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 2, 3, false, false), module, Generative::PROB_INPUT));
+		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 3, 3, false, false), module, Generative::DELAYS_PARAM));
+		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 4, 3, false, false), module, Generative::GATES_PARAM));
 
 		// Curve Section
-		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 0, 4, false, false), module, Generative::SLOPE_PARAM, 0.0, 1.0, 0.0));
-		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 1, 4, false, false), module, Generative::SPEED_PARAM, 0.0, 1.0, 0.0));
-		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 2, 4, false, false), Port::INPUT, module, Generative::HOLD_INPUT));
-		addChild(ModuleLightWidget::create<MediumLight<GreenRedLight>>(ui.getPosition(UI::LIGHT, 3, 4, false, false), module, Generative::GATE_LIGHT));
-		addParam(ParamWidget::create<AHKnobNoSnap>(ui.getPosition(UI::KNOB, 4, 4, false, false), module, Generative::ATTN_PARAM, 0.0, 1.0, 1.0)); 
+		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 0, 4, false, false), module, Generative::SLOPE_PARAM));
+		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 1, 4, false, false), module, Generative::SPEED_PARAM));
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 2, 4, false, false), module, Generative::HOLD_INPUT));
+		addChild(createLight<MediumLight<GreenRedLight>>(gui::getPosition(gui::LIGHT, 3, 4, false, false), module, Generative::GATE_LIGHT));
+		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 4, 4, false, false), module, Generative::ATTN_PARAM)); 
 
-		addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 5, false, false), Port::OUTPUT, module, Generative::LFO_OUTPUT));
-		addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 1, 5, false, false), Port::OUTPUT, module, Generative::MIXED_OUTPUT));
-		addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 2, 5, false, false), Port::OUTPUT, module, Generative::NOISE_OUTPUT));
-		addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 3, 5, false, false), Port::OUTPUT, module, Generative::GATE_OUTPUT));
-		addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 4, 5, false, false), Port::OUTPUT, module, Generative::OUT_OUTPUT));
-
-
-
+		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 5, false, false), module, Generative::LFO_OUTPUT));
+		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 1, 5, false, false), module, Generative::MIXED_OUTPUT));
+		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 2, 5, false, false), module, Generative::NOISE_OUTPUT));
+		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 3, 5, false, false), module, Generative::GATE_OUTPUT));
+		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 4, 5, false, false), module, Generative::OUT_OUTPUT));
 
 	}
 
@@ -351,7 +426,7 @@ struct GenerativeWidget : ModuleWidget {
 
 			struct GenModeItem : MenuItem {
 				Generative *gen;
-				void onAction(EventAction &e) override {
+				void onAction(const rack::event::Action &e) override {
 					gen->quantise ^= 1;
 				}
 				void step() override {
@@ -362,7 +437,7 @@ struct GenerativeWidget : ModuleWidget {
 
 			struct GenOffsetItem : MenuItem {
 				Generative *gen;
-				void onAction(EventAction &e) override {
+				void onAction(const rack::event::Action &e) override {
 					gen->offset ^= 1;
 				}
 				void step() override {
@@ -377,4 +452,4 @@ struct GenerativeWidget : ModuleWidget {
 	}
 };
 
-Model *modelGenerative = Model::create<Generative, GenerativeWidget>( "Amalgamated Harmonics", "Generative", "Generative", NOISE_TAG, SAMPLE_AND_HOLD_TAG, LFO_TAG, RANDOM_TAG);
+Model *modelGenerative = createModel<Generative, GenerativeWidget>("Generative");

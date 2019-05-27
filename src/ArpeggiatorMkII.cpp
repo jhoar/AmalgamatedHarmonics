@@ -1,11 +1,9 @@
 #include "AH.hpp"
-#include "Core.hpp"
-#include "UI.hpp"
-#include "componentlibrary.hpp"
-#include "dsp/digital.hpp"
+#include "AHCommon.hpp"
 
 #include <iostream>
 
+using namespace ah;
 
 struct Pattern {
 	
@@ -242,7 +240,6 @@ struct RezPattern : NotePattern {
 		notes.push_back(0);
 	}
 	
-	
 };
 
 struct OnTheRunPattern : NotePattern {
@@ -264,7 +261,6 @@ struct OnTheRunPattern : NotePattern {
 	}
 	
 };
-
 
 struct Arpeggio {
 
@@ -410,8 +406,7 @@ struct LeftRightArp : Arpeggio {
 	
 };
 
-
-struct Arpeggiator2 : AHModule {
+struct Arpeggiator2 : core::AHModule {
 	
 	const static int MAX_STEPS = 16;
 	const static int MAX_DIST = 12; //Octave
@@ -449,23 +444,41 @@ struct Arpeggiator2 : AHModule {
 		NUM_LIGHTS
 	};
 	
-	Arpeggiator2() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
-		reset();
+	Arpeggiator2() : core::AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
+
+		configParam(LOCK_PARAM, 0.0, 1.0, 0.0, "Input lock");
+
+		configParam(TRIGGER_PARAM, 0.0, 1.0, 0.0, "Trigger one sequence");
+
+		configParam(ARP_PARAM, 0.0, 3.0, 0.0, "Arpeggio"); 
+		paramQuantities[ARP_PARAM]->description = "Arpeggio over input notes"; 
+
+		configParam(SCALE_PARAM, 0, 2, 0, "Step size"); 
+		paramQuantities[SCALE_PARAM]->description = "Size of each step, semitones or major or minor intervals"; 
+		
+		configParam(PATT_PARAM, 0.0, 5.0, 0.0, "Pattern"); 
+		paramQuantities[ARP_PARAM]->description = "Pattern applied to note arpeggio as a whole"; 
+
+		configParam(TRANS_PARAM, -24, 24, 0, "Pattern steps"); 
+
+		configParam(LENGTH_PARAM, 1.0, 16.0, 1.0); 
+
+		onReset();
 		id = rand();
         debugFlag = false;
 
 	}
 
-	void step() override;
+	void process(const ProcessArgs &args) override;
 	
-	void reset() override {
+	void onReset() override {
 		newSequence = 0;
 		newCycle = 0;
 		isRunning = false;
 		freeRunning = false;
 	}
 	
-	json_t *toJson() override {
+	json_t *dataToJson() override {
 		json_t *rootJ = json_object();
 
 		// gateMode
@@ -475,7 +488,7 @@ struct Arpeggiator2 : AHModule {
 		return rootJ;
 	}
 	
-	void fromJson(json_t *rootJ) override {
+	void dataFromJson(json_t *rootJ) override {
 		// gateMode
 		json_t *gateModeJ = json_object_get(rootJ, "gateMode");
 		
@@ -491,15 +504,15 @@ struct Arpeggiator2 : AHModule {
 	};
 	GateMode gateMode = TRIGGER;
 	
-	SchmittTrigger clockTrigger; // for clock
-	SchmittTrigger trigTrigger;  // for step trigger
-	SchmittTrigger lockTrigger;
-	SchmittTrigger buttonTrigger;
+	rack::dsp::SchmittTrigger clockTrigger; // for clock
+	rack::dsp::SchmittTrigger trigTrigger;  // for step trigger
+	rack::dsp::SchmittTrigger lockTrigger;
+	rack::dsp::SchmittTrigger buttonTrigger;
 	
-	PulseGenerator triggerPulse;
-	PulseGenerator gatePulse;
-	PulseGenerator eosPulse;
-	PulseGenerator eocPulse;
+	rack::dsp::PulseGenerator triggerPulse;
+	rack::dsp::PulseGenerator gatePulse;
+	rack::dsp::PulseGenerator eosPulse;
+	rack::dsp::PulseGenerator eocPulse;
 
 	bool locked = false;
 
@@ -527,8 +540,6 @@ struct Arpeggiator2 : AHModule {
 	float trans = 0;
 	float scale = 0;
 	
-	float semiTone = 1.0 / 12.0;
-
 	UpPattern		patt_up; 
 	DownPattern 	patt_down; 
 	UpDownPattern 	patt_updown;
@@ -554,7 +565,6 @@ struct Arpeggiator2 : AHModule {
 	RightLeftArp 	ui_arp_rightleft;
 	LeftRightArp 	ui_arp_leftright;
 
-
 	Pattern *currPatt = &patt_up;
 	Arpeggio *currArp = &arp_right;
 
@@ -568,7 +578,7 @@ struct Arpeggiator2 : AHModule {
 };
 
 
-void Arpeggiator2::step() {
+void Arpeggiator2::process(const ProcessArgs &args) {
 	
 	AHModule::step();
 
@@ -578,39 +588,39 @@ void Arpeggiator2::step() {
 	}
 	
 	// Get inputs from Rack
-	float clockInput	= inputs[CLOCK_INPUT].value;
-	bool  clockActive	= inputs[CLOCK_INPUT].active;
-	float trigInput		= inputs[TRIG_INPUT].value;
-	bool  trigActive	= inputs[TRIG_INPUT].active;
-	float lockInput		= params[LOCK_PARAM].value;
-	float buttonInput	= params[TRIGGER_PARAM].value;
+	float clockInput	= inputs[CLOCK_INPUT].getVoltage();
+	bool  clockActive	= inputs[CLOCK_INPUT].isConnected();
+	float trigInput		= inputs[TRIG_INPUT].getVoltage();
+	bool  trigActive	= inputs[TRIG_INPUT].isConnected();
+	float lockInput		= params[LOCK_PARAM].getValue();
+	float buttonInput	= params[TRIGGER_PARAM].getValue();
 	
 	// Read param section	
-	if (inputs[PATT_INPUT].active) {
-		inputPat = inputs[PATT_INPUT].value;
+	if (inputs[PATT_INPUT].isConnected()) {
+		inputPat = inputs[PATT_INPUT].getVoltage();
 	} else {
-		inputPat = params[PATT_PARAM].value;
+		inputPat = params[PATT_PARAM].getValue();
 	}	
 
-	if (inputs[ARP_INPUT].active) {
-		inputArp = inputs[ARP_INPUT].value;
+	if (inputs[ARP_INPUT].isConnected()) {
+		inputArp = inputs[ARP_INPUT].getVoltage();
 	} else {
-		inputArp = params[ARP_PARAM].value;
+		inputArp = params[ARP_PARAM].getValue();
 	}	
 
-	if (inputs[LENGTH_INPUT].active) {
-		inputLen = inputs[LENGTH_INPUT].value;
+	if (inputs[LENGTH_INPUT].isConnected()) {
+		inputLen = inputs[LENGTH_INPUT].getVoltage();
 	} else {
-		inputLen = params[LENGTH_PARAM].value;
+		inputLen = params[LENGTH_PARAM].getValue();
 	}	
 	
-	if (inputs[TRANS_INPUT].active) {
-		inputTrans = inputs[TRANS_INPUT].value;
+	if (inputs[TRANS_INPUT].isConnected()) {
+		inputTrans = inputs[TRANS_INPUT].getVoltage();
 	} else {
-		inputTrans = params[TRANS_PARAM].value;
+		inputTrans = params[TRANS_PARAM].getValue();
 	}	
 
-	inputScale = params[SCALE_PARAM].value;
+	inputScale = params[SCALE_PARAM].getValue();
 
 	// Process inputs
 	bool clockStatus	= clockTrigger.process(clockInput);
@@ -623,8 +633,8 @@ void Arpeggiator2::step() {
 	float inputPitches[NUM_PITCHES];
 	for (int p = 0; p < NUM_PITCHES; p++) {
 		int index = PITCH_INPUT + p;
-		if (inputs[index].active) {
-			inputPitches[nValidPitches] = inputs[index].value;
+		if (inputs[index].isConnected()) {
+			inputPitches[nValidPitches] = inputs[index].getVoltage();
 			nValidPitches++;
 		} else {
 			inputPitches[nValidPitches] = 0.0;
@@ -661,7 +671,7 @@ void Arpeggiator2::step() {
 	}
 	
 	// Update the trigger pulse and determine if it is still high
-	bool triggerHigh = triggerPulse.process(delta);
+	bool triggerHigh = triggerPulse.process(args.sampleTime);
 	if (debugEnabled()) { 
 		if (triggerHigh) {
 			std::cout << stepX << " " << id  << " Trigger is high" << std::endl;
@@ -705,7 +715,7 @@ void Arpeggiator2::step() {
 	// Received trigger before EOS, fire EOS gate anyway
 	if (triggerStatus && isRunning && !currPatt->isPatternFinished()) {
 			// Pulse the EOS gate
-		eosPulse.trigger(Core::TRIGGER);
+		eosPulse.trigger(digital::TRIGGER);
 		if (debugEnabled()) { std::cout << stepX << " " << id  << " Short sequence" << std::endl; }
 	}
 
@@ -736,7 +746,7 @@ void Arpeggiator2::step() {
 		currPatt->advance();
 		
 		// Pulse the EOC gate
-		eocPulse.trigger(Core::TRIGGER);
+		eocPulse.trigger(digital::TRIGGER);
 		if (debugEnabled()) { std::cout << stepX << " " << id  << " Finished Cycle" << std::endl; }
 		
 		// Reached the end of the sequence
@@ -751,7 +761,7 @@ void Arpeggiator2::step() {
 			isRunning = false;
 			
 			// Pulse the EOS gate
-			eosPulse.trigger(Core::TRIGGER);
+			eosPulse.trigger(digital::TRIGGER);
 			if (debugEnabled()) { std::cout << stepX << " " << id  << " Finished Sequence, flag: " << isRunning << std::endl; }
 
 		} else {
@@ -837,7 +847,7 @@ void Arpeggiator2::step() {
 
 				
 		// Finally set the out voltage
-		outVolts = clamp(pitches[currArp->getPitch()] + semiTone * (float)currPatt->getOffset(), -10.0f, 10.0f);
+		outVolts = clamp(pitches[currArp->getPitch()] + music::SEMITONE * (float)currPatt->getOffset(), -10.0f, 10.0f);
 		
 		if (debugEnabled()) { std::cout << stepX << " " << id  << " Output V = " << outVolts << std::endl; }
 		
@@ -845,7 +855,7 @@ void Arpeggiator2::step() {
 		currArp->advance();
 		
 		// Pulse the output gate
-		gatePulse.trigger(Core::TRIGGER);
+		gatePulse.trigger(digital::TRIGGER);
 		
 	}
 	
@@ -873,12 +883,12 @@ void Arpeggiator2::step() {
 	uiArp->initialise(nPitches, freeRunning);
 	
 	// Set the value
-	lights[LOCK_LIGHT].value = locked ? 1.0 : 0.0;
-	outputs[OUT_OUTPUT].value = outVolts;
+	lights[LOCK_LIGHT].setBrightness(locked ? 1.0 : 0.0);
+	outputs[OUT_OUTPUT].setVoltage(outVolts);
 	
-	bool gPulse = gatePulse.process(delta);
-	bool sPulse = eosPulse.process(delta);
-	bool cPulse = eocPulse.process(delta);
+	bool gPulse = gatePulse.process(args.sampleTime);
+	bool sPulse = eosPulse.process(args.sampleTime);
+	bool cPulse = eocPulse.process(args.sampleTime);
 	
 	bool gatesOn = isRunning;
 	if (gateMode == TRIGGER) {
@@ -887,9 +897,9 @@ void Arpeggiator2::step() {
 		gatesOn = gatesOn && !gPulse;
 	}
 	
-	outputs[GATE_OUTPUT].value = gatesOn ? 10.0 : 0.0;
-	outputs[EOS_OUTPUT].value = sPulse ? 10.0 : 0.0;
-	outputs[EOC_OUTPUT].value = cPulse ? 10.0 : 0.0;
+	outputs[GATE_OUTPUT].setVoltage(gatesOn ? 10.0 : 0.0);
+	outputs[EOS_OUTPUT].setVoltage(sPulse ? 10.0 : 0.0);
+	outputs[EOC_OUTPUT].setVoltage(cPulse ? 10.0 : 0.0);
 	
 }
 
@@ -900,29 +910,32 @@ struct Arpeggiator2Display : TransparentWidget {
 	std::shared_ptr<Font> font;
 
 	Arpeggiator2Display() {
-		font = Font::load(assetPlugin(plugin, "res/EurostileBold.ttf"));
+		font = APP->window->loadFont(asset::plugin(pluginInstance, "res/EurostileBold.ttf"));
 	}
 
-	void draw(NVGcontext *vg) override {
+	void draw(const DrawArgs &ctx) override {
+
+		if (module == NULL) {
+			return;
+	    }
 	
 		Vec pos = Vec(0, 15);
 
-		nvgFontSize(vg, 16);
-		nvgFontFaceId(vg, font->handle);
-		nvgTextLetterSpacing(vg, -1);
-
-		nvgFillColor(vg, nvgRGBA(255, 0, 0, 0xff));
+		nvgFontSize(ctx.vg, 16);
+		nvgFontFaceId(ctx.vg, font->handle);
+		nvgTextLetterSpacing(ctx.vg, -1);
+		nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
 	
 		char text[128];
 		if (module->inputLen == 0) {
 			snprintf(text, sizeof(text), "Error: inputLen == 0");
-			nvgText(vg, pos.x + 10, pos.y + 5, text, NULL);			
+			nvgText(ctx.vg, pos.x + 10, pos.y + 5, text, NULL);			
 		} else {
 			snprintf(text, sizeof(text), "Pattern: %s", module->uiPatt->getName().c_str());
-			nvgText(vg, pos.x + 10, pos.y + 5, text, NULL);
+			nvgText(ctx.vg, pos.x + 10, pos.y + 5, text, NULL);
 
 			snprintf(text, sizeof(text), "Length: %d", module->uiPatt->length);
-			nvgText(vg, pos.x + 10, pos.y + 25, text, NULL);
+			nvgText(ctx.vg, pos.x + 10, pos.y + 25, text, NULL);
 
 			switch(module->uiPatt->scale) {
 				case 0: snprintf(text, sizeof(text), "Transpose: %d s.t.", module->uiPatt->trans); break;
@@ -930,115 +943,96 @@ struct Arpeggiator2Display : TransparentWidget {
 				case 2: snprintf(text, sizeof(text), "Transpose: %d Min. int.", module->uiPatt->trans); break;
 				default: snprintf(text, sizeof(text), "Error..."); break;
 			}
-			nvgText(vg, pos.x + 10, pos.y + 45, text, NULL);
+			nvgText(ctx.vg, pos.x + 10, pos.y + 45, text, NULL);
 
 			snprintf(text, sizeof(text), "Arpeggio: %s", module->uiArp->getName().c_str());
-			nvgText(vg, pos.x + 10, pos.y + 65, text, NULL);
+			nvgText(ctx.vg, pos.x + 10, pos.y + 65, text, NULL);
 		}
 	}
 	
 };
 
 struct Arpeggiator2Widget : ModuleWidget {
-	Arpeggiator2Widget(Arpeggiator2 *module);
-	Menu *createContextMenu() override;
-};
-
-Arpeggiator2Widget::Arpeggiator2Widget(Arpeggiator2 *module) : ModuleWidget(module) {
 	
-	UI ui;
+	Arpeggiator2Widget(Arpeggiator2 *module) {
 	
-	box.size = Vec(240, 380);
+		setModule(module);
+		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Arpeggiator2.svg")));
 
-	{
-		SVGPanel *panel = new SVGPanel();
-		panel->box.size = box.size;
-		panel->setBackground(SVG::load(assetPlugin(plugin, "res/Arpeggiator2.svg")));
-		addChild(panel);
-	}
-
-	{
-		Arpeggiator2Display *display = new Arpeggiator2Display();
-		display->module = module;
-		display->box.pos = Vec(10, 95);
-		display->box.size = Vec(100, 140);
-		addChild(display);
-	}
-
-	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 0, false, false), Port::OUTPUT, module, Arpeggiator2::OUT_OUTPUT));
-	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 1, 0, false, false), Port::OUTPUT, module, Arpeggiator2::GATE_OUTPUT));
-	addParam(ParamWidget::create<AHButton>(ui.getPosition(UI::BUTTON, 2, 0, false, false), module, Arpeggiator2::LOCK_PARAM, 0.0, 1.0, 0.0));
-	addChild(ModuleLightWidget::create<MediumLight<GreenLight>>(ui.getPosition(UI::LIGHT, 2, 0, false, false), module, Arpeggiator2::LOCK_LIGHT));
-	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 3, 0, false, false), Port::OUTPUT, module, Arpeggiator2::EOC_OUTPUT));
-	addOutput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 4, 0, false, false), Port::OUTPUT, module, Arpeggiator2::EOS_OUTPUT));
+		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 0, false, false), module, Arpeggiator2::OUT_OUTPUT));
+		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 1, 0, false, false), module, Arpeggiator2::GATE_OUTPUT));
+		addParam(createParam<gui::AHButton>(gui::getPosition(gui::BUTTON, 2, 0, false, false), module, Arpeggiator2::LOCK_PARAM));
+		addChild(createLight<MediumLight<GreenLight>>(gui::getPosition(gui::LIGHT, 2, 0, false, false), module, Arpeggiator2::LOCK_LIGHT));
+		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 3, 0, false, false), module, Arpeggiator2::EOC_OUTPUT));
+		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 4, 0, false, false), module, Arpeggiator2::EOS_OUTPUT));
+			
+		addParam(createParam<BefacoPush>(Vec(195, 148), module, Arpeggiator2::TRIGGER_PARAM));
 		
-	addParam(ParamWidget::create<BefacoPush>(Vec(195, 148), module, Arpeggiator2::TRIGGER_PARAM, 0.0, 1.0, 0.0));
-	
-	for (int i = 0; i < Arpeggiator2::NUM_PITCHES; i++) {
-		addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, i, 5, true, false), Port::INPUT, module, Arpeggiator2::PITCH_INPUT + i));
-	}
-	
-	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 4, 4, true, false), Port::INPUT, module, Arpeggiator2::ARP_INPUT));
-	addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 5, 4, true, false), module, Arpeggiator2::ARP_PARAM, 0.0, 3.0, 0.0)); 
-	
-	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 4, true, false), Port::INPUT, module, Arpeggiator2::TRIG_INPUT));
-	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 1, 4, true, false), Port::INPUT, module, Arpeggiator2::CLOCK_INPUT));
-	addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 3, 4, true, false), module, Arpeggiator2::SCALE_PARAM, 0, 2, 0)); 
+		for (int i = 0; i < Arpeggiator2::NUM_PITCHES; i++) {
+			addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, i, 5, true, false), module, Arpeggiator2::PITCH_INPUT + i));
+		}
+		
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 4, 4, true, false), module, Arpeggiator2::ARP_INPUT));
+		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 5, 4, true, false), module, Arpeggiator2::ARP_PARAM)); 
+		
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 4, true, false), module, Arpeggiator2::TRIG_INPUT));
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 1, 4, true, false), module, Arpeggiator2::CLOCK_INPUT));
+		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 3, 4, true, false), module, Arpeggiator2::SCALE_PARAM)); 
 
-	
-	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 3, true, false), Port::INPUT, module, Arpeggiator2::PATT_INPUT));
-	addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 1, 3, true, false), module, Arpeggiator2::PATT_PARAM, 0.0, 5.0, 0.0)); 
-	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 2, 3, true, false), Port::INPUT, module, Arpeggiator2::TRANS_INPUT)); 
-	addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 3, 3, true, false), module, Arpeggiator2::TRANS_PARAM, -24, 24, 0)); 
-	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 4, 3, true, false), Port::INPUT, module, Arpeggiator2::LENGTH_INPUT));
-	addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 5, 3, true, false), module, Arpeggiator2::LENGTH_PARAM, 1.0, 16.0, 1.0)); 
+		
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 3, true, false), module, Arpeggiator2::PATT_INPUT));
+		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 1, 3, true, false), module, Arpeggiator2::PATT_PARAM)); 
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 2, 3, true, false), module, Arpeggiator2::TRANS_INPUT)); 
+		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 3, 3, true, false), module, Arpeggiator2::TRANS_PARAM)); 
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 4, 3, true, false), module, Arpeggiator2::LENGTH_INPUT));
+		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 5, 3, true, false), module, Arpeggiator2::LENGTH_PARAM)); 
 
-}
+		if (module != NULL) {
+			Arpeggiator2Display *display = createWidget<Arpeggiator2Display>(Vec(10, 95));
+			display->module = module;
+			display->box.size = Vec(100, 140);
+			addChild(display);
+		}
 
-struct ArpGateModeItem : MenuItem {
-	Arpeggiator2 *arp;
-	Arpeggiator2::GateMode gateMode;
-	void onAction(EventAction &e) override {
-		arp->gateMode = gateMode;
 	}
-	void step() override {
-		rightText = (arp->gateMode == gateMode) ? "✔" : "";
+
+	void appendContextMenu(Menu *menu) override {
+
+		Arpeggiator2 *arp = dynamic_cast<Arpeggiator2*>(module);
+		assert(arp);
+
+		struct GateModeItem : MenuItem {
+			Arpeggiator2 *module;
+			Arpeggiator2::GateMode gateMode;
+			void onAction(const rack::event::Action &e) override {
+				module->gateMode = gateMode;
+			}
+		};
+
+		struct GateModeMenu : MenuItem {
+			Arpeggiator2 *module;
+			Menu *createChildMenu() override {
+				Menu *menu = new Menu;
+				std::vector<Arpeggiator2::GateMode> modes = {Arpeggiator2::TRIGGER, Arpeggiator2::RETRIGGER, Arpeggiator2::CONTINUOUS};
+				std::vector<std::string> names = {"Trigger", "Retrigger", "Continuous"};
+				for (size_t i = 0; i < modes.size(); i++) {
+					GateModeItem *item = createMenuItem<GateModeItem>(names[i], CHECKMARK(module->gateMode == modes[i]));
+					item->module = module;
+					item->gateMode = modes[i];
+					menu->addChild(item);
+				}
+				return menu;
+			}
+		};
+
+		menu->addChild(construct<MenuLabel>());
+		GateModeMenu *item = createMenuItem<GateModeMenu>("Gate Mode");
+		item->module = arp;
+		menu->addChild(item);
+
 	}
+
 };
 
-Menu *Arpeggiator2Widget::createContextMenu() {
-	Menu *menu = ModuleWidget::createContextMenu();
-
-	MenuLabel *spacerLabel = new MenuLabel();
-	menu->addChild(spacerLabel);
-
-	Arpeggiator2 *arp = dynamic_cast<Arpeggiator2*>(module);
-	assert(arp);
-
-	MenuLabel *modeLabel = new MenuLabel();
-	modeLabel->text = "Gate Mode";
-	menu->addChild(modeLabel);
-
-	ArpGateModeItem *triggerItem = new ArpGateModeItem();
-	triggerItem->text = "Trigger";
-	triggerItem->arp = arp;
-	triggerItem->gateMode = Arpeggiator2::TRIGGER;
-	menu->addChild(triggerItem);
-
-	ArpGateModeItem *retriggerItem = new ArpGateModeItem();
-	retriggerItem->text = "Retrigger";
-	retriggerItem->arp = arp;
-	retriggerItem->gateMode = Arpeggiator2::RETRIGGER;
-	menu->addChild(retriggerItem);
-
-	ArpGateModeItem *continuousItem = new ArpGateModeItem();
-	continuousItem->text = "Continuous";
-	continuousItem->arp = arp;
-	continuousItem->gateMode = Arpeggiator2::CONTINUOUS;
-	menu->addChild(continuousItem);
-
-	return menu;
-}
-
-Model *modelArpeggiator2 = Model::create<Arpeggiator2, Arpeggiator2Widget>( "Amalgamated Harmonics", "Arpeggiator2", "Arpeggiator MkII (deprecated)", ARPEGGIATOR_TAG);
+Model *modelArpeggiator2 = createModel<Arpeggiator2, Arpeggiator2Widget>("Arpeggiator2");
 

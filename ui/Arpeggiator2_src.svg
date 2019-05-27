@@ -14,7 +14,7 @@
    height="380"
    id="svg11791"
    version="1.1"
-   inkscape:version="0.92.2 5c3e80d, 2017-08-06"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)"
    sodipodi:docname="Arpeggiator2_src.svg"
    inkscape:export-filename="/home/vortico/src/cpp/VCV/Rack/plugins/Befaco/res/Rampage.png"
    inkscape:export-xdpi="80.124367"
@@ -958,19 +958,6 @@
          stdDeviation="0.2"
          id="feGaussianBlur3935" />
     </filter>
-    <filter
-       inkscape:collect="always"
-       style="color-interpolation-filters:sRGB"
-       id="filter4464"
-       x="-1.3714286"
-       width="3.7428571"
-       y="-1.0666667"
-       height="3.1333333">
-      <feGaussianBlur
-         inkscape:collect="always"
-         stdDeviation="20"
-         id="feGaussianBlur4466" />
-    </filter>
   </defs>
   <sodipodi:namedview
      inkscape:document-units="mm"
@@ -981,16 +968,16 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.6921053"
-     inkscape:cx="-20.700618"
+     inkscape:cx="-123.29311"
      inkscape:cy="190"
      inkscape:current-layer="layer2"
      showgrid="false"
      units="mm"
-     inkscape:window-width="1440"
-     inkscape:window-height="856"
-     inkscape:window-x="65"
-     inkscape:window-y="38"
-     inkscape:window-maximized="0"
+     inkscape:window-width="1780"
+     inkscape:window-height="1046"
+     inkscape:window-x="129"
+     inkscape:window-y="-11"
+     inkscape:window-maximized="1"
      showguides="false"
      inkscape:guide-bbox="true"
      inkscape:showpageshadow="false"
@@ -1385,12 +1372,12 @@
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none"
        x="60.923138"
-       y="396.38675"
+       y="398.38675"
        id="text5449"><tspan
          sodipodi:role="line"
          id="tspan5447"
          x="60.923138"
-         y="396.38675"
+         y="398.38675"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">P2</tspan></text>
     <rect
        style="fill:#000000;fill-opacity:1;stroke-width:0.78504759"
@@ -1405,22 +1392,22 @@
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:39.76836014px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none;stroke-width:0.99420899"
        x="26.782131"
-       y="394.09128"
+       y="396.07971"
        id="text2688"
        transform="scale(0.99420903,1.0058247)"><tspan
          sodipodi:role="line"
          id="tspan2686"
          x="26.782131"
-         y="394.09128"
+         y="396.07971"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.60489655px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1;stroke-width:0.99420899">P1</tspan></text>
     <text
        id="text2696"
-       y="396.38675"
+       y="398.38675"
        x="130.7747"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none"
        xml:space="preserve"><tspan
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1"
-         y="396.38675"
+         y="398.38675"
          x="130.7747"
          id="tspan2694"
          sodipodi:role="line">P4</tspan></text>
@@ -1428,12 +1415,12 @@
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none"
        x="165.87367"
-       y="396.32947"
+       y="398.32947"
        id="text2704"><tspan
          sodipodi:role="line"
          id="tspan2702"
          x="165.87367"
-         y="396.32947"
+         y="398.32947"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">P5</tspan></text>
     <text
        id="text7961"
@@ -1554,12 +1541,12 @@
        transform="scale(1,-1)" />
     <text
        id="text3931"
-       y="396.32947"
+       y="398.32947"
        x="95.889282"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none"
        xml:space="preserve"><tspan
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1"
-         y="396.32947"
+         y="398.32947"
          x="95.889282"
          id="tspan3929"
          sodipodi:role="line">P3</tspan></text>
@@ -1573,15 +1560,6 @@
        ry="4.2187495"
        transform="scale(1,-1)" />
     <rect
-       transform="matrix(0.97358875,0,0,-0.97911468,8.9432919,-51.939398)"
-       ry="4.2187495"
-       y="-432.38678"
-       x="150.48825"
-       height="45"
-       width="35"
-       id="rect10538"
-       style="fill:#000000;fill-opacity:1;stroke-width:0.78504759;filter:url(#filter3933)" />
-    <rect
        style="fill:#000000;fill-opacity:1;stroke-width:0.78504759"
        id="rect10540"
        width="35"
@@ -1590,15 +1568,6 @@
        y="-371.88678"
        ry="4.2187495"
        transform="scale(1,-1)" />
-    <rect
-       transform="scale(1,-1)"
-       ry="4.2187495"
-       y="-371.88678"
-       x="84.988243"
-       height="45"
-       width="35"
-       id="rect11947"
-       style="fill:#000000;fill-opacity:1;stroke-width:0.78504759" />
     <text
        id="text10544"
        y="337.82428"
@@ -1682,12 +1651,12 @@
        transform="scale(1,-1)" />
     <text
        id="text1127"
-       y="396.32425"
+       y="398.32425"
        x="200.87888"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none"
        xml:space="preserve"><tspan
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1"
-         y="396.32425"
+         y="398.32425"
          x="200.87888"
          id="tspan1125"
          sodipodi:role="line">P6</tspan></text>
@@ -1750,30 +1719,12 @@
     <rect
        transform="scale(1,-1)"
        ry="4.2187495"
-       y="-190.38676"
-       x="189.98825"
-       height="45"
-       width="35"
-       id="rect3872"
-       style="fill:#00b200;fill-opacity:0;stroke-width:0.78504759;filter:url(#filter4464)" />
-    <rect
-       transform="scale(1,-1)"
-       ry="4.2187495"
        y="-315.88672"
        x="189.98825"
        height="45"
        width="35"
        id="rect4098"
        style="fill:#000000;fill-opacity:1;stroke-width:0.78504759" />
-    <rect
-       style="fill:#000000;fill-opacity:1;stroke-width:0.78504759;filter:url(#filter3933)"
-       id="rect4100"
-       width="35"
-       height="45"
-       x="150.48825"
-       y="-432.38678"
-       ry="4.2187495"
-       transform="matrix(0.97358875,0,0,-0.97911468,8.9432919,-107.93945)" />
     <rect
        transform="scale(1,-1)"
        ry="4.2187495"
@@ -1783,45 +1734,27 @@
        width="35"
        id="rect4102"
        style="fill:#000000;fill-opacity:1;stroke-width:0.78504759" />
-    <rect
-       style="fill:#000000;fill-opacity:1;stroke-width:0.78504759"
-       id="rect4104"
-       width="35"
-       height="45"
-       x="84.988243"
-       y="-315.88672"
-       ry="4.2187495"
-       transform="scale(1,-1)" />
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none"
        x="193.59502"
-       y="281.82422"
+       y="281.88678"
        id="text4108"><tspan
          sodipodi:role="line"
          id="tspan4106"
          x="193.59502"
-         y="281.82422"
+         y="281.88678"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">P.LEN</tspan></text>
-    <rect
-       style="fill:#000000;fill-opacity:1;stroke-width:0.78504759"
-       id="rect4110"
-       width="35"
-       height="45"
-       x="14.988245"
-       y="-315.88672"
-       ry="4.2187495"
-       transform="scale(1,-1)" />
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none"
        x="54.915325"
-       y="281.82422"
+       y="281.88678"
        id="text4118"><tspan
          sodipodi:role="line"
          id="tspan4116"
          x="54.915325"
-         y="281.82422"
+         y="281.88678"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">PATT</tspan></text>
     <rect
        transform="matrix(0.97359181,0,0,-0.97888701,-26.05856,-107.84096)"

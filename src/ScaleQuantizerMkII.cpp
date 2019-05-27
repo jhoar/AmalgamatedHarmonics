@@ -1,12 +1,11 @@
-#include "dsp/digital.hpp"
-
 #include "AH.hpp"
-#include "Core.hpp"
-#include "UI.hpp"
+#include "AHCommon.hpp"
 
 #include <iostream>
 
-struct ScaleQuantizer2 : AHModule {
+using namespace ah;
+
+struct ScaleQuantizer2 : core::AHModule {
 
 	enum ParamIds {
 		KEY_PARAM,
@@ -34,115 +33,134 @@ struct ScaleQuantizer2 : AHModule {
 		NUM_LIGHTS
 	};
 
-	ScaleQuantizer2() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
+	ScaleQuantizer2() : core::AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
+		configParam(KEY_PARAM, 0.0f, 11.0f, 0.0f, "Key"); // 12 notes
 
-	void step() override;
+		configParam(SCALE_PARAM, 0.0f, 11.0f, 0.0f, "Scale"); // 12 scales
+
+		configParam(TRANS_PARAM, -11.0f, 11.0f, 0.0f, "Global transposition", " semitones"); // 12 notes
+		paramQuantities[KEY_PARAM]->description = "Transposition of all outputs post-quantisation";
+		
+		for (int i = 0; i < 8; i++) {
+			configParam(SHIFT_PARAM + i, -3.0f, 3.0f, 0.0f, "Octave shift", " octaves");
+		}
+
+	}
+
+	void process(const ProcessArgs &args) override;
 
 	bool firstStep = true;
 	int lastScale = 0;
 	int lastRoot = 0;
 	float lastTrans = -10000.0f;
 	
-	SchmittTrigger holdTrigger[8];
-	float holdPitch[8] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0};
-	float lastPitch[8] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0};
-	PulseGenerator triggerPulse[8];
+	dsp::SchmittTrigger holdTrigger[8][16];
+	dsp::PulseGenerator triggerPulse[8][16];
+
+	float holdPitch[8][16] = {};
+	float lastPitch[8][16] = {};
+
+	bool holdState[8][16];
 	
 	int currScale = 0;
 	int currRoot = 0;
 
 };
 
-void ScaleQuantizer2::step() {
+void ScaleQuantizer2::process(const ProcessArgs &args) {
 	
 	AHModule::step();
 	
 	lastScale = currScale;
 	lastRoot = currRoot;
 
-	int currNote = 0;
-	int currDegree = 0;
-
-	if (inputs[KEY_INPUT].active) {
-		float fRoot = inputs[KEY_INPUT].value;
-		currRoot = CoreUtil().getKeyFromVolts(fRoot);
+	if (inputs[KEY_INPUT].isConnected()) {
+		currRoot = music::getKeyFromVolts(inputs[KEY_INPUT].getVoltage());
 	} else {
-		currRoot = params[KEY_PARAM].value;
+		currRoot = params[KEY_PARAM].getValue();
 	}
 	
-	if (inputs[SCALE_INPUT].active) {
-		float fScale = inputs[SCALE_INPUT].value;
-		currScale = CoreUtil().getScaleFromVolts(fScale);
+	if (inputs[SCALE_INPUT].isConnected()) {
+		currScale = music::getScaleFromVolts(inputs[SCALE_INPUT].getVoltage());
 	} else {
-		currScale = params[SCALE_PARAM].value;
+		currScale = params[SCALE_PARAM].getValue();
 	}
 
-	float trans = (inputs[TRANS_INPUT].value + params[TRANS_PARAM].value) / 12.0;
+	float trans = (inputs[TRANS_INPUT].getVoltage() + params[TRANS_PARAM].getValue()) / 12.0;
 	if (trans != 0.0) {
 		if (trans != lastTrans) {
-			int i;
-			int d;
-			trans = CoreUtil().getPitchFromVolts(trans, Core::NOTE_C, Core::SCALE_CHROMATIC, &i, &d);
+			trans = music::getPitchFromVolts(trans, music::NOTE_C, music::SCALE_CHROMATIC);
 			lastTrans = trans;
 		} else {
 			trans = lastTrans;
 		}
 	}
-	
+
 	for (int i = 0; i < 8; i++) {
-		float holdInput		= inputs[HOLD_INPUT + i].value;
-		bool  holdActive	= inputs[HOLD_INPUT + i].active;
-		bool  holdStatus	= holdTrigger[i].process(holdInput);
+		float shift 		= params[SHIFT_PARAM + i].getValue();
+		int nCVChannels 	= inputs[IN_INPUT + i].getChannels();
+		int nHoldChannels 	= inputs[HOLD_INPUT + i].getChannels();
+		int nChannels 		= std::max(nCVChannels,nHoldChannels);
 
-		float volts = inputs[IN_INPUT + i].value;
-		float shift = params[SHIFT_PARAM + i].value;
+		outputs[OUT_OUTPUT + i].setChannels(nChannels);
+		outputs[TRIG_OUTPUT + i].setChannels(nChannels);
 
-		if (holdActive) { 
-			
-			// Sample the pitch
-			if (holdStatus && inputs[IN_INPUT + i].active) {
-				holdPitch[i] = CoreUtil().getPitchFromVolts(volts, currRoot, currScale, &currNote, &currDegree);
+		for (int j = 0; j < nChannels; j++) {
+
+			holdState[i][j] = holdTrigger[i][j].process(inputs[HOLD_INPUT + i].getVoltage(j));
+
+			if (nHoldChannels == 0) {
+				holdPitch[i][j] = music::getPitchFromVolts(inputs[IN_INPUT + i].getVoltage(j), currRoot, currScale);
+			} else if (nHoldChannels == 1) {
+				if (holdState[i][0]) { // Use channel 0 for hold
+					holdPitch[i][j] = music::getPitchFromVolts(inputs[IN_INPUT + i].getVoltage(j), currRoot, currScale);
+				}
+			} else {
+				if (nCVChannels == 1) {
+					if (holdState[i][j]) {
+						holdPitch[i][j] = music::getPitchFromVolts(inputs[IN_INPUT + i].getVoltage(0), currRoot, currScale); // (re)-sample channel 0
+					}
+				} else {
+					if (holdState[i][j]) {
+						holdPitch[i][j] = music::getPitchFromVolts(inputs[IN_INPUT + i].getVoltage(j), currRoot, currScale);
+					}
+				}
 			}
-			
-		} else {
 
-			if (inputs[IN_INPUT + i].active) { 
-				holdPitch[i] = CoreUtil().getPitchFromVolts(volts, currRoot, currScale, &currNote, &currDegree);
+			// If the quantised pitch has changed
+			if (lastPitch[i][j] != holdPitch[i][j]) {
+
+				// Record the pitch
+				lastPitch[i][j] = holdPitch[i][j];
+
+				// Pulse the gate
+				triggerPulse[i][j].trigger(digital::TRIGGER);
 			} 
-			
-		}
-		
-		// If the quantised pitch has changed
-		if (lastPitch[i] != holdPitch[i]) {
-			// Pulse the gate
-			triggerPulse[i].trigger(Core::TRIGGER);
-			
-			// Record the pitch
-			lastPitch[i] = holdPitch[i];
-		} 
-			
-		if (triggerPulse[i].process(delta)) {
-			outputs[TRIG_OUTPUT + i].value = 10.0f;
-		} else {
-			outputs[TRIG_OUTPUT + i].value = 0.0f;
-		}
 
-		outputs[OUT_OUTPUT + i].value = holdPitch[i] + shift + trans;
+			outputs[OUT_OUTPUT + i].setVoltage(holdPitch[i][j] + shift + trans, j);
+
+			if (triggerPulse[i][j].process(args.sampleTime)) {
+				outputs[TRIG_OUTPUT + i].setVoltage(10.0f, j);
+			} else {
+				outputs[TRIG_OUTPUT + i].setVoltage(0.0f, j);
+			}
+
+		}
 
 	}
 
 	if (lastScale != currScale || firstStep) {
-		for (int i = 0; i < Core::NUM_NOTES; i++) {
-			lights[SCALE_LIGHT + i].value = 0.0f;
+		for (int i = 0; i < music::NUM_NOTES; i++) {
+			lights[SCALE_LIGHT + i].setBrightness(0.0f);
 		}
-		lights[SCALE_LIGHT + currScale].value = 1.0f;
+		lights[SCALE_LIGHT + currScale].setBrightness(10.0f);
 	} 
 
 	if (lastRoot != currRoot || firstStep) {
-		for (int i = 0; i < Core::NUM_NOTES; i++) {
-			lights[KEY_LIGHT + i].value = 0.0f;
+		for (int i = 0; i < music::NUM_NOTES; i++) {
+			lights[KEY_LIGHT + i].setBrightness(0.0f);
 		}
-		lights[KEY_LIGHT + currRoot].value = 1.0f;
+		lights[KEY_LIGHT + currRoot].setBrightness(10.0f);
 	} 
 
 	firstStep = false;
@@ -150,52 +168,42 @@ void ScaleQuantizer2::step() {
 }
 
 struct ScaleQuantizer2Widget : ModuleWidget {
-	ScaleQuantizer2Widget(ScaleQuantizer2 *module);
+
+	ScaleQuantizer2Widget(ScaleQuantizer2 *module) {
+		
+		setModule(module);
+		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/ScaleQuantizerMkII.svg")));
+
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 5, true, false), module, ScaleQuantizer2::KEY_INPUT));
+		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 1, 5, true, false), module, ScaleQuantizer2::KEY_PARAM)); 
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 3, 5, true, false), module, ScaleQuantizer2::SCALE_INPUT));
+		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::PORT, 4, 5, true, false), module, ScaleQuantizer2::SCALE_PARAM));
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 6, 5, true, false), module, ScaleQuantizer2::TRANS_INPUT));
+		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::PORT, 7, 5, true, false), module, ScaleQuantizer2::TRANS_PARAM));
+
+		for (int i = 0; i < 8; i++) {
+			addInput(createInput<PJ301MPort>(Vec(6 + i * 29, 41), module, ScaleQuantizer2::IN_INPUT + i));
+			addParam(createParam<gui::AHTrimpotSnap>(Vec(9 + i * 29.1, 101), module, ScaleQuantizer2::SHIFT_PARAM + i));
+			addOutput(createOutput<PJ301MPort>(Vec(6 + i * 29, 125), module, ScaleQuantizer2::OUT_OUTPUT + i));
+			addInput(createInput<PJ301MPort>(Vec(6 + i * 29, 71), module, ScaleQuantizer2::HOLD_INPUT + i));		
+			addOutput(createOutput<PJ301MPort>(Vec(6 + i * 29, 155), module, ScaleQuantizer2::TRIG_OUTPUT + i));
+		}
+
+		float xOffset = 18.0;
+		float xSpace = 21.0;
+		float xPos = 0.0;
+		float yPos = 0.0;
+		int scale = 0;
+
+		for (int i = 0; i < 12; i++) {
+			gui::calculateKeyboard(i, xSpace, xOffset, 230.0f, &xPos, &yPos, &scale);
+			addChild(createLight<SmallLight<GreenLight>>(Vec(xOffset + i * 18.0f, 280.0f), module, ScaleQuantizer2::SCALE_LIGHT + i));
+			addChild(createLight<SmallLight<GreenLight>>(Vec(xPos, yPos), module, ScaleQuantizer2::KEY_LIGHT + scale));
+
+		}
+
+	}
+
 };
 
-ScaleQuantizer2Widget::ScaleQuantizer2Widget(ScaleQuantizer2 *module) : ModuleWidget(module) {
-	
-	UI ui;
-	
-	box.size = Vec(300, 380);
-
-	{
-		SVGPanel *panel = new SVGPanel();
-		panel->box.size = box.size;
-		panel->setBackground(SVG::load(assetPlugin(plugin, "res/ScaleQuantizerMkII.svg")));
-		addChild(panel);
-	}
-
-	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 0, 5, true, false), Port::INPUT, module, ScaleQuantizer2::KEY_INPUT));
-    addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::KNOB, 1, 5, true, false), module, ScaleQuantizer2::KEY_PARAM, 0.0f, 11.0f, 0.0f)); // 12 notes
-	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 3, 5, true, false), Port::INPUT, module, ScaleQuantizer2::SCALE_INPUT));
-    addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::PORT, 4, 5, true, false), module, ScaleQuantizer2::SCALE_PARAM, 0.0f, 11.0f, 0.0f)); // 12 notes
-	addInput(Port::create<PJ301MPort>(ui.getPosition(UI::PORT, 6, 5, true, false), Port::INPUT, module, ScaleQuantizer2::TRANS_INPUT));
-    addParam(ParamWidget::create<AHKnobSnap>(ui.getPosition(UI::PORT, 7, 5, true, false), module, ScaleQuantizer2::TRANS_PARAM, -11.0f, 11.0f, 0.0f)); // 12 notes
-
-	for (int i = 0; i < 8; i++) {
-		addInput(Port::create<PJ301MPort>(Vec(6 + i * 29, 41), Port::INPUT, module, ScaleQuantizer2::IN_INPUT + i));
-		addParam(ParamWidget::create<AHTrimpotSnap>(Vec(9 + i * 29.1, 101), module, ScaleQuantizer2::SHIFT_PARAM + i, -3.0f, 3.0f, 0.0f));
-		addOutput(Port::create<PJ301MPort>(Vec(6 + i * 29, 125), Port::OUTPUT, module, ScaleQuantizer2::OUT_OUTPUT + i));
-		addInput(Port::create<PJ301MPort>(Vec(6 + i * 29, 71), Port::INPUT, module, ScaleQuantizer2::HOLD_INPUT + i));		
-		addOutput(Port::create<PJ301MPort>(Vec(6 + i * 29, 155), Port::OUTPUT, module, ScaleQuantizer2::TRIG_OUTPUT + i));
-	}
-
-	float xOffset = 18.0;
-	float xSpace = 21.0;
-	float xPos = 0.0;
-	float yPos = 0.0;
-	int scale = 0;
-
-	for (int i = 0; i < 12; i++) {
-		addChild(ModuleLightWidget::create<SmallLight<GreenLight>>(Vec(xOffset + i * 18.0f, 280.0f), module, ScaleQuantizer2::SCALE_LIGHT + i));
-
-		ui.calculateKeyboard(i, xSpace, xOffset, 230.0f, &xPos, &yPos, &scale);
-		addChild(ModuleLightWidget::create<SmallLight<GreenLight>>(Vec(xPos, yPos), module, ScaleQuantizer2::KEY_LIGHT + scale));
-
-	}
-
-}
-
-Model *modelScaleQuantizer2 = Model::create<ScaleQuantizer2, ScaleQuantizer2Widget>( "Amalgamated Harmonics", "ScaleQuantizer2", "Scale Quantizer MkII", QUANTIZER_TAG);
-
+Model *modelScaleQuantizer2 = createModel<ScaleQuantizer2, ScaleQuantizer2Widget>("ScaleQuantizer2");

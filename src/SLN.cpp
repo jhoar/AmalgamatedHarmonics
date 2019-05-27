@@ -1,13 +1,12 @@
-#include "util/common.hpp"
-#include "dsp/digital.hpp"
-
+#include "common.hpp"
 #include "dsp/noise.hpp"
 
 #include "AH.hpp"
-#include "Core.hpp"
-#include "UI.hpp"
+#include "AHCommon.hpp"
 
-struct SLN : AHModule {
+using namespace ah;
+
+struct SLN : core::AHModule {
 
 	enum ParamIds {
 		SPEED_PARAM,
@@ -29,15 +28,42 @@ struct SLN : AHModule {
 		NUM_LIGHTS
 	};
 
-	SLN() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
+	SLN() : core::AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
+		configParam(SPEED_PARAM, 0.0, 1.0, 0.0, "Inertia", "%", 0.0f, 100.0f);
+		paramQuantities[SPEED_PARAM]->description = "Resistance of the signal to change";
 
+		configParam(SLOPE_PARAM, 0.0, 1.0, 0.0, "Slope");
+		paramQuantities[SLOPE_PARAM]->description = "Linear to exponential slope";
+
+		struct NoiseParamQuantity : engine::ParamQuantity {
+			std::string getDisplayValueString() override {
+				int v = (int)getValue();
+				switch (v)
+				{
+					case 0:
+						return "White noise " + ParamQuantity::getDisplayValueString();
+						break;
+					case 1:
+						return "Pink noise " + ParamQuantity::getDisplayValueString();
+						break;
+					case 2:
+						return "Brown noise " + ParamQuantity::getDisplayValueString();
+						break;
+					default:
+						return ParamQuantity::getDisplayValueString();
+						break;
+				}
+			}
+		};
+		configParam(NOISE_PARAM, 0.0, 2.0, 0.0, "Noise type");
+		paramQuantities[NOISE_PARAM]->description = "White, pink (1/f) or brown (1/f^2) noise";
+
+		configParam(ATTN_PARAM, 0.0, 1.0, 1.0, "Level", "%", 0.0f, 100.0f);
 	}
 	
-	void step() override;
+	void process(const ProcessArgs &args) override;
 
-	Core core;
-
-	SchmittTrigger inTrigger;
+	rack::dsp::SchmittTrigger inTrigger;
 	bogaudio::dsp::WhiteNoiseGenerator white;
 	bogaudio::dsp::PinkNoiseGenerator pink;
 	bogaudio::dsp::RedNoiseGenerator brown;
@@ -47,23 +73,21 @@ struct SLN : AHModule {
 	
 	// minimum and maximum slopes in volts per second
 	const float slewMin = 0.1;
-	const float slewMax = 10000.0;
-	
+	const float slewMax = 10000.0;	
 	const float slewRatio = slewMin / slewMax;
 	
 	// Amount of extra slew per voltage difference
 	const float shapeScale = 1.0/10.0;
 	
-	
 };
 
-void SLN::step() {
+void SLN::process(const ProcessArgs &args) {
 	
 	AHModule::step();
 	
 	float noise;
-	int noiseType = params[NOISE_PARAM].value;
-	float attn = params[ATTN_PARAM].value;
+	int noiseType = params[NOISE_PARAM].getValue();
+	float attn = params[ATTN_PARAM].getValue();
 	
 	switch(noiseType) {
 		case 0:
@@ -80,87 +104,75 @@ void SLN::step() {
 	}
 
 	// Capture noise
-	if (inTrigger.process(inputs[TRIG_INPUT].value / 0.7)) {
+	if (inTrigger.process(inputs[TRIG_INPUT].getVoltage() / 0.7)) {
 		target = noise;
 	} 
 				
-	float shape = params[SLOPE_PARAM].value;
-	float speed = params[SPEED_PARAM].value;
+	float shape = params[SLOPE_PARAM].getValue();
+	float speed = params[SPEED_PARAM].getValue();
 	
 	float slew = slewMax * powf(slewRatio, speed);
 
 	// Rise
 	if (target > current) {
-		current += slew * crossfade(1.0f, shapeScale * (target - current), shape) * delta;
+		current += slew * crossfade(1.0f, shapeScale * (target - current), shape) * args.sampleTime;
 		if (current > target) // Trap overshoot
 			current = target;
 	}
 	// Fall
 	else if (target < current) {
-		current -= slew * crossfade(1.0f, shapeScale * (current - target), shape) * delta;
+		current -= slew * crossfade(1.0f, shapeScale * (current - target), shape) * args.sampleTime;
 		if (current < target) // Trap overshoot
 			current = target;
 	}
 
-	outputs[OUT_OUTPUT].value = current * attn;
-	outputs[NOISE_OUTPUT].value = noise;	
+	outputs[OUT_OUTPUT].setVoltage(current * attn);
+	outputs[NOISE_OUTPUT].setVoltage(noise);	
 	
 }
 
 struct SLNWidget : ModuleWidget {
-	SLNWidget(SLN *module);
-};
 
-SLNWidget::SLNWidget(SLN *module) : ModuleWidget(module) {
+	SLNWidget(SLN *module) {
 	
-	UI ui;
-	
-	box.size = Vec(45, 380);
+		setModule(module);
+		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/SLN.svg")));
 
-	{
-		SVGPanel *panel = new SVGPanel();
-		panel->box.size = box.size;
-		panel->setBackground(SVG::load(assetPlugin(plugin, "res/SLN.svg")));
-		addChild(panel);
+		float panelwidth = 45.0;
+		float portwidth = 25.0;
+		float portX = (panelwidth - portwidth) / 2.0;
+
+		Vec p1 = gui::getPosition(gui::PORT, 0, 0, false, false);
+		p1.x = portX;
+		addInput(createInput<PJ301MPort>(p1, module, SLN::TRIG_INPUT));
+			
+		Vec k1 = gui::getPosition(gui::PORT, 0, 2, false, true);
+		k1.x = 20;
+		addParam(createParam<gui::AHKnobNoSnap>(k1, module, SLN::SPEED_PARAM));
+
+		Vec k2 = gui::getPosition(gui::PORT, 0, 3, false, true);
+		k2.x = 3;
+		addParam(createParam<gui::AHKnobNoSnap>(k2, module, SLN::SLOPE_PARAM));
+
+		Vec k3 = gui::getPosition(gui::PORT, 0, 4, false, true);
+		k3.x = 20;
+		addParam(createParam<gui::AHKnobSnap>(k3, module, SLN::NOISE_PARAM));
+
+		Vec k4 = gui::getPosition(gui::PORT, 0, 5, false, true);
+		k4.x = 3;
+		addParam(createParam<gui::AHKnobNoSnap>(k4, module, SLN::ATTN_PARAM)); 	
+
+		Vec p2 = gui::getPosition(gui::PORT, 0, 4, false, false);
+		p2.x = portX;	
+		addOutput(createOutput<PJ301MPort>(p2, module, SLN::OUT_OUTPUT));
+
+		Vec p3 = gui::getPosition(gui::PORT, 0, 5, false, false);
+		p3.x = portX;		
+		addOutput(createOutput<PJ301MPort>(p3, module, SLN::NOISE_OUTPUT));
+
 	}
 
-	float panelwidth = 45.0;
-	float portwidth = 25.0;
-	float portX = (panelwidth - portwidth) / 2.0;
+};
 
-	Vec p1 = ui.getPosition(UI::PORT, 0, 0, false, false);
-	p1.x = portX;
-	addInput(Port::create<PJ301MPort>(p1, Port::INPUT, module, SLN::TRIG_INPUT));
-		
-	Vec k1 = ui.getPosition(UI::PORT, 0, 2, false, true);
-	k1.x = 20;
-	AHKnobNoSnap *speedW = ParamWidget::create<AHKnobNoSnap>(k1, module, SLN::SPEED_PARAM, 0.0, 1.0, 0.0);
-	addParam(speedW);
-
-	Vec k2 = ui.getPosition(UI::PORT, 0, 3, false, true);
-	k2.x = 3;
-	AHKnobNoSnap *slopeW = ParamWidget::create<AHKnobNoSnap>(k2, module, SLN::SLOPE_PARAM, 0.0, 1.0, 0.0);
-	addParam(slopeW);
-
-	Vec k3 = ui.getPosition(UI::PORT, 0, 4, false, true);
-	k3.x = 20;
-	AHKnobSnap *noiseW = ParamWidget::create<AHKnobSnap>(k3, module, SLN::NOISE_PARAM, 0.0, 2.0, 0.0);
-	addParam(noiseW);
-
-	Vec k4 = ui.getPosition(UI::PORT, 0, 5, false, true);
-	k4.x = 3;
-	AHKnobNoSnap *attnW = ParamWidget::create<AHKnobNoSnap>(k4, module, SLN::ATTN_PARAM, 0.0, 1.0, 1.0);
-	addParam(attnW); 	
-
-	Vec p2 = ui.getPosition(UI::PORT, 0, 4, false, false);
-	p2.x = portX;	
-	addOutput(Port::create<PJ301MPort>(p2, Port::OUTPUT, module, SLN::OUT_OUTPUT));
-
-	Vec p3 = ui.getPosition(UI::PORT, 0, 5, false, false);
-	p3.x = portX;		
-	addOutput(Port::create<PJ301MPort>(p3, Port::OUTPUT, module, SLN::NOISE_OUTPUT));
-
-}
-
-Model *modelSLN = Model::create<SLN, SLNWidget>( "Amalgamated Harmonics", "SLN", "SLN", SAMPLE_AND_HOLD_TAG, NOISE_TAG);
+Model *modelSLN = createModel<SLN, SLNWidget>("SLN");
 
