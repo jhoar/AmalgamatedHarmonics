@@ -1,3 +1,4 @@
+#include <array>
 #include <string.h>
 #include "AH.hpp"
 #include "AHCommon.hpp"
