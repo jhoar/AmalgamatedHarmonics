@@ -968,15 +968,15 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="2.1657895"
-     inkscape:cx="38.274605"
+     inkscape:cx="-49.684082"
      inkscape:cy="-13.159171"
      inkscape:current-layer="g4666"
      showgrid="false"
      units="mm"
-     inkscape:window-width="1187"
-     inkscape:window-height="697"
-     inkscape:window-x="85"
-     inkscape:window-y="-8"
+     inkscape:window-width="5021"
+     inkscape:window-height="2126"
+     inkscape:window-x="129"
+     inkscape:window-y="-11"
      inkscape:window-maximized="1"
      showguides="false"
      inkscape:guide-bbox="true"
@@ -1682,14 +1682,14 @@
          transform="scale(0.99420903,1.0058247)"
          id="text4638"
          y="441.75082"
-         x="25.932911"
+         x="16.712839"
          style="font-style:normal;font-weight:normal;font-size:39.76836014px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.99420899"
          xml:space="preserve"><tspan
            style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.60489655px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.99420899"
            y="441.75082"
-           x="25.932911"
+           x="16.712839"
            id="tspan4636"
-           sodipodi:role="line">CV</tspan></text>
+           sodipodi:role="line">V/OCT</tspan></text>
     </g>
   </g>
 </svg>

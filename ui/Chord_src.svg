@@ -955,7 +955,7 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="2.1582095"
-     inkscape:cx="142.70116"
+     inkscape:cx="54.433547"
      inkscape:cy="189.58269"
      inkscape:current-layer="layer2"
      showgrid="false"
@@ -1699,5 +1699,16 @@
        inkscape:transform-center-x="-0.0087335528"
        inkscape:transform-center-y="-1.7704976"
        transform="matrix(1.0806724,0.57665211,-0.55278499,1.1273317,95.21086,-196.73146)" />
+    <text
+       id="text2559"
+       y="116.08389"
+       x="226.4622"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1"
+         y="116.08389"
+         x="226.4622"
+         id="tspan2557"
+         sodipodi:role="line">V/OCT</tspan></text>
   </g>
 </svg>
