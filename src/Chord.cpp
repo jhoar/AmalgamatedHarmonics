@@ -110,26 +110,6 @@ struct Chord : core::AHModule {
 
 	}
 
-	json_t *dataToJson() override {
-		json_t *rootJ = json_object();
-
-		// polymode
-		json_t *polymodeJ = json_boolean(polymode);
-		json_object_set_new(rootJ, "polymode", polymodeJ);
-
-		return rootJ;
-	}
-	
-	void dataFromJson(json_t *rootJ) override {
-
-		// polymode
-		json_t *polymodeJ = json_object_get(rootJ, "polymode");
-		if (polymodeJ)
-			polymode = json_boolean_value(polymodeJ);
-
-	}
-
-
 	void process(const ProcessArgs &args) override;
 		
 	int poll = 50000;
@@ -138,9 +118,6 @@ struct Chord : core::AHModule {
 	rack::dsp::PulseGenerator triggerPulse;
 
 	EvenVCO oscillator[6];
-
-	bool polymode = false;
-	bool switchMode = false;
 
 };
 
@@ -154,38 +131,17 @@ void Chord::process(const ProcessArgs &args) {
 	float spread = params[SPREAD_PARAM].getValue();
 	float SQRT2_2 = sqrt(2.0) / 2.0;
 
-	if(switchMode) {
-		for (int i = 0; i < NUM_PITCHES; i++) {
-			oscillator[i].reset();
-		}
-		switchMode = false;
-	}
-
-	bool haveGateIn = inputs[PITCH_INPUT + 1].isConnected();
-
 	for (int i = 0; i < NUM_PITCHES; i++) {
 
 		float inputPitchCV = 0.0f;
-		bool haveInput = false;
-		
-		if (polymode) {
-			if (haveGateIn) {
-				if (inputs[PITCH_INPUT + 1].getVoltage(i) > 0.0f) {
-					haveInput = true;
-					inputPitchCV = inputs[PITCH_INPUT].getVoltage(i);
-				} else {
-					inputPitchCV = 0.0;
-				}
-			} else {
-				haveInput = true;
-				inputPitchCV = inputs[PITCH_INPUT].getVoltage(i);
-			}
+
+		if (inputs[PITCH_INPUT + i].isConnected()) {
+			inputPitchCV = inputs[PITCH_INPUT + i].getVoltage();
 		} else {
-			if (inputs[PITCH_INPUT + i].isConnected()) {
-				haveInput = true;
-				inputPitchCV = inputs[PITCH_INPUT + i].getVoltage();
+			if (inputs[PITCH_INPUT].getChannels() > i) {
+				inputPitchCV = inputs[PITCH_INPUT].getVoltage(i);
 			} else {
-				inputPitchCV = 0.0;
+				inputPitchCV = inputs[PITCH_INPUT].getVoltage(0);
 			}
 		}
 
@@ -197,29 +153,26 @@ void Chord::process(const ProcessArgs &args) {
 		oscillator[i].pw = params[PW_PARAM + i].getValue() + params[PWM_PARAM + i].getValue() * inputs[PW_INPUT + i].getVoltage() / 10.0f;
 		oscillator[i].step(args.sampleTime, pitchFine + pitchCv); // 1V/OCT
 
-		if (haveInput) {
+		float amp = 0.0;
+		nP[side]++;
 
-			float amp = 0.0;
-			nP[side]++;
+		int wave = params[WAVE_PARAM + i].getValue();
+		switch(wave) {
+			case 0:		amp = oscillator[i].sine * attn;		break;
+			case 1:		amp = oscillator[i].saw * attn;			break;
+			case 2:		amp = oscillator[i].doubleSaw * attn;	break;
+			case 3:		amp = oscillator[i].square * attn;		break;
+			case 4:		amp = oscillator[i].even * attn;		break;
+			default:	amp = oscillator[i].sine * attn;		break;
+		};
 
-			int wave = params[WAVE_PARAM + i].getValue();
-			switch(wave) {
-				case 0:		amp = oscillator[i].sine * attn;		break;
-				case 1:		amp = oscillator[i].saw * attn;			break;
-				case 2:		amp = oscillator[i].doubleSaw * attn;	break;
-				case 3:		amp = oscillator[i].square * attn;		break;
-				case 4:		amp = oscillator[i].even * attn;		break;
-				default:	amp = oscillator[i].sine * attn;		break;
-			};
+		float angle = spread * params[PAN_PARAM + i].getValue();
+		float left = SQRT2_2 * (cos(angle) - sin(angle));
+		float right = SQRT2_2 * (cos(angle) + sin(angle));
 
-			float angle = spread * params[PAN_PARAM + i].getValue();
-			float left = SQRT2_2 * (cos(angle) - sin(angle));
-    		float right = SQRT2_2 * (cos(angle) + sin(angle));
+		out[0] += left * amp;
+		out[1] += right * amp;
 
-			out[0] += left * amp;
-			out[1] += right * amp;
-
-		}
 	}
 
 	if (nP[0] > 0) {
@@ -270,43 +223,6 @@ struct ChordWidget : ModuleWidget {
 
 		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 4, 9, true, true), module, Chord::OUT_OUTPUT));
 		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 5, 9, true, true), module, Chord::OUT_OUTPUT + 1));
-
-	}
-
-	void appendContextMenu(Menu *menu) override {
-
-		Chord *chord = dynamic_cast<Chord*>(module);
-		assert(chord);
-
-		struct PolyModeItem : MenuItem {
-			Chord *module;
-			bool polymode;
-			void onAction(const rack::event::Action &e) override {
-				module->polymode = polymode;
-				module->switchMode = true;
-			}
-		};
-
-		struct PolyModeMenu : MenuItem {
-			Chord *module;
-			Menu *createChildMenu() override {
-				Menu *menu = new Menu;
-				std::vector<bool> modes = {true, false};
-				std::vector<std::string> names = {"Poly", "Mono"};
-				for (size_t i = 0; i < modes.size(); i++) {
-					PolyModeItem *item = createMenuItem<PolyModeItem>(names[i], CHECKMARK(module->polymode == modes[i]));
-					item->module = module;
-					item->polymode = modes[i];
-					menu->addChild(item);
-				}
-				return menu;
-			}
-		};
-
-		menu->addChild(construct<MenuLabel>());
-		PolyModeMenu *polymodeItem = createMenuItem<PolyModeMenu>("Input cable mode");
-		polymodeItem->module = chord;
-		menu->addChild(polymodeItem);
 
 	}
 
