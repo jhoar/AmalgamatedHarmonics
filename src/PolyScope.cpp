@@ -52,6 +52,8 @@ struct PolyScope : core::AHModule {
 	int bufferIndex = 0;
 	float frameIndex = 0;
 
+	bool toggle = false;
+
 	dsp::SchmittTrigger resetTrigger;
 
 	PolyScope() : core::AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) { 
@@ -103,11 +105,28 @@ struct PolyScope : core::AHModule {
 	}
 };
 
+struct Patch : Widget {
+
+	PolyScope *module = NULL;
+
+	void onButton(const event::Button &e) override {
+		Widget::onButton(e);
+		if (e.button == GLFW_MOUSE_BUTTON_LEFT && e.action == GLFW_PRESS) {
+			if (module) {
+				module->toggle = !(module->toggle);
+			}
+		} 
+	}
+
+};
 
 struct PolyScopeDisplay : TransparentWidget {
 	PolyScope *module;
 	int frame = 0;
 	std::shared_ptr<Font> font;
+
+	float t = 0.0;
+	float d = 0.008;
 
 	PolyScopeDisplay() { }
 
@@ -145,8 +164,15 @@ struct PolyScopeDisplay : TransparentWidget {
 		if (!module)
 			return;
 
+		if(module->toggle) {
+			t = t + d;
+			if ((t >= 1.0) || (t <= 0.0)) {
+				d = -d;
+			}
+		}
+
 		float gain = std::pow(2.0f, module->params[PolyScope::SCALE_PARAM].getValue());
-		float offset = module->params[PolyScope::SPREAD_PARAM].getValue();
+		float offset = module->toggle ? math::clamp(t, 0.0, 1.0) : module->params[PolyScope::SPREAD_PARAM].getValue();
 
 		float values[16][BUFFER_SIZE];
 		for (int i = 0; i < BUFFER_SIZE; i++) {
@@ -174,6 +200,14 @@ struct PolyScopeWidget : ModuleWidget {
 			display->box.pos = Vec(0, 20);
 			display->box.size = Vec(345, 310);
 			addChild(display);
+		}
+
+		{
+			Patch *patch = new Patch();
+			patch->module = module;
+			patch->box.pos = Vec(155, 355);
+			patch->box.size = Vec(30, 20);
+			addChild(patch);
 		}
 
 		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 3, 5, true, false), module, PolyScope::SCALE_PARAM));
