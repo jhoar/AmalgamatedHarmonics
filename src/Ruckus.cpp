@@ -18,6 +18,9 @@ struct Ruckus : core::AHModule {
 	enum InputIds {
 		TRIG_INPUT,
 		RESET_INPUT,
+		POLY_DIV_INPUT,
+		POLY_PROB_INPUT,
+		POLY_SHIFT_INPUT,
 		NUM_INPUTS
 	};
 	enum OutputIds {
@@ -170,9 +173,9 @@ void Ruckus::process(const ProcessArgs &args) {
 	}
 
 	for (int i = 0; i < 16; i++) {
-		division[i] = params[DIV_PARAM + i].getValue();
-		prob[i] = params[PROB_PARAM + i].getValue();
-		shift[i] = params[SHIFT_PARAM + i].getValue();
+		division[i] = clamp((int)(params[DIV_PARAM + i].getValue() + (inputs[POLY_DIV_INPUT].getVoltage(i) * 6.4f)), 0, 64);
+		prob[i] = clamp(params[PROB_PARAM + i].getValue() + (inputs[POLY_PROB_INPUT].getVoltage(i) * 0.1f), 0.0f, 1.0f);
+		shift[i] = clamp((int)(params[SHIFT_PARAM + i].getValue() + (inputs[POLY_SHIFT_INPUT].getVoltage(i) * 12.8f)), -64, 64);
 	}
 
 	if (resetTrigger.process(inputs[RESET_INPUT].getVoltage())) {
@@ -276,16 +279,13 @@ struct RuckusWidget : ModuleWidget {
 		setModule(module);
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Ruckus.svg")));
 
-		//299.5 329.7
-		Vec a = gui::getPosition(gui::PORT, 6, 5, false, false);
-		a.x = 312.0;
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 10, 2, true, true), module, Ruckus::POLY_DIV_INPUT));
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 10, 4, true, true), module, Ruckus::POLY_PROB_INPUT));
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 10, 6, true, true), module, Ruckus::POLY_SHIFT_INPUT));
 
-		//325.5 329.7
-		Vec b = gui::getPosition(gui::PORT, 7, 5, false, false);
-		b.x = 352.0;
-		
-		addInput(createInput<PJ301MPort>(a, module, Ruckus::TRIG_INPUT));
-		addInput(createInput<PJ301MPort>(b, module, Ruckus::RESET_INPUT));
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 8, 8, true, true), module, Ruckus::TRIG_INPUT));
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 10, 8, true, true), module, Ruckus::RESET_INPUT));
+
 
 		float xd = 18.0f;
 		float yd = 20.0f;
@@ -293,7 +293,7 @@ struct RuckusWidget : ModuleWidget {
 		for (int y = 0; y < 4; y++) {
 			for (int x = 0; x < 4; x++) {
 				int i = y * 4 + x;
-				Vec v = gui::getPosition(gui::KNOB, 1 + x * 2, y * 2, true, true);
+				Vec v = gui::getPosition(gui::KNOB, x * 2, y * 2, true, true);
 				
 				gui::AHKnobSnap *divW = createParam<gui::AHKnobSnap>(v, module, Ruckus::DIV_PARAM + i);
 				gui::AHParamWidget::set<gui::AHKnobSnap>(divW, Ruckus::DIV_TYPE, i);
@@ -316,23 +316,23 @@ struct RuckusWidget : ModuleWidget {
 		float d = 12.0f;
 
 		for (int x = 0; x < 4; x++) {
-			addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 1 + x * 2, 8, true, true), module, Ruckus::XOUT_OUTPUT + x));
+			addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, x * 2, 8, true, true), module, Ruckus::XOUT_OUTPUT + x));
 			
-			Vec bVec = gui::getPosition(gui::BUTTON, 1 + x * 2, 7, true, true, 0.0, d);
+			Vec bVec = gui::getPosition(gui::BUTTON, x * 2, 7, true, true, 0.0, d);
 			addParam(createParam<gui::AHButton>(bVec, module, Ruckus::XMUTE_PARAM + x));
 			
-			Vec lVec = gui::getPosition(gui::LIGHT, 1 + x * 2, 7, true, true, 0.0, d);
+			Vec lVec = gui::getPosition(gui::LIGHT, x * 2, 7, true, true, 0.0, d);
 			addChild(createLight<MediumLight<GreenLight>>(lVec, module, Ruckus::XMUTE_LIGHT + x));
 
 		}
 
 		for (int y = 0; y < 4; y++) {
-			addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT,9, y * 2, true, true), module, Ruckus::YOUT_OUTPUT + y));
+			addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT,8, y * 2, true, true), module, Ruckus::YOUT_OUTPUT + y));
 
-			Vec bVec = gui::getPosition(gui::BUTTON, 8, y * 2, true, true, d, 0.0f);
+			Vec bVec = gui::getPosition(gui::BUTTON, 7, y * 2, true, true, d, 0.0f);
 			addParam(createParam<gui::AHButton>(bVec, module, Ruckus::YMUTE_PARAM + y));
 
-			Vec lVec = gui::getPosition(gui::LIGHT, 8, y * 2, true, true, d, 0.0f);
+			Vec lVec = gui::getPosition(gui::LIGHT, 7, y * 2, true, true, d, 0.0f);
 			addChild(createLight<MediumLight<GreenLight>>(lVec, module, Ruckus::YMUTE_LIGHT + y));
 
 		}
