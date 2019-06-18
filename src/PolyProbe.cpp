@@ -117,10 +117,10 @@ struct PolyProbeDisplay : TransparentWidget {
 		for (int i = 0; i < 16; i++)  {
 			if (i >= module->nCVChannels) {
 				nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0x6F));
-				snprintf(text, sizeof(text), "%02d --", i);
+				snprintf(text, sizeof(text), "%02d --", i + 1);
 			} else {
 				nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
-				snprintf(text, sizeof(text), "%02d %f", i, module->cv[i]);
+				snprintf(text, sizeof(text), "%02d %f", i + 1, module->cv[i]);
 			}
 			nvgText(ctx.vg, box.pos.x + 5, box.pos.y + i * 16 + j * 16, text, NULL);		
 
