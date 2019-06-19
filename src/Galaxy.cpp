@@ -146,8 +146,6 @@ struct Galaxy : core::AHModule {
 		{0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,2,2},
 	};
 
-	float outVolts[NUM_PITCHES] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
-	
 	int poll = 50000;
 
 	rack::dsp::SchmittTrigger moveTrigger;
@@ -315,8 +313,8 @@ void Galaxy::process(const ProcessArgs &args) {
 	// Set the output pitches 
 	outputs[PITCH_OUTPUT].setChannels(6);
 	for (int i = 0; i < NUM_PITCHES; i++) {
-		outputs[PITCH_OUTPUT].setVoltage(outVolts[i], i);
-		outputs[PITCH_OUTPUT + i].setVoltage(outVolts[i]);
+		outputs[PITCH_OUTPUT].setVoltage(currChord.outVolts[i], i);
+		outputs[PITCH_OUTPUT + i].setVoltage(currChord.outVolts[i]);
 	}
 
 }
