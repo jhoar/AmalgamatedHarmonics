@@ -18,5 +18,5 @@ Welcome to the Amalgamated Harmonics; your one-stop shop for barely usable modul
 * [PolyScope](https://github.com/jhoar/AmalgamatedHarmonics/wiki/PolyScope), Plot polyphonic cable values.
 * [MuxDeMux](https://github.com/jhoar/AmalgamatedHarmonics/wiki/MuxDeMux), a polyphonic cable multiplexer/de-multiplexer.
 
-The latest release is [1.0.0](https://github.com/jhoar/AmalgamatedHarmonics/releases/tag/v1.0.0). It is available through the [Plugin Manager](https://vcvrack.com/plugins.html). You can contact us at amalgamatedharmonics@outlook.com. We do not post on Facebook.
+The latest release is [1.0.1](https://github.com/jhoar/AmalgamatedHarmonics/releases/tag/v1.0.1). It is available through the [Plugin Manager](https://vcvrack.com/plugins.html). You can contact us at amalgamatedharmonics@outlook.com. We do not post on Facebook.
 
