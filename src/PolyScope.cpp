@@ -9,23 +9,9 @@ static const int BUFFER_SIZE = 512;
 
 using namespace ah;
 
-std::array<NVGcolor, 16> colourMap = {
-nvgRGBA(255,	0,	0, 240),
-nvgRGBA(223,	0,	32, 240),
-nvgRGBA(191,	0,	64, 240),
-nvgRGBA(159,	0,	96, 240),
-nvgRGBA(128,	0,	128, 240),
-nvgRGBA(96,	0,	159, 240),
-nvgRGBA(64,	0,	191, 240),
-nvgRGBA(32,	0,	223, 240),
-nvgRGBA(0,	32,	223, 240),
-nvgRGBA(0,	64,	191, 240),
-nvgRGBA(0,	96,	159, 240),
-nvgRGBA(0,	128,	128, 240),
-nvgRGBA(0,	159,	96, 240),
-nvgRGBA(0,	191,	64, 240),
-nvgRGBA(0,	223,	32, 240),
-nvgRGBA(0,	255,	0, 240)};
+typedef std::array<NVGcolor, 16> colourMap;
+
+colourMap cMaps[5];
 
 /** 
  * PolyScope, based on Andrew Belt's Scope module.
@@ -54,13 +40,86 @@ struct PolyScope : core::AHModule {
 
 	bool toggle = false;
 
+	int currCMap = 1;
+
 	dsp::SchmittTrigger resetTrigger;
 
 	PolyScope() : core::AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) { 
 		configParam(SCALE_PARAM, -2.0f, 2.0f, 0.0f);
 		configParam(SPREAD_PARAM, 0.0f, 3.0f, 1.5f);
 		configParam(TIME_PARAM, 6.0f, 16.0f, 14.0f);
+
+		cMaps[0] = { // Classic
+		nvgRGBA(255,	0,	0, 240),	// 0	100		100
+		nvgRGBA(223,	0,	32, 240),	// 351	100		87
+		nvgRGBA(191,	0,	64, 240),	// 339	100		74
+		nvgRGBA(159,	0,	96, 240),	// 323	100		62	
+		nvgRGBA(128,	0,	128, 240),	// 300	100		50
+		nvgRGBA(96,	0,	159, 240),		// 276	100		62
+		nvgRGBA(64,	0,	191, 240),		// 260	100		74
+		nvgRGBA(32,	0,	223, 240),		// 248	100		91 -
+		nvgRGBA(0,	32,	223, 240),		// 231	120		91
+		nvgRGBA(0,	64,	191, 240),		// 219	100		74
+		nvgRGBA(0,	96,	159, 240),		// 203	100		62
+		nvgRGBA(0,	128,	128, 240),	// 180	100		50
+		nvgRGBA(0,	159,	96, 240),	// 156	100		62			
+		nvgRGBA(0,	191,	64, 240),	// 140	100		74
+		nvgRGBA(0,	223,	32, 240),	// 128	100		87
+		nvgRGBA(0,	255,	0, 240)};	// 120	100		100
+
+		cMaps[1] = { // Max V
+		nvgRGBA(255,	0,	0, 240),	// 0	100		100 	x
+		nvgRGBA(255,	0,	38, 240),	// 351	100		87 		x
+		nvgRGBA(255,	0,	89, 240),	// 339	100		74		x
+		nvgRGBA(255,	0,	157, 240),	// 323	100		62		x
+		nvgRGBA(255,	0,	255, 240),	// 300	100		50		x
+		nvgRGBA(152,	0,	255, 240),	// 276	100		62		x
+		nvgRGBA(84,	0,	255, 240),		// 260	100		74		x
+		nvgRGBA(34,	0,	255, 240),		// 248	100		91		x
+		nvgRGBA(0,	38,	255, 240),		// 231	100		91		x
+		nvgRGBA(0,	89,	255, 240),		// 219	100		74		x
+		nvgRGBA(0,	157,	159, 240),	// 203	100		62		x
+		nvgRGBA(0,	255,	255, 240),	// 180	100		50		x
+		nvgRGBA(0,	255,	153, 240),	// 156	100		62		x	
+		nvgRGBA(0,	255,	85, 240),	// 140	100		74		x
+		nvgRGBA(0,	255,	33, 240),	// 128	100		87		x
+		nvgRGBA(0,	255,	0, 240)};	// 120	100		100		x
+
+		float dHue = 1.0f/16.0f;
+
+		for (int i = 0; i < 16; i++) {
+			cMaps[2][i] = nvgHSL(1 - i * dHue * 2.0f/3.0f, 1.0f, 0.7f ); // HSL, HSL L=0.7
+		}
+
+		for (int i = 0; i < 16; i++) {
+			cMaps[3][i] = nvgHSL(1 - i * dHue, 1.0f, 0.7f ); // FSW, HSL L=0.7
+		}
+
+		for (int i = 0; i < 16; i++) {
+			cMaps[4][i] = nvgHSL(2.0f/3.0f + i * dHue * 1.0f/6.0f, 1.0f, 0.6f ); // Synthwave L=0.5
+		}
+
 	}
+
+	json_t *dataToJson() override {
+		json_t *rootJ = json_object();
+
+		// cMap
+		json_t *cMapJ = json_integer((int) currCMap);
+		json_object_set_new(rootJ, "cmap", cMapJ);
+
+		return rootJ;
+	}
+	
+	void dataFromJson(json_t *rootJ) override {
+
+		// offset
+		json_t *cMapJ = json_object_get(rootJ, "cmap");
+		if (cMapJ)
+			currCMap = json_integer_value(cMapJ);
+
+	}
+
 
 	void process(const ProcessArgs &args) override {
 
@@ -182,7 +241,7 @@ struct PolyScopeDisplay : TransparentWidget {
 		}
 
 		for (int i = 0; i < 16; i++) {
-			nvgStrokeColor(args.vg, colourMap[i]);
+			nvgStrokeColor(args.vg, cMaps[module->currCMap][i]);
 			drawWaveform(args, values[i]);
 		}
 	}
@@ -216,6 +275,42 @@ struct PolyScopeWidget : ModuleWidget {
 
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 1, 5, true, false), module, PolyScope::POLY_INPUT));
 	}
+
+	void appendContextMenu(Menu *menu) override {
+
+		PolyScope *scope = dynamic_cast<PolyScope*>(module);
+		assert(scope);
+
+		struct ColourItem : MenuItem {
+			PolyScope *module;
+			int cMap;
+			void onAction(const rack::event::Action &e) override {
+				module->currCMap = cMap;
+			}
+		};
+
+		struct ColourMenu : MenuItem {
+			PolyScope *module;
+			Menu *createChildMenu() override {
+				Menu *menu = new Menu;
+				std::vector<std::string> names = {"Classic", "Constant V", "Constant L", "Full Circle", "Synthwave"};
+				for (size_t i = 0; i < names.size(); i++) {
+					ColourItem *item = createMenuItem<ColourItem>(names[i], CHECKMARK(module->currCMap == (int)i));
+					item->module = module;
+					item->cMap = i;
+					menu->addChild(item);
+				}
+				return menu;
+			}
+		};
+
+		ColourMenu *cMapItem = createMenuItem<ColourMenu>("Colour Schemes");
+		cMapItem->module = scope;
+		menu->addChild(cMapItem);
+
+     }
+
+
 };
 
 
