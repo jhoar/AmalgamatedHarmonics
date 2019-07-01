@@ -1,5 +1,7 @@
 #include <array>
 #include <string.h>
+#include <osdialog.h>
+
 #include "AH.hpp"
 #include "AHCommon.hpp"
 
@@ -11,7 +13,7 @@ using namespace ah;
 
 typedef std::array<NVGcolor, 16> colourMap;
 
-colourMap cMaps[5];
+colourMap cMaps[6];
 
 /** 
  * PolyScope, based on Andrew Belt's Scope module.
@@ -41,8 +43,63 @@ struct PolyScope : core::AHModule {
 	bool toggle = false;
 
 	int currCMap = 1;
+	std::string path;
+	std::string directory;
 
 	dsp::SchmittTrigger resetTrigger;
+
+	void loadCMap(const char *path) {
+
+        FILE *file = fopen(path, "r");
+        if (!file) {
+                WARN("Could not load colour scheme file %s", path);
+                return;
+        }
+        DEFER({
+                fclose(file);
+        });
+
+        json_error_t error;
+        json_t *rootJ = json_loadf(file, 0, &error);
+        if (!rootJ) {
+                std::string message = string::f("File is not a valid colour scheme file. JSON parsing error at %s %d:%d %s", error.source, error.line, error.column, error.text);
+                osdialog_message(OSDIALOG_WARNING, OSDIALOG_OK, message.c_str());
+                return;
+        }
+        DEFER({
+                json_decref(rootJ);
+        });
+
+		this->path = path;
+
+		for (int i = 0; i < 16; i++) {
+
+			std::string nodeName = "userCmap" + std::to_string(i);
+
+			json_t *cmap_array = json_object_get(rootJ, nodeName.c_str());
+			if (cmap_array) {
+
+				int r = 255;
+				int g = 0;
+				int b = 0;
+
+				json_t *rJ = json_array_get(cmap_array, 0);
+				if (rJ)
+					r = json_integer_value(rJ);
+
+				json_t *gJ = json_array_get(cmap_array, 1);
+				if (gJ)
+					g = json_integer_value(gJ);
+
+				json_t *bJ = json_array_get(cmap_array, 2);
+				if (bJ)
+					b = json_integer_value(bJ);
+
+				cMaps[5][i] = nvgRGB(r, g, b);
+
+			}
+		}
+	}
 
 	PolyScope() : core::AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) { 
 		configParam(SCALE_PARAM, -2.0f, 2.0f, 0.0f);
@@ -99,27 +156,37 @@ struct PolyScope : core::AHModule {
 			cMaps[4][i] = nvgHSL(2.0f/3.0f + i * dHue * 1.0f/6.0f, 1.0f, 0.6f ); // Synthwave L=0.5
 		}
 
+		for (int i = 0; i < 16; i++) {
+			cMaps[5][i] = nvgRGBf(1.0f, 1.0f, 1.0f); // All white
+		}
+
 	}
 
 	json_t *dataToJson() override {
-		json_t *rootJ = json_object();
+    	json_t *rootJ = json_object();
 
-		// cMap
-		json_t *cMapJ = json_integer((int) currCMap);
-		json_object_set_new(rootJ, "cmap", cMapJ);
+    	// cMap
+        json_t *cMapJ = json_integer((int) currCMap);
+        json_object_set_new(rootJ, "cmap", cMapJ);
 
-		return rootJ;
-	}
-	
+
+ 		json_t *pathJ = json_string(path.c_str());
+		json_object_set_new(rootJ, "path", pathJ);
+
+        return rootJ;
+    }
+
 	void dataFromJson(json_t *rootJ) override {
-
-		// offset
+		// cmap
 		json_t *cMapJ = json_object_get(rootJ, "cmap");
 		if (cMapJ)
 			currCMap = json_integer_value(cMapJ);
 
-	}
+		json_t *pathJ = json_object_get(rootJ, "path");
+		if (pathJ)
+			loadCMap(json_string_value(pathJ));
 
+	}
 
 	void process(const ProcessArgs &args) override {
 
@@ -248,6 +315,26 @@ struct PolyScopeDisplay : TransparentWidget {
 };
 
 
+static void loadCMap(PolyScope *module) {
+
+	std::string dir;
+	std::string filename;
+	if (module->path != "") {
+		dir = string::directory(module->path);
+		filename = string::filename(module->path);
+	}
+	else {
+		dir = asset::user("");
+		filename = "colourmap.json";
+	}
+
+	char *path = osdialog_file(OSDIALOG_OPEN, dir.c_str(), filename.c_str(), NULL);
+	if (path) {
+		module->loadCMap(path);
+		free(path);
+	}
+}
+
 struct PolyScopeWidget : ModuleWidget {
 	PolyScopeWidget(PolyScope *module) {
 		setModule(module);
@@ -281,6 +368,13 @@ struct PolyScopeWidget : ModuleWidget {
 		PolyScope *scope = dynamic_cast<PolyScope*>(module);
 		assert(scope);
 
+		struct PathItem : MenuItem {
+			PolyScope *module;
+			void onAction(const event::Action &e) override {
+				loadCMap(module);
+			}
+		};
+
 		struct ColourItem : MenuItem {
 			PolyScope *module;
 			int cMap;
@@ -293,7 +387,7 @@ struct PolyScopeWidget : ModuleWidget {
 			PolyScope *module;
 			Menu *createChildMenu() override {
 				Menu *menu = new Menu;
-				std::vector<std::string> names = {"Classic", "Constant V", "Constant L", "Full Circle", "Synthwave"};
+				std::vector<std::string> names = {"Classic", "Constant V", "Constant L", "Full Circle", "Synthwave", "User"};
 				for (size_t i = 0; i < names.size(); i++) {
 					ColourItem *item = createMenuItem<ColourItem>(names[i], CHECKMARK(module->currCMap == (int)i));
 					item->module = module;
@@ -307,6 +401,11 @@ struct PolyScopeWidget : ModuleWidget {
 		ColourMenu *cMapItem = createMenuItem<ColourMenu>("Colour Schemes");
 		cMapItem->module = scope;
 		menu->addChild(cMapItem);
+
+		PathItem *pathItem = new PathItem;
+		pathItem->text = "Load colour scheme";
+		pathItem->module = scope;
+		menu->addChild(pathItem);
 
      }
 
