@@ -99,11 +99,14 @@ struct PolyScope : core::AHModule {
 
 			}
 		}
+
+		currCMap = 5;
+
 	}
 
 	PolyScope() : core::AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) { 
 		configParam(SCALE_PARAM, -2.0f, 2.0f, 0.0f);
-		configParam(SPREAD_PARAM, 0.0f, 3.0f, 1.5f);
+		configParam(SPREAD_PARAM, 0.0f, 3.0f, 1.0f);
 		configParam(TIME_PARAM, 6.0f, 16.0f, 14.0f);
 
 		cMaps[0] = { // Classic
@@ -124,32 +127,32 @@ struct PolyScope : core::AHModule {
 		nvgRGBA(0,	223,	32, 240),	// 128	100		87
 		nvgRGBA(0,	255,	0, 240)};	// 120	100		100
 
-		cMaps[1] = { // Max V
-		nvgRGBA(255,	0,	0, 240),	// 0	100		100 	x
-		nvgRGBA(255,	0,	38, 240),	// 351	100		87 		x
-		nvgRGBA(255,	0,	89, 240),	// 339	100		74		x
-		nvgRGBA(255,	0,	157, 240),	// 323	100		62		x
-		nvgRGBA(255,	0,	255, 240),	// 300	100		50		x
-		nvgRGBA(152,	0,	255, 240),	// 276	100		62		x
-		nvgRGBA(84,	0,	255, 240),		// 260	100		74		x
-		nvgRGBA(34,	0,	255, 240),		// 248	100		91		x
-		nvgRGBA(0,	38,	255, 240),		// 231	100		91		x
-		nvgRGBA(0,	89,	255, 240),		// 219	100		74		x
-		nvgRGBA(0,	157,	159, 240),	// 203	100		62		x
-		nvgRGBA(0,	255,	255, 240),	// 180	100		50		x
-		nvgRGBA(0,	255,	153, 240),	// 156	100		62		x	
-		nvgRGBA(0,	255,	85, 240),	// 140	100		74		x
-		nvgRGBA(0,	255,	33, 240),	// 128	100		87		x
-		nvgRGBA(0,	255,	0, 240)};	// 120	100		100		x
+		cMaps[1] = { // Constant V
+		nvgRGBA(255,	0,	0, 240),	// 0	100		100
+		nvgRGBA(255,	0,	38, 240),	// 351	100		87 
+		nvgRGBA(255,	0,	89, 240),	// 339	100		74
+		nvgRGBA(255,	0,	157, 240),	// 323	100		62
+		nvgRGBA(255,	0,	255, 240),	// 300	100		50
+		nvgRGBA(152,	0,	255, 240),	// 276	100		62
+		nvgRGBA(84,	0,	255, 240),		// 260	100		74
+		nvgRGBA(34,	0,	255, 240),		// 248	100		91
+		nvgRGBA(0,	38,	255, 240),		// 231	100		91
+		nvgRGBA(0,	89,	255, 240),		// 219	100		74
+		nvgRGBA(0,	157,	159, 240),	// 203	100		62
+		nvgRGBA(0,	255,	255, 240),	// 180	100		50
+		nvgRGBA(0,	255,	153, 240),	// 156	100		62
+		nvgRGBA(0,	255,	85, 240),	// 140	100		74
+		nvgRGBA(0,	255,	33, 240),	// 128	100		87
+		nvgRGBA(0,	255,	0, 240)};	// 120	100		100
 
 		float dHue = 1.0f/16.0f;
 
 		for (int i = 0; i < 16; i++) {
-			cMaps[2][i] = nvgHSL(1 - i * dHue * 2.0f/3.0f, 1.0f, 0.7f ); // HSL, HSL L=0.7
+			cMaps[2][i] = nvgHSL(1 - i * dHue * 2.0f/3.0f, 1.0f, 0.7f ); // Constant L, HSL L=0.7
 		}
 
 		for (int i = 0; i < 16; i++) {
-			cMaps[3][i] = nvgHSL(1 - i * dHue, 1.0f, 0.7f ); // FSW, HSL L=0.7
+			cMaps[3][i] = nvgHSL(1 - i * dHue, 1.0f, 0.7f ); // Full Circle, HSL L=0.7
 		}
 
 		for (int i = 0; i < 16; i++) {
@@ -157,7 +160,7 @@ struct PolyScope : core::AHModule {
 		}
 
 		for (int i = 0; i < 16; i++) {
-			cMaps[5][i] = nvgRGBf(1.0f, 1.0f, 1.0f); // All white
+			cMaps[5][i] = nvgRGBf(1.0f, 1.0f, 1.0f); // User defined, sttart with all white
 		}
 
 	}
@@ -165,13 +168,8 @@ struct PolyScope : core::AHModule {
 	json_t *dataToJson() override {
     	json_t *rootJ = json_object();
 
-    	// cMap
-        json_t *cMapJ = json_integer((int) currCMap);
-        json_object_set_new(rootJ, "cmap", cMapJ);
-
-
- 		json_t *pathJ = json_string(path.c_str());
-		json_object_set_new(rootJ, "path", pathJ);
+        json_object_set_new(rootJ, "cmap", json_integer((int) currCMap));
+		json_object_set_new(rootJ, "path", json_string(path.c_str()));
 
         return rootJ;
     }
@@ -186,6 +184,11 @@ struct PolyScope : core::AHModule {
 		if (pathJ)
 			loadCMap(json_string_value(pathJ));
 
+	}
+
+	void onReset() override {
+		currCMap = 1;
+		path = "";
 	}
 
 	void process(const ProcessArgs &args) override {
