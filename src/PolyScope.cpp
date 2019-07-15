@@ -50,6 +50,11 @@ struct PolyScope : core::AHModule {
 
 	void loadCMap(const char *path) {
 
+		// Empty path, so bail 
+		if (path[0] == '\0') {
+			return;
+		}
+
         FILE *file = fopen(path, "r");
         if (!file) {
                 WARN("Could not load colour scheme file %s", path);
@@ -223,12 +228,16 @@ struct PolyScope : core::AHModule {
 			float holdTime = 0.1f;
 			float trigParam = 0.0f;
 			if (resetTrigger.process(rescale(gate, trigParam - 0.1f, trigParam, 0.f, 1.f)) || (frameIndex >= args.sampleRate * holdTime)) {
-				bufferIndex = 0; frameIndex = 0; return;
+				bufferIndex = 0; 
+				frameIndex = 0; 
+				return;
 			}
 
 			// Reset if we've waited too long
 			if (frameIndex >= args.sampleRate * holdTime) {
-				bufferIndex = 0; frameIndex = 0; return;
+				bufferIndex = 0; 
+				frameIndex = 0; 
+				return;
 			}
 		}
 	}
