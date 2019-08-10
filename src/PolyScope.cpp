@@ -39,6 +39,7 @@ struct PolyScope : core::AHModule {
 	float buffer[16][BUFFER_SIZE] = {};
 	int bufferIndex = 0;
 	float frameIndex = 0;
+	int maxChannels;
 
 	bool toggle = false;
 
@@ -100,7 +101,7 @@ struct PolyScope : core::AHModule {
 				if (bJ)
 					b = json_integer_value(bJ);
 
-				cMaps[5][i] = nvgRGB(r, g, b);
+				cMaps[5][i] = nvgRGBA(r, g, b, 240);
 
 			}
 		}
@@ -165,7 +166,7 @@ struct PolyScope : core::AHModule {
 		}
 
 		for (int i = 0; i < 16; i++) {
-			cMaps[5][i] = nvgRGBf(1.0f, 1.0f, 1.0f); // User defined, sttart with all white
+			cMaps[5][i] = nvgRGBf(1.0f, 1.0f, 1.0f); // User defined, start with all white
 		}
 
 	}
@@ -201,6 +202,8 @@ struct PolyScope : core::AHModule {
 		// Compute time
 		float deltaTime = std::pow(2.0f, -params[TIME_PARAM].getValue());
 		int frameCount = (int) std::ceil(deltaTime * args.sampleRate);
+
+		maxChannels = inputs[POLY_INPUT].getChannels();
 
 		// Add frame to buffer
 		if (bufferIndex < BUFFER_SIZE) {
@@ -319,7 +322,7 @@ struct PolyScopeDisplay : TransparentWidget {
 			}
 		}
 
-		for (int i = 0; i < 16; i++) {
+		for (int i = 0; i < module->maxChannels; i++) {
 			nvgStrokeColor(args.vg, cMaps[module->currCMap][i]);
 			drawWaveform(args, values[i]);
 		}
