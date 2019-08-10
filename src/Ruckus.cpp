@@ -60,7 +60,7 @@ struct Ruckus : core::AHModule {
 		onReset();
 
 	}
-	
+
 	void process(const ProcessArgs &args) override;
 
 	json_t *dataToJson() override {
@@ -69,7 +69,7 @@ struct Ruckus : core::AHModule {
 		// gates
 		json_t *xMutesJ = json_array();
 		json_t *yMutesJ = json_array();
-		
+
 		for (int i = 0; i < 4; i++) {
 			json_t *xMuteJ = json_integer((int) xMute[i]);
 			json_array_append_new(xMutesJ, xMuteJ);
@@ -77,13 +77,13 @@ struct Ruckus : core::AHModule {
 			json_t *yMuteJ = json_integer((int) yMute[i]);
 			json_array_append_new(yMutesJ, yMuteJ);
 		}
-		
+
 		json_object_set_new(rootJ, "xMutes", xMutesJ);
 		json_object_set_new(rootJ, "yMutes", yMutesJ);
 
 		return rootJ;
 	}
-	
+
 	void dataFromJson(json_t *rootJ) override {
 		// gates
 		json_t *xMutesJ = json_object_get(rootJ, "xMutes");
@@ -110,7 +110,7 @@ struct Ruckus : core::AHModule {
 		SHIFT_TYPE,
 		PROB_TYPE
 	};
-	
+
 	void receiveEvent(core::ParamEvent e) override {
 		if (receiveEvents) {
 			switch(e.pType) {
@@ -129,20 +129,20 @@ struct Ruckus : core::AHModule {
 		}
 		keepStateDisplay = 0;
 	}
-	
+
 	void onReset() override {	
 		for (int i = 0; i < 4; i++) {
 			xMute[i] = true;
 			yMute[i] = true;
 		}
-	}	
-	
+	}
+
 	digital::AHPulseGenerator xGate[4];
 	digital::AHPulseGenerator yGate[4];
-	
+
 	bool xMute[4] = {true, true, true, true};
 	bool yMute[4] = {true, true, true, true};
-	
+
 	rack::dsp::SchmittTrigger xLockTrigger[4];
 	rack::dsp::SchmittTrigger yLockTrigger[4];
 
@@ -155,13 +155,13 @@ struct Ruckus : core::AHModule {
 	int state[16];
 
 	unsigned int beatCounter = 0;
-	
+
 };
 
 void Ruckus::process(const ProcessArgs &args) {
-	
+
 	AHModule::step();
-		
+
 	for (int i = 0; i < 4; i++) {
 
 		if (xLockTrigger[i].process(params[XMUTE_PARAM + i].getValue())) {
@@ -206,13 +206,13 @@ void Ruckus::process(const ProcessArgs &args) {
 				if(division[i] == 0) { // 0 == skip
 					continue;
 				}
-				
+
 				int target = beatCounter + shift[i];
-				
+
 				if (target < 0) { // shifted into negative count 
 					continue; 
 				}
-				
+
 				if (target % division[i] == 0) { 
 					if (random::uniform() < prob[i]) {
 						xGate[x].trigger(digital::TRIGGER);
@@ -249,7 +249,6 @@ void Ruckus::process(const ProcessArgs &args) {
 		}
 	}
 
-
 	for (int i = 0; i < 4; i++) {
 
 		if (xGate[i].process(args.sampleTime) && xMute[i]) {
@@ -257,7 +256,7 @@ void Ruckus::process(const ProcessArgs &args) {
 		} else {
 			outputs[XOUT_OUTPUT + i].setVoltage(0.0f);		
 		}
-		
+
 		lights[XMUTE_LIGHT + i].setBrightness(xMute[i] ? 1.0 : 0.0);
 
 		if (yGate[i].process(args.sampleTime) && yMute[i]) {
@@ -265,17 +264,17 @@ void Ruckus::process(const ProcessArgs &args) {
 		} else {
 			outputs[YOUT_OUTPUT + i].setVoltage(0.0f);		
 		}
-		
+
 		lights[YMUTE_LIGHT + i].setBrightness(yMute[i] ? 1.0 : 0.0);
 
 	}
-	
+
 }
 
 struct RuckusWidget : ModuleWidget {
 
 	RuckusWidget(Ruckus *module) {
-	
+
 		setModule(module);
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Ruckus.svg")));
 
@@ -286,7 +285,6 @@ struct RuckusWidget : ModuleWidget {
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 8, 8, true, true), module, Ruckus::TRIG_INPUT));
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 10, 8, true, true), module, Ruckus::RESET_INPUT));
 
-
 		float xd = 18.0f;
 		float yd = 20.0f;
 
@@ -294,7 +292,7 @@ struct RuckusWidget : ModuleWidget {
 			for (int x = 0; x < 4; x++) {
 				int i = y * 4 + x;
 				Vec v = gui::getPosition(gui::KNOB, x * 2, y * 2, true, true);
-				
+
 				gui::AHKnobSnap *divW = createParam<gui::AHKnobSnap>(v, module, Ruckus::DIV_PARAM + i);
 				gui::AHParamWidget::set<gui::AHKnobSnap>(divW, Ruckus::DIV_TYPE, i);
 				addParam(divW);
@@ -317,10 +315,10 @@ struct RuckusWidget : ModuleWidget {
 
 		for (int x = 0; x < 4; x++) {
 			addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, x * 2, 8, true, true), module, Ruckus::XOUT_OUTPUT + x));
-			
+
 			Vec bVec = gui::getPosition(gui::BUTTON, x * 2, 7, true, true, 0.0, d);
 			addParam(createParam<gui::AHButton>(bVec, module, Ruckus::XMUTE_PARAM + x));
-			
+
 			Vec lVec = gui::getPosition(gui::LIGHT, x * 2, 7, true, true, 0.0, d);
 			addChild(createLight<MediumLight<GreenLight>>(lVec, module, Ruckus::XMUTE_LIGHT + x));
 

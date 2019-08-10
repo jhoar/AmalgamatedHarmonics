@@ -31,9 +31,9 @@ struct Pattern {
 	};
 
 	virtual int getOffset() = 0;
-	
+
 	virtual bool isPatternFinished() = 0;
-	
+
 	int getMajor(int count) {
 		int i = abs(count);
 		int sign = (count < 0) ? -1 : (count > 0);
@@ -63,7 +63,7 @@ struct DivergePattern : Pattern {
 			count = offset;
 		}
 	}
-	
+
 	int getOffset() override {
 		
 		switch(scale) {
@@ -73,13 +73,13 @@ struct DivergePattern : Pattern {
 			default:
 				return count * trans; break;
 		}
-	
+
 	}
 
 	bool isPatternFinished() override {
 		return(count == end);
 	}
-	
+
 };
 
 struct ConvergePattern : Pattern {
@@ -97,11 +97,11 @@ struct ConvergePattern : Pattern {
 			count = length - offset - 1;
 		}
 	} 
-	
+
 	void advance() override {
 		count--;
 	}
-	
+
 	int getOffset() override {
 		switch(scale) {
 			case 0: return -count * trans; break;
@@ -115,13 +115,13 @@ struct ConvergePattern : Pattern {
 	bool isPatternFinished() override {
 		return (count == 0);
 	}
-	
+
 };
 
 struct ReturnPattern : Pattern {
 
 	int mag = 0;
-	
+
 	std::string getName() override {
 		return "Return";
 	};	
@@ -142,15 +142,15 @@ struct ReturnPattern : Pattern {
 		}
 
 	}
-	
+
 	int getOffset() override {
-		
+
 		if (length == 1) {
 			return 0;
 		}
 
 		int note = (mag - abs(mag - count));
-		
+
 		switch(scale) {
 			case 0: return note * trans; break;
 			case 1: return getMajor(note * trans); break;
@@ -164,13 +164,13 @@ struct ReturnPattern : Pattern {
 	bool isPatternFinished() override {
 		return(count == end);
 	}
-	
+
 };
 
 struct NotePattern : Pattern {
 
 	std::vector<int> notes;
-	
+
 	void initialise(int l, int sc, int tr, int off) override {
 		Pattern::initialise(l, sc, tr, off);
 		count = off;
@@ -178,7 +178,7 @@ struct NotePattern : Pattern {
 			count = (int)notes.size();
 		}
 	}
-	
+
 	int getOffset() override {
 		return notes[count];
 	}
@@ -186,11 +186,11 @@ struct NotePattern : Pattern {
 	bool isPatternFinished() override {
 		return (count >= (int)notes.size() - 1);
 	}
-		
+
 };
 
 struct RezPattern : NotePattern {
-	
+
 	std::string getName() override {
 		return "Rez";
 	};	
@@ -214,8 +214,7 @@ struct RezPattern : NotePattern {
 		notes.push_back(8);
 		notes.push_back(0);
 	}
-	
-	
+
 };
 
 struct OnTheRunPattern : NotePattern {
@@ -232,14 +231,14 @@ struct OnTheRunPattern : NotePattern {
 		notes.push_back(4);
 		notes.push_back(9);
 		notes.push_back(11);
-		notes.push_back(13);		
-		notes.push_back(11);		
+		notes.push_back(13);
+		notes.push_back(11);
 	}
 	
 };
 
 struct Arp32 : core::AHModule {
-	
+
 	const static int MAX_STEPS = 16;
 	const static int MAX_DIST = 12; //Octave
 
@@ -268,13 +267,13 @@ struct Arp32 : core::AHModule {
 	enum LightIds {
 		NUM_LIGHTS
 	};
-	
+
 	Arp32() : core::AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
 		configParam(PATT_PARAM, 0.0, 4.0, 0.0, "Pattern"); 
 
 		configParam(TRANS_PARAM, -24, 24, 1, "Pattern magnitude"); 
 		paramQuantities[TRANS_PARAM]->description = "'Distance' of the start/end point of the pattern w.r.t the root note";
-		
+
 		configParam(LENGTH_PARAM, 1.0, 16.0, 1.0, "Pattern steps");
 
 		configParam(OFFSET_PARAM, 0.0, 10.0, 0.0, "Start offset"); 
@@ -300,15 +299,15 @@ struct Arp32 : core::AHModule {
 
 		onReset();
 		id = rand();
-        debugFlag = false;
+		debugFlag = false;
 	}
 
 	void process(const ProcessArgs &args) override;
-	
+
 	void onReset() override {
 		isRunning = false;
 	}
-	
+
 	json_t *dataToJson() override {
 		json_t *rootJ = json_object();
 
@@ -318,7 +317,7 @@ struct Arp32 : core::AHModule {
 
 		return rootJ;
 	}
-	
+
 	void dataFromJson(json_t *rootJ) override {
 		// gateMode
 		json_t *gateModeJ = json_object_get(rootJ, "gateMode");
@@ -327,16 +326,16 @@ struct Arp32 : core::AHModule {
 			gateMode = (GateMode)json_integer_value(gateModeJ);
 		}
 	}
-	
+
 	enum GateMode {
 		TRIGGER,
 		RETRIGGER,
 		CONTINUOUS,
 	};
 	GateMode gateMode = TRIGGER;
-	
+
 	rack::dsp::SchmittTrigger clockTrigger; // for clock
-	
+
 	rack::dsp::PulseGenerator gatePulse;
 	rack::dsp::PulseGenerator eocPulse;
 
@@ -345,12 +344,12 @@ struct Arp32 : core::AHModule {
 	float rootPitch = 0.0;
 	bool isRunning = false;
 	bool eoc = false;
-	
+
 	int inputPat = 0;
 	int inputLen = 0;
 	int inputTrans = 0;
 	int inputScale = 0;
-	
+
 	int pattern = 0;
 	int length = 0;
 	float trans = 0;
@@ -373,7 +372,6 @@ struct Arp32 : core::AHModule {
 	
 };
 
-
 void Arp32::process(const ProcessArgs &args) {
 	
 	AHModule::step();
@@ -382,11 +380,11 @@ void Arp32::process(const ProcessArgs &args) {
 	if (stepX < 10) { 
 		return;
 	}
-	
+
 	// Get inputs from Rack
 	float clockInput	= inputs[CLOCK_INPUT].getVoltage();
 	float clockActive	= inputs[CLOCK_INPUT].isConnected();
-	
+
 	// Read param section	
 	if (inputs[PATT_INPUT].isConnected()) {
 		inputPat = inputs[PATT_INPUT].getVoltage();
@@ -399,7 +397,7 @@ void Arp32::process(const ProcessArgs &args) {
 	} else {
 		inputLen = params[LENGTH_PARAM].getValue();
 	}	
-	
+
 	if (inputs[TRANS_INPUT].isConnected()) {
 		inputTrans = inputs[TRANS_INPUT].getVoltage();
 	} else {
@@ -412,18 +410,18 @@ void Arp32::process(const ProcessArgs &args) {
 
 	// Process inputs
 	bool clockStatus = clockTrigger.process(clockInput);
-	
+
 	// Need to understand why this happens
 	if (inputLen == 0) {
 		if (debugEnabled(5000)) { std::cout << stepX << " " << id  << " InputLen == 0, aborting" << std::endl; }
 		return; // No inputs, no music
 	}
-	
+
 	// If there is no clock input, then force that we are not running
 	if (!clockActive) {
 		isRunning = false;
 	}
-				
+
 	bool restart = false;
 
 	// Have we been clocked?
@@ -450,12 +448,12 @@ void Arp32::process(const ProcessArgs &args) {
 				restart = true;
 
 			} 
-							
+
 			// Finally set the out voltage
 			outVolts = clamp(rootPitch + music::SEMITONE * (float)currPatt->getOffset(), -10.0f, 10.0f);
-			
+
 			if (debugEnabled()) { std::cout << stepX << " " << id  << " Output V = " << outVolts << std::endl; }
-					
+
 			// Pulse the output gate
 			gatePulse.trigger(digital::TRIGGER);
 
@@ -470,10 +468,10 @@ void Arp32::process(const ProcessArgs &args) {
 		}
 
 	}
-	
+
 	// If we have been triggered, start a new sequence
 	if (restart) {
-		
+
 		// Read input pitches and assign to pitch array
 		float inputPitch;
 		if (inputs[PITCH_INPUT].isConnected()) {
@@ -488,7 +486,7 @@ void Arp32::process(const ProcessArgs &args) {
 		length = inputLen;
 		trans = inputTrans;
 		scale = inputScale;
-		
+
 		switch(pattern) {
 			case 0:		currPatt = &patt_diverge; 		break;
 			case 1:		currPatt = &patt_converge;		break;
@@ -505,14 +503,14 @@ void Arp32::process(const ProcessArgs &args) {
 			" Initiatise new Cycle: Pattern: " << currPatt->getName() << 
 			" Length: " << inputLen << std::endl; 
 		}
-		
+
 		currPatt->initialise(length, scale, trans, offset);
 
 		// Start
 		isRunning = true;
-		
+
 	} 
-	
+
 	// Update UI
 	switch(inputPat) {
 		case 0:		uiPatt = &ui_patt_diverge; 		break;
@@ -528,24 +526,24 @@ void Arp32::process(const ProcessArgs &args) {
 
 	// Set the value
 	outputs[OUT_OUTPUT].setVoltage(outVolts);
-	
+
 	bool gPulse = gatePulse.process(args.sampleTime);
 	bool cPulse = eocPulse.process(args.sampleTime);
-	
+
 	bool gatesOn = isRunning;
 	if (gateMode == TRIGGER) {
 		gatesOn = gatesOn && gPulse;
 	} else if (gateMode == RETRIGGER) {
 		gatesOn = gatesOn && !gPulse;
 	}
-	
+
 	outputs[GATE_OUTPUT].setVoltage(gatesOn ? 10.0 : 0.0);
 	outputs[EOC_OUTPUT].setVoltage(cPulse ? 10.0 : 0.0);
-	
+
 }
 
 struct Arp32Display : TransparentWidget {
-	
+
 	Arp32 *module;
 	std::shared_ptr<Font> font;
 
@@ -554,10 +552,10 @@ struct Arp32Display : TransparentWidget {
 	}
 
 	void draw(const DrawArgs &ctx) override {
-	
+
 		if (module == NULL) {
 			return;
-	    }
+		}
 
 		Vec pos = Vec(0, 15);
 
@@ -570,21 +568,21 @@ struct Arp32Display : TransparentWidget {
 		char text[128];
 		if (module->inputLen == 0) {
 			snprintf(text, sizeof(text), "Error: inputLen == 0");
-			nvgText(ctx.vg, pos.x + 10, pos.y, text, NULL);			
+			nvgText(ctx.vg, pos.x + 10, pos.y, text, NULL);
 		} else {
-			snprintf(text, sizeof(text), "%s", module->uiPatt->getName().c_str()); 
-			nvgText(ctx.vg, pos.x + 10, pos.y, text, NULL);			
-			snprintf(text, sizeof(text), "L : %d", module->uiPatt->length); 
+			snprintf(text, sizeof(text), "%s", module->uiPatt->getName().c_str());
+			nvgText(ctx.vg, pos.x + 10, pos.y, text, NULL);
+			snprintf(text, sizeof(text), "L : %d", module->uiPatt->length);
 			nvgText(ctx.vg, pos.x + 10, pos.y + 15, text, NULL);
 			switch(module->uiPatt->scale) {
 				case 0: 
-					snprintf(text, sizeof(text), "S : %dst", module->uiPatt->trans); 
+					snprintf(text, sizeof(text), "S : %dst", module->uiPatt->trans);
 					break;
 				case 1: 
-					snprintf(text, sizeof(text), "S : %dM", module->uiPatt->trans); 
+					snprintf(text, sizeof(text), "S : %dM", module->uiPatt->trans);
 					break;
 				case 2: 
-					snprintf(text, sizeof(text), "S : %dm", module->uiPatt->trans); 
+					snprintf(text, sizeof(text), "S : %dm", module->uiPatt->trans);
 					break;
 				default: snprintf(text, sizeof(text), "Error..."); break;
 			}
@@ -592,28 +590,28 @@ struct Arp32Display : TransparentWidget {
 
 		}
 	}
-	
+
 };
 
 struct Arp32Widget : ModuleWidget {
 
 	Arp32Widget(Arp32 *module) {
-		
+
 		setModule(module);
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Arp32p.svg")));
 
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 0, true, false), module, Arp32::PITCH_INPUT));
-		
-		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 0, 2, true, false), module, Arp32::PATT_PARAM)); 
+
+		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 0, 2, true, false), module, Arp32::PATT_PARAM));
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 3, true, false), module, Arp32::PATT_INPUT));
-		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 1, 2, true, false), module, Arp32::TRANS_PARAM)); 
+		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 1, 2, true, false), module, Arp32::TRANS_PARAM));
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 1, 3, true, false), module, Arp32::TRANS_INPUT)); 
-		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 2, 2, true, false), module, Arp32::LENGTH_PARAM)); 
+		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 2, 2, true, false), module, Arp32::LENGTH_PARAM));
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 2, 3, true, false), module, Arp32::LENGTH_INPUT));
 
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 4, true, false), module, Arp32::CLOCK_INPUT));
-		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 1, 4, true, false), module, Arp32::OFFSET_PARAM)); 
-		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 2, 4, true, false), module, Arp32::SCALE_PARAM)); 
+		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 1, 4, true, false), module, Arp32::OFFSET_PARAM));
+		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 2, 4, true, false), module, Arp32::SCALE_PARAM));
 
 		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 5, true, false), module, Arp32::OUT_OUTPUT));
 		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 1, 5, true, false), module, Arp32::GATE_OUTPUT));
@@ -662,8 +660,8 @@ struct Arp32Widget : ModuleWidget {
 		item->module = arp;
 		menu->addChild(item);
 
-     }
-	 
+	}
+
 };
 
 Model *modelArp32 = createModel<Arp32, Arp32Widget>("Arp32");

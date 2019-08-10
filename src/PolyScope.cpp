@@ -55,25 +55,25 @@ struct PolyScope : core::AHModule {
 			return;
 		}
 
-        FILE *file = fopen(path, "r");
-        if (!file) {
-                WARN("Could not load colour scheme file %s", path);
-                return;
-        }
-        DEFER({
-                fclose(file);
-        });
+		FILE *file = fopen(path, "r");
+		if (!file) {
+				WARN("Could not load colour scheme file %s", path);
+				return;
+		}
+		DEFER({
+				fclose(file);
+		});
 
-        json_error_t error;
-        json_t *rootJ = json_loadf(file, 0, &error);
-        if (!rootJ) {
-                std::string message = string::f("File is not a valid colour scheme file. JSON parsing error at %s %d:%d %s", error.source, error.line, error.column, error.text);
-                osdialog_message(OSDIALOG_WARNING, OSDIALOG_OK, message.c_str());
-                return;
-        }
-        DEFER({
-                json_decref(rootJ);
-        });
+		json_error_t error;
+		json_t *rootJ = json_loadf(file, 0, &error);
+		if (!rootJ) {
+				std::string message = string::f("File is not a valid colour scheme file. JSON parsing error at %s %d:%d %s", error.source, error.line, error.column, error.text);
+				osdialog_message(OSDIALOG_WARNING, OSDIALOG_OK, message.c_str());
+				return;
+		}
+		DEFER({
+				json_decref(rootJ);
+		});
 
 		this->path = path;
 
@@ -115,40 +115,40 @@ struct PolyScope : core::AHModule {
 		configParam(TIME_PARAM, 6.0f, 16.0f, 14.0f);
 
 		cMaps[0] = { // Classic
-		nvgRGBA(255,	0,	0, 240),	// 0	100		100
-		nvgRGBA(223,	0,	32, 240),	// 351	100		87
-		nvgRGBA(191,	0,	64, 240),	// 339	100		74
-		nvgRGBA(159,	0,	96, 240),	// 323	100		62	
-		nvgRGBA(128,	0,	128, 240),	// 300	100		50
-		nvgRGBA(96,	0,	159, 240),		// 276	100		62
-		nvgRGBA(64,	0,	191, 240),		// 260	100		74
-		nvgRGBA(32,	0,	223, 240),		// 248	100		91 -
-		nvgRGBA(0,	32,	223, 240),		// 231	120		91
-		nvgRGBA(0,	64,	191, 240),		// 219	100		74
-		nvgRGBA(0,	96,	159, 240),		// 203	100		62
-		nvgRGBA(0,	128,	128, 240),	// 180	100		50
-		nvgRGBA(0,	159,	96, 240),	// 156	100		62			
-		nvgRGBA(0,	191,	64, 240),	// 140	100		74
-		nvgRGBA(0,	223,	32, 240),	// 128	100		87
-		nvgRGBA(0,	255,	0, 240)};	// 120	100		100
+		nvgRGBA(255,	0,		0,		240),	// 0	100		100
+		nvgRGBA(223,	0,		32,		240),	// 351	100		87
+		nvgRGBA(191,	0,		64,		240),	// 339	100		74
+		nvgRGBA(159,	0,		96,		240),	// 323	100		62
+		nvgRGBA(128,	0,		128,	240),	// 300	100		50
+		nvgRGBA(96,		0,		159,	240),	// 276	100		62
+		nvgRGBA(64,		0,		191,	240),	// 260	100		74
+		nvgRGBA(32,		0,		223,	240),	// 248	100		91
+		nvgRGBA(0,		32,		223,	240),	// 231	120		91
+		nvgRGBA(0,		64,		191,	240),	// 219	100		74
+		nvgRGBA(0,		96,		159,	240),	// 203	100		62
+		nvgRGBA(0,		128,	128,	240),	// 180	100		50
+		nvgRGBA(0,		159,	96,		240),	// 156	100		62
+		nvgRGBA(0,		191,	64,		240),	// 140	100		74
+		nvgRGBA(0,		223,	32,		240),	// 128	100		87
+		nvgRGBA(0,		255,	0,		240)};	// 120	100		100
 
 		cMaps[1] = { // Constant V
-		nvgRGBA(255,	0,	0, 240),	// 0	100		100
-		nvgRGBA(255,	0,	38, 240),	// 351	100		87 
-		nvgRGBA(255,	0,	89, 240),	// 339	100		74
-		nvgRGBA(255,	0,	157, 240),	// 323	100		62
-		nvgRGBA(255,	0,	255, 240),	// 300	100		50
-		nvgRGBA(152,	0,	255, 240),	// 276	100		62
-		nvgRGBA(84,	0,	255, 240),		// 260	100		74
-		nvgRGBA(34,	0,	255, 240),		// 248	100		91
-		nvgRGBA(0,	38,	255, 240),		// 231	100		91
-		nvgRGBA(0,	89,	255, 240),		// 219	100		74
-		nvgRGBA(0,	157,	159, 240),	// 203	100		62
-		nvgRGBA(0,	255,	255, 240),	// 180	100		50
-		nvgRGBA(0,	255,	153, 240),	// 156	100		62
-		nvgRGBA(0,	255,	85, 240),	// 140	100		74
-		nvgRGBA(0,	255,	33, 240),	// 128	100		87
-		nvgRGBA(0,	255,	0, 240)};	// 120	100		100
+		nvgRGBA(255,	0,		0,		240),	// 0	100		100
+		nvgRGBA(255,	0,		38,		240),	// 351	100		87
+		nvgRGBA(255,	0,		89,		240),	// 339	100		74
+		nvgRGBA(255,	0,		157,	240),	// 323	100		62
+		nvgRGBA(255,	0,		255,	240),	// 300	100		50
+		nvgRGBA(152,	0,		255,	240),	// 276	100		62
+		nvgRGBA(84,		0,		255,	240),	// 260	100		74
+		nvgRGBA(34,		0,		255,	240),	// 248	100		91
+		nvgRGBA(0,		38,		255,	240),	// 231	100		91
+		nvgRGBA(0,		89,		255,	240),	// 219	100		74
+		nvgRGBA(0,		157,	159,	240),	// 203	100		62
+		nvgRGBA(0,		255,	255,	240),	// 180	100		50
+		nvgRGBA(0,		255,	153,	240),	// 156	100		62
+		nvgRGBA(0,		255,	85,		240),	// 140	100		74
+		nvgRGBA(0,		255,	33,		240),	// 128	100		87
+		nvgRGBA(0,		255,	0,		240)};	// 120	100		100
 
 		float dHue = 1.0f/16.0f;
 
@@ -171,13 +171,13 @@ struct PolyScope : core::AHModule {
 	}
 
 	json_t *dataToJson() override {
-    	json_t *rootJ = json_object();
+		json_t *rootJ = json_object();
 
-        json_object_set_new(rootJ, "cmap", json_integer((int) currCMap));
+		json_object_set_new(rootJ, "cmap", json_integer((int) currCMap));
 		json_object_set_new(rootJ, "path", json_string(path.c_str()));
 
-        return rootJ;
-    }
+		return rootJ;
+	}
 
 	void dataFromJson(json_t *rootJ) override {
 		// cmap
@@ -326,7 +326,6 @@ struct PolyScopeDisplay : TransparentWidget {
 	}
 };
 
-
 static void loadCMap(PolyScope *module) {
 
 	std::string dir;
@@ -419,10 +418,8 @@ struct PolyScopeWidget : ModuleWidget {
 		pathItem->module = scope;
 		menu->addChild(pathItem);
 
-     }
-
+	 }
 
 };
-
 
 Model *modelPolyScope = createModel<PolyScope, PolyScopeWidget>("PolyScope");

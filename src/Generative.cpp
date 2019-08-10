@@ -55,7 +55,6 @@ struct Generative : core::AHModule {
 
 		// LFO section
 		configParam(FREQ_PARAM, -8.0f, 10.0f, 1.0f, "Frequency");
-		// params[FREQ_PARAM].description = "Core LFO frequency";
 
 		struct WaveParamQuantity : engine::ParamQuantity {
 			std::string getDisplayValueString() override {
@@ -80,9 +79,9 @@ struct Generative : core::AHModule {
 				if (r < 0.3333f) {
 					dial = "|..";	
 				} else if (r > 0.6666f) {
-					dial = "..|";	
+					dial = "..|";
 				} else {
-					dial = ".|.";	
+					dial = ".|.";
 				}
 
 				switch(f) {
@@ -121,7 +120,7 @@ struct Generative : core::AHModule {
 		paramQuantities[NOISE_PARAM]->description = "Mix between the FM-AM modulated LFO and the internal noise source";
 
 		configParam(CLOCK_PARAM, -2.0, 6.0, 1.0, "Clock tempo", " bpm", 2.f, 60.f);
-		
+
 		configParam(PROB_PARAM, 0.0, 1.0, 1.0, "Clock-tick probability", "%", 0.0f, 100.0f);
 
 		configParam(DELAYL_PARAM, 1.0f, 2.0f, 1.0f, "Delay length", "ms", 2.0f, 500.0f, -1000.0f);
@@ -143,7 +142,7 @@ struct Generative : core::AHModule {
 		configParam(ATTN_PARAM, 0.0, 1.0, 1.0, "Level", "%", 0.0f, 100.0f);
 
 	}
-	
+
 	void process(const ProcessArgs &args) override;
 
 	json_t *dataToJson() override {
@@ -157,10 +156,9 @@ struct Generative : core::AHModule {
 		json_t *offsetJ = json_boolean(offset);
 		json_object_set_new(rootJ, "offset", offsetJ);
 
-
 		return rootJ;
 	}
-	
+
 	void dataFromJson(json_t *rootJ) override {
 		// quantise
 		json_t *quantiseJ = json_object_get(rootJ, "quantise");
@@ -171,7 +169,7 @@ struct Generative : core::AHModule {
 
 		// offset
 		json_t *offsetJ = json_object_get(rootJ, "offset");
-		
+
 		if (offsetJ) {
 			offset = json_boolean_value(offsetJ);
 		}
@@ -193,12 +191,12 @@ struct Generative : core::AHModule {
 	bool offset = false;
 	bool delayState = false;
 	bool gateState = false;
-	
+
 	// minimum and maximum slopes in volts per second
 	const float slewMin = 0.1;
 	const float slewMax = 10000.0;
 	const float slewRatio = slewMin / slewMax;
-	
+
 	// Amount of extra slew per voltage difference
 	const float shapeScale = 1.0 / 10.0;
 
@@ -208,7 +206,7 @@ struct Generative : core::AHModule {
 };
 
 void Generative::process(const ProcessArgs &args) {
-	
+
 	AHModule::step();
 
 	oscillator.setPitch(params[FREQ_PARAM].getValue() + params[FM_PARAM].getValue() * inputs[FM_INPUT].getVoltage());
@@ -240,7 +238,7 @@ void Generative::process(const ProcessArgs &args) {
 	// Shift the noise floor
 	if (offset) {
 		noise += 5.0f;
-	} 
+	}
 
 	float noiseLevel = clamp(params[NOISE_PARAM].getValue() + inputs[NOISE_INPUT].getVoltage(), 0.0f, 1.0f);
 
@@ -295,7 +293,7 @@ void Generative::process(const ProcessArgs &args) {
 				delayState = true;
 				delayPhase.trigger(delayTime);
 			}
-		} 
+		}
 	}
 
 	// In delay state and finished waiting
@@ -314,7 +312,7 @@ void Generative::process(const ProcessArgs &args) {
 		// Open the gate and set flags
 		gatePhase.trigger(gateTime);
 		gateState = true;
-		delayState = false;			
+		delayState = false;
 	}
 
 	// If not held slew voltages
@@ -372,13 +370,13 @@ void Generative::process(const ProcessArgs &args) {
 	outputs[NOISE_OUTPUT].setVoltage(noise * 2.0);
 	outputs[LFO_OUTPUT].setVoltage(interp);
 	outputs[MIXED_OUTPUT].setVoltage(mixedSignal);
-	
+
 }
 
 struct GenerativeWidget : ModuleWidget {
 	
 	GenerativeWidget(Generative *module) {
-		
+
 		setModule(module);
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Generative.svg")));
 

@@ -384,7 +384,7 @@ void Arp31::process(const ProcessArgs &args) {
 				restart = true;
 
 			} 
-							
+
 			// Finally set the out voltage
 			int i = currArp->getPitch();
 			outVolts = clamp(pitches[i], -10.0f, 10.0f);
@@ -405,7 +405,7 @@ void Arp31::process(const ProcessArgs &args) {
 		}
 
 	}
-	
+
 	// If we have been triggered, start a new sequence
 	if (restart) {
 

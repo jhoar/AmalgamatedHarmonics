@@ -35,7 +35,7 @@ struct MuxDeMux : core::AHModule {
 	bool mask = false;
 
 	void process(const ProcessArgs &args) override {
-	
+
 		AHModule::step();
 
 		float bias = 10.0f;
@@ -92,7 +92,7 @@ struct MuxDeMux : core::AHModule {
 struct MuxDeMuxWidget : ModuleWidget {
 
 	MuxDeMuxWidget(MuxDeMux *module) {
-		
+
 		setModule(module);
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/MuxDeMux.svg")));
 

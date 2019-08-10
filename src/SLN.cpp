@@ -60,7 +60,7 @@ struct SLN : core::AHModule {
 
 		configParam(ATTN_PARAM, 0.0, 1.0, 1.0, "Level", "%", 0.0f, 100.0f);
 	}
-	
+
 	void process(const ProcessArgs &args) override;
 
 	rack::dsp::SchmittTrigger inTrigger;
@@ -70,25 +70,25 @@ struct SLN : core::AHModule {
 
 	float target = 0.0f;
 	float current = 0.0f;
-	
+
 	// minimum and maximum slopes in volts per second
 	const float slewMin = 0.1;
 	const float slewMax = 10000.0;	
 	const float slewRatio = slewMin / slewMax;
-	
+
 	// Amount of extra slew per voltage difference
 	const float shapeScale = 1.0/10.0;
-	
+
 };
 
 void SLN::process(const ProcessArgs &args) {
-	
+
 	AHModule::step();
-	
+
 	float noise;
 	int noiseType = params[NOISE_PARAM].getValue();
 	float attn = params[ATTN_PARAM].getValue();
-	
+
 	switch(noiseType) {
 		case 0:
 			noise = clamp(white.next() * 10.0f, -10.0f, 10.f);
@@ -107,10 +107,10 @@ void SLN::process(const ProcessArgs &args) {
 	if (inTrigger.process(inputs[TRIG_INPUT].getVoltage() / 0.7)) {
 		target = noise;
 	} 
-				
+
 	float shape = params[SLOPE_PARAM].getValue();
 	float speed = params[SPEED_PARAM].getValue();
-	
+
 	float slew = slewMax * powf(slewRatio, speed);
 
 	// Rise
@@ -127,14 +127,14 @@ void SLN::process(const ProcessArgs &args) {
 	}
 
 	outputs[OUT_OUTPUT].setVoltage(current * attn);
-	outputs[NOISE_OUTPUT].setVoltage(noise);	
-	
+	outputs[NOISE_OUTPUT].setVoltage(noise);
+
 }
 
 struct SLNWidget : ModuleWidget {
 
 	SLNWidget(SLN *module) {
-	
+
 		setModule(module);
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/SLN.svg")));
 
@@ -145,7 +145,7 @@ struct SLNWidget : ModuleWidget {
 		Vec p1 = gui::getPosition(gui::PORT, 0, 0, false, false);
 		p1.x = portX;
 		addInput(createInput<PJ301MPort>(p1, module, SLN::TRIG_INPUT));
-			
+
 		Vec k1 = gui::getPosition(gui::PORT, 0, 2, false, true);
 		k1.x = 20;
 		addParam(createParam<gui::AHKnobNoSnap>(k1, module, SLN::SPEED_PARAM));

@@ -50,7 +50,7 @@ struct Imp : core::AHModule {
 		onReset();
 
 	}
-	
+
 	json_t *dataToJson() override {
 		json_t *rootJ = json_object();
 
@@ -60,7 +60,7 @@ struct Imp : core::AHModule {
 
 		return rootJ;
 	}
-	
+
 	void dataFromJson(json_t *rootJ) override {
 
 		// randomZero
@@ -71,7 +71,7 @@ struct Imp : core::AHModule {
 	}
 
 	void process(const ProcessArgs &args) override;
-	
+
 	void onReset() override {
 		coreDelayState = false;
 		coreGateState = false;
@@ -116,49 +116,49 @@ struct Imp : core::AHModule {
 	bool randomZero = true;
 
 	digital::BpmCalculator bpmCalc;
-		
+
 };
 
 void Imp::process(const ProcessArgs &args) {
-	
+
 	AHModule::step();
 
 	float dlyLen;
 	float dlySpr;
 	float gateLen;
 	float gateSpr;
-	
+
 	bool generateSignal = false;
-	
+
 	bool inputActive = inputs[TRIG_INPUT].isConnected();
 	bool haveTrigger = inTrigger.process(inputs[TRIG_INPUT].getVoltage());
-	
+
 	if (inputActive) {
-		
+
 		bpm = bpmCalc.calculateBPM(args.sampleTime, inputs[TRIG_INPUT].getVoltage());
-	
+
 		if (haveTrigger) {
 			if (debugEnabled()) { std::cout << stepX << " have active input and has received trigger" << std::endl; }
 			generateSignal = true;
 		}
 	} 
-	
+
 	dlyLen = log2(params[DELAY_PARAM].getValue());
 	dlySpr = log2(params[DELAYSPREAD_PARAM].getValue());
 	gateLen = log2(params[LENGTH_PARAM].getValue());
 	gateSpr = log2(params[LENGTHSPREAD_PARAM].getValue());
 	division = params[DIVISION_PARAM].getValue();
-	
+
 	delayTimeMs = dlyLen * 1000;
 	delaySprMs = dlySpr * 2000; // scaled by ±2 below
 	gateTimeMs = gateLen * 1000;
 	gateSprMs = gateSpr * 2000; // scaled by ±2 below
 	prob = params[PROB_PARAM].getValue() * 100.0f;
-			
+
 	if (generateSignal) {
 
 		counter++;
-	
+
 		if (debugEnabled()) { 
 			std::cout << stepX << " Div: " << ": Target: " << division << " Cnt: " << counter << " Exp: " << counter % division << std::endl; 
 		}
@@ -171,7 +171,7 @@ void Imp::process(const ProcessArgs &args) {
 
 				// Determine delay and gate times for all active outputs
 				coreDelayTime = clamp(dlyLen, 0.0f, 100.0f);
-			
+
 				// The modified gate time cannot be earlier than the start of the delay
 				coreGateTime = clamp(gateLen, digital::TRIGGER, 100.0f);
 
@@ -341,13 +341,13 @@ struct ImpBox : TransparentWidget {
 		nvgText(ctx.vg, pos.x + 27.5, pos.y + 6 * n, text, NULL);
 
 	}
-	
+
 };
 
 struct ImpWidget : ModuleWidget {
 
 	ImpWidget(Imp *module) {
-	
+
 		setModule(module);
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Imp.svg")));
 
@@ -376,7 +376,7 @@ struct ImpWidget : ModuleWidget {
 			display->division = &(module->division);
 			display->actDly = &(module->actDelayMs);
 			display->actGate = &(module->actGateMs);
-			
+
 			addChild(display);
 		}	
 	}
@@ -415,7 +415,7 @@ struct ImpWidget : ModuleWidget {
 		randomZeroItem->module = imp;
 		menu->addChild(randomZeroItem);
 
-     }
+	}
 
 };
 

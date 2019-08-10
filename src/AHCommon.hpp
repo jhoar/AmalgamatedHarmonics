@@ -12,9 +12,9 @@ namespace core {
 const double PI = 3.14159265358979323846264338327950288;
 
 struct ParamEvent {
-	
+
 	ParamEvent(int t, int i, float v) : pType(t), pId(i), value(v) {}
-	
+
 	int pType;
 	int pId;
 	float value;
@@ -28,9 +28,9 @@ struct AHModule : rack::Module {
 	}
 
 	int stepX = 0;
-	
+
 	bool debugFlag = false;
-	
+
 	inline bool debugEnabled() {
 		return debugFlag;
 	}
@@ -46,16 +46,16 @@ struct AHModule : rack::Module {
 	bool receiveEvents = false;
 	int keepStateDisplay = 0;
 	std::string paramState = ">";
-	
+
 	virtual void receiveEvent(ParamEvent e) {
 		paramState = ">";
 		keepStateDisplay = 0;
 	}
-	
+
 	void step() override {
-		
+
 		stepX++;
-	
+
 		// Once we start stepping, we can process events
 		receiveEvents = true;
 		// Timeout for display
@@ -63,9 +63,9 @@ struct AHModule : rack::Module {
 		if (keepStateDisplay > 50000) {
 			paramState = ">"; 
 		}
-		
+
 	}
-	
+
 };
 
 } // namespace core
@@ -81,7 +81,7 @@ struct AHChoice : LedDisplayChoice {
 };
 
 struct StateDisplay : TransparentWidget {
-	
+
 	core::AHModule *module;
 	std::shared_ptr<Font> font;
 
@@ -90,7 +90,7 @@ struct StateDisplay : TransparentWidget {
 	}
 
 	void draw(NVGcontext *vg) override {
-	
+
 		Vec pos = Vec(0, 15);
 
 		nvgFontSize(vg, 16);
@@ -98,13 +98,13 @@ struct StateDisplay : TransparentWidget {
 		nvgTextLetterSpacing(vg, -1);
 
 		nvgFillColor(vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
-	
+
 		char text[128];
 		snprintf(text, sizeof(text), "%s", module->paramState.c_str());
 		nvgText(vg, pos.x + 10, pos.y + 5, text, NULL);			
 
 	}
-	
+
 };
 
 struct AHParamWidget { // it's a mix-in
@@ -112,11 +112,11 @@ struct AHParamWidget { // it's a mix-in
 	int pType = -1; // Should be set by step<>(), but if not this allows us to catch pwidgets we are not interested in
 	int pId;
 	core::AHModule *mod = NULL;
-	
+
 	virtual core::ParamEvent generateEvent(float value) {
 		return core::ParamEvent(pType,pId,value);
 	};
-		
+
 	template <typename T = AHParamWidget>
 	static void set(T *param, int pType, int pId) {
 		param->pType = pType;
@@ -195,11 +195,11 @@ struct ModeParamQuantity : engine::ParamQuantity {
 };
 
 enum UIElement {
-    KNOB = 0,
-    PORT,
-    BUTTON,
-    LIGHT,
-    TRIMPOT
+	KNOB = 0,
+	PORT,
+	BUTTON,
+	LIGHT,
+	TRIMPOT
 };
 
 extern float Y_KNOB[2];
@@ -245,11 +245,11 @@ double gaussrand();
 struct AHPulseGenerator {
 	float time = 0.f;
 	float pulseTime = 0.f;
-	
+
 	bool ishigh() {
 			return time < pulseTime;
 	}
-	
+
 	bool process(float deltaTime) {
 		time += deltaTime;
 		return time < pulseTime;
@@ -268,12 +268,12 @@ struct AHPulseGenerator {
 };
 
 struct BpmCalculator {
-	
+
 	float timer = 0.0f;
 	int misses = 0;
 	float seconds = 0;
 	rack::dsp::SchmittTrigger gateTrigger;
-	
+
 	inline bool checkBeat(int mult) {
 		return ( ((timer - mult * seconds) * (timer - mult * seconds) / (seconds * seconds) < 0.2f ) && misses < 4);
 	}
@@ -509,18 +509,18 @@ extern int noteIndex[13];
 // http://www.grantmuller.com/MidiReference/doc/midiReference/ScaleReference.html
 // Although their definition of the Blues scale is wrong
 // Added the octave note to ensure that the last note is correctly processed
-extern int ASCALE_CHROMATIC      [13];
-extern int ASCALE_IONIAN         [8];
-extern int ASCALE_DORIAN         [8];
-extern int ASCALE_PHRYGIAN       [8];
-extern int ASCALE_LYDIAN         [8];
-extern int ASCALE_MIXOLYDIAN     [8]; 
-extern int ASCALE_AEOLIAN        [8];
-extern int ASCALE_LOCRIAN        [8];
-extern int ASCALE_MAJOR_PENTA    [6];
-extern int ASCALE_MINOR_PENTA    [6];
-extern int ASCALE_HARMONIC_MINOR [8];
-extern int ASCALE_BLUES          [7];
+extern int ASCALE_CHROMATIC			[13];
+extern int ASCALE_IONIAN			[8];
+extern int ASCALE_DORIAN			[8];
+extern int ASCALE_PHRYGIAN			[8];
+extern int ASCALE_LYDIAN			[8];
+extern int ASCALE_MIXOLYDIAN		[8];
+extern int ASCALE_AEOLIAN			[8];
+extern int ASCALE_LOCRIAN			[8];
+extern int ASCALE_MAJOR_PENTA		[6];
+extern int ASCALE_MINOR_PENTA		[6];
+extern int ASCALE_HARMONIC_MINOR	[8];
+extern int ASCALE_BLUES				[7];
 
 extern int CIRCLE_FIFTHS [12];
 

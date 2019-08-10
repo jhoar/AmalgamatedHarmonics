@@ -34,7 +34,7 @@ struct PolyProbe : core::AHModule {
 	PolyProbe() : core::AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {	}
 
 	void process(const ProcessArgs &args) override {
-	
+
 		AHModule::step();
 
 		if (inputs[POLYGATE_INPUT].isConnected()) {
@@ -63,7 +63,7 @@ struct PolyProbe : core::AHModule {
 			for (int i = 0; i < 16; i++) {
 				cv[i] = 0.0;
 			}
-		} 
+		}
 
 		nChannels = std::max(nCVChannels,nGateChannels);
 
@@ -71,10 +71,10 @@ struct PolyProbe : core::AHModule {
 };
 
 struct PolyProbeDisplay : TransparentWidget {
-	
+
 	PolyProbe *module;
 	std::shared_ptr<Font> font;
-	
+
 	PolyProbeDisplay() {
 		font = APP->window->loadFont(asset::plugin(pluginInstance, "res/EurostileBold.ttf"));
 	}
@@ -140,13 +140,13 @@ struct PolyProbeDisplay : TransparentWidget {
 			nvgText(ctx.vg, box.pos.x + 110, box.pos.y + i * 16 + j * 16, text1, NULL);
 		}
 	}
-	
+
 };
 
 struct PolyProbeWidget : ModuleWidget {
 
 	PolyProbeWidget(PolyProbe *module) {
-		
+
 		setModule(module);
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/PolyProbe.svg")));
 

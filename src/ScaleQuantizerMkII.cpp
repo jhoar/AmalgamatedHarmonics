@@ -40,7 +40,7 @@ struct ScaleQuantizer2 : core::AHModule {
 
 		configParam(TRANS_PARAM, -11.0f, 11.0f, 0.0f, "Global transposition", " semitones"); // 12 notes
 		paramQuantities[KEY_PARAM]->description = "Transposition of all outputs post-quantisation";
-		
+
 		for (int i = 0; i < 8; i++) {
 			configParam(SHIFT_PARAM + i, -3.0f, 3.0f, 0.0f, "Octave shift", " octaves");
 		}
@@ -53,7 +53,7 @@ struct ScaleQuantizer2 : core::AHModule {
 	int lastScale = 0;
 	int lastRoot = 0;
 	float lastTrans = -10000.0f;
-	
+
 	dsp::SchmittTrigger holdTrigger[8][16];
 	dsp::PulseGenerator triggerPulse[8][16];
 
@@ -61,16 +61,16 @@ struct ScaleQuantizer2 : core::AHModule {
 	float lastPitch[8][16] = {};
 
 	bool holdState[8][16];
-	
+
 	int currScale = 0;
 	int currRoot = 0;
 
 };
 
 void ScaleQuantizer2::process(const ProcessArgs &args) {
-	
+
 	AHModule::step();
-	
+
 	lastScale = currScale;
 	lastRoot = currRoot;
 
@@ -79,7 +79,7 @@ void ScaleQuantizer2::process(const ProcessArgs &args) {
 	} else {
 		currRoot = params[KEY_PARAM].getValue();
 	}
-	
+
 	if (inputs[SCALE_INPUT].isConnected()) {
 		currScale = music::getScaleFromVolts(inputs[SCALE_INPUT].getVoltage());
 	} else {
@@ -97,10 +97,10 @@ void ScaleQuantizer2::process(const ProcessArgs &args) {
 	}
 
 	for (int i = 0; i < 8; i++) {
-		float shift 		= params[SHIFT_PARAM + i].getValue();
-		int nCVChannels 	= inputs[IN_INPUT + i].getChannels();
-		int nHoldChannels 	= inputs[HOLD_INPUT + i].getChannels();
-		int nChannels 		= std::max(nCVChannels,nHoldChannels);
+		float shift			= params[SHIFT_PARAM + i].getValue();
+		int nCVChannels		= inputs[IN_INPUT + i].getChannels();
+		int nHoldChannels	= inputs[HOLD_INPUT + i].getChannels();
+		int nChannels		= std::max(nCVChannels,nHoldChannels);
 
 		outputs[OUT_OUTPUT + i].setChannels(nChannels);
 		outputs[TRIG_OUTPUT + i].setChannels(nChannels);
@@ -170,7 +170,7 @@ void ScaleQuantizer2::process(const ProcessArgs &args) {
 struct ScaleQuantizer2Widget : ModuleWidget {
 
 	ScaleQuantizer2Widget(ScaleQuantizer2 *module) {
-		
+
 		setModule(module);
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/ScaleQuantizerMkII.svg")));
 
@@ -185,7 +185,7 @@ struct ScaleQuantizer2Widget : ModuleWidget {
 			addInput(createInput<PJ301MPort>(Vec(6 + i * 29, 41), module, ScaleQuantizer2::IN_INPUT + i));
 			addParam(createParam<gui::AHTrimpotSnap>(Vec(9 + i * 29.1, 101), module, ScaleQuantizer2::SHIFT_PARAM + i));
 			addOutput(createOutput<PJ301MPort>(Vec(6 + i * 29, 125), module, ScaleQuantizer2::OUT_OUTPUT + i));
-			addInput(createInput<PJ301MPort>(Vec(6 + i * 29, 71), module, ScaleQuantizer2::HOLD_INPUT + i));		
+			addInput(createInput<PJ301MPort>(Vec(6 + i * 29, 71), module, ScaleQuantizer2::HOLD_INPUT + i));
 			addOutput(createOutput<PJ301MPort>(Vec(6 + i * 29, 155), module, ScaleQuantizer2::TRIG_OUTPUT + i));
 		}
 

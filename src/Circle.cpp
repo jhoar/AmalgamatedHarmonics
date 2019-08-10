@@ -57,32 +57,32 @@ struct Circle : core::AHModule {
 
 		return rootJ;
 	}
-	
+
 	void dataFromJson(json_t *rootJ) override {
 		// gateMode
 		json_t *scaleModeJ = json_object_get(rootJ, "scale");
-		
+
 		if (scaleModeJ) {
 			voltScale = (Scaling)json_integer_value(scaleModeJ);
 		}
 	}
-	
+
 	rack::dsp::SchmittTrigger rotLTrigger;
 	rack::dsp::SchmittTrigger rotRTrigger;
-	
+
 	rack::dsp::PulseGenerator stepPulse;
-	
+
 	int baseKeyIndex = 0;
 	int curKeyIndex = 0;
-	
+
 	int curMode = 0;
-		
+
 	int poll = 50000;
-		
+
 };
 
 void Circle::process(const ProcessArgs &args) {
-	
+
 	AHModule::step();
 
 	// Get inputs from Rack
@@ -111,11 +111,11 @@ void Circle::process(const ProcessArgs &args) {
 	}
 
 	curMode = newMode;
-		
+
 	// Process inputs
 	bool rotLStatus		= rotLTrigger.process(rotLInput);
 	bool rotRStatus		= rotRTrigger.process(rotRInput);
-		
+
 	if (rotLStatus) {
 		if (debugEnabled()) { std::cout << stepX << " Rotate left: " << curKeyIndex; }
 		if (voltScale == FIFTHS) {
@@ -130,10 +130,10 @@ void Circle::process(const ProcessArgs &args) {
 				curKeyIndex = curKeyIndex - 12;
 			}
 		}
-		
+
 		if (debugEnabled()) { std::cout << " -> " << curKeyIndex << std::endl;	}
 	} 
-	
+
 	if (rotRStatus) {
 		if (debugEnabled()) { std::cout << stepX << " Rotate right: " << curKeyIndex; }
 		if (voltScale == FIFTHS) {
@@ -150,19 +150,18 @@ void Circle::process(const ProcessArgs &args) {
 		}
 		if (debugEnabled()) { std::cout << " -> " << curKeyIndex << std::endl;	}
 	} 
-	
+
 	if (rotLStatus && rotRStatus) {
 		if (debugEnabled()) { std::cout << stepX << " Reset " << curKeyIndex << std::endl;	}
 		curKeyIndex = baseKeyIndex;
 	}
-	
-	
+
 	if (newKeyIndex != baseKeyIndex) {
 		if (debugEnabled()) { std::cout << stepX << " New base: " << newKeyIndex << std::endl;}
 		baseKeyIndex = newKeyIndex;
 		curKeyIndex = newKeyIndex;
 	}
-	
+
 	int curKey;
 	int baseKey;
 
@@ -174,10 +173,9 @@ void Circle::process(const ProcessArgs &args) {
 		baseKey = baseKeyIndex;		
 	}
 
-
 	float keyVolts = music::getVoltsFromKey(curKey);
 	float modeVolts = music::getVoltsFromMode(curMode);
-	
+
 	for (int i = 0; i < music::NUM_NOTES; i++) {
 		lights[CKEY_LIGHT + i].setBrightness(0.0);
 		lights[BKEY_LIGHT + i].setBrightness(0.0);
@@ -185,21 +183,21 @@ void Circle::process(const ProcessArgs &args) {
 
 	lights[CKEY_LIGHT + curKey].setBrightness(10.0);
 	lights[BKEY_LIGHT + baseKey].setBrightness(10.0);
-	
+
 	for (int i = 0; i < music::NUM_MODES; i++) {
 		lights[MODE_LIGHT + i].setBrightness(0.0);
 	}
 	lights[MODE_LIGHT + curMode].setBrightness(10.0);
-		
+
 	outputs[KEY_OUTPUT].setVoltage(keyVolts);
 	outputs[MODE_OUTPUT].setVoltage(modeVolts);
-	
+
 }
 
 struct CircleWidget : ModuleWidget {
 
 	CircleWidget(Circle *module) {
-		
+
 		setModule(module);
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Circle.svg")));
 
@@ -216,7 +214,7 @@ struct CircleWidget : ModuleWidget {
 
 			float cosDiv = cos(div * i);
 			float sinDiv = sin(div * i);
-		
+
 			float xPos  = sinDiv * 52.5;
 			float yPos  = cosDiv * 52.5;
 			float xxPos = sinDiv * 60.0;
@@ -228,9 +226,9 @@ struct CircleWidget : ModuleWidget {
 	//		gui::calculateKeyboard(i, xSpace, xOffset + 72.0, 165.0, &xPos, &yPos, &scale);
 			addChild(createLight<SmallLight<RedLight>>(Vec(xPos + 116.5, 149.5 - yPos), module, Circle::BKEY_LIGHT + music::CIRCLE_FIFTHS[i]));
 		}
-		
+
 		float xOffset = 18.0;
-		
+
 		for (int i = 0; i < 7; i++) {
 			float xPos = 2 * xOffset + i * 18.2;
 			addChild(createLight<SmallLight<GreenLight>>(Vec(xPos, 280.0), module, Circle::MODE_LIGHT + i));
@@ -275,8 +273,8 @@ struct CircleWidget : ModuleWidget {
 		item->module = circle;
 		menu->addChild(item);
 
-     }
-	 
+	}
+
 };
 
 Model *modelCircle = createModel<Circle, CircleWidget>("Circle");

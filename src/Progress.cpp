@@ -8,7 +8,7 @@ using namespace ah;
 struct Progress : core::AHModule {
 
 	const static int NUM_PITCHES = 6;
-	
+
 	enum ParamIds {
 		CLOCK_PARAM,
 		RUN_PARAM,
@@ -65,9 +65,9 @@ struct Progress : core::AHModule {
 		onReset();
 
 	}
-	
+
 	void process(const ProcessArgs &args) override;
-	
+
 	enum ParamType {
 		ROOT_TYPE,
 		CHORD_TYPE,
@@ -91,8 +91,7 @@ struct Progress : core::AHModule {
 		}
 		keepStateDisplay = 0;
 	}
-	
-		
+
 	json_t *dataToJson() override {
 		json_t *rootJ = json_object();
 
@@ -113,7 +112,7 @@ struct Progress : core::AHModule {
 
 		return rootJ;
 	}
-	
+
 	void dataFromJson(json_t *rootJ) override {
 		// running
 		json_t *runningJ = json_object_get(rootJ, "running");
@@ -135,17 +134,17 @@ struct Progress : core::AHModule {
 		if (gateModeJ)
 			gateMode = (GateMode)json_integer_value(gateModeJ);
 	}
-	
+
 	bool running = true;
-	
+
 	// for external clock
 	rack::dsp::SchmittTrigger clockTrigger; 
-	
+
 	// For buttons
 	rack::dsp::SchmittTrigger runningTrigger;
 	rack::dsp::SchmittTrigger resetTrigger;
 	rack::dsp::SchmittTrigger gateTriggers[8];
-		
+
 	rack::dsp::PulseGenerator gatePulse;
 
 	/** Phase of internal LFO */
@@ -165,13 +164,13 @@ struct Progress : core::AHModule {
 		CONTINUOUS,
 	};
 	GateMode gateMode = CONTINUOUS;
-		
+
 	bool modeMode = false;
 	bool prevModeMode = false;
-	
+
 	int offset = 24; 	// Repeated notes in chord and expressed in the chord definition as being transposed 2 octaves lower. 
 						// When played this offset needs to be removed (or the notes removed, or the notes transposed to an octave higher)
-	
+
 	float prevRootInput[8] = {-100.0, -100.0, -100.0, -100.0, -100.0, -100.0, -100.0, -100.0};
 	float prevChrInput[8] = {-100.0, -100.0, -100.0, -100.0, -100.0, -100.0, -100.0, -100.0};
 
@@ -187,28 +186,28 @@ struct Progress : core::AHModule {
 	float currQualityInput[8];
 
 	float currInvInput[8];
-	
+
 	int currMode;
 	int currKey;
 	int prevMode = -1;
 	int prevKey = -1;
-	
+
 	int currRoot[8];
 	int currChord[8];
 	int currInv[8];	
 
 	int currDegree[8];
 	int currQuality[8];
-	
+
 	float pitches[8][6];
 	float oldPitches[6];
-			
+
 	void onReset() override {
 		for (int i = 0; i < 8; i++) {
 			gates[i] = true;
 		}
 	}
-	
+
 	void setIndex(int index, int nSteps) {
 		phase = 0.0f;
 		this->index = index;
@@ -217,13 +216,13 @@ struct Progress : core::AHModule {
 		}
 		this->gatePulse.trigger(digital::TRIGGER);
 	}
-	
+
 };
 
 void Progress::process(const ProcessArgs &args) {
-	
+
 	AHModule::step();
-	
+
 	// Run
 	if (runningTrigger.process(params[RUN_PARAM].getValue())) {
 		running = !running;
@@ -281,7 +280,7 @@ void Progress::process(const ProcessArgs &args) {
 		prevKey = currKey;
 		
 	}
-	
+
 	// Read inputs
 	for (int step = 0; step < 8; step++) {
 		if (modeMode) {
@@ -301,32 +300,32 @@ void Progress::process(const ProcessArgs &args) {
 		}
 		currInvInput[step]  = params[INV_PARAM + step].getValue();
 	}
-	
+
 	// Remember mode
 	prevModeMode = modeMode;
-	
+
 	// Check for changes on all steps
 	for (int step = 0; step < 8; step++) {
-		
+
 		bool update = false;
-		
-		if (modeMode) {			
-		
+
+		if (modeMode) {
+
 			currDegreeInput[step]   = params[ROOT_PARAM + step].getValue();
 			currQualityInput[step] = params[CHORD_PARAM + step].getValue();
-							
+
 			if (prevDegreeInput[step] != currDegreeInput[step]) {
 				prevDegreeInput[step] = currDegreeInput[step];
 				update = true;
 			}
-		
+
 			if (prevQualityInput[step] != currQualityInput[step]) {
 				prevQualityInput[step]  = currQualityInput[step]; 
 				update = true;
 			}
-			
+
 			if (update) {
-				
+
 				// Get Degree (I- VII)
 				currDegree[step] = round(rescale(fabs(currDegreeInput[step]), 0.0f, 10.0f, 0.0f, music::NUM_DEGREES - 1)); 
 
@@ -345,7 +344,7 @@ void Progress::process(const ProcessArgs &args) {
 						currChord[step] = round(rescale(fabs(currQualityInput[step]), 0.0f, 10.0f, 91.0f, 98.0f));
 						break;		
 				}
-			
+
 			}
 
 		} else {
@@ -358,67 +357,67 @@ void Progress::process(const ProcessArgs &args) {
 				currRoot[step] = round(rescale(fabs(currRootInput[step]), 0.0f, 10.0f, 0.0f, music::NUM_NOTES - 1)); // Param range is 0 to 10, mapped to 0 to 11
 				update = true;
 			}
-		
+
 			if (prevChrInput[step] != currChrInput[step]) {
 				prevChrInput[step]  = currChrInput[step]; 
 				currChord[step] = round(rescale(fabs(currChrInput[step]), 0.0f, 10.0f, 1.0f, 98.0f)); // Param range is 0 to 10		
 				update = true;
 			}
-			
+
 		}
-		
+
 		// Inversions remain the same between Chord and Mode mode
 		if (prevInvInput[step] != currInvInput[step]) {
-			prevInvInput[step]  = currInvInput[step];		
+			prevInvInput[step]  = currInvInput[step];
 			currInv[step] = currInvInput[step];
 			update = true;
 		}
-		
+
 		// So, after all that, we calculate the pitch output
 		if (update) {
-					
+
 			int *chordArray;
-	
+
 			// Get the array of pitches based on the inversion
 			switch(currInv[step]) {
-				case music::ROOT:  		chordArray = music::ChordTable[currChord[step]].root; 	break;
-				case music::FIRST_INV:  	chordArray = music::ChordTable[currChord[step]].first; 	break;
-				case music::SECOND_INV:  chordArray = music::ChordTable[currChord[step]].second;	break;
+				case music::ROOT:		chordArray = music::ChordTable[currChord[step]].root; 	break;
+				case music::FIRST_INV:	chordArray = music::ChordTable[currChord[step]].first; 	break;
+				case music::SECOND_INV:	chordArray = music::ChordTable[currChord[step]].second;	break;
 				default: chordArray = music::ChordTable[currChord[step]].root;
 			}
-			
+
 			for (int j = 0; j < NUM_PITCHES; j++) {
-	
+
 				// Set the pitches for this step. If the chord has less than 6 notes, the empty slots are
 				// filled with repeated notes. These notes are identified by a  24 semi-tome negative
 				// offset. We correct for that offset now, pitching thaem back into the original octave.
 				// They could be pitched into the octave above (or below)
 				if (chordArray[j] < 0) {
-					pitches[step][j] = music::getVoltsFromPitch(chordArray[j] + offset,currRoot[step]);			
+					pitches[step][j] = music::getVoltsFromPitch(chordArray[j] + offset,currRoot[step]);
 				} else {
-					pitches[step][j] = music::getVoltsFromPitch(chordArray[j],currRoot[step]);			
-				}	
+					pitches[step][j] = music::getVoltsFromPitch(chordArray[j],currRoot[step]);
+				}
 			}
-		}	
+		}
 	}
-	
+
 	bool pulse = gatePulse.process(args.sampleTime);
-	
+
 	// Gate buttons
 	for (int i = 0; i < 8; i++) {
 		if (gateTriggers[i].process(params[GATE_PARAM + i].getValue())) {
 			gates[i] = !gates[i];
 		}
-		
+
 		bool gateOn = (running && i == index && gates[i]);
 		if (gateMode == TRIGGER) {
 			gateOn = gateOn && pulse;
 		} else if (gateMode == RETRIGGER) {
 			gateOn = gateOn && !pulse;
 		}
-		
+
 		outputs[GATE_OUTPUT + i].setVoltage(gateOn ? 10.0f : 0.0f);	
-		
+
 		if (i == index) {
 			if (gates[i]) {
 				// Gate is on and active = flash green
@@ -438,9 +437,8 @@ void Progress::process(const ProcessArgs &args) {
 				// Gate is off and not active = black
 				lights[GATE_LIGHTS + i * 2].setSmoothBrightness(0.0f, args.sampleTime);
 				lights[GATE_LIGHTS + i * 2 + 1].setSmoothBrightness(0.0f, args.sampleTime);
-			}			
+			}
 		}
-		
 	}
 
 	bool gatesOn = (running && gates[index]);
@@ -460,16 +458,16 @@ void Progress::process(const ProcessArgs &args) {
 	for (int i = 0; i < NUM_PITCHES; i++) {
 		outputs[PITCH_OUTPUT + i].setVoltage(pitches[index][i]);
 	}
-	
+
 }
 
 struct ProgressWidget : ModuleWidget {
 
 	ProgressWidget(Progress *module) {
-		
+
 		setModule(module);
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Progress.svg")));
-		
+
 		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 0, 0, true, false), module, Progress::CLOCK_PARAM));
 		addParam(createParam<gui::AHButton>(gui::getPosition(gui::BUTTON, 1, 0, true, false), module, Progress::RUN_PARAM));
 		addChild(createLight<MediumLight<GreenLight>>(gui::getPosition(gui::LIGHT, 1, 0, true, false), module, Progress::RUNNING_LIGHT));
@@ -478,7 +476,6 @@ struct ProgressWidget : ModuleWidget {
 		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 3, 0, true, false), module, Progress::STEPS_PARAM));
 		addChild(createLight<MediumLight<GreenLight>>(gui::getPosition(gui::LIGHT, 4, 0, true, false), module, Progress::GATES_LIGHT));
 
-	//	static const float portX[13] = {20, 58, 96, 135, 173, 212, 250, 288, 326, 364, 402, 440, 478};
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 1, true, false), module, Progress::CLOCK_INPUT));
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 1, 1, true, false), module, Progress::EXT_CLOCK_INPUT));
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 2, 1, true, false), module, Progress::RESET_INPUT));
@@ -499,7 +496,7 @@ struct ProgressWidget : ModuleWidget {
 			gui::AHKnobNoSnap *rootW = createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, i + 1, 4, true, true), module, Progress::ROOT_PARAM + i);
 			gui::AHParamWidget::set<gui::AHKnobNoSnap>(rootW, Progress::ROOT_TYPE, i);
 			addParam(rootW);
-			
+
 			gui::AHKnobNoSnap *chordW = createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, i + 1, 5, true, true), module, Progress::CHORD_PARAM + i);
 			gui::AHParamWidget::set<gui::AHKnobNoSnap>(chordW, Progress::CHORD_TYPE, i);
 			addParam(chordW);
@@ -510,12 +507,12 @@ struct ProgressWidget : ModuleWidget {
 
 			addParam(createParam<gui::AHButton>(gui::getPosition(gui::BUTTON, i + 1, 7, true, true), module, Progress::GATE_PARAM + i));
 			addChild(createLight<MediumLight<GreenRedLight>>(gui::getPosition(gui::LIGHT, i + 1, 7, true, true), module, Progress::GATE_LIGHTS + i * 2));
-					
+
 			addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, i + 1, 5, true, false), module, Progress::GATE_OUTPUT + i));
 		}
 
 		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 9, 5, true, false), module, Progress::GATES_OUTPUT));
-		
+
 		if (module != NULL) {
 			gui::StateDisplay *display = createWidget<gui::StateDisplay>(Vec(0, 135));
 			display->module = module;
@@ -559,10 +556,9 @@ struct ProgressWidget : ModuleWidget {
 		item->module = progress;
 		menu->addChild(item);
 
-     }
-	 
+	}
+
 };
 
 Model *modelProgress = createModel<Progress, ProgressWidget>("Progress");
-
 

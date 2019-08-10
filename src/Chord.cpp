@@ -36,7 +36,7 @@ struct Chord : core::AHModule {
 	enum LightIds {
 		NUM_LIGHTS
 	};
-	
+
 	Chord() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
 
 		float PI_180 = core::PI / 180.0;
@@ -111,7 +111,7 @@ struct Chord : core::AHModule {
 	}
 
 	void process(const ProcessArgs &args) override;
-		
+
 	int poll = 50000;
 
 	rack::dsp::SchmittTrigger moveTrigger;
@@ -122,7 +122,7 @@ struct Chord : core::AHModule {
 };
 
 void Chord::process(const ProcessArgs &args) {
-	
+
 	AHModule::step();
 
 	float out[2] = {0.0f, 0.0f};

@@ -78,7 +78,7 @@ struct Galaxy : core::AHModule {
 		ENUMS(BAD_LIGHT,2),
 		NUM_LIGHTS
 	};
-	
+
 	Galaxy() : core::AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
 		configParam(KEY_PARAM, 0.0, 11.0, 0.0, "Key");
 		paramQuantities[KEY_PARAM]->description = "Key from which chords are selected"; 
@@ -114,7 +114,7 @@ struct Galaxy : core::AHModule {
 
 		return rootJ;
 	}
-	
+
 	void dataFromJson(json_t *rootJ) override {
 
 		// offset
@@ -154,11 +154,6 @@ struct Galaxy : core::AHModule {
 
 	music::KnownChords knownChords;
 
-	// int degree = 0;
-	// int quality = 0;
-	// int noteIndex = 0; 
-	// int inversion = 0;
-
 	int lastQuality = 0;
 	int lastNoteIndex = 0; 
 	int lastInversion = 0;
@@ -170,9 +165,9 @@ struct Galaxy : core::AHModule {
 	bool haveRoot = false;
 	bool haveMode = false;
 
-	int offset = 12; 	   // 0 = random, 12 = lower octave, 24 = repeat, 36 = upper octave
-	int mode = 1; 	   // 0 = random chord, 1 = chord in key, 2 = chord in mode
-	int allowedInversions = 0; // 0 = root only, 1 = root + first, 2 = root, first, second
+	int offset = 12;			// 0 = random, 12 = lower octave, 24 = repeat, 36 = upper octave
+	int mode = 1;				// 0 = random chord, 1 = chord in key, 2 = chord in mode
+	int allowedInversions = 0;	// 0 = root only, 1 = root + first, 2 = root, first, second
 
 	std::string rootName = "";
 	std::string modeName = "";
@@ -182,7 +177,7 @@ struct Galaxy : core::AHModule {
 };
 
 void Galaxy::process(const ProcessArgs &args) {
-	
+
 	AHModule::step();
 
 	int badLight = 0;
@@ -296,7 +291,6 @@ void Galaxy::process(const ProcessArgs &args) {
 
 		}
 
-
 	}
 
 	if (badLight == 1) { // Green (scale->key)
@@ -397,7 +391,7 @@ struct GalaxyDisplay : TransparentWidget {
 
 		if (module == NULL) {
 			return;
-	    }
+		}
 	
 		nvgFontSize(ctx.vg, 12);
 		nvgFontFaceId(ctx.vg, font->handle);
@@ -420,7 +414,7 @@ struct GalaxyDisplay : TransparentWidget {
 		nvgText(ctx.vg, box.size.x - 5, box.pos.y + 11, text, NULL);
 
 	}
-	
+
 };
 
 struct GalaxyWidget : ModuleWidget {
@@ -568,7 +562,7 @@ struct GalaxyWidget : ModuleWidget {
 		invItem->module = galaxy;
 		menu->addChild(invItem);
 
-     }
+	}
 
 };
 

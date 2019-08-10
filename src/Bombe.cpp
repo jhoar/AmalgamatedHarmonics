@@ -87,7 +87,7 @@ struct Bombe : core::AHModule {
 
 		return rootJ;
 	}
-	
+
 	void dataFromJson(json_t *rootJ) override {
 
 		// offset
@@ -113,9 +113,9 @@ struct Bombe : core::AHModule {
  	int MajorScale[7] = {0,2,4,5,7,9,11};
 	int Quality2Chord[N_QUALITIES] = { 0, 1, 54 }; // M, m, dim
 	int QualityMap[3][QMAP_SIZE] = { 
-		{00,00,00,00,00,00,00,00,00,00,07,07,07,07,07,07,07,07,06,06}, // M Maj7 7
-		{01,01,01,01,01,01,01,01,01,01,38,38,38,38,38,38,38,38,06,06}, // m m7 7
-		{54,54,54,54,54,54,54,54,54,54,56,56,56,56,56,56,56,56,56,56}  // dim dimM7
+		{00,00,00,00,00,00,00,00,00,00,07,07,07,07,07,07,07,07,06,06},	// M Maj7 7
+		{01,01,01,01,01,01,01,01,01,01,38,38,38,38,38,38,38,38,06,06},	// m m7 7
+		{54,54,54,54,54,54,54,54,54,54,56,56,56,56,56,56,56,56,56,56}	// dim dimM7
 	};
 
 	int InversionMap[3][QMAP_SIZE] = { 
@@ -123,7 +123,7 @@ struct Bombe : core::AHModule {
 		{0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1},
 		{0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,2,2},
 	};
-	
+
 	int poll = 50000;
 
 	rack::dsp::SchmittTrigger clockTrigger;
@@ -133,9 +133,9 @@ struct Bombe : core::AHModule {
 	int currInversion = 0;
 	int length = 16;
 
-	int offset = 12; 	   // 0 = random, 12 = lower octave, 24 = repeat, 36 = upper octave
-	int mode = 1; 	   // 0 = random chord, 1 = chord in key, 2 = chord in mode
-	int allowedInversions = 0; // 0 = root only, 1 = root + first, 2 = root, first, second
+	int offset = 12; 			// 0 = random, 12 = lower octave, 24 = repeat, 36 = upper octave
+	int mode = 1; 				// 0 = random chord, 1 = chord in key, 2 = chord in mode
+	int allowedInversions = 0;	// 0 = root only, 1 = root + first, 2 = root, first, second
 
 	music::KnownChords knownChords;
 
@@ -149,7 +149,7 @@ struct Bombe : core::AHModule {
 };
 
 void Bombe::process(const ProcessArgs &args) {
-	
+
 	AHModule::step();
 
 	// Get inputs from Rack
@@ -356,7 +356,7 @@ struct BombeDisplay : TransparentWidget {
 
 		if (module == NULL) {
 			return;
-	    }
+		}
 
 		nvgFontSize(ctx.vg, 14);
 		nvgFontFaceId(ctx.vg, font->handle);

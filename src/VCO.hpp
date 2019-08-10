@@ -66,7 +66,6 @@ struct LowFrequencyOscillator {
 	}
 };
 
-
 // A 'portable' version of Andrew Belt's EvenVCO code, which is much less CPU intensive than VCO-1 or -2
 struct EvenVCO {
 

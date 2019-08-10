@@ -30,7 +30,7 @@ struct ProgressState {
 	ChordMode chordMode = ChordMode::NORMAL;  // 0 == Chord, 1 = Mode, 2 = Coerce
 	int offset = 24; 	// Repeated notes in chord and expressed in the chord definition as being transposed 2 octaves lower. 
 						// When played this offset needs to be removed (or the notes removed, or the notes transposed to an octave higher)
-	
+
 	music::KnownChords knownChords;
 
 	ProgressChord parts[32][8];
@@ -41,7 +41,7 @@ struct ProgressState {
 
 	void onReset();
 	void update();
-	
+
 	void toggleGate(int part, int step);
 	bool gateState(int part, int step);
 	void calculateVoltages(int part, int step);

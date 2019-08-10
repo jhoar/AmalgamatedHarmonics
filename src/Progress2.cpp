@@ -10,7 +10,7 @@ using namespace ah;
 struct Progress2 : core::AHModule {
 
 	const static int NUM_PITCHES = 6;
-	
+
 	enum ParamIds {
 		CLOCK_PARAM,
 		RUN_PARAM,
@@ -73,9 +73,9 @@ struct Progress2 : core::AHModule {
 		onReset();
 
 	}
-	
+
 	void process(const ProcessArgs &args) override;
-			
+
 	json_t *dataToJson() override {
 		json_t *rootJ = json_object();
 
@@ -91,7 +91,7 @@ struct Progress2 : core::AHModule {
 
 		return rootJ;
 	}
-	
+
 	void dataFromJson(json_t *rootJ) override {
 
 		// running
@@ -110,18 +110,18 @@ struct Progress2 : core::AHModule {
 			pState.fromJson(pStateJ);
 
 	}
-	
+
 	bool running = true;
-	
+
 	// for external clock
 	rack::dsp::SchmittTrigger clockTrigger; 
-	
+
 	// For buttons
 	rack::dsp::SchmittTrigger runningTrigger;
 	rack::dsp::SchmittTrigger resetTrigger;
 	rack::dsp::SchmittTrigger gateTriggers[8];
 	rack::dsp::SchmittTrigger copyTrigger;
-		
+
 	rack::dsp::PulseGenerator gatePulse;
 
 	/** Phase of internal LFO */
@@ -146,7 +146,7 @@ struct Progress2 : core::AHModule {
 	void onReset() override {
 		pState.onReset();
 	}
-	
+
 	void setIndex(int index, int nSteps) {
 		phase = 0.0f;
 		this->index = index;
@@ -155,13 +155,13 @@ struct Progress2 : core::AHModule {
 		}
 		this->gatePulse.trigger(digital::TRIGGER);
 	}
-	
+
 };
 
 void Progress2::process(const ProcessArgs &args) {
-	
+
 	AHModule::step();
-	
+
 	// Run
 	if (runningTrigger.process(params[RUN_PARAM].getValue())) {
 		running = !running;
@@ -219,22 +219,22 @@ void Progress2::process(const ProcessArgs &args) {
 
 	// So, after all that, we calculate the pitch output
 	bool pulse = gatePulse.process(args.sampleTime);
-	
+
 	// Gate buttons
 	for (int i = 0; i < 8; i++) {
 		if (gateTriggers[i].process(params[GATE_PARAM + i].getValue())) {
 			pState.toggleGate(pState.currentPart, i);
 		}
-		
+
 		bool gateOn = (running && i == index && pState.gateState(pState.currentPart, i));
 		if (gateMode == TRIGGER) {
 			gateOn = gateOn && pulse;
 		} else if (gateMode == RETRIGGER) {
 			gateOn = gateOn && !pulse;
 		}
-		
+
 		outputs[GATE_OUTPUT + i].setVoltage(gateOn ? 10.0f : 0.0f);	
-		
+
 		if (i == index) {
 			if (pState.gateState(pState.currentPart, i)) {
 				// Gate is on and active = flash green
@@ -278,16 +278,16 @@ void Progress2::process(const ProcessArgs &args) {
 	for (int i = 0; i < NUM_PITCHES; i++) {
 		outputs[PITCH_OUTPUT].setVoltage(volts[i], i);
 	}
-	
+
 }
 
 struct Progress2Widget : ModuleWidget {
 
 	Progress2Widget(Progress2 *module) {
-		
+
 		setModule(module);
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Progress2.svg")));
-		
+
 		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 0, 0, true, false), module, Progress2::CLOCK_PARAM));
 		addParam(createParam<gui::AHButton>(gui::getPosition(gui::BUTTON, 1, 0, true, false), module, Progress2::RUN_PARAM));
 		addChild(createLight<MediumLight<GreenLight>>(gui::getPosition(gui::LIGHT, 1, 0, true, false), module, Progress2::RUNNING_LIGHT));
@@ -295,7 +295,6 @@ struct Progress2Widget : ModuleWidget {
 		addChild(createLight<MediumLight<GreenLight>>(gui::getPosition(gui::LIGHT, 2, 0, true, false), module, Progress2::RESET_LIGHT));
 		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 3, 0, true, false), module, Progress2::STEPS_PARAM));
 
-	//	static const float portX[13] = {20, 58, 96, 135, 173, 212, 250, 288, 326, 364, 402, 440, 478};
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 1, true, false), module, Progress2::CLOCK_INPUT));
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 1, 1, true, false), module, Progress2::EXT_CLOCK_INPUT));
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 2, 1, true, false), module, Progress2::RESET_INPUT));
@@ -321,7 +320,7 @@ struct Progress2Widget : ModuleWidget {
 			addChild(createLight<MediumLight<GreenRedLight>>(gui::getPosition(gui::LIGHT, i + 1, 8, true, true, 0.0f, -4.0f), module, Progress2::GATE_LIGHTS + i * 2));
 			addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, i + 1, 5, true, false), module, Progress2::GATE_OUTPUT + i));
 		}
-		
+
 		ProgressStateWidget *stateWidget = createWidget<ProgressStateWidget>(Vec(5.0, 130.0));
 		stateWidget->box.size = Vec(300, 165);
 		stateWidget->setPState(module ? &module->pState : NULL);
@@ -421,8 +420,8 @@ struct Progress2Widget : ModuleWidget {
 		offsetItem->module = progress;
 		menu->addChild(offsetItem);
 
-     }
-	 
+	}
+
 };
 
 Model *modelProgress2 = createModel<Progress2, Progress2Widget>("Progress2");
