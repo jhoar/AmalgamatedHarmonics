@@ -201,6 +201,25 @@ struct PolyProbe : core::AHModule {
 		}
 	}
 
+	json_t *dataToJson() override {
+		json_t *rootJ = json_object();
+
+		// algo
+		json_t *algoJ = json_integer((int) algo);
+		json_object_set_new(rootJ, "algo", algoJ);
+
+		return rootJ;
+	}
+
+	void dataFromJson(json_t *rootJ) override {
+
+		// algo
+		json_t *algoJ = json_object_get(rootJ, "algo");
+		if (algoJ)
+			algo = json_integer_value(algoJ);
+
+	}
+
 	void process(const ProcessArgs &args) override {
 
 		AHModule::step();
@@ -341,7 +360,7 @@ struct PolyProbeWidget : ModuleWidget {
 			Menu *createChildMenu() override {
 				Menu *menu = new Menu;
 				std::vector<int> algo = {0, 1, 2, 3};
-				std::vector<std::string> names = {"B", "A+B", "A-B", "Note(A+B)"};
+				std::vector<std::string> names = {"B", "A + B", "A - B", "Note(A+B)"};
 				for (size_t i = 0; i < algo.size(); i++) {
 					AlgoItem *item = createMenuItem<AlgoItem>(names[i], CHECKMARK(module->algo == algo[i]));
 					item->module = module;
