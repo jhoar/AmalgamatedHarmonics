@@ -169,7 +169,9 @@ struct PolyProbe : core::AHModule {
 		NUM_LIGHTS
 	};
 
-	Algorithm *currAlgo[16];
+	int algo = 0;
+
+	Algorithm *algorithms[4][16];
 	bAlgorithm bAlgo[16];
 	sumAlgorithm sumAlgo[16];
 	subAlgorithm subAlgo[16];
@@ -186,7 +188,16 @@ struct PolyProbe : core::AHModule {
 
 	PolyProbe() : core::AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {	
 		for (int i = 0; i < 16; i++) {
-			currAlgo[i] = &noteAlgo[i];
+			algorithms[0][i] = &bAlgo[i];
+		}
+		for (int i = 0; i < 16; i++) {
+			algorithms[1][i] = &sumAlgo[i];
+		}
+		for (int i = 0; i < 16; i++) {
+			algorithms[2][i] = &subAlgo[i];
+		}
+		for (int i = 0; i < 16; i++) {
+			algorithms[3][i] = &noteAlgo[i];
 		}
 	}
 
@@ -216,8 +227,8 @@ struct PolyProbe : core::AHModule {
 
 		for (int i = 0; i < 16; i++) {
 			cvA[i] = inputs[POLYCVA_INPUT].getVoltage(i);
-			currAlgo[i]->addSample(cvA[i], cvB[i]);
-			outputs[POLYALGO_OUTPUT].setVoltage(currAlgo[i]->asValue(), i);
+			algorithms[algo][i]->addSample(cvA[i], cvB[i]);
+			outputs[POLYALGO_OUTPUT].setVoltage(algorithms[algo][i]->asValue(), i);
 		}
 
 		nChannels = std::max(nCVAChannels,nCVBChannels);
@@ -277,11 +288,11 @@ struct PolyProbeDisplay : TransparentWidget {
 			}
 			nvgText(ctx.vg, box.pos.x + 5, box.pos.y + i * 16 + j * 16, text, NULL);		
 
-			module->currAlgo[i]->calculate();
+			module->algorithms[module->algo][i]->calculate();
 
-			if (module->currAlgo[i]->isValid()) {
+			if (module->algorithms[module->algo][i]->isValid()) {
 				nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
-				snprintf(text1, sizeof(text1), "%s", module->currAlgo[i]->asString().c_str());
+				snprintf(text1, sizeof(text1), "%s", module->algorithms[module->algo][i]->asString().c_str());
 			} else {
 				nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0x6F));
 				snprintf(text1, sizeof(text1), "--");
@@ -309,6 +320,42 @@ struct PolyProbeWidget : ModuleWidget {
 			displayW->module = module;
 			addChild(displayW);
 		}
+
+	}
+
+	void appendContextMenu(Menu *menu) override {
+
+		PolyProbe *probe = dynamic_cast<PolyProbe*>(module);
+		assert(probe);
+
+		struct AlgoItem : MenuItem {
+			PolyProbe *module;
+			int algo;
+			void onAction(const rack::event::Action &e) override {
+				module->algo = algo;
+			}
+		};
+
+		struct AlgoMenu : MenuItem {
+			PolyProbe *module;
+			Menu *createChildMenu() override {
+				Menu *menu = new Menu;
+				std::vector<int> algo = {0, 1, 2, 3};
+				std::vector<std::string> names = {"B", "A+B", "A-B", "Note(A+B)"};
+				for (size_t i = 0; i < algo.size(); i++) {
+					AlgoItem *item = createMenuItem<AlgoItem>(names[i], CHECKMARK(module->algo == algo[i]));
+					item->module = module;
+					item->algo = algo[i];
+					menu->addChild(item);
+				}
+				return menu;
+			}
+		};
+
+		menu->addChild(construct<MenuLabel>());
+		AlgoMenu *algoItem = createMenuItem<AlgoMenu>("Algorithm");
+		algoItem->module = probe;
+		menu->addChild(algoItem);
 
 	}
 
