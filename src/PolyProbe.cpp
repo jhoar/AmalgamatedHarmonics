@@ -9,90 +9,77 @@ struct Algorithm {
 
 	float a;
 	float b;
+	float outV;
+	bool valid = true;
+	std::string  outS;
+
+	enum Algorithms {
+		B,
+		SUM,
+		DIFF,
+		NOTE
+	};
 
 	virtual void reset() {};
 
 	virtual void addSample(float _a, float _b) {
 		a = _a;
 		b = _b;
-	};
-
-	virtual void calculate() = 0;;
-
-	virtual float asValue() = 0;
-
-	virtual std::string asString() = 0;
-
-	virtual bool isValid() {
-		return true;
-	};
-
-};
-
-struct bAlgorithm : Algorithm {
-
-	void calculate() {}
-
-	float asValue() override {
-		return b; 
 	}
 
-	std::string asString() override {
-		return std::to_string(b);
+	// Must set outV and outS
+	// May update valid
+	void calculate(Algorithms a) {
+		switch(a) {
+			case B:
+				algoB();
+				break;
+			case SUM:
+				algoSum();
+				break;
+			case DIFF:
+				algoDiff();
+				break;
+			case NOTE:
+				algoNote();
+				break;
+		}
 	}
 
-};
-
-struct sumAlgorithm : Algorithm {
-
-	float sum;
-
-	void calculate() {
-		sum = a + b;
+	float asValue() {
+		return outV; 
 	}
 
-	float asValue() override {
-		return sum; 
+	std::string asString() {
+		return outS;
 	}
 
-	std::string asString() override {
-		return std::to_string(sum);
+	bool isValid() {
+		return valid;
 	}
 
-};
-
-struct subAlgorithm : Algorithm {
-
-	float diff;
-
-	void calculate() {
-		diff = a - b;
+	void algoB() {
+		outV = b;
+		outS = std::to_string(outV);
 	}
 
-	float asValue() override {
-		return diff; 
+	void algoSum() {
+		outV = a + b;
+		outS = std::to_string(outV);
 	}
 
-	std::string asString() override {
-		return std::to_string(diff);
+	void algoDiff() {
+		outV = a - b;
+		outS = std::to_string(outV);
 	}
 
-};
+	void algoNote() {
 
-struct noteAlgorithm : Algorithm {
+		int octave;
+		int semitone;
+		int cents;
 
-	float v;
-	int octave;
-	int semitone;
-	int cents;
-
-	std::string note;
-	float quantisedNote;
-	bool valid;
-
-	void calculate() override {
-
-		v = a + b;
+		float v = a + b;
 
 		if (v < -10.0 || v > 10.0) {
 			valid = false;
@@ -126,28 +113,19 @@ struct noteAlgorithm : Algorithm {
 			}
 		}
 
-		quantisedNote = octV + semitone * music::SEMITONE;
+		outV = octV + semitone * music::SEMITONE;
+
+		if (cents == 0) {
+			outS = music::noteNames[semitone] + std::to_string(octave);
+		} else if (cents < 0) {
+			outS = music::noteNames[semitone] + std::to_string(octave) + std::to_string(cents);
+		} else {
+			outS = music::noteNames[semitone] + std::to_string(octave) + "+" + std::to_string(cents);
+		}
+
 		valid = true;
 
 	}
-
-	float asValue() override {
-		return quantisedNote; 
-	}
-
-	std::string asString() override {
-		if (cents == 0) {
-			return music::noteNames[semitone] + std::to_string(octave);
-		} else if (cents < 0) {
-			return music::noteNames[semitone] + std::to_string(octave) + std::to_string(cents);
-		} else {
-			return music::noteNames[semitone] + std::to_string(octave) + "+" + std::to_string(cents);
-		}
-	}
-
-	bool isValid() {
-		return valid;
-	};
 
 };
 
@@ -169,13 +147,8 @@ struct PolyProbe : core::AHModule {
 		NUM_LIGHTS
 	};
 
-	int algo = 0;
-
-	Algorithm *algorithms[4][16];
-	bAlgorithm bAlgo[16];
-	sumAlgorithm sumAlgo[16];
-	subAlgorithm subAlgo[16];
-	noteAlgorithm noteAlgo[16];
+	Algorithm::Algorithms currAlgo = Algorithm::B;
+	Algorithm algorithms[16];
 
 	int nChannels = 0;
 	int nCVAChannels = 0;
@@ -187,25 +160,14 @@ struct PolyProbe : core::AHModule {
 	float cvB[16];
 
 	PolyProbe() : core::AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {	
-		for (int i = 0; i < 16; i++) {
-			algorithms[0][i] = &bAlgo[i];
-		}
-		for (int i = 0; i < 16; i++) {
-			algorithms[1][i] = &sumAlgo[i];
-		}
-		for (int i = 0; i < 16; i++) {
-			algorithms[2][i] = &subAlgo[i];
-		}
-		for (int i = 0; i < 16; i++) {
-			algorithms[3][i] = &noteAlgo[i];
-		}
+
 	}
 
 	json_t *dataToJson() override {
 		json_t *rootJ = json_object();
 
 		// algo
-		json_t *algoJ = json_integer((int) algo);
+		json_t *algoJ = json_integer((int) currAlgo);
 		json_object_set_new(rootJ, "algo", algoJ);
 
 		return rootJ;
@@ -216,7 +178,7 @@ struct PolyProbe : core::AHModule {
 		// algo
 		json_t *algoJ = json_object_get(rootJ, "algo");
 		if (algoJ)
-			algo = json_integer_value(algoJ);
+			currAlgo = (Algorithm::Algorithms)json_integer_value(algoJ);
 
 	}
 
@@ -246,8 +208,8 @@ struct PolyProbe : core::AHModule {
 
 		for (int i = 0; i < 16; i++) {
 			cvA[i] = inputs[POLYCVA_INPUT].getVoltage(i);
-			algorithms[algo][i]->addSample(cvA[i], cvB[i]);
-			outputs[POLYALGO_OUTPUT].setVoltage(algorithms[algo][i]->asValue(), i);
+			algorithms[i].addSample(cvA[i], cvB[i]);
+			outputs[POLYALGO_OUTPUT].setVoltage(algorithms[i].asValue(), i);
 		}
 
 		nChannels = std::max(nCVAChannels,nCVBChannels);
@@ -307,11 +269,11 @@ struct PolyProbeDisplay : TransparentWidget {
 			}
 			nvgText(ctx.vg, box.pos.x + 5, box.pos.y + i * 16 + j * 16, text, NULL);		
 
-			module->algorithms[module->algo][i]->calculate();
+			module->algorithms[i].calculate(module->currAlgo);
 
-			if (module->algorithms[module->algo][i]->isValid()) {
+			if (module->algorithms[i].isValid()) {
 				nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
-				snprintf(text1, sizeof(text1), "%s", module->algorithms[module->algo][i]->asString().c_str());
+				snprintf(text1, sizeof(text1), "%s", module->algorithms[i].asString().c_str());
 			} else {
 				nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0x6F));
 				snprintf(text1, sizeof(text1), "--");
@@ -349,9 +311,9 @@ struct PolyProbeWidget : ModuleWidget {
 
 		struct AlgoItem : MenuItem {
 			PolyProbe *module;
-			int algo;
+			Algorithm::Algorithms algo;
 			void onAction(const rack::event::Action &e) override {
-				module->algo = algo;
+				module->currAlgo = algo;
 			}
 		};
 
@@ -359,10 +321,14 @@ struct PolyProbeWidget : ModuleWidget {
 			PolyProbe *module;
 			Menu *createChildMenu() override {
 				Menu *menu = new Menu;
-				std::vector<int> algo = {0, 1, 2, 3};
+				std::vector<Algorithm::Algorithms> algo = {
+					Algorithm::Algorithms::B, 
+					Algorithm::Algorithms::SUM, 
+					Algorithm::Algorithms::DIFF, 
+					Algorithm::Algorithms::NOTE};
 				std::vector<std::string> names = {"B", "A + B", "A - B", "Note(A+B)"};
 				for (size_t i = 0; i < algo.size(); i++) {
-					AlgoItem *item = createMenuItem<AlgoItem>(names[i], CHECKMARK(module->algo == algo[i]));
+					AlgoItem *item = createMenuItem<AlgoItem>(names[i], CHECKMARK(module->currAlgo == algo[i]));
 					item->module = module;
 					item->algo = algo[i];
 					menu->addChild(item);
