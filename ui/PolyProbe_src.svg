@@ -10,7 +10,7 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="240"
+   width="355"
    height="380"
    id="svg11791"
    version="1.1"
@@ -955,13 +955,13 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="2.1657895"
-     inkscape:cx="31.664647"
+     inkscape:cx="-69.684076"
      inkscape:cy="183.30571"
      inkscape:current-layer="layer2"
      showgrid="false"
      units="mm"
-     inkscape:window-width="1780"
-     inkscape:window-height="1046"
+     inkscape:window-width="5021"
+     inkscape:window-height="2126"
      inkscape:window-x="129"
      inkscape:window-y="-11"
      inkscape:window-maximized="1"
@@ -1289,7 +1289,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -1302,7 +1302,7 @@
     <rect
        style="fill:#000000;fill-opacity:1;stroke-width:16.2095356"
        id="rect7953"
-       width="240"
+       width="355"
        height="380"
        x="-0.01175524"
        y="74.386765"
@@ -1331,12 +1331,12 @@
     <text
        id="text7961"
        y="93.702049"
-       x="71.471321"
+       x="128.97131"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none"
        xml:space="preserve"><tspan
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:18.66666603px;font-family:'Cooper Black';-inkscape-font-specification:'Cooper Black, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1"
          y="93.702049"
-         x="71.471321"
+         x="128.97131"
          id="tspan7959"
          sodipodi:role="line">PolyProbe</tspan></text>
     <text
@@ -1351,7 +1351,7 @@
          y="477.59503" /></text>
     <g
        id="g6059"
-       transform="translate(-0.88332558,1.5004978)">
+       transform="translate(56.616674,1.5004978)">
       <text
          id="text6049"
          y="444.72498"
@@ -1409,7 +1409,7 @@
     <flowRoot
        xml:space="preserve"
        id="flowRoot1122"
-       style="fill:black;fill-opacity:1;stroke:none;font-family:sans-serif;font-style:normal;font-weight:normal;font-size:37.33333333px;line-height:1.25;letter-spacing:0px;word-spacing:0px"><flowRegion
+       style="font-style:normal;font-weight:normal;font-size:37.33333206px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"><flowRegion
          id="flowRegion1124"><rect
            id="rect1126"
            width="366.83603"
@@ -1421,7 +1421,7 @@
        id="rect10536"
        width="35"
        height="45"
-       x="189.84125"
+       x="294.84125"
        y="-341.88675"
        ry="4.2187495"
        transform="scale(1,-1)"
@@ -1429,12 +1429,12 @@
     <text
        id="text10544"
        y="307.82425"
-       x="203.82301"
+       x="308.823"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;display:inline;fill:#d4af37;fill-opacity:1;stroke:none"
        xml:space="preserve"><tspan
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1"
          y="307.82425"
-         x="203.82301"
+         x="308.823"
          id="tspan10542"
          sodipodi:role="line">B</tspan></text>
     <path
@@ -1454,12 +1454,12 @@
        d="m 76.627278,232.54102 -3.137955,9.25351 5.843863,7.83093 -9.77029,-0.12489 -5.641802,7.97774 -2.900417,-9.33069 -9.330689,-2.90042 7.977735,-5.6418 -0.124881,-9.77029 7.830927,5.84386 z"
        inkscape:transform-center-x="-0.0087335528"
        inkscape:transform-center-y="-1.7704976"
-       transform="matrix(1.0806724,0.57665211,-0.55278499,1.1273317,270.06386,14.728427)" />
+       transform="matrix(1.0806724,0.57665211,-0.55278499,1.1273317,375.06386,14.728427)" />
     <rect
        transform="scale(1,-1)"
        ry="4.2187495"
        y="-271.88675"
-       x="189.84125"
+       x="294.84125"
        height="45"
        width="35"
        id="rect1142"
@@ -1468,16 +1468,16 @@
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;display:inline;fill:#d4af37;fill-opacity:1;stroke:none"
-       x="203.95583"
+       x="308.95581"
        y="237.82425"
        id="text1146"><tspan
          sodipodi:role="line"
          id="tspan1144"
-         x="203.95583"
+         x="308.95581"
          y="237.82425"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">A</tspan></text>
     <path
-       transform="matrix(1.0806724,0.57665211,-0.55278499,1.1273317,270.06386,-55.271573)"
+       transform="matrix(1.0806724,0.57665211,-0.55278499,1.1273317,375.06386,-55.271573)"
        inkscape:transform-center-y="-1.7704976"
        inkscape:transform-center-x="-0.0087335528"
        d="m 76.627278,232.54102 -3.137955,9.25351 5.843863,7.83093 -9.77029,-0.12489 -5.641802,7.97774 -2.900417,-9.33069 -9.330689,-2.90042 7.977735,-5.6418 -0.124881,-9.77029 7.830927,5.84386 z"
@@ -1500,19 +1500,19 @@
        id="rect10536-4"
        width="35"
        height="45"
-       x="189.84125"
+       x="294.84125"
        y="-411.88675"
        ry="4.2187495"
        transform="scale(1,-1)" />
     <text
        id="text10544-7"
        y="377.82425"
-       x="197.36469"
+       x="302.36469"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;display:inline;fill:#000000;fill-opacity:1;stroke:none"
        xml:space="preserve"><tspan
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.66666698px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1"
          y="377.82425"
-         x="197.36469"
+         x="302.36469"
          id="tspan10542-6"
          sodipodi:role="line">OUT</tspan></text>
     <path
@@ -1532,6 +1532,6 @@
        d="m 76.627278,232.54102 -3.137955,9.25351 5.843863,7.83093 -9.77029,-0.12489 -5.641802,7.97774 -2.900417,-9.33069 -9.330689,-2.90042 7.977735,-5.6418 -0.124881,-9.77029 7.830927,5.84386 z"
        inkscape:transform-center-x="-0.0087335528"
        inkscape:transform-center-y="-1.7704976"
-       transform="matrix(1.0806724,0.57665211,-0.55278499,1.1273317,270.06386,84.728427)" />
+       transform="matrix(1.0806724,0.57665211,-0.55278499,1.1273317,375.06386,84.728427)" />
   </g>
 </svg>

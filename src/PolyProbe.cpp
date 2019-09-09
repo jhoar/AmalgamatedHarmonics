@@ -14,7 +14,6 @@ struct Algorithm {
 	std::string  outS;
 
 	enum Algorithms {
-		B,
 		SUM,
 		DIFF,
 		NOTE
@@ -31,9 +30,6 @@ struct Algorithm {
 	// May update valid
 	void calculate(Algorithms a) {
 		switch(a) {
-			case B:
-				algoB();
-				break;
 			case SUM:
 				algoSum();
 				break;
@@ -56,11 +52,6 @@ struct Algorithm {
 
 	bool isValid() {
 		return valid;
-	}
-
-	void algoB() {
-		outV = b;
-		outS = std::to_string(outV);
 	}
 
 	void algoSum() {
@@ -147,7 +138,7 @@ struct PolyProbe : core::AHModule {
 		NUM_LIGHTS
 	};
 
-	Algorithm::Algorithms currAlgo = Algorithm::B;
+	Algorithm::Algorithms currAlgo = Algorithm::SUM;
 	Algorithm algorithms[16];
 
 	int nChannels = 0;
@@ -269,6 +260,15 @@ struct PolyProbeDisplay : TransparentWidget {
 			}
 			nvgText(ctx.vg, box.pos.x + 5, box.pos.y + i * 16 + j * 16, text, NULL);		
 
+			if (i >= module->nCVBChannels) {
+				nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0x6F));
+				snprintf(text, sizeof(text), "%02d --", i + 1);
+			} else {
+				nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
+				snprintf(text, sizeof(text), "%02d %f", i + 1, module->cvB[i]);
+			}
+			nvgText(ctx.vg, box.pos.x + 110, box.pos.y + i * 16 + j * 16, text, NULL);		
+
 			module->algorithms[i].calculate(module->currAlgo);
 
 			if (module->algorithms[i].isValid()) {
@@ -278,7 +278,7 @@ struct PolyProbeDisplay : TransparentWidget {
 				nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0x6F));
 				snprintf(text1, sizeof(text1), "--");
 			}
-			nvgText(ctx.vg, box.pos.x + 110, box.pos.y + i * 16 + j * 16, text1, NULL);
+			nvgText(ctx.vg, box.pos.x + 215, box.pos.y + i * 16 + j * 16, text1, NULL);
 		}
 	}
 
@@ -291,9 +291,9 @@ struct PolyProbeWidget : ModuleWidget {
 		setModule(module);
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/PolyProbe.svg")));
 
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 5, 4, true, true), module, PolyProbe::POLYCVA_INPUT));
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 5, 6, true, true), module, PolyProbe::POLYCVB_INPUT));
-		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 5, 8, true, true), module, PolyProbe::POLYALGO_OUTPUT));
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 8, 4, true, true), module, PolyProbe::POLYCVA_INPUT));
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 8, 6, true, true), module, PolyProbe::POLYCVB_INPUT));
+		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 8, 8, true, true), module, PolyProbe::POLYALGO_OUTPUT));
 
 		if (module != NULL) {
 			PolyProbeDisplay *displayW = createWidget<PolyProbeDisplay>(Vec(0, 20));
@@ -322,11 +322,10 @@ struct PolyProbeWidget : ModuleWidget {
 			Menu *createChildMenu() override {
 				Menu *menu = new Menu;
 				std::vector<Algorithm::Algorithms> algo = {
-					Algorithm::Algorithms::B, 
 					Algorithm::Algorithms::SUM, 
 					Algorithm::Algorithms::DIFF, 
 					Algorithm::Algorithms::NOTE};
-				std::vector<std::string> names = {"B", "A + B", "A - B", "Note(A+B)"};
+				std::vector<std::string> names = {"A+B", "A-B", "Note(A+B)"};
 				for (size_t i = 0; i < algo.size(); i++) {
 					AlgoItem *item = createMenuItem<AlgoItem>(names[i], CHECKMARK(module->currAlgo == algo[i]));
 					item->module = module;
