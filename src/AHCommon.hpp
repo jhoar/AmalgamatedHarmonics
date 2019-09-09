@@ -449,6 +449,8 @@ enum Quality {
 
 float getPitchFromVolts(float inVolts, int inRoot, int inScale, int *outNote = NULL, int *outDegree = NULL);
 
+float getPitchFromVolts(float inVolts, float inRoot, float inScale, int *outRoot, int *outScale, int *outNote, int *outDegree);
+
 /*
 * Convert a root note (relative to C, C=0) and positive semi-tone offset from that root to a voltage (1V/OCT, 0V = C4 (or 3??))
 */

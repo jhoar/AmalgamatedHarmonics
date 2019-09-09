@@ -25,6 +25,7 @@ void init(rack::Plugin *p) {
 	p->addModel(modelPolyProbe);
 	p->addModel(modelPolyScope);
 
+	p->addModel(modelScaleQuantizer);
 	p->addModel(modelArpeggiator2);
 	p->addModel(modelProgress);
 

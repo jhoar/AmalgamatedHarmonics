@@ -118,6 +118,12 @@
 			"name": "Progress  (deprecated)",
 			"description": "A chord sequencer",
 			"tags": ["Sequencer"]
+		},
+		{
+			"slug": "ScaleQuantizer",
+			"name": "Scale Quantizer (legacy)",
+			"description": "Scale-aware quantizer",
+			"tags": ["Quantizer"]
 		}
 	]
 }

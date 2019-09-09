@@ -38,6 +38,8 @@ extern Model *modelRuckus;
 
 extern Model *modelScaleQuantizer2;
 
+extern Model *modelScaleQuantizer;
+
 extern Model *modelSLN;
 
 extern Model *modelGenerative;
