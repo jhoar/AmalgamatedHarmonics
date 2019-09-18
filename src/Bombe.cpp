@@ -380,7 +380,7 @@ struct BombeDisplay : TransparentWidget {
 				chordName = invDef.getName(bC.rootNote);
 			}
 
-			if (bC.modeDegree != -1 && bC.quality != -1) { 
+			if (bC.modeDegree != -1 && bC.mode != -1) { 
 				chordExtName = music::DegreeString[bC.mode][bC.modeDegree];
 			}
 
