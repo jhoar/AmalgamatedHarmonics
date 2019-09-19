@@ -23,6 +23,7 @@ struct PolyScope : core::AHModule {
 		SCALE_PARAM,
 		SPREAD_PARAM,
 		TIME_PARAM,
+		SHIFT_PARAM,
 		NUM_PARAMS
 	};
 	enum InputIds {
@@ -114,6 +115,7 @@ struct PolyScope : core::AHModule {
 		configParam(SCALE_PARAM, -2.0f, 2.0f, 0.0f);
 		configParam(SPREAD_PARAM, 0.0f, 3.0f, 1.0f);
 		configParam(TIME_PARAM, 6.0f, 16.0f, 14.0f);
+		configParam(SHIFT_PARAM, -16.0f, 16.0f, 0.0f);
 
 		cMaps[0] = { // Classic
 		nvgRGBA(255,	0,		0,		240),	// 0	100		100
@@ -313,12 +315,13 @@ struct PolyScopeDisplay : TransparentWidget {
 		}
 
 		float gain = std::pow(2.0f, module->params[PolyScope::SCALE_PARAM].getValue());
+		float shift = module->params[PolyScope::SHIFT_PARAM].getValue();
 		float offset = module->toggle ? math::clamp(t, 0.0, 1.0) : module->params[PolyScope::SPREAD_PARAM].getValue();
 
 		float values[16][BUFFER_SIZE];
 		for (int i = 0; i < BUFFER_SIZE; i++) {
 			for (int k = 0; k < 16; k++) {
-				values[k][i] = (module->buffer[k][i] + ((k - 8) * offset)) * gain / 10.0f;
+				values[k][i] = ((module->buffer[k][i] + ((k - 8) * offset)) + shift) * gain / 10.0f;
 			}
 		}
 
@@ -370,11 +373,12 @@ struct PolyScopeWidget : ModuleWidget {
 			addChild(patch);
 		}
 
-		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 3, 5, true, false), module, PolyScope::SCALE_PARAM));
-		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 5, 5, true, false), module, PolyScope::SPREAD_PARAM));
-		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 7, 5, true, false), module, PolyScope::TIME_PARAM));
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 5, false, false), module, PolyScope::POLY_INPUT));
+		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 2, 5, false, false), module, PolyScope::SCALE_PARAM));
+		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 3, 5, false, false), module, PolyScope::SPREAD_PARAM));
+		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 4, 5, false, false), module, PolyScope::SHIFT_PARAM));
+		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 6, 5, false, false), module, PolyScope::TIME_PARAM));
 
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 1, 5, true, false), module, PolyScope::POLY_INPUT));
 	}
 
 	void appendContextMenu(Menu *menu) override {
