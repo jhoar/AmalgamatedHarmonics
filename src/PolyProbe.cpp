@@ -177,18 +177,6 @@ struct PolyProbe : core::AHModule {
 
 		AHModule::step();
 
-		if (inputs[POLYCVB_INPUT].isConnected()) {
-			hasCVBIn = true;
-			nCVBChannels = inputs[POLYCVB_INPUT].getChannels();
-		} else {
-			hasCVBIn = false;
-			nCVBChannels = 0;
-		} 
-
-		for (int i = 0; i < 16; i++) {
-			cvB[i] = inputs[POLYCVB_INPUT].getVoltage(i);
-		}
-
 		if (inputs[POLYCVA_INPUT].isConnected()) {
 			hasCVAIn = true;
 			nCVAChannels = inputs[POLYCVA_INPUT].getChannels();
@@ -197,13 +185,23 @@ struct PolyProbe : core::AHModule {
 			nCVAChannels = 0;
 		}
 
-		for (int i = 0; i < 16; i++) {
-			cvA[i] = inputs[POLYCVA_INPUT].getVoltage(i);
-			algorithms[i].addSample(cvA[i], cvB[i]);
-			outputs[POLYALGO_OUTPUT].setVoltage(algorithms[i].asValue(), i);
-		}
+		if (inputs[POLYCVB_INPUT].isConnected()) {
+			hasCVBIn = true;
+			nCVBChannels = inputs[POLYCVB_INPUT].getChannels();
+		} else {
+			hasCVBIn = false;
+			nCVBChannels = 0;
+		} 
 
 		nChannels = std::max(nCVAChannels,nCVBChannels);
+
+		for (int i = 0; i < 16; i++) {
+			cvA[i] = inputs[POLYCVA_INPUT].getVoltage(i);
+			cvB[i] = inputs[POLYCVB_INPUT].getVoltage(i);
+			algorithms[i].addSample(cvA[i], cvB[i]);
+			algorithms[i].calculate(currAlgo);
+			outputs[POLYALGO_OUTPUT].setVoltage(algorithms[i].asValue(), i);
+		}
 
 	}
 };
@@ -268,8 +266,6 @@ struct PolyProbeDisplay : TransparentWidget {
 				snprintf(text, sizeof(text), "%02d %f", i + 1, module->cvB[i]);
 			}
 			nvgText(ctx.vg, box.pos.x + 110, box.pos.y + i * 16 + j * 16, text, NULL);		
-
-			module->algorithms[i].calculate(module->currAlgo);
 
 			if (module->algorithms[i].isValid()) {
 				nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
