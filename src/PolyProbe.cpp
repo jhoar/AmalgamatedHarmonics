@@ -110,7 +110,7 @@ struct NoteOperator : Operator {
 			}
 		}
 
-		outV = octV + semitone * music::SEMITONE;
+		outV = (octave - 4) + semitone * music::SEMITONE;
 
 		valid = true;
 
