@@ -126,7 +126,7 @@ struct AHParamWidget { // it's a mix-in
 };
 
 // Not going to monitor buttons
-struct AHButton : SVGSwitch {
+struct AHButton : SvgSwitch {
 	AHButton() {
 		momentary = true;
 		addFrame(APP->window->loadSvg(asset::plugin(pluginInstance,"res/ComponentLibrary/AHButton.svg")));
