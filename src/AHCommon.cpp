@@ -15,19 +15,19 @@ AHChoice::AHChoice() {
 	fontSize = 12.0;
 }
 
-void AHChoice::draw(NVGcontext *vg) {
-	nvgScissor(vg, 0, 0, box.size.x, box.size.y);
+void AHChoice::draw(const DrawArgs& args) {
+	nvgScissor(args.vg, 0, 0, box.size.x, box.size.y);
 
 	if (font->handle >= 0) {
-		nvgFillColor(vg, color);
-		nvgFontFaceId(vg, font->handle);
-		nvgTextLetterSpacing(vg, 0.0);
+		nvgFillColor(args.vg, color);
+		nvgFontFaceId(args.vg, font->handle);
+		nvgTextLetterSpacing(args.vg, 0.0);
 
-		nvgFontSize(vg, fontSize); // FIX
-		nvgText(vg, textOffset.x, textOffset.y, text.c_str(), NULL);
+		nvgFontSize(args.vg, fontSize); // FIX
+		nvgText(args.vg, textOffset.x, textOffset.y, text.c_str(), NULL);
 	}
 
-	nvgResetScissor(vg);
+	nvgResetScissor(args.vg);
 }
 
 float Y_KNOB[2] =		{50.8, 56.0}; // w.r.t 22 = 28.8 from bottom

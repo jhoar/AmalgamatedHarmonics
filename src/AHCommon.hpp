@@ -77,7 +77,7 @@ struct AHChoice : LedDisplayChoice {
 
 	float fontSize;
 
-	void draw(NVGcontext *vg) override;
+	virtual void draw(const DrawArgs& args) override;
 };
 
 struct StateDisplay : TransparentWidget {
@@ -89,19 +89,19 @@ struct StateDisplay : TransparentWidget {
 		font = APP->window->loadFont(asset::plugin(pluginInstance, "res/EurostileBold.ttf"));
 	}
 
-	void draw(NVGcontext *vg) override {
+	virtual void draw(const DrawArgs& args) override {
 
 		Vec pos = Vec(0, 15);
 
-		nvgFontSize(vg, 16);
-		nvgFontFaceId(vg, font->handle);
-		nvgTextLetterSpacing(vg, -1);
+		nvgFontSize(args.vg, 16);
+		nvgFontFaceId(args.vg, font->handle);
+		nvgTextLetterSpacing(args.vg, -1);
 
-		nvgFillColor(vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
+		nvgFillColor(args.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
 
 		char text[128];
 		snprintf(text, sizeof(text), "%s", module->paramState.c_str());
-		nvgText(vg, pos.x + 10, pos.y + 5, text, NULL);			
+		nvgText(args.vg, pos.x + 10, pos.y + 5, text, NULL);
 
 	}
 
@@ -126,7 +126,7 @@ struct AHParamWidget { // it's a mix-in
 };
 
 // Not going to monitor buttons
-struct AHButton : SVGSwitch {
+struct AHButton : SvgSwitch {
 	AHButton() {
 		momentary = true;
 		addFrame(APP->window->loadSvg(asset::plugin(pluginInstance,"res/ComponentLibrary/AHButton.svg")));
