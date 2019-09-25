@@ -567,7 +567,7 @@ struct Arpeggiator2 : core::AHModule {
 	Pattern *currPatt = &patt_up;
 	Arpeggio *currArp = &arp_right;
 
-	Pattern *uiPatt = &patt_up;
+	Pattern *uiPatt = &ui_patt_up;
 	Arpeggio *uiArp = &arp_right;
 
 	float pitches[6];
