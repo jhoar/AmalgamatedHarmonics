@@ -240,8 +240,6 @@ namespace digital {
 
 static constexpr float TRIGGER = 1e-3f;
 
-double gaussrand();
-
 struct AHPulseGenerator {
 	float time = 0.f;
 	float pulseTime = 0.f;
@@ -353,7 +351,7 @@ struct Chord {
 		inversion = 0;
 		octave = 0;
 	}
-	void setVoltages(int *chordArray, int offset);
+
 	void setVoltages(std::vector<int> &chordArray, int offset);
 
 };
@@ -546,7 +544,8 @@ struct InversionDefinition {
 	std::string baseName;
 
 	std::string getName(int rootNote);
-	std::string getName(int mode, int key, int degree, int root);
+	std::string getName(int mode, int key, int degree, int rootNote);
+
 };
 
 struct ChordDefinition {
@@ -571,3 +570,55 @@ extern InversionDefinition defaultChord;
 } // namespace music
 
 } // namespace ah
+
+template <class T> class MenuOption {
+	public: 
+		std::string name;
+		T value;
+		MenuOption(std::string _name, T _value) : name(_name), value(_value) {}
+};
+
+struct ImperfectSetting {
+	float dlyLen;
+	float dlySpr;
+	float gateLen;
+	float gateSpr;
+
+	int division;
+	float prob;
+};
+
+struct ImperfectState {
+	bool delayState;
+	bool gateState;
+	float delayTime;
+	float gateTime;
+	ah::digital::AHPulseGenerator delayPhase;
+	ah::digital::AHPulseGenerator gatePhase;
+	float bpm;
+
+	void reset() {
+		delayState = false;
+		gateState = false;
+		delayTime = 0.0;
+		gateTime = 0.0;
+		bpm = 0.0;
+	}
+
+	void jitter(ImperfectSetting &setting) {
+		// Determine delay and gate times for all active outputs
+		double rndD = clamp(random::normal(), -2.0f, 2.0f);
+		delayTime = clamp(setting.dlyLen + setting.dlySpr * rndD, 0.0f, 100.0f);
+
+		// The modified gate time cannot be earlier than the start of the delay
+		double rndG = clamp(random::normal(), -2.0f, 2.0f);
+		gateTime = clamp(setting.gateLen + setting.gateSpr * rndG, ah::digital::TRIGGER, 100.0f);
+	}
+
+	void fixed(float delay, float gate) {
+		delayTime = delay;
+		gateTime = gate;
+	}
+
+};
+

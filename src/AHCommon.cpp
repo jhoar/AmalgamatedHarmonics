@@ -145,45 +145,10 @@ void calculateKeyboard(int inKey, float spacing, float xOff, float yOff, float *
 
 } // namespace gui
 
-namespace digital {
-
-double gaussrand() {
- 	static double U, V;
- 	static int phase = 0;
- 	double Z;
-
- 	if(phase == 0) {
- 		U = (rand() + 1.) / (RAND_MAX + 2.);
- 		V = rand() / (RAND_MAX + 1.);
- 		Z = sqrt(-2 * log(U)) * sin(2 * core::PI * V);
- 	} else
- 		Z = sqrt(-2 * log(U)) * cos(2 * core::PI * V);
-
- 	phase = 1 - phase;
-
- 	return Z;
-}
-
-} // digital
-
 namespace music {
 
 Chord::Chord() : rootNote(0), quality(0), chord(0), modeDegree(0), inversion(0), octave(0) {
 	setVoltages(defaultChord.formula, 12);
-}
-
-void Chord::setVoltages(int *chordArray, int offset) {
-	for (int j = 0; j < 6; j++) {
-		if (chordArray[j] < 0) {
-			int off = offset;
-			if (offset == 0) { // if offset = 0, randomise offset per note
-				off = (rand() % 3 + 1) * 12;
-			}
-			outVolts[j] = getVoltsFromPitch(chordArray[j] + off,rootNote) + octave;
-		} else {
-			outVolts[j] = getVoltsFromPitch(chordArray[j],	  rootNote) + octave;
-		}	
-	}
 }
 
 void Chord::setVoltages(std::vector<int> &chordArray, int offset) {
@@ -200,8 +165,7 @@ void Chord::setVoltages(std::vector<int> &chordArray, int offset) {
 	}
 }
 
-
-ChordDef ChordTable[NUM_CHORDS] {
+ChordDef ChordTable[NUM_CHORDS] { // Move to Legacy module
 	{	0	,"None",	{	-24	,	-24	,	-24	,	-24	,	-24	,	-24	},{	-24	,	-24	,	-24	,	-24	,	-24	,	-24	},{	-24	,	-24	,	-24	,	-24	,	-24	,	-24	}},
 	{	1	,"M",		{	0	,	4	,	7	,	-24	,	-20	,	-17	},{	12	,	4	,	7	,	-12	,	-20	,	-17	},{	12	,	16	,	7	,	-12	,	-8	,	-17	}},
 	{	2	,"M#5",		{	0	,	4	,	8	,	-24	,	-20	,	-16	},{	12	,	4	,	8	,	-12	,	-20	,	-16	},{	12	,	16	,	8	,	-12	,	-8	,	-16	}},
@@ -404,7 +368,7 @@ std::vector<ChordFormula> BasicChordSet {
 	{"madd9",		{	0	,	3	,	7	,	14}},
 };
 
-InversionDefinition defaultChord {0, {0, 4, 7, 0, 4, 7}, "M"};
+InversionDefinition defaultChord = {0, {0, 4, 7, 0, 4, 7}, "M"};
 
 std::string noteNames[12] = {
 	"C",
