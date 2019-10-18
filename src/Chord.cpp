@@ -9,9 +9,13 @@
 
 using namespace ah;
 
-struct Chord : core::AHModule {
+const float PI_180 = core::PI / 180.0f;
+const float POSMAX = 90.0f * 0.5f * PI_180;
+const float ONE_POSMAX = 1.0f / POSMAX;
+const float SQRT2_2 = sqrt(2.0) / 2.0;
+const int 	NUM_PITCHES = 6;
 
-	const static int NUM_PITCHES = 6;
+struct Chord : core::AHModule {
 
 	enum ParamIds {
 		ENUMS(WAVE_PARAM,6),
@@ -39,19 +43,9 @@ struct Chord : core::AHModule {
 
 	Chord() : AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
 
-		float PI_180 = core::PI / 180.0;
-		float posMax = 90.0 * 0.5 * PI_180;
-		float voicePosDeg[6] = {-90.0f, 90.0f, -54.0f, 54.0f, -18.0f, 18.0f};
-		float voicePosRad[6];	
-		for(int i = 0; i < 6; i++) {
-			voicePosRad[i] = voicePosDeg[i] * 0.5 * PI_180;
-		}
-
 		struct WaveParamQuantity : engine::ParamQuantity {
 			std::string getDisplayValueString() override {
-				int v = (int)getValue();
-				switch (v)
-				{
+				switch (static_cast<int>(getValue())) {
 					case 0:
 						return "Sine " + ParamQuantity::getDisplayValueString();
 						break;
@@ -76,33 +70,33 @@ struct Chord : core::AHModule {
 
 		struct PanParamQuantity : engine::ParamQuantity {
 
-			float e = 1.0f / (90.0f * 0.5 * (core::PI / 180.0));
-
 			std::string getDisplayValueString() override {
-				float v = getSmoothValue() * e;
+				float v = getSmoothValue() * ONE_POSMAX;
 
 				std::string s = "Unknown";
-				if (v == 0.f) {
+				if (v == 0.0f) {
 					s = "0";
 				}
-				if (v < 0.f) {
+				if (v < 0.0f) {
 					s = string::f("%.*g", 3, math::normalizeZero(fabs(v) * 100.0f)) + "% L";
 				}
-				if (v > 0.f) {
+				if (v > 0.0f) {
 					s = string::f("%.*g", 3, math::normalizeZero(v * 100.0f)) + "% R";
 				}
 				return s;
 			}
 		};
 
-		for (int n = 0; n < 6; n++) {
+		float voicePosDeg[6] = {-90.0f, 90.0f, -54.0f, 54.0f, -18.0f, 18.0f};
+
+		for (int n = 0; n < NUM_PITCHES; n++) {
 			configParam(WAVE_PARAM + n, 0.0f, 4.0f, 0.0f, "Waveform");
 			configParam(OCTAVE_PARAM + n, -3.0f, 3.0f, 0.0f, "Octave");
 			configParam(DETUNE_PARAM + n, -1.0f, 1.0f, 0.0f, "Fine tune", "V");
 			configParam(PW_PARAM + n, -1.0f, 1.0f, 0.0f, "Pulse width");
 			configParam(PWM_PARAM + n, 0.0f, 1.0f, 0.0f, "Pulse width modulation CV");
 			configParam(ATTN_PARAM + n, 0.0f, 1.0f, 1.0f, "Level", "%", 0.0f, 100.0f);
-			configParam(PAN_PARAM + n, -posMax, posMax, voicePosRad[n], "Stereo pan (L-R)", "", 0.0f, -1.0f / voicePosRad[0]);
+			configParam(PAN_PARAM + n, -POSMAX, POSMAX, voicePosDeg[n] * 0.5f * PI_180, "Stereo pan (L-R)", "", 0.0f, -1.0f / voicePosDeg[0] * 0.5f * PI_180);
 		}
 
 		configParam(SPREAD_PARAM, 0.0f, 1.0f, 1.0f, "Spread");
@@ -112,12 +106,14 @@ struct Chord : core::AHModule {
 
 	void process(const ProcessArgs &args) override;
 
-	int poll = 50000;
-
 	rack::dsp::SchmittTrigger moveTrigger;
 	rack::dsp::PulseGenerator triggerPulse;
 
-	EvenVCO oscillator[6];
+	float angle = 0.0;
+	float left  = SQRT2_2 * (cos(0.0) - sin(0.0));
+	float right = SQRT2_2 * (cos(0.0) + sin(0.0));
+
+	EvenVCO oscillator[NUM_PITCHES];
 
 };
 
@@ -126,10 +122,9 @@ void Chord::process(const ProcessArgs &args) {
 	AHModule::step();
 
 	float out[2] = {0.0f, 0.0f};
-	int nP[2] = {0, 0};
+	float nP[2]  = {0.0f, 0.0f};
 
 	float spread = params[SPREAD_PARAM].getValue();
-	float SQRT2_2 = sqrt(2.0) / 2.0;
 
 	for (int i = 0; i < NUM_PITCHES; i++) {
 
@@ -153,8 +148,8 @@ void Chord::process(const ProcessArgs &args) {
 		oscillator[i].pw = params[PW_PARAM + i].getValue() + params[PWM_PARAM + i].getValue() * inputs[PW_INPUT + i].getVoltage() / 10.0f;
 		oscillator[i].step(args.sampleTime, pitchFine + pitchCv); // 1V/OCT
 
-		float amp = 0.0;
-		nP[side]++;
+		float amp = 0.0f;
+		nP[side] += 1.0f;
 
 		int wave = params[WAVE_PARAM + i].getValue();
 		switch(wave) {
@@ -166,26 +161,25 @@ void Chord::process(const ProcessArgs &args) {
 			default:	amp = oscillator[i].sine * attn;		break;
 		};
 
-		float angle = spread * params[PAN_PARAM + i].getValue();
-		float left = SQRT2_2 * (cos(angle) - sin(angle));
-		float right = SQRT2_2 * (cos(angle) + sin(angle));
+		float newAngle = spread * params[PAN_PARAM + i].getValue();
+		if (newAngle != angle) {
+			angle = newAngle;
+			left  = SQRT2_2 * (cos(angle) - sin(angle));
+			right = SQRT2_2 * (cos(angle) + sin(angle));
+		}
 
 		out[0] += left * amp;
 		out[1] += right * amp;
 
 	}
 
-	if (nP[0] > 0) {
-		out[0] = (out[0] * 5.0f) / (float)nP[0];
+	if (nP[0] > 0.0f) {
+		out[0] = (out[0] * 5.0f) / nP[0];
 	} 
 
-	if (nP[1] > 0) {
-		out[1] = (out[1] * 5.0f) / (float)nP[1];
+	if (nP[1] > 0.0f) {
+		out[1] = (out[1] * 5.0f) / nP[1];
 	} 
-
-	if (debugEnabled(5000)) {
-		std::cout << nP[0] << " " << nP[1] << " " << out[0] << " " << out[1] << std::endl;
-	}
 
 	if (outputs[OUT_OUTPUT].isConnected() && outputs[OUT_OUTPUT + 1].isConnected()) {
 		outputs[OUT_OUTPUT].setVoltage(out[0]);
