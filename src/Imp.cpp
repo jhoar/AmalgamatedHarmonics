@@ -2,6 +2,7 @@
 #include "AHCommon.hpp"
 
 #include <iostream>
+#include <array>
 
 using namespace ah;
 
@@ -73,42 +74,15 @@ struct Imp : core::AHModule {
 	void process(const ProcessArgs &args) override;
 
 	void onReset() override {
-		coreDelayState = false;
-		coreGateState = false;
-		coreDelayTime = 0.0;
-		coreGateTime = 0.0;
+		coreState.reset();
 		for (int i = 0; i < 16; i++) {
-			delayState[i] = false;
-			gateState[i] = false;
-			delayTime[i] = 0.0;
-			gateTime[i] = 0.0;
+			state[i].reset();
 		}
-		bpm = 0.0;
 	}
 
-	int delayTimeMs;
-	int delaySprMs;
-	int gateTimeMs;
-	int gateSprMs;
-	float bpm;
-	int division;
-	int actDelayMs = 0;
-	int actGateMs = 0;
-	float prob;
-
-	bool coreDelayState;
-	bool coreGateState;
-	float coreDelayTime;
-	float coreGateTime;
-	digital::AHPulseGenerator coreDelayPhase;
-	digital::AHPulseGenerator coreGatePhase;
-
-	bool delayState[16];
-	bool gateState[16];
-	float delayTime[16];
-	float gateTime[16];
-	digital::AHPulseGenerator delayPhase[16];
-	digital::AHPulseGenerator gatePhase[16];
+	ImperfectSetting setting;
+	ImperfectState coreState;
+	std::array<ImperfectState,16> state;
 
 	rack::dsp::SchmittTrigger inTrigger;
 
@@ -123,11 +97,6 @@ void Imp::process(const ProcessArgs &args) {
 
 	AHModule::step();
 
-	float dlyLen;
-	float dlySpr;
-	float gateLen;
-	float gateSpr;
-
 	bool generateSignal = false;
 
 	bool inputActive = inputs[TRIG_INPUT].isConnected();
@@ -135,115 +104,75 @@ void Imp::process(const ProcessArgs &args) {
 
 	if (inputActive) {
 
-		bpm = bpmCalc.calculateBPM(args.sampleTime, inputs[TRIG_INPUT].getVoltage());
+		coreState.bpm = bpmCalc.calculateBPM(args.sampleTime, inputs[TRIG_INPUT].getVoltage());
 
 		if (haveTrigger) {
-			if (debugEnabled()) { std::cout << stepX << " have active input and has received trigger" << std::endl; }
 			generateSignal = true;
 		}
 	} 
 
-	dlyLen = log2(params[DELAY_PARAM].getValue());
-	dlySpr = log2(params[DELAYSPREAD_PARAM].getValue());
-	gateLen = log2(params[LENGTH_PARAM].getValue());
-	gateSpr = log2(params[LENGTHSPREAD_PARAM].getValue());
-	division = params[DIVISION_PARAM].getValue();
-
-	delayTimeMs = dlyLen * 1000;
-	delaySprMs = dlySpr * 2000; // scaled by ±2 below
-	gateTimeMs = gateLen * 1000;
-	gateSprMs = gateSpr * 2000; // scaled by ±2 below
-	prob = params[PROB_PARAM].getValue() * 100.0f;
+	setting.dlyLen = log2(params[DELAY_PARAM].getValue());
+	setting.dlySpr = log2(params[DELAYSPREAD_PARAM].getValue());
+	setting.gateLen = log2(params[LENGTH_PARAM].getValue());
+	setting.gateSpr = log2(params[LENGTHSPREAD_PARAM].getValue());
+	setting.division = params[DIVISION_PARAM].getValue();
+	setting.prob = params[PROB_PARAM].getValue() * 100.0f;
 
 	if (generateSignal) {
 
 		counter++;
 
-		if (debugEnabled()) { 
-			std::cout << stepX << " Div: " << ": Target: " << division << " Cnt: " << counter << " Exp: " << counter % division << std::endl; 
-		}
-
 		// Check clock division and Bern. gate
-		if ((counter % division == 0) && (random::uniform() < params[PROB_PARAM].getValue())) { 
+		if ((counter % setting.division == 0) && (random::uniform() < params[PROB_PARAM].getValue())) { 
 
 			// check that we are not in the gate phase
-			if (!coreGatePhase.ishigh() && !coreDelayPhase.ishigh()) {
+			if (!coreState.gatePhase.ishigh() && !coreState.delayPhase.ishigh()) {
 
 				// Determine delay and gate times for all active outputs
-				coreDelayTime = clamp(dlyLen, 0.0f, 100.0f);
-
 				// The modified gate time cannot be earlier than the start of the delay
-				coreGateTime = clamp(gateLen, digital::TRIGGER, 100.0f);
+				coreState.fixed(clamp(setting.dlyLen, 0.0f, 100.0f),
+					clamp(setting.gateLen, digital::TRIGGER, 100.0f));	
 
-				if (debugEnabled()) { 
-					std::cout << stepX << " Delay: " << ": Len = " << delayTime << std::endl; 
-					std::cout << stepX << " Gate: " << ": Len = " << gateTime << std::endl; 
-				}
+				// Calculate the overall delay time for display
+				coreState.delayState = true;
+				coreState.delayPhase.trigger(coreState.delayTime);
 
-				// Trigger the respective delay pulse generator
-				coreDelayState = true;
-				if (coreDelayPhase.trigger(coreDelayTime)) {
-					actDelayMs = coreDelayTime * 1000;
-				}
 			}
 
 			for (int i = 0; i < 16; i++) {
 
 				// check that we are not in the gate phase
-				if (!gatePhase[i].ishigh() && !delayPhase[i].ishigh()) {
+				if (!state[i].gatePhase.ishigh() && !state[i].delayPhase.ishigh()) {
 
 					if (i == 0 && !randomZero) {
-
 						// Non-randomised delay and gate length
-						delayTime[i] = coreDelayTime;
-						gateTime[i] = coreGateTime;
-
-						if (debugEnabled()) { 
-							std::cout << stepX << " Delay: " << ": Len: " << dlyLen << " Spr: " << dlySpr << " = " << delayTime << std::endl; 
-							std::cout << stepX << " Gate: " << ": Len: " << gateLen << ", Spr: " << gateSpr << " = " << gateTime << std::endl; 
-						}
-
+						state[i].fixed(coreState.delayTime, coreState.gateTime);	
 					} else {
-
-						// Determine delay and gate times for all active outputs
-						double rndD = clamp(random::normal(), -2.0f, 2.0f);
-						delayTime[i] = clamp(dlyLen + dlySpr * rndD, 0.0f, 100.0f);
-					
-						// The modified gate time cannot be earlier than the start of the delay
-						double rndG = clamp(random::normal(), -2.0f, 2.0f);
-						gateTime[i] = clamp(gateLen + gateSpr * rndG, digital::TRIGGER, 100.0f);
-
-						if (debugEnabled()) { 
-							std::cout << stepX << " Delay: " << ": Len: " << dlyLen << " Spr: " << dlySpr << " r: " << rndD << " = " << delayTime << std::endl; 
-							std::cout << stepX << " Gate: " << ": Len: " << gateLen << ", Spr: " << gateSpr << " r: " << rndG << " = " << gateTime << std::endl; 
-						}
-
+						state[i].jitter(setting);
 					}
 
 					// Trigger the respective delay pulse generator
-					delayPhase[i].trigger(delayTime[i]);
-					delayState[i] = true;
+					state[i].delayPhase.trigger(state[i].delayTime);
+					state[i].delayState = true;
 
 				}
 			}
 		}
 	}
 
-	if (coreDelayState && !coreDelayPhase.process(args.sampleTime)) {
-		if (coreGatePhase.trigger(coreGateTime)) {
-			actGateMs = coreGateTime * 1000;
-		}
-		coreGateState = true;
-		coreDelayState = false;
+	if (coreState.delayState && !coreState.delayPhase.process(args.sampleTime)) {
+		coreState.gatePhase.trigger(coreState.gateTime);
+		coreState.gateState = true;
+		coreState.delayState = false;
 	}
 
-	if (coreGatePhase.process(args.sampleTime)) {
+	if (coreState.gatePhase.process(args.sampleTime)) {
 		lights[OUT_LIGHT].setSmoothBrightness(1.0f, args.sampleTime);
 		lights[OUT_LIGHT + 1].setSmoothBrightness(0.0f, args.sampleTime);
 	} else {
-		coreGateState = false;
+		coreState.gateState = false;
 
-		if (coreDelayState) {
+		if (coreState.delayState) {
 			lights[OUT_LIGHT].setSmoothBrightness(0.0f, args.sampleTime);
 			lights[OUT_LIGHT + 1].setSmoothBrightness(1.0f, args.sampleTime);
 		} else {
@@ -254,17 +183,17 @@ void Imp::process(const ProcessArgs &args) {
 
 	outputs[OUT_OUTPUT].setChannels(16);
 	for (int i = 0; i < 16; i++) {
-		if (delayState[i] && !delayPhase[i].process(args.sampleTime)) {
-			gatePhase[i].trigger(gateTime[i]);
-			gateState[i] = true;
-			delayState[i] = false;
+		if (state[i].delayState && !state[i].delayPhase.process(args.sampleTime)) {
+			state[i].gatePhase.trigger(state[i].gateTime);
+			state[i].gateState = true;
+			state[i].delayState = false;
 		}
 
-		if (gatePhase[i].process(args.sampleTime)) {
+		if (state[i].gatePhase.process(args.sampleTime)) {
 			outputs[OUT_OUTPUT].setVoltage(10.0f, i);
 		} else {
 			outputs[OUT_OUTPUT].setVoltage(0.0f, i);
-			gateState[i] = false;
+			state[i].gateState = false;
 		}
 	}	
 }
@@ -273,16 +202,10 @@ struct ImpBox : TransparentWidget {
 	
 	Imp *module;
 	std::shared_ptr<Font> font;
-	float *bpm;
-	float *prob;
-	int *dly;
-	int *dlySpr;
-	int *gate;
-	int *gateSpr;
-	int *division;
-	int *actDly;
-	int *actGate;
-	
+
+	ImperfectSetting *setting;
+	ImperfectState *coreState;
+
 	ImpBox() {
 		font = APP->window->loadFont(asset::plugin(pluginInstance, "res/DSEG14ClassicMini-BoldItalic.ttf"));
 	}
@@ -304,47 +227,42 @@ struct ImpBox : TransparentWidget {
 		nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
 	
 		char text[10];
-		if (*bpm == 0.0f) {
+		if (coreState->bpm == 0.0f) {
 			snprintf(text, sizeof(text), "-");
 		} else {
-			snprintf(text, sizeof(text), "%.1f", *bpm);
+			snprintf(text, sizeof(text), "%.1f", coreState->bpm);
 		}
 		nvgText(ctx.vg, pos.x + 75, pos.y + -1 * n, text, NULL);
 
-		snprintf(text, sizeof(text), "%.1f", *prob);
+		snprintf(text, sizeof(text), "%.1f", setting->prob);
 		nvgText(ctx.vg, pos.x + 75, pos.y, text, NULL);
 
-		snprintf(text, sizeof(text), "%d", *dly);
+		snprintf(text, sizeof(text), "%d", static_cast<int>(setting->dlyLen * 1000));
 		nvgText(ctx.vg, pos.x + 75, pos.y + 1 * n, text, NULL);
 
-		if (*dlySpr != 0) {
-			snprintf(text, sizeof(text), "%d", *dlySpr);
+		if (setting->dlySpr != 0) {
+			snprintf(text, sizeof(text), "%d", static_cast<int>(setting->dlySpr * 2000)); // * 2000 as it is scaled in jitter()
 			nvgText(ctx.vg, pos.x + 75, pos.y + 2 * n, text, NULL);
 		}
 
-		snprintf(text, sizeof(text), "%d", *gate);
+		snprintf(text, sizeof(text), "%d", static_cast<int>(setting->gateLen * 1000));
 		nvgText(ctx.vg, pos.x + 75, pos.y + 3 * n, text, NULL);
 
-		if (*gateSpr != 0) {
-			snprintf(text, sizeof(text), "%d", *gateSpr);
+		if (setting->gateSpr != 0) {
+			snprintf(text, sizeof(text), "%d", static_cast<int>(setting->gateSpr * 2000)); // * 2000 as it is scaled in jitter()
 			nvgText(ctx.vg, pos.x + 75, pos.y + 4 * n, text, NULL);
 		}
 
-		snprintf(text, sizeof(text), "%d", *division);
+		snprintf(text, sizeof(text), "%d", setting->division);
 		nvgText(ctx.vg, pos.x + 75, pos.y + 5 * n, text, NULL);
 		
-		snprintf(text, sizeof(text), "%d", *actGate);
-		nvgText(ctx.vg, pos.x + 75, pos.y + 6 * n, text, NULL);
-
-		nvgTextAlign(ctx.vg, NVGalign::NVG_ALIGN_RIGHT);
-		snprintf(text, sizeof(text), "%d", *actDly);
-		nvgText(ctx.vg, pos.x + 27.5, pos.y + 6 * n, text, NULL);
-
 	}
 
 };
 
 struct ImpWidget : ModuleWidget {
+
+	std::vector<MenuOption<bool>> randomOptions;
 
 	ImpWidget(Imp *module) {
 
@@ -367,18 +285,15 @@ struct ImpWidget : ModuleWidget {
 			display->module = module;
 			display->box.size = Vec(20, 200);
 
-			display->bpm = &(module->bpm);
-			display->prob = &(module->prob);
-			display->dly = &(module->delayTimeMs);
-			display->dlySpr = &(module->delaySprMs);
-			display->gate = &(module->gateTimeMs);
-			display->gateSpr = &(module->gateSprMs);
-			display->division = &(module->division);
-			display->actDly = &(module->actDelayMs);
-			display->actGate = &(module->actGateMs);
+			display->setting = &(module->setting);
+			display->coreState = &(module->coreState);
 
 			addChild(display);
 		}	
+
+		randomOptions.emplace_back("Randomized", true);
+		randomOptions.emplace_back("Non-randomized", false);
+
 	}
 
 	void appendContextMenu(Menu *menu) override {
@@ -386,24 +301,25 @@ struct ImpWidget : ModuleWidget {
 		Imp *imp = dynamic_cast<Imp*>(module);
 		assert(imp);
 
-		struct RandomZeroItem : MenuItem {
+		struct ImpMenu : MenuItem {
 			Imp *module;
+			ImpWidget *parent;
+		};
+
+		struct RandomZeroItem : ImpMenu {
 			bool randomZero;
 			void onAction(const rack::event::Action &e) override {
 				module->randomZero = randomZero;
 			}
 		};
 
-		struct RandomZeroMenu : MenuItem {
-			Imp *module;
+		struct RandomZeroMenu : ImpMenu {
 			Menu *createChildMenu() override {
 				Menu *menu = new Menu;
-				std::vector<bool> modes = {true, false};
-				std::vector<std::string> names = {"Randomized", "Non-randomized"};
-				for (size_t i = 0; i < modes.size(); i++) {
-					RandomZeroItem *item = createMenuItem<RandomZeroItem>(names[i], CHECKMARK(module->randomZero == modes[i]));
+				for (auto opt: parent->randomOptions) {
+					RandomZeroItem *item = createMenuItem<RandomZeroItem>(opt.name, CHECKMARK(module->randomZero == opt.value));
 					item->module = module;
-					item->randomZero = modes[i];
+					item->randomZero = opt.value;
 					menu->addChild(item);
 				}
 				return menu;
@@ -413,6 +329,7 @@ struct ImpWidget : ModuleWidget {
 		menu->addChild(construct<MenuLabel>());
 		RandomZeroMenu *randomZeroItem = createMenuItem<RandomZeroMenu>("Randomize first output");
 		randomZeroItem->module = imp;
+		randomZeroItem->parent = this;
 		menu->addChild(randomZeroItem);
 
 	}
