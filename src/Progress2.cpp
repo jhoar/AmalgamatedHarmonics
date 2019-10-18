@@ -4,6 +4,7 @@
 #include "ProgressState.hpp"
 
 #include <iostream>
+#include <array>
 
 using namespace ah;
 
@@ -96,18 +97,15 @@ struct Progress2 : core::AHModule {
 
 		// running
 		json_t *runningJ = json_object_get(rootJ, "running");
-		if (runningJ)
-			running = json_is_true(runningJ);
+		if (runningJ) running = json_is_true(runningJ);
 
 		// gateMode
 		json_t *gateModeJ = json_object_get(rootJ, "gateMode");
-		if (gateModeJ)
-			gateMode = (GateMode)json_integer_value(gateModeJ);
+		if (gateModeJ) gateMode = (GateMode)json_integer_value(gateModeJ);
 
 		// ProgressState
 		json_t *pStateJ = json_object_get(rootJ, "state");
-		if (pStateJ)
-			pState.fromJson(pStateJ);
+		if (pStateJ) pState.fromJson(pStateJ);
 
 	}
 
@@ -119,7 +117,7 @@ struct Progress2 : core::AHModule {
 	// For buttons
 	rack::dsp::SchmittTrigger runningTrigger;
 	rack::dsp::SchmittTrigger resetTrigger;
-	rack::dsp::SchmittTrigger gateTriggers[8];
+	std::array<rack::dsp::SchmittTrigger,8> gateTriggers;
 	rack::dsp::SchmittTrigger copyTrigger;
 
 	rack::dsp::PulseGenerator gatePulse;
@@ -134,7 +132,7 @@ struct Progress2 : core::AHModule {
 
 	float resetLight = 0.0f;
 	float gateLight = 0.0f;
-	float stepLights[8] = {};
+	std::array<float,8> stepLights;
 
 	enum GateMode {
 		TRIGGER,
@@ -283,6 +281,10 @@ void Progress2::process(const ProcessArgs &args) {
 
 struct Progress2Widget : ModuleWidget {
 
+	std::vector<MenuOption<int>> offsetOptions;
+	std::vector<MenuOption<Progress2::GateMode>> gateOptions;
+	std::vector<MenuOption<ChordMode>> chordOptions;
+
 	Progress2Widget(Progress2 *module) {
 
 		setModule(module);
@@ -326,6 +328,19 @@ struct Progress2Widget : ModuleWidget {
 		stateWidget->setPState(module ? &module->pState : NULL);
 		addChild(stateWidget);
 
+		offsetOptions.emplace_back(std::string("Lower"), 12);
+		offsetOptions.emplace_back(std::string("Repeat"), 24);
+		offsetOptions.emplace_back(std::string("Upper"), 36);
+		offsetOptions.emplace_back(std::string("Random"), 0);
+
+		gateOptions.emplace_back(std::string("Trigger"), Progress2::GateMode::TRIGGER);
+		gateOptions.emplace_back(std::string("Retrigger"), Progress2::GateMode::RETRIGGER);
+		gateOptions.emplace_back(std::string("Continuous"), Progress2::GateMode::CONTINUOUS);
+
+		chordOptions.emplace_back(std::string("All Chords"), ChordMode::NORMAL);
+		chordOptions.emplace_back(std::string("Chords from Mode"), ChordMode::MODE);
+		chordOptions.emplace_back(std::string("Chords from Mode (coerce)"), ChordMode::COERCE);
+
 	}
 
 	void appendContextMenu(Menu *menu) override {
@@ -333,16 +348,19 @@ struct Progress2Widget : ModuleWidget {
 		Progress2 *progress = dynamic_cast<Progress2*>(module);
 		assert(progress);
 
-		struct GateModeItem : MenuItem {
+		struct Progress2Menu : MenuItem {
 			Progress2 *module;
+			Progress2Widget *parent;
+		};
+
+		struct GateModeItem : Progress2Menu {
 			Progress2::GateMode gateMode;
 			void onAction(const rack::event::Action &e) override {
 				module->gateMode = gateMode;
 			}
 		};
 
-		struct OffsetItem : MenuItem {
-			Progress2 *module;
+		struct OffsetItem : Progress2Menu {
 			int offset;
 			void onAction(const rack::event::Action &e) override {
 				module->pState.offset = offset;
@@ -350,8 +368,7 @@ struct Progress2Widget : ModuleWidget {
 			}
 		};
 
-		struct ChordModeItem : MenuItem {
-			Progress2 *module;
+		struct ChordModeItem : Progress2Menu {
 			ChordMode chordMode;
 			void onAction(const rack::event::Action &e) override {
 				module->pState.chordMode = chordMode;
@@ -359,48 +376,39 @@ struct Progress2Widget : ModuleWidget {
 			}
 		};
 
-		struct GateModeMenu : MenuItem {
-			Progress2 *module;
+		struct GateModeMenu : Progress2Menu {
 			Menu *createChildMenu() override {
 				Menu *menu = new Menu;
-				std::vector<Progress2::GateMode> modes = {Progress2::TRIGGER, Progress2::RETRIGGER, Progress2::CONTINUOUS};
-				std::vector<std::string> names = {"Trigger", "Retrigger", "Continuous"};
-				for (size_t i = 0; i < modes.size(); i++) {
-					GateModeItem *item = createMenuItem<GateModeItem>(names[i], CHECKMARK(module->gateMode == modes[i]));
+				for (auto opt: parent->gateOptions) {
+					GateModeItem *item = createMenuItem<GateModeItem>(opt.name, CHECKMARK(module->gateMode == opt.value));
 					item->module = module;
-					item->gateMode = modes[i];
+					item->gateMode = opt.value;
 					menu->addChild(item);
 				}
 				return menu;
 			}
 		};
 
-		struct OffsetMenu : MenuItem {
-			Progress2 *module;
+		struct OffsetMenu : Progress2Menu {
 			Menu *createChildMenu() override {
 				Menu *menu = new Menu;
-				std::vector<int> offsets = {12, 24, 36, 0};
-				std::vector<std::string> names = {"Lower", "Repeat", "Upper", "Random"};
-				for (size_t i = 0; i < offsets.size(); i++) {
-					OffsetItem *item = createMenuItem<OffsetItem>(names[i], CHECKMARK(module->pState.offset == offsets[i]));
+				for (auto opt: parent->offsetOptions) {
+					OffsetItem *item = createMenuItem<OffsetItem>(opt.name, CHECKMARK(module->pState.offset == opt.value));
 					item->module = module;
-					item->offset = offsets[i];
+					item->offset = opt.value;
 					menu->addChild(item);
 				}
 				return menu;
 			}
 		};
 
-		struct ChordModeMenu : MenuItem {
-			Progress2 *module;
+		struct ChordModeMenu : Progress2Menu {
 			Menu *createChildMenu() override {
 				Menu *menu = new Menu;
-				std::vector<ChordMode> chordModes = {ChordMode::NORMAL, ChordMode::MODE, ChordMode::COERCE};
-				std::vector<std::string> names = {"All Chords", "Chords from Mode", "Chords from Mode (coerce)"};
-				for (size_t i = 0; i < chordModes.size(); i++) {
-					ChordModeItem *item = createMenuItem<ChordModeItem>(names[i], CHECKMARK(module->pState.chordMode == chordModes[i]));
+				for (auto opt: parent->chordOptions) {
+					ChordModeItem *item = createMenuItem<ChordModeItem>(opt.name, CHECKMARK(module->pState.chordMode == opt.value));
 					item->module = module;
-					item->chordMode = chordModes[i];
+					item->chordMode = opt.value;
 					menu->addChild(item);
 				}
 				return menu;
@@ -410,14 +418,17 @@ struct Progress2Widget : ModuleWidget {
 		menu->addChild(construct<MenuLabel>());
 		ChordModeMenu *chordItem = createMenuItem<ChordModeMenu>("Chord Selection");
 		chordItem->module = progress;
+		chordItem->parent = this;
 		menu->addChild(chordItem);
 
 		GateModeMenu *gateItem = createMenuItem<GateModeMenu>("Gate Mode");
 		gateItem->module = progress;
+		gateItem->parent = this;
 		menu->addChild(gateItem);
 
 		OffsetMenu *offsetItem = createMenuItem<OffsetMenu>("Repeat Notes");
 		offsetItem->module = progress;
+		offsetItem->parent = this;
 		menu->addChild(offsetItem);
 
 	}

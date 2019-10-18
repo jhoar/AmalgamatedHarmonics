@@ -60,9 +60,9 @@ void ProgressState::update() {
 			calculateVoltages(currentPart,step);
 		}
 		parts[currentPart][step].dirty = false;
-		stateChanged = false;
 	}
-
+	stateChanged = false;
+	modeChanged = false;
 }
 
 void ProgressState::copyPartFrom(int src) {
@@ -177,8 +177,7 @@ void ProgressState::fromJson(json_t *rootJ) {
 		for (int part = 0; part < 32; part++) {
 			for (int step = 0; step < 8; step++) {
 				json_t *rootNoteJ = json_array_get(rootNote_array, part * 8 + step);
-				if (rootNoteJ)
-					parts[part][step].rootNote = json_integer_value(rootNoteJ);
+				if (rootNoteJ) parts[part][step].rootNote = json_integer_value(rootNoteJ);
 			}
 		}
 	}
@@ -189,8 +188,7 @@ void ProgressState::fromJson(json_t *rootJ) {
 		for (int part = 0; part < 32; part++) {
 			for (int step = 0; step < 8; step++) {
 				json_t *noteJ = json_array_get(note_array, part * 8 + step);
-				if (noteJ)
-					parts[part][step].note = json_integer_value(noteJ);
+				if (noteJ) parts[part][step].note = json_integer_value(noteJ);
 			}
 		}
 	}
@@ -201,8 +199,7 @@ void ProgressState::fromJson(json_t *rootJ) {
 		for (int part = 0; part < 32; part++) {
 			for (int step = 0; step < 8; step++) {
 				json_t *qualityJ = json_array_get(quality_array, part * 8 + step);
-				if (qualityJ)
-					parts[part][step].quality = json_integer_value(qualityJ);
+				if (qualityJ) parts[part][step].quality = json_integer_value(qualityJ);
 			}
 		}
 	}
@@ -213,8 +210,7 @@ void ProgressState::fromJson(json_t *rootJ) {
 		for (int part = 0; part < 32; part++) {
 			for (int step = 0; step < 8; step++) {
 				json_t *chordJ = json_array_get(chord_array, part * 8 + step);
-				if (chordJ)
-					parts[part][step].chord = json_integer_value(chordJ);
+				if (chordJ)	parts[part][step].chord = json_integer_value(chordJ);
 			}
 		}
 	}
@@ -225,8 +221,7 @@ void ProgressState::fromJson(json_t *rootJ) {
 		for (int part = 0; part < 32; part++) {
 			for (int step = 0; step < 8; step++) {
 				json_t *modeDegreeJ = json_array_get(modeDegree_array, part * 8 + step);
-				if (modeDegreeJ)
-					parts[part][step].modeDegree = json_integer_value(modeDegreeJ);
+				if (modeDegreeJ) parts[part][step].modeDegree = json_integer_value(modeDegreeJ);
 			}
 		}
 	}
@@ -237,8 +232,7 @@ void ProgressState::fromJson(json_t *rootJ) {
 		for (int part = 0; part < 32; part++) {
 			for (int step = 0; step < 8; step++) {
 				json_t *inversionJ = json_array_get(inversion_array, part * 8 + step);
-				if (inversionJ)
-					parts[part][step].inversion = json_integer_value(inversionJ);
+				if (inversionJ)	parts[part][step].inversion = json_integer_value(inversionJ);
 			}
 		}
 	}
@@ -249,8 +243,7 @@ void ProgressState::fromJson(json_t *rootJ) {
 		for (int part = 0; part < 32; part++) {
 			for (int step = 0; step < 8; step++) {
 				json_t *octaveJ = json_array_get(octave_array, part * 8 + step);
-				if (octaveJ)
-					parts[part][step].octave = json_integer_value(octaveJ);
+				if (octaveJ) parts[part][step].octave = json_integer_value(octaveJ);
 			}
 		}
 	}
@@ -261,21 +254,18 @@ void ProgressState::fromJson(json_t *rootJ) {
 		for (int part = 0; part < 32; part++) {
 			for (int step = 0; step < 8; step++) {
 				json_t *gateJ = json_array_get(gate_array, part * 8 + step);
-				if (gateJ)
-					parts[part][step].gate = json_boolean_value(gateJ);
+				if (gateJ) parts[part][step].gate = json_boolean_value(gateJ);
 			}
 		}
 	}
 
 	// offset
 	json_t *offsetJ = json_object_get(rootJ, "offset");
-	if (offsetJ)
-		offset = json_integer_value(offsetJ);
+	if (offsetJ) offset = json_integer_value(offsetJ);
 
 	// chordMode
 	json_t *chordModeJ = json_object_get(rootJ, "chordMode");
-	if (chordModeJ)
-		chordMode = (ChordMode)json_integer_value(chordModeJ);
+	if (chordModeJ) chordMode = (ChordMode)json_integer_value(chordModeJ);
 
 }
 
