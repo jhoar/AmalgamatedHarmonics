@@ -17,7 +17,7 @@ struct Pattern {
 	int MAJOR[7] = {0,2,4,5,7,9,11};
 	int MINOR[7] = {0,2,3,5,7,8,10};
 		
-	virtual std::string getName() = 0;
+	virtual const std::string & getName() = 0;
 
 	virtual void initialise(int l, int sc, int tr, int off) {
 		length = l;
@@ -50,8 +50,10 @@ struct Pattern {
 
 struct DivergePattern : Pattern {
 
-	std::string getName() override {
-		return "Diverge";
+	const std::string name = "Diverge";
+
+	const std::string & getName() override {
+		return name;
 	};
 
 	void initialise(int l, int sc, int tr, int off) override {
@@ -84,9 +86,11 @@ struct DivergePattern : Pattern {
 
 struct ConvergePattern : Pattern {
 
-	std::string getName() override {
-		return "Converge";
-	};	
+	const std::string name = "Converge";
+
+	const std::string & getName() override {
+		return name;
+	};
 
 	void initialise(int l, int sc, int tr, int off) override {
 		Pattern::initialise(l, sc, tr, off);
@@ -121,10 +125,11 @@ struct ConvergePattern : Pattern {
 struct ReturnPattern : Pattern {
 
 	int mag = 0;
+	const std::string name = "Return";
 
-	std::string getName() override {
-		return "Return";
-	};	
+	const std::string & getName() override {
+		return name;
+	};
 
 	void initialise(int l, int sc, int tr, int off) override {
 		Pattern::initialise(l, sc, tr, off);
@@ -191,9 +196,11 @@ struct NotePattern : Pattern {
 
 struct RezPattern : NotePattern {
 
-	std::string getName() override {
-		return "Rez";
-	};	
+	const std::string name = "Rez";
+
+	const std::string & getName() override {
+		return name;
+	};
 
 	RezPattern() {
 		notes.clear();
@@ -219,9 +226,11 @@ struct RezPattern : NotePattern {
 
 struct OnTheRunPattern : NotePattern {
 	
-	std::string getName() override {
-		return "On The Run";
-	};	
+	const std::string name = "On The Run";
+
+	const std::string & getName() override {
+		return name;
+	};
 
 	OnTheRunPattern() {
 		notes.clear();
@@ -240,7 +249,7 @@ struct OnTheRunPattern : NotePattern {
 struct Arp32 : core::AHModule {
 
 	const static int MAX_STEPS = 16;
-	const static int MAX_DIST = 12; //Octave
+	const static int MAX_DIST = 12; // Octave
 
 	enum ParamIds {
 		PATT_PARAM,
@@ -297,6 +306,14 @@ struct Arp32 : core::AHModule {
 		configParam(SCALE_PARAM, 0, 2, 0, "Step size"); 
 		paramQuantities[SCALE_PARAM]->description = "Size of each step, semitones or major or minor intervals"; 
 
+		patterns.push_back(&patt_diverge);
+		patterns.push_back(&patt_converge);
+		patterns.push_back(&patt_return);
+		patterns.push_back(&patt_rez);
+		patterns.push_back(&patt_ontherun);
+
+		nextPattern = patterns[0]->getName();
+
 		onReset();
 		id = rand();
 		debugFlag = false;
@@ -321,10 +338,7 @@ struct Arp32 : core::AHModule {
 	void dataFromJson(json_t *rootJ) override {
 		// gateMode
 		json_t *gateModeJ = json_object_get(rootJ, "gateMode");
-		
-		if (gateModeJ) {
-			gateMode = (GateMode)json_integer_value(gateModeJ);
-		}
+		if (gateModeJ) gateMode = (GateMode)json_integer_value(gateModeJ);
 	}
 
 	enum GateMode {
@@ -355,21 +369,17 @@ struct Arp32 : core::AHModule {
 	float trans = 0;
 	float scale = 0;
 
+	std::vector<Pattern *>patterns;
+
 	DivergePattern			patt_diverge; 
 	ConvergePattern 		patt_converge; 
 	ReturnPattern 			patt_return;
 	RezPattern 				patt_rez;
 	OnTheRunPattern			patt_ontherun;
 
-	DivergePattern			ui_patt_diverge; 
-	ConvergePattern 		ui_patt_converge; 
-	ReturnPattern 			ui_patt_return;
-	RezPattern 				ui_patt_rez;
-	OnTheRunPattern			ui_patt_ontherun;
-
 	Pattern *currPatt = &patt_diverge;
-	Pattern *uiPatt = &ui_patt_diverge;
-	
+	std::string nextPattern;
+
 };
 
 void Arp32::process(const ProcessArgs &args) {
@@ -487,14 +497,7 @@ void Arp32::process(const ProcessArgs &args) {
 		trans = inputTrans;
 		scale = inputScale;
 
-		switch(pattern) {
-			case 0:		currPatt = &patt_diverge; 		break;
-			case 1:		currPatt = &patt_converge;		break;
-			case 2:		currPatt = &patt_return;		break;
-			case 3:		currPatt = &patt_rez;			break;
-			case 4:		currPatt = &patt_ontherun;		break;
-			default:	currPatt = &patt_diverge;		break;
-		};
+		currPatt = patterns[pattern];
 
 		// Save pitch
 		rootPitch = inputPitch;
@@ -511,18 +514,7 @@ void Arp32::process(const ProcessArgs &args) {
 
 	} 
 
-	// Update UI
-	switch(inputPat) {
-		case 0:		uiPatt = &ui_patt_diverge; 		break;
-		case 1:		uiPatt = &ui_patt_converge;		break;
-		case 2:		uiPatt = &ui_patt_return;		break;
-		case 3:		uiPatt = &ui_patt_rez;			break;
-		case 4:		uiPatt = &ui_patt_ontherun;		break;
-		default:	uiPatt = &ui_patt_diverge;		break;
-	};
-
-	// Initialise the pattern
-	uiPatt->initialise(inputLen, inputScale, inputTrans, offset);
+	nextPattern = patterns[inputPat]->getName();
 
 	// Set the value
 	outputs[OUT_OUTPUT].setVoltage(outVolts);
@@ -570,19 +562,19 @@ struct Arp32Display : TransparentWidget {
 			snprintf(text, sizeof(text), "Error: inputLen == 0");
 			nvgText(ctx.vg, pos.x + 10, pos.y, text, NULL);
 		} else {
-			snprintf(text, sizeof(text), "%s", module->uiPatt->getName().c_str());
+			snprintf(text, sizeof(text), "%s", module->nextPattern.c_str());
 			nvgText(ctx.vg, pos.x + 10, pos.y, text, NULL);
-			snprintf(text, sizeof(text), "L : %d", module->uiPatt->length);
+			snprintf(text, sizeof(text), "L : %d", module->inputLen);
 			nvgText(ctx.vg, pos.x + 10, pos.y + 15, text, NULL);
-			switch(module->uiPatt->scale) {
+			switch(module->inputScale) {
 				case 0: 
-					snprintf(text, sizeof(text), "S : %dst", module->uiPatt->trans);
+					snprintf(text, sizeof(text), "S : %dst", module->inputTrans);
 					break;
 				case 1: 
-					snprintf(text, sizeof(text), "S : %dM", module->uiPatt->trans);
+					snprintf(text, sizeof(text), "S : %dM", module->inputTrans);
 					break;
 				case 2: 
-					snprintf(text, sizeof(text), "S : %dm", module->uiPatt->trans);
+					snprintf(text, sizeof(text), "S : %dm", module->inputTrans);
 					break;
 				default: snprintf(text, sizeof(text), "Error..."); break;
 			}
@@ -594,6 +586,8 @@ struct Arp32Display : TransparentWidget {
 };
 
 struct Arp32Widget : ModuleWidget {
+
+	std::vector<MenuOption<Arp32::GateMode>> gateOptions;
 
 	Arp32Widget(Arp32 *module) {
 
@@ -624,6 +618,10 @@ struct Arp32Widget : ModuleWidget {
 			addChild(displayW);
 		}
 
+		gateOptions.emplace_back(std::string("Trigger"), Arp32::TRIGGER);
+		gateOptions.emplace_back(std::string("Retrigger"), Arp32::RETRIGGER);
+		gateOptions.emplace_back(std::string("Continuous"), Arp32::CONTINUOUS);
+
 	}
 
 	void appendContextMenu(Menu *menu) override {
@@ -631,24 +629,25 @@ struct Arp32Widget : ModuleWidget {
 		Arp32 *arp = dynamic_cast<Arp32*>(module);
 		assert(arp);
 
-		struct GateModeItem : MenuItem {
+		struct Arp32Menu : MenuItem {
 			Arp32 *module;
+			Arp32Widget *parent;
+		};
+
+		struct GateModeItem : Arp32Menu {
 			Arp32::GateMode gateMode;
 			void onAction(const rack::event::Action &e) override {
 				module->gateMode = gateMode;
 			}
 		};
 
-		struct GateModeMenu : MenuItem {
-			Arp32 *module;
+		struct GateModeMenu : Arp32Menu {
 			Menu *createChildMenu() override {
 				Menu *menu = new Menu;
-				std::vector<Arp32::GateMode> modes = {Arp32::TRIGGER, Arp32::RETRIGGER, Arp32::CONTINUOUS};
-				std::vector<std::string> names = {"Trigger", "Retrigger", "Continuous"};
-				for (size_t i = 0; i < modes.size(); i++) {
-					GateModeItem *item = createMenuItem<GateModeItem>(names[i], CHECKMARK(module->gateMode == modes[i]));
+				for (auto opt: parent->gateOptions) {
+					GateModeItem *item = createMenuItem<GateModeItem>(opt.name, CHECKMARK(module->gateMode == opt.value));
 					item->module = module;
-					item->gateMode = modes[i];
+					item->gateMode = opt.value;
 					menu->addChild(item);
 				}
 				return menu;
@@ -658,6 +657,7 @@ struct Arp32Widget : ModuleWidget {
 		menu->addChild(construct<MenuLabel>());
 		GateModeMenu *item = createMenuItem<GateModeMenu>("Gate Mode");
 		item->module = arp;
+		item->parent = this;
 		menu->addChild(item);
 
 	}

@@ -5,13 +5,13 @@
 
 struct Arpeggio {
 
-	virtual std::string getName() = 0;
+	virtual const std::string & getName() = 0;
 
 	virtual void initialise(int nPitches, int offset, bool repeatEnds) = 0;
 	
 	virtual void advance() = 0;
 	
-	virtual int getPitch() = 0;
+	virtual std::size_t getPitch() = 0;
 	
 	virtual bool isArpeggioFinished() = 0;
 
@@ -33,11 +33,12 @@ struct Arpeggio {
 
 struct RightArp : Arpeggio {
 
-	int index = 0;
-	int nPitches = 0;
+	std::size_t index = 0;
+	std::size_t nPitches = 0;
+	const std::string name = "Right";
 
-	std::string getName() override {
-		return "Right";
+	const std::string & getName() override {
+		return name;
 	};
 
 	void initialise(int np, int offset, bool repeatEnds) override {
@@ -58,7 +59,7 @@ struct RightArp : Arpeggio {
 		index++;
 	}
 	
-	int getPitch() override {
+	size_t getPitch() override {
 		return index;
 	}
 	
@@ -70,11 +71,12 @@ struct RightArp : Arpeggio {
 
 struct LeftArp : Arpeggio {
 
-	int index = 0;
-	int nPitches = 0;
+	std::size_t index = 0;
+	std::size_t nPitches = 0;
+	const std::string name = "Left";
 
-	std::string getName() override {
-		return "Left";
+	const std::string & getName() override {
+		return name;
 	};
 	
 	void initialise(int np, int offset, bool repeatEnds) override {
@@ -96,7 +98,7 @@ struct LeftArp : Arpeggio {
 		index--;
 	}
 	
-	int getPitch() override {
+	std::size_t getPitch() override {
 		return index;
 	}
 
@@ -112,10 +114,12 @@ struct RightLeftArp : Arpeggio {
 	int mag = 0; // index of last pitch
 	int end = 0; // index of end of arp
 	int nPitches = 0;
+	const std::string name = "RightLeft";
 	
-	std::string getName() override {
-		return "RightLeft";
-	};	
+	const std::string & getName() override {
+		return name;
+	};
+
 
 	void initialise(int np, int offset, bool repeatEnds) override {
 
@@ -147,10 +151,8 @@ struct RightLeftArp : Arpeggio {
 		currSt++;
 	}
 	
-	int getPitch() override {
-
-		int p = abs((mag - abs(mag - currSt)) % nPitches);
-		return p;
+	size_t getPitch() override {
+		return abs((mag - abs(mag - currSt)) % nPitches);
 	}
 
 	bool isArpeggioFinished() override {
@@ -165,10 +167,12 @@ struct LeftRightArp : Arpeggio {
 	int mag = 0;
 	int end = 0;
 	int nPitches = 0;
+	const std::string name = "LeftRight";
 	
-	std::string getName() override {
-		return "LeftRight";
-	};	
+	const std::string & getName() override {
+		return name;
+	};
+
 
 	void initialise(int np, int offset, bool repeatEnds) override {
 
@@ -200,11 +204,8 @@ struct LeftRightArp : Arpeggio {
 		currSt++;
 	}
 	
-	int getPitch() override {
-
-		int p = abs(abs(mag - currSt) % nPitches);
-		return p;
-
+	std::size_t getPitch() override {
+		return abs(abs(mag - currSt) % nPitches);
 	}
 
 	bool isArpeggioFinished() override {
@@ -248,6 +249,12 @@ struct Arp31 : core::AHModule {
 
 		configParam(ARP_PARAM, 0.0, 3.0, 0.0, "Arpeggio type"); 
 
+		arps.push_back(&arp_right);
+		arps.push_back(&arp_left);
+		arps.push_back(&arp_rightleft);
+		arps.push_back(&arp_leftright);
+		nextArp = arps[0]->getName();
+
 		onReset();
 		id = rand();
         debugFlag = false;
@@ -276,17 +283,11 @@ struct Arp31 : core::AHModule {
 	void dataFromJson(json_t *rootJ) override {
 		// gateMode
 		json_t *gateModeJ = json_object_get(rootJ, "gateMode");
-		
-		if (gateModeJ) {
-			gateMode = (GateMode)json_integer_value(gateModeJ);
-		}
+		if (gateModeJ) gateMode = (GateMode)json_integer_value(gateModeJ);
 
 		// repeatMode
 		json_t *repeatModeJ = json_object_get(rootJ, "repeatMode");
-		
-		if (repeatModeJ) {
-			repeatEnd = json_boolean_value(repeatModeJ);
-		}
+		if (repeatModeJ) repeatEnd = json_boolean_value(repeatModeJ);
 
 	}
 	
@@ -306,26 +307,21 @@ struct Arp31 : core::AHModule {
 	int currLight = 0;
 	float outVolts = 0;
 	bool isRunning = false;
-	int inputArp = 0;
-	int arp = 0;
+	size_t inputArp = 0;
 	bool eoc = false;
 	bool repeatEnd = false;
+
+	std::vector<Arpeggio *>arps;
 
 	RightArp 		arp_right;
 	LeftArp 		arp_left;
 	RightLeftArp 	arp_rightleft;
 	LeftRightArp 	arp_leftright;
 
-	RightArp 		ui_arp_right;
-	LeftArp 		ui_arp_left;
-	RightLeftArp 	ui_arp_rightleft;
-	LeftRightArp 	ui_arp_leftright;
-
 	Arpeggio *currArp = &arp_right;
-	Arpeggio *uiArp = &arp_right;
 	
 	std::vector<float> pitches;
-	std::vector<int> pitchIndex;
+	std::string nextArp;
 
 };
 
@@ -386,10 +382,10 @@ void Arp31::process(const ProcessArgs &args) {
 			} 
 
 			// Finally set the out voltage
-			int i = currArp->getPitch();
-			outVolts = clamp(pitches[i], -10.0f, 10.0f);
+			size_t idx = currArp->getPitch();
+			outVolts = clamp(pitches[idx], -10.0f, 10.0f);
 
-			if (debugEnabled()) { std::cout << stepX << " " << id  << " Index: " << i << " V: " << outVolts << " Light: " << currLight << std::endl; }
+			if (debugEnabled()) { std::cout << stepX << " " << id  << " Index: " << idx << " V: " << outVolts << " Light: " << currLight << std::endl; }
 
 			// Pulse the output gate
 			gatePulse.trigger(digital::TRIGGER);
@@ -410,7 +406,7 @@ void Arp31::process(const ProcessArgs &args) {
 	if (restart) {
 
 		// Read input pitches and assign to pitch array
-		std::vector<float> inputPitches;
+		pitches.clear();
 		if (inputs[PITCH_INPUT].isConnected()) {
 			int channels = inputs[PITCH_INPUT].getChannels();
 			if (debugEnabled()) { std::cout << stepX << " " << id  << " Channels: " << channels << std::endl; }
@@ -418,44 +414,27 @@ void Arp31::process(const ProcessArgs &args) {
 			if (inputs[GATE_INPUT].isConnected()) {
 				for (int p = 0; p < channels; p++) {
 					if (inputs[GATE_INPUT].getVoltage(p) > 0.0f) {
-						inputPitches.push_back(inputs[PITCH_INPUT].getVoltage(p));
+						pitches.push_back(inputs[PITCH_INPUT].getVoltage(p));
 					}
 				}
 			} else { // No gate info, read sequentially;
 				for (int p = 0; p < channels; p++) {
-					inputPitches.push_back(inputs[PITCH_INPUT].getVoltage(p));
+					pitches.push_back(inputs[PITCH_INPUT].getVoltage(p));
 				}
 			}
 
 		} 
 
-		if (inputPitches.size() == 0) {
+		if (pitches.size() == 0) {
 			if (debugEnabled()) { std::cout << stepX << " " << id  << " No inputs, assume single 0V pitch" << std::endl; }
-			inputPitches.push_back(0.0f);
-			pitchIndex.push_back(0);
+			pitches.push_back(0.0f);
 		}
 
-		if (debugEnabled()) { std::cout << stepX << " " << id  << " Pitches: " << inputPitches.size() << std::endl; }
+		if (debugEnabled()) { std::cout << stepX << " " << id  << " Pitches: " << pitches.size() << std::endl; }
 
 		// At the first step of the cycle
 		// So this is where we tweak the cycle parameters
-		arp = inputArp;
-		
-		switch(arp) {
-			case 0: 	currArp = &arp_right;		break;
-			case 1: 	currArp = &arp_left;		break;
-			case 2: 	currArp = &arp_rightleft;	break;
-			case 3: 	currArp = &arp_leftright;	break;
-			default:	currArp = &arp_right;		break; 	
-		};
-
-		// Clear existing pitches
-		pitches.clear();
-
-		// Copy pitches
-		for (size_t p = 0; p < inputPitches.size(); p++) {
-			pitches.push_back(inputPitches[p]);
-		}
+		currArp = arps[inputArp];
 
 		if (debugEnabled()) { std::cout << stepX << " " << id  << " Initiatise new Cycle: Pattern: " << currArp->getName() << " nPitches: " << pitches.size() << std::endl; }
 		
@@ -466,18 +445,8 @@ void Arp31::process(const ProcessArgs &args) {
 		
 	} 
 
-	// Update UI
-	switch(inputArp) {
-		case 0: 	uiArp = &ui_arp_right;		break;
-		case 1: 	uiArp = &ui_arp_left;		break;
-		case 2: 	uiArp = &ui_arp_rightleft;	break;
-		case 3: 	uiArp = &ui_arp_leftright;	break;
-		default:	uiArp = &ui_arp_right;		break; 	
-	};
-	
-	// Initialise UI Arp
-	uiArp->initialise(pitches.size() ? pitches.size() : 1, offset, repeatEnd);
-	
+	nextArp = arps[inputArp]->getName();
+
 	// Set the value
 	outputs[OUT_OUTPUT].setVoltage(outVolts);
 
@@ -521,7 +490,7 @@ struct Arp31Display : TransparentWidget {
 		nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
 	
 		char text[128];
-		snprintf(text, sizeof(text), "%s", module->uiArp->getName().c_str());
+		snprintf(text, sizeof(text), "%s", module->nextArp.c_str());
 		nvgText(ctx.vg, pos.x + 10, pos.y + 65, text, NULL);
 		
 	}
@@ -529,6 +498,9 @@ struct Arp31Display : TransparentWidget {
 };
 
 struct Arp31Widget : ModuleWidget {
+
+	std::vector<MenuOption<Arp31::GateMode>> gateOptions;
+	std::vector<MenuOption<bool>> noteOptions;
 
 	Arp31Widget(Arp31 *module) {
 	
@@ -554,7 +526,14 @@ struct Arp31Widget : ModuleWidget {
 			displayW->module = module;
 			addChild(displayW);
 		}
-		
+
+		gateOptions.emplace_back(std::string("Trigger"), Arp31::TRIGGER);
+		gateOptions.emplace_back(std::string("Retrigger"), Arp31::RETRIGGER);
+		gateOptions.emplace_back(std::string("Continuous"), Arp31::CONTINUOUS);
+
+		noteOptions.emplace_back(std::string("Omit last note"), false);
+		noteOptions.emplace_back(std::string("Play last note"), true);
+
 	}
 
 	void appendContextMenu(Menu *menu) override {
@@ -562,62 +541,60 @@ struct Arp31Widget : ModuleWidget {
 		Arp31 *arp = dynamic_cast<Arp31*>(module);
 		assert(arp);
 
-		struct GateModeItem : MenuItem {
+		struct Arp31Menu : MenuItem {
 			Arp31 *module;
+			Arp31Widget *parent;
+		};
+
+		struct GateModeItem : Arp31Menu {
 			Arp31::GateMode gateMode;
 			void onAction(const rack::event::Action &e) override {
 				module->gateMode = gateMode;
 			}
 		};
 
-		struct GateModeMenu : MenuItem {
-			Arp31 *module;
+		struct GateModeMenu : Arp31Menu {
 			Menu *createChildMenu() override {
 				Menu *menu = new Menu;
-				std::vector<Arp31::GateMode> modes = {Arp31::TRIGGER, Arp31::RETRIGGER, Arp31::CONTINUOUS};
-				std::vector<std::string> names = {"Trigger", "Retrigger", "Continuous"};
-				for (size_t i = 0; i < modes.size(); i++) {
-					GateModeItem *item = createMenuItem<GateModeItem>(names[i], CHECKMARK(module->gateMode == modes[i]));
+				for (auto opt: parent->gateOptions) {
+					GateModeItem *item = createMenuItem<GateModeItem>(opt.name, CHECKMARK(module->gateMode == opt.value));
 					item->module = module;
-					item->gateMode = modes[i];
+					item->gateMode = opt.value;
 					menu->addChild(item);
 				}
 				return menu;
 			}
 		};
 
-		struct RepeatModeItem : MenuItem {
-			Arp31 *module;
+		struct RepeatModeItem : Arp31Menu {
 			bool repeatEnd;
 			void onAction(const rack::event::Action &e) override {
 				module->repeatEnd = repeatEnd;
 			}
 		};
 
-		struct RepeatModeMenu : MenuItem {
-			Arp31 *module;
+		struct RepeatModeMenu : Arp31Menu {
 			Menu *createChildMenu() override {
 				Menu *menu = new Menu;
-				std::vector<bool> modes = {false, true};
-				std::vector<std::string> names = {"Omit last note", "Play last note"};
-				for (size_t i = 0; i < modes.size(); i++) {
-					RepeatModeItem *item = createMenuItem<RepeatModeItem>(names[i], CHECKMARK(module->repeatEnd == modes[i]));
+				for (auto opt: parent->gateOptions) {
+					RepeatModeItem *item = createMenuItem<RepeatModeItem>(opt.name, CHECKMARK(module->repeatEnd == opt.value));
 					item->module = module;
-					item->repeatEnd = modes[i];
+					item->repeatEnd = opt.value;
 					menu->addChild(item);
 				}
 				return menu;
 			}
 		};
 
-
 		menu->addChild(construct<MenuLabel>());
 		GateModeMenu *gitem = createMenuItem<GateModeMenu>("Gate Mode");
 		gitem->module = arp;
+		gitem->parent = this;
 		menu->addChild(gitem);
 
 		RepeatModeMenu *ritem = createMenuItem<RepeatModeMenu>("Play last note");
 		ritem->module = arp;
+		ritem->parent = this;
 		menu->addChild(ritem);
 
      }
