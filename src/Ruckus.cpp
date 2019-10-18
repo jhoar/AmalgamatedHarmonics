@@ -3,6 +3,8 @@
 #include "AH.hpp"
 #include "AHCommon.hpp"
 
+#include <array>
+
 using namespace ah;
 
 struct Ruckus : core::AHModule {
@@ -90,8 +92,7 @@ struct Ruckus : core::AHModule {
 		if (xMutesJ) {
 			for (int i = 0; i < 4; i++) {
 				json_t *xMuteJ = json_array_get(xMutesJ, i);
-				if (xMuteJ)
-					xMute[i] = !!json_integer_value(xMuteJ);
+				if (xMuteJ)	xMute[i] = !!json_integer_value(xMuteJ);
 			}
 		}
 
@@ -99,8 +100,7 @@ struct Ruckus : core::AHModule {
 		if (yMutesJ) {
 			for (int i = 0; i < 4; i++) {
 				json_t *yMuteJ = json_array_get(yMutesJ, i);
-				if (yMuteJ)
-					yMute[i] = !!json_integer_value(yMuteJ);
+				if (yMuteJ)	yMute[i] = !!json_integer_value(yMuteJ);
 			}
 		}
 	}
@@ -137,22 +137,22 @@ struct Ruckus : core::AHModule {
 		}
 	}
 
-	digital::AHPulseGenerator xGate[4];
-	digital::AHPulseGenerator yGate[4];
+	std::array<digital::AHPulseGenerator,4> xGate;
+	std::array<digital::AHPulseGenerator,4> yGate;
 
-	bool xMute[4] = {true, true, true, true};
-	bool yMute[4] = {true, true, true, true};
+	std::array<bool,4> xMute = {true, true, true, true};
+	std::array<bool,4> yMute = {true, true, true, true};
 
-	rack::dsp::SchmittTrigger xLockTrigger[4];
-	rack::dsp::SchmittTrigger yLockTrigger[4];
+	std::array<rack::dsp::SchmittTrigger,4> xLockTrigger;
+	std::array<rack::dsp::SchmittTrigger,4> yLockTrigger;
 
 	rack::dsp::SchmittTrigger inTrigger;
 	rack::dsp::SchmittTrigger resetTrigger;
 
-	int division[16];
-	int shift[16];
-	float prob[16];
-	int state[16];
+	std::array<int,16> division;
+	std::array<int,16> shift;
+	std::array<float,16> prob;
+	std::array<int,16> state;
 
 	unsigned int beatCounter = 0;
 
@@ -187,9 +187,9 @@ void Ruckus::process(const ProcessArgs &args) {
 			int i = y * 4 + x;
 
 			if (division[i] == 0) {
-				state[i] = 0;
+				state[i] = 0; // Not active
 			} else {
-				state[i] = 1;
+				state[i] = 1; // Active
 			}
 
 		}
@@ -217,7 +217,7 @@ void Ruckus::process(const ProcessArgs &args) {
 					if (random::uniform() < prob[i]) {
 						xGate[x].trigger(digital::TRIGGER);
 						yGate[y].trigger(digital::TRIGGER);
-						state[i] = 2;
+						state[i] = 2; // Triggered
 					}
 				}
 			}
