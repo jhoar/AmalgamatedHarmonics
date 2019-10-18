@@ -85,7 +85,7 @@ struct NoteOperator : Operator {
 
 		double octV;
 		double octFrac = modf(v, &octV); 
-		octave = (int)octV + 4;
+		octave = (int)octV + 4; // 0V is 4th Octave
 
 		// Below 0V. modf returns negative o and frac, so actual octave is one lower
 		if (octFrac < 0.0) {
@@ -185,8 +185,7 @@ struct PolyProbe : core::AHModule {
 
 		// algo
 		json_t *algoJ = json_object_get(rootJ, "algo");
-		if (algoJ)
-			currAlgo = (Algorithms)json_integer_value(algoJ);
+		if (algoJ) currAlgo = (Algorithms)json_integer_value(algoJ);
 
 	}
 
@@ -305,6 +304,8 @@ struct PolyProbeDisplay : TransparentWidget {
 
 struct PolyProbeWidget : ModuleWidget {
 
+	std::vector<MenuOption<PolyProbe::Algorithms>> algoOptions;
+
 	PolyProbeWidget(PolyProbe *module) {
 
 		setModule(module);
@@ -321,6 +322,10 @@ struct PolyProbeWidget : ModuleWidget {
 			addChild(displayW);
 		}
 
+		algoOptions.emplace_back(std::string("A+B"), PolyProbe::Algorithms::SUM);
+		algoOptions.emplace_back(std::string("A-B"), PolyProbe::Algorithms::DIFF);
+		algoOptions.emplace_back(std::string("Note(A+B)"), PolyProbe::Algorithms::NOTE);
+
 	}
 
 	void appendContextMenu(Menu *menu) override {
@@ -328,28 +333,25 @@ struct PolyProbeWidget : ModuleWidget {
 		PolyProbe *probe = dynamic_cast<PolyProbe*>(module);
 		assert(probe);
 
-		struct AlgoItem : MenuItem {
+		struct PolyProbeMenu : MenuItem {
 			PolyProbe *module;
+			PolyProbeWidget *parent;
+		};
+
+		struct AlgoItem : PolyProbeMenu {
 			PolyProbe::Algorithms algo;
 			void onAction(const rack::event::Action &e) override {
 				module->currAlgo = algo;
 			}
 		};
 
-		struct AlgoMenu : MenuItem {
-			PolyProbe *module;
+		struct AlgoMenu : PolyProbeMenu {
 			Menu *createChildMenu() override {
 				Menu *menu = new Menu;
-				std::vector<PolyProbe::Algorithms> algo = {
-					PolyProbe::Algorithms::SUM, 
-					PolyProbe::Algorithms::DIFF, 
-					PolyProbe::Algorithms::NOTE
-				};
-				std::vector<std::string> names = {"A+B", "A-B", "Note(A+B)"};
-				for (size_t i = 0; i < algo.size(); i++) {
-					AlgoItem *item = createMenuItem<AlgoItem>(names[i], CHECKMARK(module->currAlgo == algo[i]));
+				for (auto opt: parent->algoOptions) {
+					AlgoItem *item = createMenuItem<AlgoItem>(opt.name, CHECKMARK(module->currAlgo == opt.value));
 					item->module = module;
-					item->algo = algo[i];
+					item->algo = opt.value;
 					menu->addChild(item);
 				}
 				return menu;
@@ -359,6 +361,7 @@ struct PolyProbeWidget : ModuleWidget {
 		menu->addChild(construct<MenuLabel>());
 		AlgoMenu *algoItem = createMenuItem<AlgoMenu>("Operation");
 		algoItem->module = probe;
+		algoItem->parent = this;
 		menu->addChild(algoItem);
 
 	}
