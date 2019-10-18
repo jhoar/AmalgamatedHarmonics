@@ -162,18 +162,11 @@ struct Generative : core::AHModule {
 	void dataFromJson(json_t *rootJ) override {
 		// quantise
 		json_t *quantiseJ = json_object_get(rootJ, "quantise");
-		
-		if (quantiseJ) {
-			quantise = json_boolean_value(quantiseJ);
-		}
+		if (quantiseJ) quantise = json_boolean_value(quantiseJ);
 
 		// offset
 		json_t *offsetJ = json_object_get(rootJ, "offset");
-
-		if (offsetJ) {
-			offset = json_boolean_value(offsetJ);
-		}
-
+		if (offsetJ) offset = json_boolean_value(offsetJ);
 	}
 
 	rack::dsp::SchmittTrigger sampleTrigger;
@@ -193,12 +186,12 @@ struct Generative : core::AHModule {
 	bool gateState = false;
 
 	// minimum and maximum slopes in volts per second
-	const float slewMin = 0.1;
-	const float slewMax = 10000.0;
+	const float slewMin = 0.1f;
+	const float slewMax = 10000.0f;
 	const float slewRatio = slewMin / slewMax;
 
 	// Amount of extra slew per voltage difference
-	const float shapeScale = 1.0 / 10.0;
+	const float shapeScale = 1.0f / 10.0;
 
 	float delayTime;
 	float gateTime;
@@ -221,15 +214,15 @@ void Generative::process(const ProcessArgs &args) {
 	float interp = 0.0f;
 	bool toss = false;
 
-	if (wavem < 1.0f)
-		interp = crossfade(oscillator.sin(), oscillator.tri(), wavem) * 5.0; 
-	else if (wavem < 2.0f)
-		interp = crossfade(oscillator.tri(), oscillator.saw(), wavem - 1.0f) * 5.0;
-	else if (wavem < 3.0f)
-		interp = crossfade(oscillator.saw(), oscillator.sqr(), wavem - 2.0f) * 5.0;
-	else 
-		interp = crossfade(oscillator.sqr(), oscillator.sin(), wavem - 3.0f) * 5.0;
-
+	if (wavem < 1.0f) {
+		interp = crossfade(oscillator.sin(), oscillator.tri(), wavem) * 5.0f; 
+	} else if (wavem < 2.0f) {
+		interp = crossfade(oscillator.tri(), oscillator.saw(), wavem - 1.0f) * 5.0f;
+	} else if (wavem < 3.0f) {
+		interp = crossfade(oscillator.saw(), oscillator.sqr(), wavem - 2.0f) * 5.0f;
+	} else {
+		interp = crossfade(oscillator.sqr(), oscillator.sin(), wavem - 3.0f) * 5.0f;
+	}
 
 	// Capture (pink) noise
 	float noise = clamp(pink.next() * 7.5f, -5.0f, 5.0f); // -5V to 5V
@@ -276,7 +269,7 @@ void Generative::process(const ProcessArgs &args) {
 		if (!delayPhase.ishigh() && !gatePhase.ishigh()) {
 
 			// Check against prob control
-			float threshold = clamp(params[PROB_PARAM].getValue() + inputs[PROB_INPUT].getVoltage() / 10.f, 0.f, 1.f);
+			float threshold = clamp(params[PROB_PARAM].getValue() + inputs[PROB_INPUT].getVoltage() / 10.f, 0.0f, 1.0f);
 			toss = (random::uniform() < threshold);
 
 			// Tick is valid
@@ -337,14 +330,6 @@ void Generative::process(const ProcessArgs &args) {
 		}
 	}
 
-	// Quantise or not
-	float out;
-	if (quantise) {
-		out = music::getPitchFromVolts(current, music::NOTE_C, music::SCALE_CHROMATIC);
-	} else {
-		out = current;
-	}
-
 	// If the gate is open, set output to high
 	if (gatePhase.process(args.sampleTime)) {
 		outputs[GATE_OUTPUT].setVoltage(10.0f);
@@ -366,7 +351,12 @@ void Generative::process(const ProcessArgs &args) {
 
 	}
 
-	outputs[OUT_OUTPUT].setVoltage(out);
+	if (quantise) {
+		outputs[OUT_OUTPUT].setVoltage(music::getPitchFromVolts(current, music::NOTE_C, music::SCALE_CHROMATIC));
+	} else {
+		outputs[OUT_OUTPUT].setVoltage(current);
+	}
+	
 	outputs[NOISE_OUTPUT].setVoltage(noise * 2.0);
 	outputs[LFO_OUTPUT].setVoltage(interp);
 	outputs[MIXED_OUTPUT].setVoltage(mixedSignal);
@@ -375,6 +365,9 @@ void Generative::process(const ProcessArgs &args) {
 
 struct GenerativeWidget : ModuleWidget {
 	
+	std::vector<MenuOption<bool>> quantiseOptions;
+	std::vector<MenuOption<bool>> offsetOptions;
+
 	GenerativeWidget(Generative *module) {
 
 		setModule(module);
@@ -416,37 +409,75 @@ struct GenerativeWidget : ModuleWidget {
 		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 3, 5, false, false), module, Generative::GATE_OUTPUT));
 		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 4, 5, false, false), module, Generative::OUT_OUTPUT));
 
+		quantiseOptions.emplace_back(std::string("Quantised"), true);
+		quantiseOptions.emplace_back(std::string("Unquantised"), false);
+
+		offsetOptions.emplace_back(std::string("0V - 10V"), true);
+		offsetOptions.emplace_back(std::string("-5V to 5V"), false);
+
 	}
 
 	void appendContextMenu(Menu *menu) override {
-			Generative *gen = dynamic_cast<Generative*>(module);
-			assert(gen);
+		Generative *gen = dynamic_cast<Generative*>(module);
+		assert(gen);
 
-			struct GenModeItem : MenuItem {
-				Generative *gen;
-				void onAction(const rack::event::Action &e) override {
-					gen->quantise ^= 1;
-				}
-				void step() override {
-					rightText = gen->quantise ? "Quantised" : "Unquantised";
-					MenuItem::step();
-				}
-			};
+		struct GenerativeMenu : MenuItem {
+			Generative *module;
+			GenerativeWidget *parent;
+		};
 
-			struct GenOffsetItem : MenuItem {
-				Generative *gen;
-				void onAction(const rack::event::Action &e) override {
-					gen->offset ^= 1;
-				}
-				void step() override {
-					rightText = gen->offset ? "0V - 10V" : "-5V to 5V";
-					MenuItem::step();
-				}
-			};
+		struct QuantiseItem : GenerativeMenu {
+			bool mode;
+			void onAction(const rack::event::Action &e) override {
+				module->quantise = mode;
+			}
+		};
 
-			menu->addChild(construct<MenuLabel>());
-			menu->addChild(construct<GenModeItem>(&MenuItem::text, "Quantise", &GenModeItem::gen, gen));
-			menu->addChild(construct<GenOffsetItem>(&MenuItem::text, "CV Offset", &GenOffsetItem::gen, gen));
+		struct QuantiseMenu : GenerativeMenu {
+			Menu *createChildMenu() override {
+				Menu *menu = new Menu;
+				for (auto opt: parent->quantiseOptions) {
+					QuantiseItem *item = createMenuItem<QuantiseItem>(opt.name, CHECKMARK(module->quantise == opt.value));
+					item->module = module;
+					item->mode = opt.value;
+					menu->addChild(item);
+				}
+				return menu;
+			}
+		};
+
+		struct OffsetItem : GenerativeMenu {
+			bool offset;
+			void onAction(const rack::event::Action &e) override {
+				module->offset = offset;
+			}
+		};
+
+		struct OffsetMenu : GenerativeMenu {
+			Menu *createChildMenu() override {
+				Menu *menu = new Menu;
+				for (auto opt: parent->offsetOptions) {
+					OffsetItem *item = createMenuItem<OffsetItem>(opt.name, CHECKMARK(module->offset == opt.value));
+					item->module = module;
+					item->offset = opt.value;
+					menu->addChild(item);
+				}
+				return menu;
+			}
+		};
+
+		menu->addChild(construct<MenuLabel>());
+
+		QuantiseMenu *quantiseItem = createMenuItem<QuantiseMenu>("Quantise");
+		quantiseItem->module = gen;
+		quantiseItem->parent = this;
+		menu->addChild(quantiseItem);
+
+		OffsetMenu *offsetItem = createMenuItem<OffsetMenu>("CV Offset");
+		offsetItem->module = gen;
+		offsetItem->parent = this;
+		menu->addChild(offsetItem);
+
 	}
 };
 
