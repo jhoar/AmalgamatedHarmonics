@@ -89,7 +89,8 @@ void Circle::process(const ProcessArgs &args) {
 		if (voltScale == FIFTHS) {
 			newKeyIndex = music::getKeyFromVolts(fRoot);
 		} else {
-			music::getPitchFromVolts(fRoot, music::NOTE_C, music::SCALE_CHROMATIC, &newKeyIndex);
+			int deg;
+			music::getPitchFromVolts(fRoot, music::NOTE_C, music::SCALE_CHROMATIC, &newKeyIndex, &deg);
 		}
 	} else {
 		newKeyIndex = params[KEY_PARAM].getValue();
