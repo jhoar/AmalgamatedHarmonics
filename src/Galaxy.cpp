@@ -119,18 +119,15 @@ struct Galaxy : core::AHModule {
 
 		// offset
 		json_t *offsetJ = json_object_get(rootJ, "offset");
-		if (offsetJ)
-			offset = json_integer_value(offsetJ);
+		if (offsetJ) offset = json_integer_value(offsetJ);
 
 		// mode
 		json_t *modeJ = json_object_get(rootJ, "mode");
-		if (modeJ)
-			mode = json_integer_value(modeJ);
+		if (modeJ) mode = json_integer_value(modeJ);
 
 		// mode
 		json_t *inversionsJ = json_object_get(rootJ, "inversions");
-		if (inversionsJ)
-			allowedInversions = json_integer_value(inversionsJ);
+		if (inversionsJ) allowedInversions = json_integer_value(inversionsJ);
 
 	}
 
@@ -313,13 +310,18 @@ void Galaxy::process(const ProcessArgs &args) {
 
 }
 
+signed short rndSign() {
+	return rand() % 2 ? 1 : -1;
+}
+
+signed int signedRndNotZero(signed int magntiude) {
+	return rndSign() * (rand() % abs(magntiude) + 1); 
+}
+
 void Galaxy::getFromRandom() {
 
-	int rotSign = rand() % 2 ? 1 : -1;
-	int rotateInput = rotSign * (rand() % 1 + 1); // -2 to 2
-
-	int radSign = rand() % 2 ? 1 : -1;
-	int radialInput = radSign * (rand() % 2 + 1); // -2 to 2
+	int rotateInput = signedRndNotZero(2);
+	int radialInput = signedRndNotZero(2);
 
 	if(debugEnabled(5000)) {
 		std::cout << "Rotate: " << rotateInput << "  Radial: " << radialInput << std::endl;
@@ -336,11 +338,8 @@ void Galaxy::getFromRandom() {
 
 void Galaxy::getFromKey() {
 
-	int rotSign = rand() % 2 ? 1 : -1;
-	int rotateInput = rotSign * (rand() % 1 + 1); // -2 to 2
-
-	int radSign = rand() % 2 ? 1 : -1;
-	int radialInput = radSign * (rand() % 2 + 1); // -2 to 2
+	int rotateInput = signedRndNotZero(2);
+	int radialInput = signedRndNotZero(2);
 
 	if(debugEnabled(5000)) {
 		std::cout << "Rotate: " << rotateInput << "  Radial: " << radialInput << std::endl;
@@ -364,8 +363,7 @@ void Galaxy::getFromKey() {
 
 void Galaxy::getFromKeyMode() {
 
-	int rotSign = rand() % 2 ? 1 : -1;
-	int rotateInput = rotSign * (rand() % 1 + 1); // -2 to 2
+	int rotateInput = signedRndNotZero(2);
 
 	// Determine move through the scale
 	currChord.modeDegree += rotateInput;
@@ -419,6 +417,10 @@ struct GalaxyDisplay : TransparentWidget {
 
 struct GalaxyWidget : ModuleWidget {
 
+	std::vector<MenuOption<int>> offsetOptions;
+	std::vector<MenuOption<int>> modeOptions;
+	std::vector<MenuOption<int>> invOptions;
+
 	GalaxyWidget(Galaxy *module)  {
 	
 		setModule(module);
@@ -470,6 +472,19 @@ struct GalaxyWidget : ModuleWidget {
 			addChild(displayW);
 		}
 
+		offsetOptions.emplace_back(std::string("Lower"), 12);
+		offsetOptions.emplace_back(std::string("Repeat"), 24);
+		offsetOptions.emplace_back(std::string("Upper"), 36);
+		offsetOptions.emplace_back(std::string("Random"), 0);
+
+		modeOptions.emplace_back(std::string("Random"), 0);
+		modeOptions.emplace_back(std::string("in Key"), 1);
+		modeOptions.emplace_back(std::string("in Mode"), 2);
+
+		invOptions.emplace_back(std::string("Root only"), 0);
+		invOptions.emplace_back(std::string("Root and First"), 1);
+		invOptions.emplace_back(std::string("Root, First and Second"), 2);
+
 	}
 
 	void appendContextMenu(Menu *menu) override {
@@ -477,72 +492,65 @@ struct GalaxyWidget : ModuleWidget {
 		Galaxy *galaxy = dynamic_cast<Galaxy*>(module);
 		assert(galaxy);
 
-		struct OffsetItem : MenuItem {
+		struct GalaxyMenu : MenuItem {
 			Galaxy *module;
+			GalaxyWidget *parent;
+		};
+
+		struct OffsetItem : GalaxyMenu {
 			int offset;
 			void onAction(const rack::event::Action &e) override {
 				module->offset = offset;
 			}
 		};
 
-		struct ModeItem : MenuItem {
-			Galaxy *module;
+		struct OffsetMenu : GalaxyMenu {
+			Menu *createChildMenu() override {
+				Menu *menu = new Menu;
+				for (auto opt: parent->offsetOptions) {
+					OffsetItem *item = createMenuItem<OffsetItem>(opt.name, CHECKMARK(module->offset == opt.value));
+					item->module = module;
+					item->offset = opt.value;
+					menu->addChild(item);
+				}
+				return menu;
+			}
+		};
+
+		struct ModeItem : GalaxyMenu {
 			int mode;
 			void onAction(const rack::event::Action &e) override {
 				module->mode = mode;
 			}
 		};
 
-		struct InversionItem : MenuItem {
-			Galaxy *module;
+		struct ModeMenu : GalaxyMenu {
+			Menu *createChildMenu() override {
+				Menu *menu = new Menu;
+				for (auto opt: parent->modeOptions) {
+					ModeItem *item = createMenuItem<ModeItem>(opt.name, CHECKMARK(module->mode == opt.value));
+					item->module = module;
+					item->mode = opt.value;
+					menu->addChild(item);
+				}
+				return menu;
+			}
+		};
+
+		struct InversionItem : GalaxyMenu {
 			int allowedInversions;
 			void onAction(const rack::event::Action &e) override {
 				module->allowedInversions = allowedInversions;
 			}
 		};
 
-		struct OffsetMenu : MenuItem {
-			Galaxy *module;
+		struct InversionMenu : GalaxyMenu {
 			Menu *createChildMenu() override {
 				Menu *menu = new Menu;
-				std::vector<int> offsets = {12, 24, 36, 0};
-				std::vector<std::string> names = {"Lower", "Repeat", "Upper", "Random"};
-				for (size_t i = 0; i < offsets.size(); i++) {
-					OffsetItem *item = createMenuItem<OffsetItem>(names[i], CHECKMARK(module->offset == offsets[i]));
+				for (auto opt: parent->invOptions) {
+					InversionItem *item = createMenuItem<InversionItem>(opt.name, CHECKMARK(module->allowedInversions == opt.value));
 					item->module = module;
-					item->offset = offsets[i];
-					menu->addChild(item);
-				}
-				return menu;
-			}
-		};
-
-		struct ModeMenu : MenuItem {
-			Galaxy *module;
-			Menu *createChildMenu() override {
-				Menu *menu = new Menu;
-				std::vector<int> modes = {0, 1, 2};
-				std::vector<std::string> names = {"Random", "in Key", "in Mode"};
-				for (size_t i = 0; i < modes.size(); i++) {
-					ModeItem *item = createMenuItem<ModeItem>(names[i], CHECKMARK(module->mode == modes[i]));
-					item->module = module;
-					item->mode = modes[i];
-					menu->addChild(item);
-				}
-				return menu;
-			}
-		};
-
-		struct InversionMenu : MenuItem {
-			Galaxy *module;
-			Menu *createChildMenu() override {
-				Menu *menu = new Menu;
-				std::vector<int> inversions = {0, 1, 2};
-				std::vector<std::string> names = {"Root only", "Root and First", "Root, First and Second"};
-				for (size_t i = 0; i < inversions.size(); i++) {
-					InversionItem *item = createMenuItem<InversionItem>(names[i], CHECKMARK(module->allowedInversions == inversions[i]));
-					item->module = module;
-					item->allowedInversions = inversions[i];
+					item->allowedInversions = opt.value;
 					menu->addChild(item);
 				}
 				return menu;
@@ -552,14 +560,17 @@ struct GalaxyWidget : ModuleWidget {
 		menu->addChild(construct<MenuLabel>());
 		OffsetMenu *offsetItem = createMenuItem<OffsetMenu>("Repeat Notes");
 		offsetItem->module = galaxy;
+		offsetItem->parent = this;
 		menu->addChild(offsetItem);
 
 		ModeMenu *modeItem = createMenuItem<ModeMenu>("Chord Selection");
 		modeItem->module = galaxy;
+		modeItem->parent = this;
 		menu->addChild(modeItem);
 
 		InversionMenu *invItem = createMenuItem<InversionMenu>("Allowed Chord Inversions");
 		invItem->module = galaxy;
+		invItem->parent = this;
 		menu->addChild(invItem);
 
 	}
