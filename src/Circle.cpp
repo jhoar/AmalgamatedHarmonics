@@ -61,10 +61,7 @@ struct Circle : core::AHModule {
 	void dataFromJson(json_t *rootJ) override {
 		// gateMode
 		json_t *scaleModeJ = json_object_get(rootJ, "scale");
-
-		if (scaleModeJ) {
-			voltScale = (Scaling)json_integer_value(scaleModeJ);
-		}
+		if (scaleModeJ) voltScale = (Scaling)json_integer_value(scaleModeJ);
 	}
 
 	rack::dsp::SchmittTrigger rotLTrigger;
@@ -74,10 +71,7 @@ struct Circle : core::AHModule {
 
 	int baseKeyIndex = 0;
 	int curKeyIndex = 0;
-
 	int curMode = 0;
-
-	int poll = 50000;
 
 };
 
@@ -90,13 +84,12 @@ void Circle::process(const ProcessArgs &args) {
 	float rotRInput		= inputs[ROTR_INPUT].getVoltage();
 	
 	int newKeyIndex = 0;
-	int deg;
 	if (inputs[KEY_INPUT].isConnected()) {
 		float fRoot = inputs[KEY_INPUT].getVoltage();
 		if (voltScale == FIFTHS) {
 			newKeyIndex = music::getKeyFromVolts(fRoot);
 		} else {
-			music::getPitchFromVolts(fRoot, music::NOTE_C, music::SCALE_CHROMATIC, &newKeyIndex, &deg);
+			music::getPitchFromVolts(fRoot, music::NOTE_C, music::SCALE_CHROMATIC, &newKeyIndex);
 		}
 	} else {
 		newKeyIndex = params[KEY_PARAM].getValue();
@@ -119,11 +112,7 @@ void Circle::process(const ProcessArgs &args) {
 	if (rotLStatus) {
 		if (debugEnabled()) { std::cout << stepX << " Rotate left: " << curKeyIndex; }
 		if (voltScale == FIFTHS) {
-			if (curKeyIndex == 0) {
-				curKeyIndex = 11;
-			} else {
-				curKeyIndex--;
-			}
+			curKeyIndex = curKeyIndex ? 11 : curKeyIndex - 1; // Wrap
 		} else {
 			curKeyIndex = curKeyIndex + 5;
 			if (curKeyIndex > 11) {
@@ -137,11 +126,7 @@ void Circle::process(const ProcessArgs &args) {
 	if (rotRStatus) {
 		if (debugEnabled()) { std::cout << stepX << " Rotate right: " << curKeyIndex; }
 		if (voltScale == FIFTHS) {
-			if (curKeyIndex == 11) {
-				curKeyIndex = 0;
-			} else {
-				curKeyIndex++;
-			}
+			curKeyIndex = curKeyIndex == 11 ? 0 : curKeyIndex + 1; // Wrap
 		} else {
 			curKeyIndex = curKeyIndex - 5;
 			if (curKeyIndex < 0) {
@@ -196,6 +181,8 @@ void Circle::process(const ProcessArgs &args) {
 
 struct CircleWidget : ModuleWidget {
 
+	std::vector<MenuOption<Circle::Scaling>> scalingOptions;
+
 	CircleWidget(Circle *module) {
 
 		setModule(module);
@@ -220,22 +207,20 @@ struct CircleWidget : ModuleWidget {
 			float xxPos = sinDiv * 60.0;
 			float yyPos = cosDiv * 60.0;
 
-	//		gui::calculateKeyboard(i, xSpace, xOffset, 230.0, &xPos, &yPos, &scale);
 			addChild(createLight<SmallLight<GreenLight>>(Vec(xxPos + 116.5, 149.5 - yyPos), module, Circle::CKEY_LIGHT + music::CIRCLE_FIFTHS[i]));
-
-	//		gui::calculateKeyboard(i, xSpace, xOffset + 72.0, 165.0, &xPos, &yPos, &scale);
 			addChild(createLight<SmallLight<RedLight>>(Vec(xPos + 116.5, 149.5 - yPos), module, Circle::BKEY_LIGHT + music::CIRCLE_FIFTHS[i]));
 		}
 
-		float xOffset = 18.0;
-
 		for (int i = 0; i < 7; i++) {
-			float xPos = 2 * xOffset + i * 18.2;
+			float xPos = 36.0 + i * 18.2;
 			addChild(createLight<SmallLight<GreenLight>>(Vec(xPos, 280.0), module, Circle::MODE_LIGHT + i));
 		}
 
 		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 4, 5, true, false), module, Circle::KEY_OUTPUT));
 		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 5, 5, true, false), module, Circle::MODE_OUTPUT));
+
+		scalingOptions.emplace_back(std::string("Fifths"), Circle::FIFTHS);
+		scalingOptions.emplace_back(std::string("Chromatic (V/OCT)"), Circle::CHROMATIC);
 
 	}
 
@@ -244,24 +229,25 @@ struct CircleWidget : ModuleWidget {
 		Circle *circle = dynamic_cast<Circle*>(module);
 		assert(circle);
 
-		struct ScalingItem : MenuItem {
+		struct CircleMenu : MenuItem {
 			Circle *module;
+			CircleWidget *parent;
+		};
+
+		struct ScalingItem : CircleMenu {
 			Circle::Scaling voltScale;
 			void onAction(const rack::event::Action &e) override {
 				module->voltScale = voltScale;
 			}
 		};
 
-		struct ScalingMenu : MenuItem {
-			Circle *module;
+		struct ScalingMenu : CircleMenu {
 			Menu *createChildMenu() override {
 				Menu *menu = new Menu;
-				std::vector<Circle::Scaling> modes = {Circle::FIFTHS, Circle::CHROMATIC};
-				std::vector<std::string> names = {"Fifths", "Chromatic (V/OCT)"};
-				for (size_t i = 0; i < modes.size(); i++) {
-					ScalingItem *item = createMenuItem<ScalingItem>(names[i], CHECKMARK(module->voltScale == modes[i]));
+				for (auto opt: parent->scalingOptions) {
+					ScalingItem *item = createMenuItem<ScalingItem>(opt.name, CHECKMARK(module->voltScale == opt.value));
 					item->module = module;
-					item->voltScale = modes[i];
+					item->voltScale = opt.value;
 					menu->addChild(item);
 				}
 				return menu;
@@ -271,6 +257,7 @@ struct CircleWidget : ModuleWidget {
 		menu->addChild(construct<MenuLabel>());
 		ScalingMenu *item = createMenuItem<ScalingMenu>("Root Volt Scaling");
 		item->module = circle;
+		item->parent = this;
 		menu->addChild(item);
 
 	}

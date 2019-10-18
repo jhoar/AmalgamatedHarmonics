@@ -17,6 +17,7 @@ struct Bombe : core::AHModule {
 	const static int N_DEGREES = 7;
 	const static int N_QUALITIES = 6;
 	const static int QMAP_SIZE = 20;
+	const static int BUFFERSIZE = 16;
 
 	enum ParamIds {
 		KEY_PARAM,
@@ -65,10 +66,10 @@ struct Bombe : core::AHModule {
 	}
 
 	void process(const ProcessArgs &args) override;
-	void modeRandom(BombeChord lastValue, float y);
-	void modeSimple(BombeChord lastValue, float y);
-	void modeKey(BombeChord lastValue, float y);
-	void modeGalaxy(BombeChord lastValue, float y);
+	void modeRandom(const BombeChord &lastValue, float y);
+	void modeSimple(const BombeChord &lastValue, float y);
+	void modeKey(const BombeChord &lastValue, float y);
+	void modeGalaxy(const BombeChord &lastValue, float y);
 
 	json_t *dataToJson() override {
 		json_t *rootJ = json_object();
@@ -92,26 +93,20 @@ struct Bombe : core::AHModule {
 
 		// offset
 		json_t *offsetJ = json_object_get(rootJ, "offset");
-		if (offsetJ)
-			offset = json_integer_value(offsetJ);
+		if (offsetJ) offset = json_integer_value(offsetJ);
 
 		// mode
 		json_t *modeJ = json_object_get(rootJ, "mode");
-		if (modeJ)
-			mode = json_integer_value(modeJ);
+		if (modeJ) mode = json_integer_value(modeJ);
 
 		// mode
 		json_t *inversionsJ = json_object_get(rootJ, "inversions");
-		if (inversionsJ)
-			allowedInversions = json_integer_value(inversionsJ);
+		if (inversionsJ) allowedInversions = json_integer_value(inversionsJ);
 
 	}
 
-//	const static int N_CHORDS = 98;
-
-//	int ChordMap[N_CHORDS] = {1,2,26,29,71,28,72,91,31,97,25,44,54,61,78,95,10,14,15,17,48,79,81,85,11,30,89,94,24,3,90,98,96,60,55,86,5,93,7,56,92,16,32,46,62,77,18,49,65,68,70,82,20,22,23,45,83,87,6,21,27,42,80,9,52,69,76,13,37,88,53,58,8,41,57,47,64,73,19,50,59,66,74,12,35,38,63,33,34,51,4,36,40,43,84,67,39,75};
  	int MajorScale[7] = {0,2,4,5,7,9,11};
-	int Quality2Chord[N_QUALITIES] = { 0, 1, 54 }; // M, m, dim
+	int Quality2Chord[N_QUALITIES] = {0, 1, 54}; // M, m, dim
 	int QualityMap[3][QMAP_SIZE] = { 
 		{00,00,00,00,00,00,00,00,00,00,07,07,07,07,07,07,07,07,06,06},	// M Maj7 7
 		{01,01,01,01,01,01,01,01,01,01,38,38,38,38,38,38,38,38,06,06},	// m m7 7
@@ -123,8 +118,6 @@ struct Bombe : core::AHModule {
 		{0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1},
 		{0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,2,2},
 	};
-
-	int poll = 50000;
 
 	rack::dsp::SchmittTrigger clockTrigger;
 
@@ -139,10 +132,9 @@ struct Bombe : core::AHModule {
 
 	music::KnownChords knownChords;
 
-	std::string rootName = "";
-	std::string modeName = "";
+	std::string rootName;
+	std::string modeName;
 
-	const static int BUFFERSIZE = 16;
 	BombeChord buffer[BUFFERSIZE];
 	BombeChord displayBuffer[BUFFERSIZE];
 
@@ -200,7 +192,7 @@ void Bombe::process(const ProcessArgs &args) {
 	if (clocked) {
 
 		// Grab value from last element of sub-array, which will be the new head value
-		BombeChord lastValue = buffer[length - 1];
+		const BombeChord & lastValue = buffer[length - 1];
 
 		// Shift buffer
 		for(int i = length - 1; i > 0; i--) {
@@ -270,7 +262,7 @@ void Bombe::process(const ProcessArgs &args) {
 	}
 }
 
-void Bombe::modeSimple(BombeChord lastValue, float y) {
+void Bombe::modeSimple(const BombeChord & lastValue, float y) {
 
 	// Recalculate new value of buffer[0].outVolts from lastValue
 	int shift = (rand() % (N_DEGREES - 1)) + 1; // 1 - 6 - always new chord
@@ -291,7 +283,7 @@ void Bombe::modeSimple(BombeChord lastValue, float y) {
 
 }
 
-void Bombe::modeRandom(BombeChord lastValue, float y) {
+void Bombe::modeRandom(const BombeChord & lastValue, float y) {
 
 	// Recalculate new value of buffer[0].outVolts from lastValue
 	float p = random::uniform();
@@ -313,7 +305,7 @@ void Bombe::modeRandom(BombeChord lastValue, float y) {
 
 }
 
-void Bombe::modeKey(BombeChord lastValue, float y) {
+void Bombe::modeKey(const BombeChord & lastValue, float y) {
 
 	int shift = (rand() % (N_DEGREES - 1)) + 1; // 1 - 6 - always new chord
 	buffer[0].modeDegree = (lastValue.modeDegree + shift) % N_DEGREES; // FIXME, come from mode2 modeDeg == -1!
@@ -327,7 +319,7 @@ void Bombe::modeKey(BombeChord lastValue, float y) {
 
 }
 
-void Bombe::modeGalaxy(BombeChord lastValue, float y) {
+void Bombe::modeGalaxy(const BombeChord & lastValue, float y) {
 
 	float excess = y - random::uniform();
 
@@ -405,6 +397,10 @@ struct BombeDisplay : TransparentWidget {
 
 struct BombeWidget : ModuleWidget {
 
+	std::vector<MenuOption<int>> offsetOptions;
+	std::vector<MenuOption<int>> modeOptions;
+	std::vector<MenuOption<int>> invOptions;
+
 	BombeWidget(Bombe *module)  {
 	
 		setModule(module);
@@ -455,6 +451,19 @@ struct BombeWidget : ModuleWidget {
 			addChild(displayW);
 		}
 
+		offsetOptions.emplace_back(std::string("Lower"), 12);
+		offsetOptions.emplace_back(std::string("Repeat"), 24);
+		offsetOptions.emplace_back(std::string("Upper"), 36);
+		offsetOptions.emplace_back(std::string("Random"), 0);
+
+		modeOptions.emplace_back(std::string("Random"), 0);
+		modeOptions.emplace_back(std::string("Simple"), 1);
+		modeOptions.emplace_back(std::string("Galaxy"), 2);
+
+		invOptions.emplace_back(std::string("Root only"), 0);
+		invOptions.emplace_back(std::string("Root and First"), 1);
+		invOptions.emplace_back(std::string("Root, First and Second"), 2);
+
 	}
 
 	void appendContextMenu(Menu *menu) override {
@@ -462,72 +471,65 @@ struct BombeWidget : ModuleWidget {
 		Bombe *bombe = dynamic_cast<Bombe*>(module);
 		assert(bombe);
 
-		struct OffsetItem : MenuItem {
+		struct BombeMenu : MenuItem {
 			Bombe *module;
+			BombeWidget *parent;
+		};
+
+		struct OffsetItem : BombeMenu {
 			int offset;
 			void onAction(const rack::event::Action &e) override {
 				module->offset = offset;
 			}
 		};
 
-		struct ModeItem : MenuItem {
-			Bombe *module;
+		struct OffsetMenu : BombeMenu {
+			Menu *createChildMenu() override {
+				Menu *menu = new Menu;
+				for (auto opt: parent->offsetOptions) {
+					OffsetItem *item = createMenuItem<OffsetItem>(opt.name, CHECKMARK(module->offset == opt.value));
+					item->module = module;
+					item->offset = opt.value;
+					menu->addChild(item);
+				}
+				return menu;
+			}
+		};
+
+		struct ModeItem : BombeMenu {
 			int mode;
 			void onAction(const rack::event::Action &e) override {
 				module->mode = mode;
 			}
 		};
 
-		struct InversionItem : MenuItem {
-			Bombe *module;
+		struct ModeMenu : BombeMenu {
+			Menu *createChildMenu() override {
+				Menu *menu = new Menu;
+				for (auto opt: parent->modeOptions) {
+					ModeItem *item = createMenuItem<ModeItem>(opt.name, CHECKMARK(module->mode == opt.value));
+					item->module = module;
+					item->mode = opt.value;
+					menu->addChild(item);
+				}
+				return menu;
+			}
+		};
+
+		struct InversionItem : BombeMenu {
 			int allowedInversions;
 			void onAction(const rack::event::Action &e) override {
 				module->allowedInversions = allowedInversions;
 			}
 		};
 
-		struct OffsetMenu : MenuItem {
-			Bombe *module;
+		struct InversionMenu : BombeMenu {
 			Menu *createChildMenu() override {
 				Menu *menu = new Menu;
-				std::vector<int> offsets = {12, 24, 36, 0};
-				std::vector<std::string> names = {"Lower", "Repeat", "Upper", "Random"};
-				for (size_t i = 0; i < offsets.size(); i++) {
-					OffsetItem *item = createMenuItem<OffsetItem>(names[i], CHECKMARK(module->offset == offsets[i]));
+				for (auto opt: parent->invOptions) {
+					InversionItem *item = createMenuItem<InversionItem>(opt.name, CHECKMARK(module->allowedInversions == opt.value));
 					item->module = module;
-					item->offset = offsets[i];
-					menu->addChild(item);
-				}
-				return menu;
-			}
-		};
-
-		struct ModeMenu : MenuItem {
-			Bombe *module;
-			Menu *createChildMenu() override {
-				Menu *menu = new Menu;
-				std::vector<int> modes = {0, 1, 2};
-				std::vector<std::string> names = {"Random", "Simple", "Galaxy"};
-				for (size_t i = 0; i < modes.size(); i++) {
-					ModeItem *item = createMenuItem<ModeItem>(names[i], CHECKMARK(module->mode == modes[i]));
-					item->module = module;
-					item->mode = modes[i];
-					menu->addChild(item);
-				}
-				return menu;
-			}
-		};
-
-		struct InversionMenu : MenuItem {
-			Bombe *module;
-			Menu *createChildMenu() override {
-				Menu *menu = new Menu;
-				std::vector<int> inversions = {0, 1, 2};
-				std::vector<std::string> names = {"Root only", "Root and First", "Root, First and Second"};
-				for (size_t i = 0; i < inversions.size(); i++) {
-					InversionItem *item = createMenuItem<InversionItem>(names[i], CHECKMARK(module->allowedInversions == inversions[i]));
-					item->module = module;
-					item->allowedInversions = inversions[i];
+					item->allowedInversions = opt.value;
 					menu->addChild(item);
 				}
 				return menu;
@@ -537,14 +539,17 @@ struct BombeWidget : ModuleWidget {
 		menu->addChild(construct<MenuLabel>());
 		OffsetMenu *offsetItem = createMenuItem<OffsetMenu>("Repeat Notes");
 		offsetItem->module = bombe;
+		offsetItem->parent = this;
 		menu->addChild(offsetItem);
 
 		ModeMenu *modeItem = createMenuItem<ModeMenu>("Chord Selection");
 		modeItem->module = bombe;
+		modeItem->parent = this;
 		menu->addChild(modeItem);
 
 		InversionMenu *invItem = createMenuItem<InversionMenu>("Allowed Chord Inversions");
 		invItem->module = bombe;
+		invItem->parent = this;
 		menu->addChild(invItem);
 
      }
