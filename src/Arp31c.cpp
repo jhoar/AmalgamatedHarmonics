@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-struct Arpeggio {
+struct Arpeggio2 {
 
 	virtual const std::string & getName() = 0;
 
@@ -31,7 +31,7 @@ struct Arpeggio {
 
 };
 
-struct RightArp : Arpeggio {
+struct RightArp : Arpeggio2 {
 
 	std::size_t index = 0;
 	std::size_t nPitches = 0;
@@ -69,7 +69,7 @@ struct RightArp : Arpeggio {
 	
 };
 
-struct LeftArp : Arpeggio {
+struct LeftArp : Arpeggio2 {
 
 	std::size_t index = 0;
 	std::size_t nPitches = 0;
@@ -108,7 +108,7 @@ struct LeftArp : Arpeggio {
 	
 };
 
-struct RightLeftArp : Arpeggio {
+struct RightLeftArp : Arpeggio2 {
 
 	int currSt = 0;
 	int mag = 0; // index of last pitch
@@ -161,7 +161,7 @@ struct RightLeftArp : Arpeggio {
 	
 };
 
-struct LeftRightArp : Arpeggio {
+struct LeftRightArp : Arpeggio2 {
 
 	int currSt = 0;
 	int mag = 0;
@@ -311,14 +311,14 @@ struct Arp31 : core::AHModule {
 	bool eoc = false;
 	bool repeatEnd = false;
 
-	std::vector<Arpeggio *>arps;
+	std::vector<Arpeggio2 *>arps;
 
 	RightArp 		arp_right;
 	LeftArp 		arp_left;
 	RightLeftArp 	arp_rightleft;
 	LeftRightArp 	arp_leftright;
 
-	Arpeggio *currArp = &arp_right;
+	Arpeggio2 *currArp = &arp_right;
 	
 	std::vector<float> pitches;
 	std::string nextArp;

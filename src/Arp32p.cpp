@@ -5,7 +5,7 @@
 
 using namespace ah;
 
-struct Pattern {
+struct Pattern2 {
 	
 	int length = 0;
 	int trans = 0;
@@ -48,7 +48,7 @@ struct Pattern {
 
 };
 
-struct DivergePattern : Pattern {
+struct DivergePattern2 : Pattern2 {
 
 	const std::string name = "Diverge";
 
@@ -57,7 +57,7 @@ struct DivergePattern : Pattern {
 	};
 
 	void initialise(int l, int sc, int tr, int off) override {
-		Pattern::initialise(l, sc, tr, off);
+		Pattern2::initialise(l, sc, tr, off);
 		end = length - 1;
 		if (offset >= length - 1) {
 			count = end;
@@ -84,7 +84,7 @@ struct DivergePattern : Pattern {
 
 };
 
-struct ConvergePattern : Pattern {
+struct ConvergePattern2 : Pattern2 {
 
 	const std::string name = "Converge";
 
@@ -93,7 +93,7 @@ struct ConvergePattern : Pattern {
 	};
 
 	void initialise(int l, int sc, int tr, int off) override {
-		Pattern::initialise(l, sc, tr, off);
+		Pattern2::initialise(l, sc, tr, off);
 		end = 0;
 		if (offset >= length) {
 			count = 0;
@@ -122,7 +122,7 @@ struct ConvergePattern : Pattern {
 
 };
 
-struct ReturnPattern : Pattern {
+struct ReturnPattern2 : Pattern2 {
 
 	int mag = 0;
 	const std::string name = "Return";
@@ -132,7 +132,7 @@ struct ReturnPattern : Pattern {
 	};
 
 	void initialise(int l, int sc, int tr, int off) override {
-		Pattern::initialise(l, sc, tr, off);
+		Pattern2::initialise(l, sc, tr, off);
 		mag = length - 1;
 		end = 2 * mag - 1;
 
@@ -172,12 +172,12 @@ struct ReturnPattern : Pattern {
 
 };
 
-struct NotePattern : Pattern {
+struct NotePattern2 : Pattern2 {
 
 	std::vector<int> notes;
 
 	void initialise(int l, int sc, int tr, int off) override {
-		Pattern::initialise(l, sc, tr, off);
+		Pattern2::initialise(l, sc, tr, off);
 		count = off;
 		if (count >= (int)notes.size()) {
 			count = (int)notes.size();
@@ -194,7 +194,7 @@ struct NotePattern : Pattern {
 
 };
 
-struct RezPattern : NotePattern {
+struct RezPattern2 : NotePattern2 {
 
 	const std::string name = "Rez";
 
@@ -202,7 +202,7 @@ struct RezPattern : NotePattern {
 		return name;
 	};
 
-	RezPattern() {
+	RezPattern2() {
 		notes.clear();
 		notes.push_back(0);
 		notes.push_back(12);
@@ -224,7 +224,7 @@ struct RezPattern : NotePattern {
 
 };
 
-struct OnTheRunPattern : NotePattern {
+struct OnTheRunPattern2 : NotePattern2 {
 	
 	const std::string name = "On The Run";
 
@@ -232,7 +232,7 @@ struct OnTheRunPattern : NotePattern {
 		return name;
 	};
 
-	OnTheRunPattern() {
+	OnTheRunPattern2() {
 		notes.clear();
 		notes.push_back(0);
 		notes.push_back(4);
@@ -369,15 +369,15 @@ struct Arp32 : core::AHModule {
 	float trans = 0;
 	float scale = 0;
 
-	std::vector<Pattern *>patterns;
+	std::vector<Pattern2 *>patterns;
 
-	DivergePattern			patt_diverge; 
-	ConvergePattern 		patt_converge; 
-	ReturnPattern 			patt_return;
-	RezPattern 				patt_rez;
-	OnTheRunPattern			patt_ontherun;
+	DivergePattern2			patt_diverge; 
+	ConvergePattern2 		patt_converge; 
+	ReturnPattern2 			patt_return;
+	RezPattern2 			patt_rez;
+	OnTheRunPattern2		patt_ontherun;
 
-	Pattern *currPatt = &patt_diverge;
+	Pattern2 *currPatt = &patt_diverge;
 	std::string nextPattern;
 
 };
