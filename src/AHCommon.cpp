@@ -151,7 +151,7 @@ Chord::Chord() : rootNote(0), quality(0), chord(0), modeDegree(0), inversion(0),
 	setVoltages(defaultChord.formula, 12);
 }
 
-void Chord::setVoltages(std::vector<int> &chordArray, int offset) {
+void Chord::setVoltages(const std::vector<int> &chordArray, int offset) {
 	for (int j = 0; j < 6; j++) {
 		if (chordArray[j] < 0) {
 			int off = offset;
@@ -820,7 +820,7 @@ void getRootFromMode(int inMode, int inRoot, int inTonic, int *currRoot, int *qu
 	// 	<< std::endl;
 }
 
-std::string InversionDefinition::getName(int rootNote) {
+std::string InversionDefinition::getName(int rootNote) const {
 	if (inversion > 0) { 
 		int bassNote = (rootNote + formula[0]) % 12;
 		return music::noteNames[rootNote] + baseName + "/" + music::noteNames[bassNote];
@@ -829,7 +829,7 @@ std::string InversionDefinition::getName(int rootNote) {
 	}
 }
 
-std::string InversionDefinition::getName(int mode, int key, int degree, int root) {
+std::string InversionDefinition::getName(int mode, int key, int degree, int root) const {
 	if (inversion > 0) { 
 		int bassNote = (root + formula[0]) % 12;
 		return music::NoteDegreeModeNames[key][degree][mode] + baseName + "/" + music::noteNames[bassNote];
@@ -892,6 +892,10 @@ void KnownChords::dump() {
 			std::cout << inv.inversion << "(" << inv.formula.size() <<  ") = " << ss.str() << std::endl;
 		}
 	}
+}
+
+const InversionDefinition &KnownChords::getChord(Chord currChord) {
+	return chords[currChord.chord].inversions[currChord.inversion];
 }
 
 } // music

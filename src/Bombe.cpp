@@ -59,8 +59,8 @@ struct Bombe : core::AHModule {
 		configParam(Y_PARAM, 0.0, 1.0, 0.5, "Deviation probability", "%", 0.0f, 100.0f);
 		paramQuantities[Y_PARAM]->description = "The deviation of the next chord update from the mode rule";
 
-		for(int i = 0; i < BUFFERSIZE; i++) {
-			buffer[i].setVoltages(music::defaultChord.formula, offset);
+		for (auto b: buffer) {
+			b.setVoltages(music::defaultChord.formula, offset);
 		}
 
 	}
@@ -220,7 +220,7 @@ void Bombe::process(const ProcessArgs &args) {
 					default: modeSimple(lastValue, y);
 				}
 
-				music::InversionDefinition &invDef = knownChords.chords[buffer[0].chord].inversions[buffer[0].inversion];
+				const music::InversionDefinition &invDef = knownChords.getChord(buffer[0]);
 				buffer[0].setVoltages(invDef.formula, offset);
 
 			}

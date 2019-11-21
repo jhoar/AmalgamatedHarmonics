@@ -352,7 +352,7 @@ struct Chord {
 		octave = 0;
 	}
 
-	void setVoltages(std::vector<int> &chordArray, int offset);
+	void setVoltages(const std::vector<int> &chordArray, int offset);
 
 };
 
@@ -543,9 +543,8 @@ struct InversionDefinition {
 	std::vector<int> formula;
 	std::string baseName;
 
-	std::string getName(int rootNote);
-	std::string getName(int mode, int key, int degree, int rootNote);
-
+	std::string getName(int rootNote) const;
+	std::string getName(int mode, int key, int degree, int rootNote) const;
 };
 
 struct ChordDefinition {
@@ -563,6 +562,7 @@ struct KnownChords {
 
 	KnownChords();
 	void dump();
+	const InversionDefinition &getChord(Chord chord);
 };
 
 extern InversionDefinition defaultChord;

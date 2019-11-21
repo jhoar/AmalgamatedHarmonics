@@ -245,9 +245,8 @@ void Galaxy::process(const ProcessArgs &args) {
 
 		currChord.inversion = InversionMap[allowedInversions][rand() % QMAP_SIZE];
 		currChord.chord = GalaxyChords[currChord.quality];
-
-		music::ChordDefinition &chordDef = knownChords.chords[currChord.chord];
-		music::InversionDefinition &invDef = chordDef.inversions[currChord.inversion];
+		const ah::music::InversionDefinition & invDef = knownChords.getChord(currChord);
+	
 		currChord.setVoltages(invDef.formula, offset);
 
 		if (currChord.quality != lastQuality) {
