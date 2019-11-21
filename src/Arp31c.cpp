@@ -31,7 +31,7 @@ struct Arpeggio2 {
 
 };
 
-struct RightArp : Arpeggio2 {
+struct RightArp2 : Arpeggio2 {
 
 	std::size_t index = 0;
 	std::size_t nPitches = 0;
@@ -69,7 +69,7 @@ struct RightArp : Arpeggio2 {
 	
 };
 
-struct LeftArp : Arpeggio2 {
+struct LeftArp2 : Arpeggio2 {
 
 	std::size_t index = 0;
 	std::size_t nPitches = 0;
@@ -108,7 +108,7 @@ struct LeftArp : Arpeggio2 {
 	
 };
 
-struct RightLeftArp : Arpeggio2 {
+struct RightLeftArp2 : Arpeggio2 {
 
 	int currSt = 0;
 	int mag = 0; // index of last pitch
@@ -161,7 +161,7 @@ struct RightLeftArp : Arpeggio2 {
 	
 };
 
-struct LeftRightArp : Arpeggio2 {
+struct LeftRightArp2 : Arpeggio2 {
 
 	int currSt = 0;
 	int mag = 0;
@@ -313,10 +313,10 @@ struct Arp31 : core::AHModule {
 
 	std::vector<Arpeggio2 *>arps;
 
-	RightArp 		arp_right;
-	LeftArp 		arp_left;
-	RightLeftArp 	arp_rightleft;
-	LeftRightArp 	arp_leftright;
+	RightArp2 		arp_right;
+	LeftArp2 		arp_left;
+	RightLeftArp2 	arp_rightleft;
+	LeftRightArp2 	arp_leftright;
 
 	Arpeggio2 *currArp = &arp_right;
 	
