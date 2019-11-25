@@ -352,7 +352,7 @@ void Generative::process(const ProcessArgs &args) {
 	}
 
 	if (quantise) {
-		outputs[OUT_OUTPUT].setVoltage(music::getPitchFromVolts(current, music::NOTE_C, music::SCALE_CHROMATIC));
+		outputs[OUT_OUTPUT].setVoltage(music::getPitchFromVolts(current, music::Notes::NOTE_C, music::Scales::SCALE_CHROMATIC));
 	} else {
 		outputs[OUT_OUTPUT].setVoltage(current);
 	}

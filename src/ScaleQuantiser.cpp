@@ -65,13 +65,13 @@ void ScaleQuantizer::process(const ProcessArgs &args) {
 	outputs[OUT_OUTPUT].value = currPitch;
 
 	// update tone lights
-	for (int i = 0; i < music::NUM_NOTES; i++) {
+	for (int i = 0; i < music::Notes::NUM_NOTES; i++) {
 		lights[NOTE_LIGHT + i].value = 0.0;
 	}
 	lights[NOTE_LIGHT + currNote].value = 1.0;
 
 	// update degree lights
-	for (int i = 0; i < music::NUM_NOTES; i++) {
+	for (int i = 0; i < music::Notes::NUM_NOTES; i++) {
 		lights[DEGREE_LIGHT + i].value = 0.0;
 		outputs[GATE_OUTPUT + i].value = 0.0;
 	}
@@ -79,14 +79,14 @@ void ScaleQuantizer::process(const ProcessArgs &args) {
 	outputs[GATE_OUTPUT + currDegree].value = 10.0;
 
 	if (lastScale != currScale || firstStep) {
-		for (int i = 0; i <music::NUM_NOTES; i++) {
+		for (int i = 0; i <music::Notes::NUM_NOTES; i++) {
 			lights[SCALE_LIGHT + i].value = 0.0;
 		}
 		lights[SCALE_LIGHT + currScale].value = 1.0;
 	} 
 
 	if (lastRoot != currRoot || firstStep) {
-		for (int i = 0; i < music::NUM_NOTES; i++) {
+		for (int i = 0; i < music::Notes::NUM_NOTES; i++) {
 			lights[KEY_LIGHT + i].value = 0.0;
 		}
 		lights[KEY_LIGHT + currRoot].value = 1.0;

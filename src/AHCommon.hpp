@@ -416,7 +416,7 @@ enum Modes {
 	NUM_MODES
 };
 
-enum DEGREES {
+enum Degrees {
 	DEGREE_I = 0,
 	DEGREE_II,
 	DEGREE_III,
@@ -439,6 +439,11 @@ enum Quality {
 	MIN,
 	DIM,
 	NUM_QUALITY
+};
+
+enum RootScaling {
+	CIRCLE,
+	VOCT
 };
 
 /*

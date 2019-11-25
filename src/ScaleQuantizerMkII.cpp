@@ -47,7 +47,25 @@ struct ScaleQuantizer2 : core::AHModule {
 
 	}
 
+	json_t *dataToJson() override {
+		json_t *rootJ = json_object();
+
+		// voltscale
+		json_t *scaleModeJ = json_integer((int) voltScale);
+		json_object_set_new(rootJ, "voltscale", scaleModeJ);
+
+		return rootJ;
+	}
+
+	void dataFromJson(json_t *rootJ) override {
+		// voltscale
+		json_t *scaleModeJ = json_object_get(rootJ, "voltscale");
+		if (scaleModeJ) voltScale = (music::RootScaling)json_integer_value(scaleModeJ);
+	}
+
 	void process(const ProcessArgs &args) override;
+
+	music::RootScaling voltScale = music::RootScaling::CIRCLE;
 
 	bool firstStep = true;
 	int lastScale = 0;
@@ -75,7 +93,13 @@ void ScaleQuantizer2::process(const ProcessArgs &args) {
 	lastRoot = currRoot;
 
 	if (inputs[KEY_INPUT].isConnected()) {
-		currRoot = music::getKeyFromVolts(inputs[KEY_INPUT].getVoltage());
+		float v = inputs[KEY_INPUT].getVoltage();
+		if (voltScale == music::RootScaling::CIRCLE) {
+			currRoot = music::getKeyFromVolts(v);
+		} else {
+			int deg;
+			music::getPitchFromVolts(v, music::Notes::NOTE_C, music::Scales::SCALE_CHROMATIC, &currRoot, &deg);
+		}
 	} else {
 		currRoot = params[KEY_PARAM].getValue();
 	}
@@ -89,7 +113,7 @@ void ScaleQuantizer2::process(const ProcessArgs &args) {
 	float trans = (inputs[TRANS_INPUT].getVoltage() + params[TRANS_PARAM].getValue()) / 12.0;
 	if (trans != 0.0) {
 		if (trans != lastTrans) {
-			trans = music::getPitchFromVolts(trans, music::NOTE_C, music::SCALE_CHROMATIC);
+			trans = music::getPitchFromVolts(trans, music::Notes::NOTE_C, music::Scales::SCALE_CHROMATIC);
 			lastTrans = trans;
 		} else {
 			trans = lastTrans;
@@ -150,14 +174,14 @@ void ScaleQuantizer2::process(const ProcessArgs &args) {
 	}
 
 	if (lastScale != currScale || firstStep) {
-		for (int i = 0; i < music::NUM_NOTES; i++) {
+		for (int i = 0; i < music::Notes::NUM_NOTES; i++) {
 			lights[SCALE_LIGHT + i].setBrightness(0.0f);
 		}
 		lights[SCALE_LIGHT + currScale].setBrightness(10.0f);
 	} 
 
 	if (lastRoot != currRoot || firstStep) {
-		for (int i = 0; i < music::NUM_NOTES; i++) {
+		for (int i = 0; i < music::Notes::NUM_NOTES; i++) {
 			lights[KEY_LIGHT + i].setBrightness(0.0f);
 		}
 		lights[KEY_LIGHT + currRoot].setBrightness(10.0f);
@@ -168,6 +192,8 @@ void ScaleQuantizer2::process(const ProcessArgs &args) {
 }
 
 struct ScaleQuantizer2Widget : ModuleWidget {
+
+	std::vector<MenuOption<music::RootScaling>> scalingOptions;
 
 	ScaleQuantizer2Widget(ScaleQuantizer2 *module) {
 
@@ -199,10 +225,51 @@ struct ScaleQuantizer2Widget : ModuleWidget {
 			gui::calculateKeyboard(i, xSpace, xOffset, 230.0f, &xPos, &yPos, &scale);
 			addChild(createLight<SmallLight<GreenLight>>(Vec(xOffset + i * 18.0f, 280.0f), module, ScaleQuantizer2::SCALE_LIGHT + i));
 			addChild(createLight<SmallLight<GreenLight>>(Vec(xPos, yPos), module, ScaleQuantizer2::KEY_LIGHT + scale));
-
 		}
 
+		scalingOptions.emplace_back(std::string("V/Oct"), music::RootScaling::VOCT);
+		scalingOptions.emplace_back(std::string("Fourths and Fifths"), music::RootScaling::CIRCLE);
+
 	}
+
+	void appendContextMenu(Menu *menu) override {
+
+		ScaleQuantizer2 *squant = dynamic_cast<ScaleQuantizer2*>(module);
+		assert(squant);
+
+		struct ScaleQuantizer2Menu : MenuItem {
+			ScaleQuantizer2 *module;
+			ScaleQuantizer2Widget *parent;
+		};
+
+		struct ScalingItem : ScaleQuantizer2Menu {
+			music::RootScaling voltScale;
+			void onAction(const rack::event::Action &e) override {
+				module->voltScale = voltScale;
+			}
+		};
+
+		struct ScalingMenu : ScaleQuantizer2Menu {
+			Menu *createChildMenu() override {
+				Menu *menu = new Menu;
+				for (auto opt: parent->scalingOptions) {
+					ScalingItem *item = createMenuItem<ScalingItem>(opt.name, CHECKMARK(module->voltScale == opt.value));
+					item->module = module;
+					item->voltScale = opt.value;
+					menu->addChild(item);
+				}
+				return menu;
+			}
+		};
+
+		menu->addChild(construct<MenuLabel>());
+		ScalingMenu *item = createMenuItem<ScalingMenu>("Root Volt Scaling");
+		item->module = squant;
+		item->parent = this;
+		menu->addChild(item);
+
+	}
+
 
 };
 

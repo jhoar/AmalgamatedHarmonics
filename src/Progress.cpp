@@ -334,13 +334,13 @@ void Progress::process(const ProcessArgs &args) {
 
 				// Now get the actual chord from the main list
 				switch(currQuality[step]) {
-					case music::MAJ: 
+					case music::Quality::MAJ: 
 						currChord[step] = round(rescale(fabs(currQualityInput[step]), 0.0f, 10.0f, 1.0f, 70.0f)); 
 						break;
-					case music::MIN: 
+					case music::Quality::MIN: 
 						currChord[step] = round(rescale(fabs(currQualityInput[step]), 0.0f, 10.0f, 71.0f, 90.0f));
 						break;
-					case music::DIM: 
+					case music::Quality::DIM: 
 						currChord[step] = round(rescale(fabs(currQualityInput[step]), 0.0f, 10.0f, 91.0f, 98.0f));
 						break;		
 				}
@@ -354,7 +354,7 @@ void Progress::process(const ProcessArgs &args) {
 			// If anything has changed, recalculate output for that step
 			if (prevRootInput[step] != currRootInput[step]) {
 				prevRootInput[step] = currRootInput[step];
-				currRoot[step] = round(rescale(fabs(currRootInput[step]), 0.0f, 10.0f, 0.0f, music::NUM_NOTES - 1)); // Param range is 0 to 10, mapped to 0 to 11
+				currRoot[step] = round(rescale(fabs(currRootInput[step]), 0.0f, 10.0f, 0.0f, music::Notes::NUM_NOTES - 1)); // Param range is 0 to 10, mapped to 0 to 11
 				update = true;
 			}
 
@@ -380,9 +380,9 @@ void Progress::process(const ProcessArgs &args) {
 
 			// Get the array of pitches based on the inversion
 			switch(currInv[step]) {
-				case music::ROOT:		chordArray = music::ChordTable[currChord[step]].root; 	break;
-				case music::FIRST_INV:	chordArray = music::ChordTable[currChord[step]].first; 	break;
-				case music::SECOND_INV:	chordArray = music::ChordTable[currChord[step]].second;	break;
+				case music::Inversion::ROOT:		chordArray = music::ChordTable[currChord[step]].root; 	break;
+				case music::Inversion::FIRST_INV:	chordArray = music::ChordTable[currChord[step]].first; 	break;
+				case music::Inversion::SECOND_INV:	chordArray = music::ChordTable[currChord[step]].second;	break;
 				default: chordArray = music::ChordTable[currChord[step]].root;
 			}
 

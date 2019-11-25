@@ -90,6 +90,10 @@ struct Progress2 : core::AHModule {
 		// ProgressState
 		json_object_set_new(rootJ, "state", pState.toJson());
 
+		// voltscale
+		json_t *scaleModeJ = json_integer((int) voltScale);
+		json_object_set_new(rootJ, "voltscale", scaleModeJ);
+
 		return rootJ;
 	}
 
@@ -107,7 +111,13 @@ struct Progress2 : core::AHModule {
 		json_t *pStateJ = json_object_get(rootJ, "state");
 		if (pStateJ) pState.fromJson(pStateJ);
 
+		// voltscale
+		json_t *scaleModeJ = json_object_get(rootJ, "voltscale");
+		if (scaleModeJ) voltScale = (music::RootScaling)json_integer_value(scaleModeJ);
+
 	}
+
+	music::RootScaling voltScale = music::RootScaling::CIRCLE;
 
 	bool running = true;
 
@@ -200,7 +210,15 @@ void Progress2::process(const ProcessArgs &args) {
 	}
 
 	if (inputs[KEY_INPUT].isConnected()) {
-		pState.setKey(music::getKeyFromVolts(inputs[KEY_INPUT].getVoltage()));
+		float v = inputs[KEY_INPUT].getVoltage();
+		int currRoot = 0;
+		if (voltScale == music::RootScaling::CIRCLE) {
+			currRoot = music::getKeyFromVolts(v);
+		} else {
+			int deg;
+			music::getPitchFromVolts(v, music::Notes::NOTE_C, music::Scales::SCALE_CHROMATIC, &currRoot, &deg);
+		}
+		pState.setKey(currRoot);
 	} else {
 		pState.setKey(params[KEY_PARAM].getValue());
 	}
@@ -284,6 +302,7 @@ struct Progress2Widget : ModuleWidget {
 	std::vector<MenuOption<int>> offsetOptions;
 	std::vector<MenuOption<Progress2::GateMode>> gateOptions;
 	std::vector<MenuOption<ChordMode>> chordOptions;
+	std::vector<MenuOption<music::RootScaling>> scalingOptions;
 
 	Progress2Widget(Progress2 *module) {
 
@@ -340,6 +359,9 @@ struct Progress2Widget : ModuleWidget {
 		chordOptions.emplace_back(std::string("All Chords"), ChordMode::NORMAL);
 		chordOptions.emplace_back(std::string("Chords from Mode"), ChordMode::MODE);
 		chordOptions.emplace_back(std::string("Chords from Mode (coerce)"), ChordMode::COERCE);
+
+		scalingOptions.emplace_back(std::string("V/Oct"), music::RootScaling::VOCT);
+		scalingOptions.emplace_back(std::string("Fourths and Fifths"), music::RootScaling::CIRCLE);
 
 	}
 
@@ -415,6 +437,27 @@ struct Progress2Widget : ModuleWidget {
 			}
 		};
 
+		struct ScalingItem : Progress2Menu {
+			music::RootScaling voltScale;
+			void onAction(const rack::event::Action &e) override {
+				module->voltScale = voltScale;
+			}
+		};
+
+		struct ScalingMenu : Progress2Menu {
+			Menu *createChildMenu() override {
+				Menu *menu = new Menu;
+				for (auto opt: parent->scalingOptions) {
+					ScalingItem *item = createMenuItem<ScalingItem>(opt.name, CHECKMARK(module->voltScale == opt.value));
+					item->module = module;
+					item->voltScale = opt.value;
+					menu->addChild(item);
+				}
+				return menu;
+			}
+		};
+
+
 		menu->addChild(construct<MenuLabel>());
 		ChordModeMenu *chordItem = createMenuItem<ChordModeMenu>("Chord Selection");
 		chordItem->module = progress;
@@ -430,6 +473,11 @@ struct Progress2Widget : ModuleWidget {
 		offsetItem->module = progress;
 		offsetItem->parent = this;
 		menu->addChild(offsetItem);
+
+		ScalingMenu *scaleItem = createMenuItem<ScalingMenu>("Root Volt Scaling");
+		scaleItem->module = progress;
+		scaleItem->parent = this;
+		menu->addChild(scaleItem);
 
 	}
 

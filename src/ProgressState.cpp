@@ -285,7 +285,7 @@ void RootChoice::onAction(const rack::event::Action &e) {
 
 	ui::Menu *menu = createMenu();
 	menu->addChild(createMenuLabel("Root Note"));
-	for (int i = 0; i < music::NUM_NOTES; i++) {
+	for (int i = 0; i < music::Notes::NUM_NOTES; i++) {
 		RootItem *item = new RootItem;
 		item->pChord = pChord;
 		item->root = i;
@@ -327,7 +327,7 @@ void DegreeChoice::onAction(const rack::event::Action &e) {
 
 	ui::Menu *menu = createMenu();
 	menu->addChild(createMenuLabel("Degree"));
-	for (int i = 0; i < music::NUM_DEGREES; i++) {
+	for (int i = 0; i < music::Degrees::NUM_DEGREES; i++) {
 		DegreeItem *item = new DegreeItem;
 		item->pState = pState;
 		item->pChord = pChord;
@@ -486,7 +486,7 @@ void InversionChoice::onAction(const rack::event::Action &e) {
 
 	ui::Menu *menu = createMenu();
 	menu->addChild(createMenuLabel("Inversion"));
-	for (int i = 0; i < music::NUM_INV; i++) {
+	for (int i = 0; i < music::Inversion::NUM_INV; i++) {
 		InversionItem *item = new InversionItem;
 		item->pChord = pChord;
 		item->inversion = i;

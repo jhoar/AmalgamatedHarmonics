@@ -112,6 +112,10 @@ struct Galaxy : core::AHModule {
 		json_t *inversionsJ = json_integer((int) allowedInversions);
 		json_object_set_new(rootJ, "inversions", inversionsJ);
 
+		// voltscale
+		json_t *scaleModeJ = json_integer((int) voltScale);
+		json_object_set_new(rootJ, "voltscale", scaleModeJ);
+
 		return rootJ;
 	}
 
@@ -128,6 +132,10 @@ struct Galaxy : core::AHModule {
 		// mode
 		json_t *inversionsJ = json_object_get(rootJ, "inversions");
 		if (inversionsJ) allowedInversions = json_integer_value(inversionsJ);
+
+		// voltscale
+		json_t *scaleModeJ = json_object_get(rootJ, "voltscale");
+		if (scaleModeJ) voltScale = (music::RootScaling)json_integer_value(scaleModeJ);
 
 	}
 
@@ -150,6 +158,8 @@ struct Galaxy : core::AHModule {
 	music::Chord currChord;
 
 	music::KnownChords knownChords;
+
+	music::RootScaling voltScale = music::RootScaling::CIRCLE;
 
 	int lastQuality = 0;
 	int lastNoteIndex = 0; 
@@ -190,8 +200,13 @@ void Galaxy::process(const ProcessArgs &args) {
 	}
 
 	if (inputs[KEY_INPUT].isConnected()) {
-		float fRoot = inputs[KEY_INPUT].getVoltage();
-		currRoot = music::getKeyFromVolts(fRoot);
+		float v = inputs[KEY_INPUT].getVoltage();
+		if (voltScale == music::RootScaling::CIRCLE) {
+			currRoot = music::getKeyFromVolts(v);
+		} else {
+			int deg;
+			music::getPitchFromVolts(v, music::Notes::NOTE_C, music::Scales::SCALE_CHROMATIC, &currRoot, &deg);
+		}
 	} else {
 		currRoot = params[KEY_PARAM].getValue();
 	}
@@ -366,7 +381,7 @@ void Galaxy::getFromKeyMode() {
 
 	// Determine move through the scale
 	currChord.modeDegree += rotateInput;
-	currChord.modeDegree = eucMod(currChord.modeDegree, music::NUM_DEGREES);
+	currChord.modeDegree = eucMod(currChord.modeDegree, music::Degrees::NUM_DEGREES);
 
 	// From the input root, mode and degree, we can get the root chord note and quality (Major,Minor,Diminshed)
 	int q;
@@ -419,6 +434,7 @@ struct GalaxyWidget : ModuleWidget {
 	std::vector<MenuOption<int>> offsetOptions;
 	std::vector<MenuOption<int>> modeOptions;
 	std::vector<MenuOption<int>> invOptions;
+	std::vector<MenuOption<music::RootScaling>> scalingOptions;
 
 	GalaxyWidget(Galaxy *module)  {
 	
@@ -483,6 +499,9 @@ struct GalaxyWidget : ModuleWidget {
 		invOptions.emplace_back(std::string("Root only"), 0);
 		invOptions.emplace_back(std::string("Root and First"), 1);
 		invOptions.emplace_back(std::string("Root, First and Second"), 2);
+
+		scalingOptions.emplace_back(std::string("V/Oct"), music::RootScaling::VOCT);
+		scalingOptions.emplace_back(std::string("Fourths and Fifths"), music::RootScaling::CIRCLE);
 
 	}
 
@@ -556,6 +575,27 @@ struct GalaxyWidget : ModuleWidget {
 			}
 		};
 
+		struct ScalingItem : GalaxyMenu {
+			music::RootScaling voltScale;
+			void onAction(const rack::event::Action &e) override {
+				module->voltScale = voltScale;
+			}
+		};
+
+		struct ScalingMenu : GalaxyMenu {
+			Menu *createChildMenu() override {
+				Menu *menu = new Menu;
+				for (auto opt: parent->scalingOptions) {
+					ScalingItem *item = createMenuItem<ScalingItem>(opt.name, CHECKMARK(module->voltScale == opt.value));
+					item->module = module;
+					item->voltScale = opt.value;
+					menu->addChild(item);
+				}
+				return menu;
+			}
+		};
+
+
 		menu->addChild(construct<MenuLabel>());
 		OffsetMenu *offsetItem = createMenuItem<OffsetMenu>("Repeat Notes");
 		offsetItem->module = galaxy;
@@ -571,6 +611,11 @@ struct GalaxyWidget : ModuleWidget {
 		invItem->module = galaxy;
 		invItem->parent = this;
 		menu->addChild(invItem);
+
+		ScalingMenu *scaleItem = createMenuItem<ScalingMenu>("Root Volt Scaling");
+		scaleItem->module = galaxy;
+		scaleItem->parent = this;
+		menu->addChild(scaleItem);
 
 	}
 

@@ -30,11 +30,9 @@ struct Circle : core::AHModule {
 		ENUMS(CKEY_LIGHT,12),
 		NUM_LIGHTS
 	};
-	enum Scaling {
-		CHROMATIC,
-		FIFTHS
-	};
-	Scaling voltScale = FIFTHS;
+
+	music::RootScaling inVoltScale = music::RootScaling::CIRCLE;
+	music::RootScaling outVoltScale = music::RootScaling::CIRCLE;
 	
 	Circle() : core::AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
 
@@ -51,17 +49,25 @@ struct Circle : core::AHModule {
 	json_t *dataToJson() override {
 		json_t *rootJ = json_object();
 
-		// gateMode
-		json_t *scaleModeJ = json_integer((int) voltScale);
-		json_object_set_new(rootJ, "scale", scaleModeJ);
+		// inScale
+		json_t *inScaleModeJ = json_integer((int) inVoltScale);
+		json_object_set_new(rootJ, "scale", inScaleModeJ);
+
+		// outVoltScale
+		json_t *outScaleModeJ = json_integer((int) outVoltScale);
+		json_object_set_new(rootJ, "outscale", outScaleModeJ);
 
 		return rootJ;
 	}
 
 	void dataFromJson(json_t *rootJ) override {
-		// gateMode
-		json_t *scaleModeJ = json_object_get(rootJ, "scale");
-		if (scaleModeJ) voltScale = (Scaling)json_integer_value(scaleModeJ);
+		// inScale
+		json_t *inScaleModeJ = json_object_get(rootJ, "scale");
+		if (inScaleModeJ) inVoltScale = (music::RootScaling)json_integer_value(inScaleModeJ);
+
+		// outVoltScale
+		json_t *outScaleModeJ = json_object_get(rootJ, "outscale");
+		if (outScaleModeJ) outVoltScale = (music::RootScaling)json_integer_value(outScaleModeJ);
 	}
 
 	rack::dsp::SchmittTrigger rotLTrigger;
@@ -86,11 +92,11 @@ void Circle::process(const ProcessArgs &args) {
 	int newKeyIndex = 0;
 	if (inputs[KEY_INPUT].isConnected()) {
 		float fRoot = inputs[KEY_INPUT].getVoltage();
-		if (voltScale == FIFTHS) {
+		if (inVoltScale == music::RootScaling::CIRCLE) {
 			newKeyIndex = music::getKeyFromVolts(fRoot);
 		} else {
 			int deg;
-			music::getPitchFromVolts(fRoot, music::NOTE_C, music::SCALE_CHROMATIC, &newKeyIndex, &deg);
+			music::getPitchFromVolts(fRoot, music::Notes::NOTE_C, music::Scales::SCALE_CHROMATIC, &newKeyIndex, &deg);
 		}
 	} else {
 		newKeyIndex = params[KEY_PARAM].getValue();
@@ -112,7 +118,7 @@ void Circle::process(const ProcessArgs &args) {
 
 	if (rotLStatus) {
 		if (debugEnabled()) { std::cout << stepX << " Rotate left: " << curKeyIndex; }
-		if (voltScale == FIFTHS) {
+		if (inVoltScale == music::RootScaling::CIRCLE) {
 			curKeyIndex = curKeyIndex ? 11 : curKeyIndex - 1; // Wrap
 		} else {
 			curKeyIndex = curKeyIndex + 5;
@@ -126,7 +132,7 @@ void Circle::process(const ProcessArgs &args) {
 
 	if (rotRStatus) {
 		if (debugEnabled()) { std::cout << stepX << " Rotate right: " << curKeyIndex; }
-		if (voltScale == FIFTHS) {
+		if (inVoltScale == music::RootScaling::CIRCLE) {
 			curKeyIndex = curKeyIndex == 11 ? 0 : curKeyIndex + 1; // Wrap
 		} else {
 			curKeyIndex = curKeyIndex - 5;
@@ -151,7 +157,7 @@ void Circle::process(const ProcessArgs &args) {
 	int curKey;
 	int baseKey;
 
-	if (voltScale == FIFTHS) {
+	if (inVoltScale == music::RootScaling::CIRCLE) {
 		curKey = music::CIRCLE_FIFTHS[curKeyIndex];
 		baseKey = music::CIRCLE_FIFTHS[baseKeyIndex];
 	} else {
@@ -160,9 +166,15 @@ void Circle::process(const ProcessArgs &args) {
 	}
 
 	float keyVolts = music::getVoltsFromKey(curKey);
+	if (outVoltScale == music::RootScaling::CIRCLE) {
+		keyVolts = music::getVoltsFromKey(curKey);
+	} else {
+		keyVolts = curKey * music::SEMITONE;
+	}
+
 	float modeVolts = music::getVoltsFromMode(curMode);
 
-	for (int i = 0; i < music::NUM_NOTES; i++) {
+	for (int i = 0; i < music::Notes::NUM_NOTES; i++) {
 		lights[CKEY_LIGHT + i].setBrightness(0.0);
 		lights[BKEY_LIGHT + i].setBrightness(0.0);
 	}
@@ -170,7 +182,7 @@ void Circle::process(const ProcessArgs &args) {
 	lights[CKEY_LIGHT + curKey].setBrightness(10.0);
 	lights[BKEY_LIGHT + baseKey].setBrightness(10.0);
 
-	for (int i = 0; i < music::NUM_MODES; i++) {
+	for (int i = 0; i < music::Modes::NUM_MODES; i++) {
 		lights[MODE_LIGHT + i].setBrightness(0.0);
 	}
 	lights[MODE_LIGHT + curMode].setBrightness(10.0);
@@ -182,7 +194,8 @@ void Circle::process(const ProcessArgs &args) {
 
 struct CircleWidget : ModuleWidget {
 
-	std::vector<MenuOption<Circle::Scaling>> scalingOptions;
+	std::vector<MenuOption<music::RootScaling>> inScalingOptions;
+	std::vector<MenuOption<music::RootScaling>> outScalingOptions;
 
 	CircleWidget(Circle *module) {
 
@@ -220,8 +233,11 @@ struct CircleWidget : ModuleWidget {
 		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 4, 5, true, false), module, Circle::KEY_OUTPUT));
 		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 5, 5, true, false), module, Circle::MODE_OUTPUT));
 
-		scalingOptions.emplace_back(std::string("Fifths"), Circle::FIFTHS);
-		scalingOptions.emplace_back(std::string("Chromatic (V/OCT)"), Circle::CHROMATIC);
+		inScalingOptions.emplace_back(std::string("V/Oct"), music::RootScaling::VOCT);
+		inScalingOptions.emplace_back(std::string("Classic"), music::RootScaling::CIRCLE);
+
+		outScalingOptions.emplace_back(std::string("V/Oct"), music::RootScaling::VOCT);
+		outScalingOptions.emplace_back(std::string("Classic"), music::RootScaling::CIRCLE);
 
 	}
 
@@ -235,20 +251,40 @@ struct CircleWidget : ModuleWidget {
 			CircleWidget *parent;
 		};
 
-		struct ScalingItem : CircleMenu {
-			Circle::Scaling voltScale;
+		struct InScalingItem : CircleMenu {
+			music::RootScaling inVoltScale;
 			void onAction(const rack::event::Action &e) override {
-				module->voltScale = voltScale;
+				module->inVoltScale = inVoltScale;
 			}
 		};
 
-		struct ScalingMenu : CircleMenu {
+		struct InScalingMenu : CircleMenu {
 			Menu *createChildMenu() override {
 				Menu *menu = new Menu;
-				for (auto opt: parent->scalingOptions) {
-					ScalingItem *item = createMenuItem<ScalingItem>(opt.name, CHECKMARK(module->voltScale == opt.value));
+				for (auto opt: parent->inScalingOptions) {
+					InScalingItem *item = createMenuItem<InScalingItem>(opt.name, CHECKMARK(module->inVoltScale == opt.value));
 					item->module = module;
-					item->voltScale = opt.value;
+					item->inVoltScale = opt.value;
+					menu->addChild(item);
+				}
+				return menu;
+			}
+		};
+
+		struct OutScalingItem : CircleMenu {
+			music::RootScaling outVoltScale;
+			void onAction(const rack::event::Action &e) override {
+				module->outVoltScale = outVoltScale;
+			}
+		};
+
+		struct OutScalingMenu : CircleMenu {
+			Menu *createChildMenu() override {
+				Menu *menu = new Menu;
+				for (auto opt: parent->outScalingOptions) {
+					OutScalingItem *item = createMenuItem<OutScalingItem>(opt.name, CHECKMARK(module->outVoltScale == opt.value));
+					item->module = module;
+					item->outVoltScale = opt.value;
 					menu->addChild(item);
 				}
 				return menu;
@@ -256,10 +292,16 @@ struct CircleWidget : ModuleWidget {
 		};
 
 		menu->addChild(construct<MenuLabel>());
-		ScalingMenu *item = createMenuItem<ScalingMenu>("Root Volt Scaling");
-		item->module = circle;
-		item->parent = this;
-		menu->addChild(item);
+
+		InScalingMenu *inItem = createMenuItem<InScalingMenu>("Input Volt Scaling");
+		inItem->module = circle;
+		inItem->parent = this;
+		menu->addChild(inItem);
+
+		OutScalingMenu *outItem = createMenuItem<OutScalingMenu>("Output Volt Scaling");
+		outItem->module = circle;
+		outItem->parent = this;
+		menu->addChild(outItem);
 
 	}
 
