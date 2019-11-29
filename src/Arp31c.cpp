@@ -33,6 +33,8 @@ struct Arpeggio2 {
 
 struct RightArp2 : Arpeggio2 {
 
+	std::vector<int> indexes;
+
 	std::size_t index = 0;
 	std::size_t nPitches = 0;
 	const std::string name = "Right";
@@ -43,15 +45,21 @@ struct RightArp2 : Arpeggio2 {
 
 	void initialise(int np, int offset, bool repeatEnds) override {
 
-		if (offset != 0) {
-			index = offset % np;
-		} else {
-			index = 0;
+		// std::cout << name;
+
+		indexes.clear();
+
+		// std::cout << " DEF ";
+
+		for (int i = 0; i < np; i++) {
+			// std::cout << i;
+			indexes.push_back(i);
 		}
 
-		nPitches = np;
+		index = offset % np;
+		nPitches = indexes.size();
 
-//		std::cout << nPitches << " " << offset << " " << index << std::endl;
+		// std::cout << " NP=" << nPitches << " -> " << index << std::endl;
 
 	}
 	
@@ -60,16 +68,20 @@ struct RightArp2 : Arpeggio2 {
 	}
 	
 	size_t getPitch() override {
-		return index;
+		// std::cout << "OUT " << index << " " << indexes[index] << std::endl;
+		return indexes[index];
 	}
 	
 	bool isArpeggioFinished() override {
+		// std::cout << "FIN " << index << " " << nPitches << std::endl;
 		return (index >= nPitches - 1);
 	}
 	
 };
 
 struct LeftArp2 : Arpeggio2 {
+
+	std::vector<int> indexes;
 
 	std::size_t index = 0;
 	std::size_t nPitches = 0;
@@ -81,38 +93,45 @@ struct LeftArp2 : Arpeggio2 {
 	
 	void initialise(int np, int offset, bool repeatEnds) override {
 
-		if (offset != 0) {
-			offset = offset % np;
-			index = np - offset - 1;
-		} else {
-			index = np - 1;
+		// std::cout << name;
+
+		indexes.clear();
+
+		// std::cout << " DEF ";
+
+		for (int i = np - 1; i >= 0; i--) {
+			// std::cout << i;
+			indexes.push_back(i);
 		}
 
-		nPitches = np;
+		index = offset % np;
+		nPitches = indexes.size();
 
-//		std::cout << nPitches << " " << offset << " " << index << std::endl;
+		// std::cout << " NP=" << nPitches << " -> " << index << std::endl;
 
 	}
 	
 	void advance() override {
-		index--;
+		index++;
 	}
 	
-	std::size_t getPitch() override {
-		return index;
+	size_t getPitch() override {
+		// std::cout << "OUT " << index << " " << indexes[index] << std::endl;
+		return indexes[index];
 	}
-
+	
 	bool isArpeggioFinished() override {
-		return (index == 0);
+		// std::cout << "FIN " << index << " " << nPitches << std::endl;
+		return (index >= nPitches - 1);
 	}
 	
 };
 
 struct RightLeftArp2 : Arpeggio2 {
 
-	int currSt = 0;
-	int mag = 0; // index of last pitch
-	int end = 0; // index of end of arp
+	std::vector<int> indexes;
+
+	int index = 0;
 	int nPitches = 0;
 	const std::string name = "RightLeft";
 	
@@ -120,52 +139,54 @@ struct RightLeftArp2 : Arpeggio2 {
 		return name;
 	};
 
-
 	void initialise(int np, int offset, bool repeatEnds) override {
 
-		nPitches = np;
-		mag = np - 1;
-		end = 2 * mag - 1;
+		// std::cout << name;
 
-		if (end < 1) {
-			end = 1;
+		indexes.clear();
+
+		// std::cout << " DEF ";
+
+		for (int i = 0; i < np; i++) {
+			// std::cout << i;
+			indexes.push_back(i);
 		}
 
-		currSt = offset;
+		int end = repeatEnds ? 0 : 1;
 
-		if (end < currSt) {
-			end = currSt;
-		} else {
-			if (offset > 0) {
-				end++;
-			}
+		for (int i = np - 2; i >= end; i--) {
+			// std::cout << i;
+			indexes.push_back(i);
 		}
 
-		if (repeatEnds) {
-			end++;
-		}
+		index = offset % indexes.size();
+		nPitches = indexes.size();
+
+		// std::cout << " NP=" << nPitches << " -> " << index << std::endl;
 
 	}
 	
 	void advance() override {
-		currSt++;
+		index++;
 	}
 	
 	size_t getPitch() override {
-		return abs((mag - abs(mag - currSt)) % nPitches);
+		// std::cout << "OUT " << index << " " << indexes[index] << std::endl;
+		return indexes[index];
 	}
 
 	bool isArpeggioFinished() override {
-		return(currSt == end);
+		// std::cout << "FIN " << index << " " << nPitches << std::endl;
+		return (index >= nPitches - 1); 
 	}
 	
 };
 
 struct LeftRightArp2 : Arpeggio2 {
 
-	int currSt = 0;
-	int mag = 0;
-	int end = 0;
+	std::vector<int> indexes;
+
+	int index = 0;
 	int nPitches = 0;
 	const std::string name = "LeftRight";
 	
@@ -173,43 +194,45 @@ struct LeftRightArp2 : Arpeggio2 {
 		return name;
 	};
 
-
 	void initialise(int np, int offset, bool repeatEnds) override {
 
-		nPitches = np;
-		mag = np - 1;
-		end = 2 * mag - 1;
+		// std::cout << name;
 
-		if (end < 1) {
-			end = 1;
+		indexes.clear();
+
+		// std::cout << " DEF ";
+
+		for (int i = np - 1; i >= 0; i--) {
+			// std::cout << i;
+			indexes.push_back(i);
 		}
 
-		currSt = offset;
+		int end = repeatEnds ? 0 : 1;
 
-		if (end < currSt) {
-			end = currSt;
-		} else {
-			if (offset > 0) {
-				end++;
-			}
+		for (int i = 1; i < np - end; i++) {
+			// std::cout << i;
+			indexes.push_back(i);
 		}
 
-		if (repeatEnds) {
-			end++;
-		}
+		index = offset % indexes.size();
+		nPitches = indexes.size();
+
+		// std::cout << " NP=" << nPitches << " -> " << index << std::endl;
 
 	}
 	
 	void advance() override {
-		currSt++;
+		index++;
 	}
 	
-	std::size_t getPitch() override {
-		return abs(abs(mag - currSt) % nPitches);
+	size_t getPitch() override {
+		// std::cout << "OUT " << index << " " << indexes[index] << std::endl;
+		return indexes[index];
 	}
 
 	bool isArpeggioFinished() override {
-		return(currSt == end);
+		// std::cout << "FIN " << index << " " << nPitches << std::endl;
+		return (index >= nPitches - 1); 
 	}
 	
 };
@@ -576,7 +599,7 @@ struct Arp31Widget : ModuleWidget {
 		struct RepeatModeMenu : Arp31Menu {
 			Menu *createChildMenu() override {
 				Menu *menu = new Menu;
-				for (auto opt: parent->gateOptions) {
+				for (auto opt: parent->noteOptions) {
 					RepeatModeItem *item = createMenuItem<RepeatModeItem>(opt.name, CHECKMARK(module->repeatEnd == opt.value));
 					item->module = module;
 					item->repeatEnd = opt.value;
