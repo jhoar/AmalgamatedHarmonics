@@ -5,6 +5,10 @@
 
 struct Arpeggio2 {
 
+	std::vector<int> indexes;
+	std::size_t index = 0;
+	std::size_t nPitches = 0;
+
 	virtual const std::string & getName() = 0;
 
 	virtual void initialise(int nPitches, int offset, bool repeatEnds) = 0;
@@ -33,10 +37,6 @@ struct Arpeggio2 {
 
 struct RightArp2 : Arpeggio2 {
 
-	std::vector<int> indexes;
-
-	std::size_t index = 0;
-	std::size_t nPitches = 0;
 	const std::string name = "Right";
 
 	const std::string & getName() override {
@@ -64,6 +64,7 @@ struct RightArp2 : Arpeggio2 {
 	}
 	
 	void advance() override {
+		// std::cout << "ADV" << std::endl;
 		index++;
 	}
 	
@@ -81,10 +82,6 @@ struct RightArp2 : Arpeggio2 {
 
 struct LeftArp2 : Arpeggio2 {
 
-	std::vector<int> indexes;
-
-	std::size_t index = 0;
-	std::size_t nPitches = 0;
 	const std::string name = "Left";
 
 	const std::string & getName() override {
@@ -129,10 +126,6 @@ struct LeftArp2 : Arpeggio2 {
 
 struct RightLeftArp2 : Arpeggio2 {
 
-	std::vector<int> indexes;
-
-	int index = 0;
-	int nPitches = 0;
 	const std::string name = "RightLeft";
 	
 	const std::string & getName() override {
@@ -184,10 +177,6 @@ struct RightLeftArp2 : Arpeggio2 {
 
 struct LeftRightArp2 : Arpeggio2 {
 
-	std::vector<int> indexes;
-
-	int index = 0;
-	int nPitches = 0;
 	const std::string name = "LeftRight";
 	
 	const std::string & getName() override {
@@ -379,11 +368,16 @@ void Arp31::process(const ProcessArgs &args) {
 
 	bool restart = false;
 
+	if (debugEnabled()) { std::cout << stepX << " " << id  << " Check clock" << std::endl; }
+
 	// Have we been clocked?
 	if (clockStatus) {
 
+		if (debugEnabled()) { std::cout << stepX << " " << id  << " Check EOC" << std::endl; }
+
 		// EOC was fired at last sequence step
 		if (eoc) {
+			if (debugEnabled()) { std::cout << stepX << " " << id  << " EOC fired" << std::endl; }
 			eocPulse.trigger(digital::TRIGGER);
 			eoc = false;
 		}	
@@ -424,6 +418,8 @@ void Arp31::process(const ProcessArgs &args) {
 		}
 
 	}
+
+	if (debugEnabled()) { std::cout << stepX << " " << id  << " Check restart" << std::endl; }
 
 	// If we have been triggered, start a new sequence
 	if (restart) {
@@ -474,19 +470,24 @@ void Arp31::process(const ProcessArgs &args) {
 	outputs[OUT_OUTPUT].setVoltage(outVolts);
 
 	bool gPulse = gatePulse.process(args.sampleTime);
-	
+
+	if (debugEnabled()) { std::cout << stepX << " " << id  << " Do gate status" << std::endl; }
+
 	bool gatesOn = isRunning;
 	if (gateMode == TRIGGER) {
 		gatesOn = gatesOn && gPulse;
 	} else if (gateMode == RETRIGGER) {
 		gatesOn = gatesOn && !gPulse;
 	}
+	if (debugEnabled()) { std::cout << stepX << " " << id  << " Checked gate status" << std::endl; }
 	
 	bool cPulse = eocPulse.process(args.sampleTime);
 
 	outputs[GATE_OUTPUT].setVoltage(gatesOn ? 10.0 : 0.0);
 	outputs[EOC_OUTPUT].setVoltage(cPulse ? 10.0 : 0.0);
-	
+
+	if (debugEnabled()) { std::cout << stepX << " " << id  << " Finish output phase" << std::endl; }
+
 }
 
 struct Arp31Display : TransparentWidget {
@@ -615,7 +616,7 @@ struct Arp31Widget : ModuleWidget {
 		gitem->parent = this;
 		menu->addChild(gitem);
 
-		RepeatModeMenu *ritem = createMenuItem<RepeatModeMenu>("Play last note");
+		RepeatModeMenu *ritem = createMenuItem<RepeatModeMenu>("Play last note in cyclical arpeggios");
 		ritem->module = arp;
 		ritem->parent = this;
 		menu->addChild(ritem);
