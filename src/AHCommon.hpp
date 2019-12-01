@@ -240,6 +240,8 @@ namespace digital {
 
 static constexpr float TRIGGER = 1e-3f;
 
+int sgn(double v, double e);
+
 struct AHPulseGenerator {
 	float time = 0.f;
 	float pulseTime = 0.f;

@@ -4,6 +4,16 @@
 
 namespace ah {
 
+namespace digital {
+
+int sgn(double v, double e) {
+	if (v > e) return 1;
+	if (v < -e) return -1;
+	return 0;
+}
+
+} // namespace digital
+
 namespace gui {
 
 AHChoice::AHChoice() {

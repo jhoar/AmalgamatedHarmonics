@@ -15,7 +15,6 @@ struct Pattern2 {
 	int stepScale = 0;
 	int patternOffset = 0;
 	bool repeatLast = false;
-	bool hold = false;
 
 	int index = 0;
 
@@ -24,23 +23,33 @@ struct Pattern2 {
 		
 	virtual const std::string & getName() = 0;
 
-	virtual void initialise(int _length, int _scale, int _size, int _offset, bool _repeat, bool _hold) {
+	virtual void initialise(int _length, int _scale, int _size, int _offset, bool _repeat) {
 		patternLength = _length;
 		stepSize = _size;
 		stepScale = _scale;
 		patternOffset = _offset;
 		repeatLast = _repeat;
-		hold = _hold;
 	};
 
-	virtual void advance() {
+	void advance() {
 		// std::cout << "ADV " << index << std::endl;
 		index++;
 	};
 
-	virtual int getOffset() = 0;
+	void reset() {
+		// std::cout << "RES" << std::endl;
+		index = patternOffset;
+	}
 
-	virtual bool isPatternFinished() = 0;
+	int getOffset() {
+		// std::cout << "OUT " << index << " " << notes[index] << std::endl;
+		return notes[index];
+	}
+
+	bool isPatternFinished() {
+		// std::cout << "FIN " << index << " " << nNotes << std::endl;
+		return (index >= nNotes - 1); 
+	}
 
 	int getMajor(int count) {
 		int i = abs(count);
@@ -58,12 +67,25 @@ struct Pattern2 {
 		int length = nNotes - patternOffset;
 		int p1 = (rand() % length) + patternOffset;
 		int p2 = (rand() % length) + patternOffset;
+		int tries = 0;
 
-		// std::cout << "RND " << length << " " << p1 << " " << p2 << std::endl; 
+		while (p1 == p2 && tries < 5) { // Make some effort to change the sequence, break after 5 attempts
+			p2 = (rand() % length) + patternOffset;
+			tries++;
+		}
+
+		// std::cout << "RND " << length << " " << p1 << " " << p2 << " "; 
 
 		int t = notes[p1];
 		notes[p1] = notes[p2];
 		notes[p2] = t;
+
+		// for (int i = 0; i < nPitches; i++) {
+		// 	std::cout << indexes[i];
+		// }
+
+		// std::cout << std::endl;
+
 	}
 
 };
@@ -76,49 +98,35 @@ struct DivergePattern2 : Pattern2 {
 		return name;
 	};
 
-	void initialise(int _length, int _scale, int _size, int _offset, bool _repeat, bool _hold) override {
+	void initialise(int _length, int _scale, int _size, int _offset, bool _repeat) override {
 
-		Pattern2::initialise(_length, _scale, _size, _offset, _repeat, _hold);
+		Pattern2::initialise(_length, _scale, _size, _offset, _repeat);
 
-		std::cout << name;
+		// std::cout << name;
+		// std::cout << " DEF ";
+		notes.clear();
 
-		if (!hold) {
-			// std::cout << " DEF ";
-			notes.clear();
-
-			for (int i = 0; i < patternLength; i++) {
-				
-				int n;
-				switch(stepScale) {
-					case 0: n = i * stepSize; break;
-					case 1: n = getMajor(i * stepSize); break;
-					case 2: n = getMinor(i * stepSize); break;
-					default:
-						n = i * stepSize; break;
-				}
-
-				notes.push_back(n);
-				// std::cout << n << " ";
-
+		for (int i = 0; i < patternLength; i++) {
+			
+			int n;
+			switch(stepScale) {
+				case 0: n = i * stepSize; break;
+				case 1: n = getMajor(i * stepSize); break;
+				case 2: n = getMinor(i * stepSize); break;
+				default:
+					n = i * stepSize; break;
 			}
 
-			nNotes = notes.size();
-			patternOffset = patternOffset % nNotes;
+			notes.push_back(n);
+			// std::cout << n << " ";
+
 		}
 
+		nNotes = notes.size();
+		patternOffset = patternOffset % nNotes;
 		index = patternOffset;
 		// std::cout << " NP=" << nNotes << " -> " << index << std::endl;
 
-	}
-
-	int getOffset() override {
-		// std::cout << "OUT " << index << " " << notes[index] << std::endl;
-		return notes[index];
-	}
-
-	bool isPatternFinished() override {
-		// std::cout << "FIN " << index << " " << nNotes << std::endl;
-		return (index >= nNotes - 1); 
 	}
 
 };
@@ -131,49 +139,35 @@ struct ConvergePattern2 : Pattern2 {
 		return name;
 	};
 
-	void initialise(int _length, int _scale, int _size, int _offset, bool _repeat, bool _hold) override {
+	void initialise(int _length, int _scale, int _size, int _offset, bool _repeat) override {
 
-		Pattern2::initialise(_length, _scale, _size, _offset, _repeat, _hold);
+		Pattern2::initialise(_length, _scale, _size, _offset, _repeat);
 
 		// std::cout << name;
+		// std::cout << " DEF ";
+		notes.clear();
 
-		if (!hold) {
-			// std::cout << " DEF ";
-			notes.clear();
-
-			for (int i = patternLength - 1; i >= 0; i--) {
-				
-				int n;
-				switch(stepScale) {
-					case 0: n = i * stepSize; break;
-					case 1: n = getMajor(i * stepSize); break;
-					case 2: n = getMinor(i * stepSize); break;
-					default:
-						n = i * stepSize; break;
-				}
-
-				notes.push_back(n);
-				// std::cout << n << " ";
-
+		for (int i = patternLength - 1; i >= 0; i--) {
+			
+			int n;
+			switch(stepScale) {
+				case 0: n = i * stepSize; break;
+				case 1: n = getMajor(i * stepSize); break;
+				case 2: n = getMinor(i * stepSize); break;
+				default:
+					n = i * stepSize; break;
 			}
 
-			nNotes = notes.size();
-			patternOffset = patternOffset % nNotes;
+			notes.push_back(n);
+			// std::cout << n << " ";
+
 		}
 
+		nNotes = notes.size();
+		patternOffset = patternOffset % nNotes;
 		index = patternOffset;
 		// std::cout << " NP=" << nNotes << " -> " << index << std::endl;
 
-	}
-
-	int getOffset() override {
-		// std::cout << "OUT " << index << " " << notes[index] << std::endl;
-		return notes[index];
-	}
-
-	bool isPatternFinished() override {
-		// std::cout << "FIN " << index << " " << nNotes << std::endl;
-		return (index >= nNotes - 1); 
 	}
 
 };
@@ -186,67 +180,52 @@ struct ReturnPattern2 : Pattern2 {
 		return name;
 	};
 
-	void initialise(int _length, int _scale, int _size, int _offset, bool _repeat, bool _hold) override {
+	void initialise(int _length, int _scale, int _size, int _offset, bool _repeat) override {
 
-		Pattern2::initialise(_length, _scale, _size, _offset, _repeat, _hold);
+		Pattern2::initialise(_length, _scale, _size, _offset, _repeat);
 
 		// std::cout << name;
+		// std::cout << " DEF ";
+		notes.clear();
 
-		if (!hold) {
-			// std::cout << " DEF ";
-			notes.clear();
-
-			for (int i = 0; i < patternLength; i++) {
-				
-				int n;
-				switch(stepScale) {
-					case 0: n = i * stepSize; break;
-					case 1: n = getMajor(i * stepSize); break;
-					case 2: n = getMinor(i * stepSize); break;
-					default:
-						n = i * stepSize; break;
-				}
-
-				notes.push_back(n);
-				// std::cout << n << " ";
-
+		for (int i = 0; i < patternLength; i++) {
+			
+			int n;
+			switch(stepScale) {
+				case 0: n = i * stepSize; break;
+				case 1: n = getMajor(i * stepSize); break;
+				case 2: n = getMinor(i * stepSize); break;
+				default:
+					n = i * stepSize; break;
 			}
 
-			int end = repeatLast ? 0 : 1;
-
-			for (int i = patternLength - 2; i >= end; i--) {
-				
-				int n;
-				switch(stepScale) {
-					case 0: n = i * stepSize; break;
-					case 1: n = getMajor(i * stepSize); break;
-					case 2: n = getMinor(i * stepSize); break;
-					default:
-						n = i * stepSize; break;
-				}
-
-				notes.push_back(n);
-				// std::cout << n << " ";
-			}
-
-			nNotes = notes.size();
-			patternOffset = patternOffset % nNotes;
+			notes.push_back(n);
+			// std::cout << n << " ";
 
 		}
 
+		int end = repeatLast ? 0 : 1;
+
+		for (int i = patternLength - 2; i >= end; i--) {
+			
+			int n;
+			switch(stepScale) {
+				case 0: n = i * stepSize; break;
+				case 1: n = getMajor(i * stepSize); break;
+				case 2: n = getMinor(i * stepSize); break;
+				default:
+					n = i * stepSize; break;
+			}
+
+			notes.push_back(n);
+			// std::cout << n << " ";
+		}
+
+		nNotes = notes.size();
+		patternOffset = patternOffset % nNotes;
 		index = patternOffset;
 		// std::cout << " NP=" << nNotes << " -> " << index << std::endl;
 
-	}
-
-	int getOffset() override {
-		// std::cout << "OUT " << index << " " << notes[index] << std::endl;
-		return notes[index];
-	}
-
-	bool isPatternFinished() override {
-		// std::cout << "FIN " << index << " " << nNotes << std::endl;
-		return (index >= nNotes - 1); 
 	}
 
 };
@@ -259,89 +238,67 @@ struct BouncePattern2 : Pattern2 {
 		return name;
 	};
 
-	void initialise(int _length, int _scale, int _size, int _offset, bool _repeat, bool _hold) override {
+	void initialise(int _length, int _scale, int _size, int _offset, bool _repeat) override {
 
-		Pattern2::initialise(_length, _scale, _size, _offset, _repeat, _hold);
+		Pattern2::initialise(_length, _scale, _size, _offset, _repeat);
 
 		// std::cout << name;
+		// std::cout << " DEF ";
+		notes.clear();
 
-		if (!hold) {
-			// std::cout << " DEF ";
-			notes.clear();
-
-			for (int i = patternLength - 1; i >= 0; i--) {
-				
-				int n;
-				switch(stepScale) {
-					case 0: n = i * stepSize; break;
-					case 1: n = getMajor(i * stepSize); break;
-					case 2: n = getMinor(i * stepSize); break;
-					default:
-						n = i * stepSize; break;
-				}
-
-				notes.push_back(n);
-				// std::cout << n << " ";
-
+		for (int i = patternLength - 1; i >= 0; i--) {
+			
+			int n;
+			switch(stepScale) {
+				case 0: n = i * stepSize; break;
+				case 1: n = getMajor(i * stepSize); break;
+				case 2: n = getMinor(i * stepSize); break;
+				default:
+					n = i * stepSize; break;
 			}
 
-			int end = repeatLast ? 0 : 1;
+			notes.push_back(n);
+			// std::cout << n << " ";
 
-			for (int i = 1; i < patternLength - end; i++) {
-				
-				int n;
-				switch(stepScale) {
-					case 0: n = i * stepSize; break;
-					case 1: n = getMajor(i * stepSize); break;
-					case 2: n = getMinor(i * stepSize); break;
-					default:
-						n = i * stepSize; break;
-				}
-
-				notes.push_back(n);
-				// std::cout << n << " ";
-
-			}
-
-			nNotes = notes.size();
-			patternOffset = patternOffset % nNotes;
 		}
 
+		int end = repeatLast ? 0 : 1;
+
+		for (int i = 1; i < patternLength - end; i++) {
+			
+			int n;
+			switch(stepScale) {
+				case 0: n = i * stepSize; break;
+				case 1: n = getMajor(i * stepSize); break;
+				case 2: n = getMinor(i * stepSize); break;
+				default:
+					n = i * stepSize; break;
+			}
+
+			notes.push_back(n);
+			// std::cout << n << " ";
+
+		}
+
+		nNotes = notes.size();
+		patternOffset = patternOffset % nNotes;
 		index = patternOffset;
 		// std::cout << " NP=" << nNotes << " -> " << index << std::endl;
 
-	}
-
-	int getOffset() override {
-		// std::cout << "OUT " << index << " " << notes[index] << std::endl;
-		return notes[index];
-	}
-
-	bool isPatternFinished() override {
-		// std::cout << "FIN " << index << " " << nNotes << std::endl;
-		return (index >= nNotes - 1); 
 	}
 
 };
 
 struct NotePattern2 : Pattern2 {
 
-	void initialise(int _length, int _scale, int _size, int _offset, bool _repeat, bool _hold) override {
+	void initialise(int _length, int _scale, int _size, int _offset, bool _repeat) override {
 
-		Pattern2::initialise(_length, _scale, _size, _offset, _repeat, _hold);
+		Pattern2::initialise(_length, _scale, _size, _offset, _repeat);
 
 		nNotes = notes.size();
 		patternOffset = patternOffset % nNotes;
 		index = patternOffset;
 
-	}
-
-	int getOffset() override {
-		return notes[index];
-	}
-
-	bool isPatternFinished() override {
-		return (index >= nNotes - 1);
 	}
 
 };
@@ -417,6 +374,8 @@ struct Arp32 : core::AHModule {
 		PATT_INPUT,
 		LENGTH_INPUT,
 		SIZE_INPUT,
+		HOLD_INPUT,
+		RANDOM_INPUT,
 		NUM_INPUTS
 	};
 	enum OutputIds {
@@ -510,6 +469,7 @@ struct Arp32 : core::AHModule {
 	GateMode gateMode = TRIGGER;
 
 	rack::dsp::SchmittTrigger clockTrigger; // for clock
+	rack::dsp::SchmittTrigger randomTrigger; // for random
 
 	rack::dsp::PulseGenerator gatePulse;
 	rack::dsp::PulseGenerator eocPulse;
@@ -557,6 +517,7 @@ void Arp32::process(const ProcessArgs &args) {
 	// Get inputs from Rack
 	float clockInput	= inputs[CLOCK_INPUT].getVoltage();
 	float clockActive	= inputs[CLOCK_INPUT].isConnected();
+	float randomInput	= inputs[RANDOM_INPUT].getVoltage();
 
 	// Read param section	
 	if (inputs[PATT_INPUT].isConnected()) {
@@ -580,9 +541,11 @@ void Arp32::process(const ProcessArgs &args) {
 	inputScale = params[SCALE_PARAM].getValue();
 
 	int offset = params[OFFSET_PARAM].getValue();
+	int hold = digital::sgn(inputs[HOLD_INPUT].getVoltage(), 0.001);
 
 	// Process inputs
 	bool clockStatus = clockTrigger.process(clockInput);
+	bool randomStatus = randomTrigger.process(randomInput);
 
 	// Need to understand why this happens
 	if (inputLen == 0) {
@@ -642,35 +605,53 @@ void Arp32::process(const ProcessArgs &args) {
 
 	}
 
+	// Randomise if triggered
+	if (randomStatus && isRunning && hold != -1) {
+		currPatt->randomize();
+	}
+
 	// If we have been triggered, start a new sequence
 	if (restart) {
 
-		// Read input pitch
-		float inputPitch;
-		if (inputs[PITCH_INPUT].isConnected()) {
-			inputPitch = inputs[PITCH_INPUT].getVoltage();
+		if (!hold) {
+
+			// Read input pitch
+			float inputPitch;
+			if (inputs[PITCH_INPUT].isConnected()) {
+				inputPitch = inputs[PITCH_INPUT].getVoltage();
+			} else {
+				inputPitch = 0.0;
+			}
+
+			// At the first step of the cycle
+			// So this is where we tweak the cycle parameters
+			pattern = inputPat;
+			length = inputLen;
+			size = inputSize;
+			scale = inputScale;
+
+			currPatt = patterns[pattern];
+
+			// Save pitch
+			rootPitch = inputPitch;
+
+			if (debugEnabled()) { std::cout << stepX << " " << id  << 
+				" Initiatise new Cycle: Pattern: " << currPatt->getName() << 
+				" Length: " << inputLen << std::endl; 
+			}
+
+			currPatt->initialise(length, scale, size, offset, repeatEnd);
+
 		} else {
-			inputPitch = 0.0;
+
+			if (debugEnabled()) { std::cout << stepX << " " << id  << 
+				" Hold new Cycle: Pattern: " << currPatt->getName() << 
+				" Length: " << inputLen << std::endl; 
+			}
+
+			currPatt->reset();
+
 		}
-
-		// At the first step of the cycle
-		// So this is where we tweak the cycle parameters
-		pattern = inputPat;
-		length = inputLen;
-		size = inputSize;
-		scale = inputScale;
-
-		currPatt = patterns[pattern];
-
-		// Save pitch
-		rootPitch = inputPitch;
-
-		if (debugEnabled()) { std::cout << stepX << " " << id  << 
-			" Initiatise new Cycle: Pattern: " << currPatt->getName() << 
-			" Length: " << inputLen << std::endl; 
-		}
-
-		currPatt->initialise(length, scale, size, offset, repeatEnd, false);
 
 		// Start
 		isRunning = true;
@@ -766,6 +747,9 @@ struct Arp32Widget : ModuleWidget {
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 1, 3, true, false), module, Arp32::SIZE_INPUT)); 
 		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 2, 2, true, false), module, Arp32::LENGTH_PARAM));
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 2, 3, true, false), module, Arp32::LENGTH_INPUT));
+
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 1, 0, true, false), module, Arp32::HOLD_INPUT));
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 2, 0, true, false), module, Arp32::RANDOM_INPUT));
 
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 4, true, false), module, Arp32::CLOCK_INPUT));
 		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 1, 4, true, false), module, Arp32::OFFSET_PARAM));

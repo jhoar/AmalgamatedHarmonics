@@ -10,22 +10,55 @@ struct Arpeggio2 {
 	int offset = 0;	
 	int nPitches = 0;
 	bool repeatEnds = false;
-	bool hold = false;
+
+	Arpeggio2() {
+		indexes.push_back(0);
+		nPitches = 1;
+	}
 
 	virtual const std::string & getName() = 0;
 
-	virtual void initialise(int _nPitches, int _offset, bool _repeatEnds, bool _hold) {
+	virtual void initialise(int _nPitches, int _offset, bool _repeatEnds) {
 		nPitches = _nPitches;
 		offset = _offset;
 		repeatEnds = _repeatEnds;
-		hold = _hold;
 	};
 	
 	void advance() {
 		// std::cout << "ADV" << std::endl;
 		index++;
 	}
-	
+
+	void reset() {
+		// std::cout << "RES" << std::endl;
+		index = offset;
+	}
+
+	void randomize() {
+		int length = nPitches - offset;
+		int p1 = (rand() % length) + offset;
+		int p2 = (rand() % length) + offset;
+		int tries = 0;
+
+		while (p1 == p2 && tries < 5) { // Make some effort to change the sequence, break after 5 attempts
+			p2 = (rand() % length) + offset;
+			tries++;
+		}
+
+		// std::cout << "RND " << length << " " << p1 << " " << p2 << " "; 
+
+		int t = indexes[p1];
+		indexes[p1] = indexes[p2];
+		indexes[p2] = t;
+
+		// for (int i = 0; i < nPitches; i++) {
+		// 	std::cout << indexes[i];
+		// }
+
+		// std::cout << std::endl;
+
+	}
+
 	size_t getPitch() {
 		// std::cout << "OUT " << index << " " << indexes[index] << std::endl;
 		return indexes[index];
@@ -60,25 +93,21 @@ struct RightArp2 : Arpeggio2 {
 		return name;
 	};
 
-	void initialise(int _np, int _offset, bool _repeatEnds, bool _hold) override {
+	void initialise(int _np, int _offset, bool _repeatEnds) override {
 
-		Arpeggio2::initialise(_np, _offset, _repeatEnds, _hold);
+		Arpeggio2::initialise(_np, _offset, _repeatEnds);
 
 		// std::cout << name;
+		// std::cout << " DEF ";
+		indexes.clear();
 
-		if (!hold) {
-			// std::cout << " DEF ";
-			indexes.clear();
-
-			for (int i = 0; i < nPitches; i++) {
-				// std::cout << i;
-				indexes.push_back(i);
-			}
-
-			nPitches = indexes.size();
-			offset = offset % nPitches;
+		for (int i = 0; i < nPitches; i++) {
+			// std::cout << i;
+			indexes.push_back(i);
 		}
 
+		nPitches = indexes.size();
+		offset = offset % nPitches;
 		index = offset;
 		// std::cout << " NP=" << nPitches << " -> " << index << std::endl;
 
@@ -94,26 +123,21 @@ struct LeftArp2 : Arpeggio2 {
 		return name;
 	};
 	
-	void initialise(int _np, int _offset, bool _repeatEnds, bool _hold) override {
+	void initialise(int _np, int _offset, bool _repeatEnds) override {
 
-		Arpeggio2::initialise(_np, _offset, _repeatEnds, _hold);
+		Arpeggio2::initialise(_np, _offset, _repeatEnds);
 
 		// std::cout << name;
+		// std::cout << " DEF ";
+		indexes.clear();
 
-		if (!hold) {
-			// std::cout << " DEF ";
-			indexes.clear();
-
-			for (int i = nPitches - 1; i >= 0; i--) {
-				// std::cout << i;
-				indexes.push_back(i);
-			}
-
-			nPitches = indexes.size();
-			offset = offset % nPitches;
-
+		for (int i = nPitches - 1; i >= 0; i--) {
+			// std::cout << i;
+			indexes.push_back(i);
 		}
 
+		nPitches = indexes.size();
+		offset = offset % nPitches;
 		index = offset;
 		// std::cout << " NP=" << nPitches << " -> " << index << std::endl;
 
@@ -129,31 +153,27 @@ struct RightLeftArp2 : Arpeggio2 {
 		return name;
 	};
 
-	void initialise(int _np, int _offset, bool _repeatEnds, bool _hold) override {
+	void initialise(int _np, int _offset, bool _repeatEnds) override {
 
-		Arpeggio2::initialise(_np, _offset, _repeatEnds, _hold);
+		Arpeggio2::initialise(_np, _offset, _repeatEnds);
 		// std::cout << name;
+		// std::cout << " DEF ";
+		indexes.clear();
 
-		if (!hold) {
-			// std::cout << " DEF ";
-			indexes.clear();
-
-			for (int i = 0; i < nPitches; i++) {
-				// std::cout << i;
-				indexes.push_back(i);
-			}
-
-			int end = repeatEnds ? 0 : 1;
-
-			for (int i = nPitches - 2; i >= end; i--) {
-				// std::cout << i;
-				indexes.push_back(i);
-			}
-
-			nPitches = indexes.size();
-			offset = offset % nPitches;
+		for (int i = 0; i < nPitches; i++) {
+			// std::cout << i;
+			indexes.push_back(i);
 		}
 
+		int end = repeatEnds ? 0 : 1;
+
+		for (int i = nPitches - 2; i >= end; i--) {
+			// std::cout << i;
+			indexes.push_back(i);
+		}
+
+		nPitches = indexes.size();
+		offset = offset % nPitches;
 		index = offset;
 		// std::cout << " NP=" << nPitches << " -> " << index << std::endl;
 
@@ -169,32 +189,28 @@ struct LeftRightArp2 : Arpeggio2 {
 		return name;
 	};
 
-	void initialise(int _np, int _offset, bool _repeatEnds, bool _hold) override {
+	void initialise(int _np, int _offset, bool _repeatEnds) override {
 
-		Arpeggio2::initialise(_np, _offset, _repeatEnds, _hold);
+		Arpeggio2::initialise(_np, _offset, _repeatEnds);
 
 		// std::cout << name;
+		// std::cout << " DEF ";
+		indexes.clear();
 
-		if (!hold) {
-			// std::cout << " DEF ";
-			indexes.clear();
-
-			for (int i = nPitches - 1; i >= 0; i--) {
-				// std::cout << i;
-				indexes.push_back(i);
-			}
-
-			int end = repeatEnds ? 0 : 1;
-
-			for (int i = 1; i < nPitches - end; i++) {
-				// std::cout << i;
-				indexes.push_back(i);
-			}
-
-			nPitches = indexes.size();
-			offset = offset % nPitches;
+		for (int i = nPitches - 1; i >= 0; i--) {
+			// std::cout << i;
+			indexes.push_back(i);
 		}
 
+		int end = repeatEnds ? 0 : 1;
+
+		for (int i = 1; i < nPitches - end; i++) {
+			// std::cout << i;
+			indexes.push_back(i);
+		}
+
+		nPitches = indexes.size();
+		offset = offset % nPitches;
 		index = offset;
 		// std::cout << " NP=" << nPitches << " -> " << index << std::endl;
 
@@ -219,6 +235,8 @@ struct Arp31 : core::AHModule {
 		PITCH_INPUT,
 		GATE_INPUT,
 		ARP_INPUT,
+		HOLD_INPUT,
+		RANDOM_INPUT,
 		NUM_INPUTS
 	};
 	enum OutputIds {
@@ -287,6 +305,7 @@ struct Arp31 : core::AHModule {
 	GateMode gateMode = TRIGGER;
 	
 	rack::dsp::SchmittTrigger clockTrigger; // for clock
+	rack::dsp::SchmittTrigger randomTrigger; // for random
 	
 	rack::dsp::PulseGenerator gatePulse;
 	rack::dsp::PulseGenerator eocPulse;
@@ -325,7 +344,8 @@ void Arp31::process(const ProcessArgs &args) {
 	// Get inputs from Rack
 	float clockInput	= inputs[CLOCK_INPUT].getVoltage();
 	bool  clockActive	= inputs[CLOCK_INPUT].isConnected();
-	
+	float randomInput	= inputs[RANDOM_INPUT].getVoltage();
+
 	if (inputs[ARP_INPUT].isConnected()) {
 		inputArp = inputs[ARP_INPUT].getVoltage();
 	} else {
@@ -333,9 +353,11 @@ void Arp31::process(const ProcessArgs &args) {
 	}	
 
 	int offset = params[OFFSET_PARAM].getValue();
+	int hold = digital::sgn(inputs[HOLD_INPUT].getVoltage(), 0.001);
 
 	// Process inputs
 	bool clockStatus = clockTrigger.process(clockInput);
+	bool randomStatus = randomTrigger.process(randomInput);
 	
 	// If there is no clock input, then force that we are not running
 	if (!clockActive) {
@@ -395,45 +417,65 @@ void Arp31::process(const ProcessArgs &args) {
 
 	}
 
+	// Randomise if triggered
+	if (randomStatus && isRunning && hold != -1) {
+		currArp->randomize();
+	}
+
 	if (debugEnabled()) { std::cout << stepX << " " << id  << " Check restart" << std::endl; }
 
 	// If we have been triggered, start a new sequence
 	if (restart) {
 
-		// Read input pitches and assign to pitch array
-		pitches.clear();
-		if (inputs[PITCH_INPUT].isConnected()) {
-			int channels = inputs[PITCH_INPUT].getChannels();
-			if (debugEnabled()) { std::cout << stepX << " " << id  << " Channels: " << channels << std::endl; }
+		if (!hold) {
 
-			if (inputs[GATE_INPUT].isConnected()) {
-				for (int p = 0; p < channels; p++) {
-					if (inputs[GATE_INPUT].getVoltage(p) > 0.0f) {
+			// Read input pitches and assign to pitch array
+			pitches.clear();
+			if (inputs[PITCH_INPUT].isConnected()) {
+				int channels = inputs[PITCH_INPUT].getChannels();
+				if (debugEnabled()) { std::cout << stepX << " " << id  << " Channels: " << channels << std::endl; }
+
+				if (inputs[GATE_INPUT].isConnected()) {
+					for (int p = 0; p < channels; p++) {
+						if (inputs[GATE_INPUT].getVoltage(p) > 0.0f) {
+							pitches.push_back(inputs[PITCH_INPUT].getVoltage(p));
+						}
+					}
+				} else { // No gate info, read sequentially;
+					for (int p = 0; p < channels; p++) {
 						pitches.push_back(inputs[PITCH_INPUT].getVoltage(p));
 					}
 				}
-			} else { // No gate info, read sequentially;
-				for (int p = 0; p < channels; p++) {
-					pitches.push_back(inputs[PITCH_INPUT].getVoltage(p));
-				}
+
+			} 
+
+			if (pitches.size() == 0) {
+				if (debugEnabled()) { std::cout << stepX << " " << id  << " No inputs, assume single 0V pitch" << std::endl; }
+				pitches.push_back(0.0f);
 			}
 
-		} 
+			if (debugEnabled()) { std::cout << stepX << " " << id  << " Pitches: " << pitches.size() << std::endl; }
 
-		if (pitches.size() == 0) {
-			if (debugEnabled()) { std::cout << stepX << " " << id  << " No inputs, assume single 0V pitch" << std::endl; }
-			pitches.push_back(0.0f);
+			// At the first step of the cycle
+			// So this is where we tweak the cycle parameters
+			currArp = arps[inputArp];
+
+			if (debugEnabled()) { std::cout << stepX << " " << id  << " Initiatise new Cycle: Pattern: " << currArp->getName() << " nPitches: " << pitches.size() << std::endl; }
+			
+			currArp->initialise(pitches.size(), offset, repeatEnd);
+
+		} else {
+
+			if (pitches.size() == 0) {
+				if (debugEnabled()) { std::cout << stepX << " " << id  << " No inputs, assume single 0V pitch" << std::endl; }
+				pitches.push_back(0.0f);
+			}
+
+			if (debugEnabled()) { std::cout << stepX << " " << id  << " Hold Cycle: Pattern: " << currArp->getName() << " nPitches: " << pitches.size() << std::endl; }
+
+			currArp->reset();
+
 		}
-
-		if (debugEnabled()) { std::cout << stepX << " " << id  << " Pitches: " << pitches.size() << std::endl; }
-
-		// At the first step of the cycle
-		// So this is where we tweak the cycle parameters
-		currArp = arps[inputArp];
-
-		if (debugEnabled()) { std::cout << stepX << " " << id  << " Initiatise new Cycle: Pattern: " << currArp->getName() << " nPitches: " << pitches.size() << std::endl; }
-		
-		currArp->initialise(pitches.size(), offset, repeatEnd, false);
 
 		// Start
 		isRunning = true;
@@ -513,6 +555,8 @@ struct Arp31Widget : ModuleWidget {
 
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 0, true, false), module, Arp31::PITCH_INPUT));
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 1, 0, true, false), module, Arp31::GATE_INPUT));
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 1, true, false), module, Arp31::HOLD_INPUT));
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 1, 1, true, false), module, Arp31::RANDOM_INPUT));
 
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 4, true, false), module, Arp31::CLOCK_INPUT));
 		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 1, 4, true, false), module, Arp31::OFFSET_PARAM)); 
