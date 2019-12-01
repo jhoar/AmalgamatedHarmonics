@@ -15,6 +15,7 @@ struct Pattern2 {
 	int stepScale = 0;
 	int patternOffset = 0;
 	bool repeatLast = false;
+	bool hold = false;
 
 	int index = 0;
 
@@ -23,12 +24,13 @@ struct Pattern2 {
 		
 	virtual const std::string & getName() = 0;
 
-	virtual void initialise(int _length, int _scale, int _size, int _offset, bool _repeat) {
+	virtual void initialise(int _length, int _scale, int _size, int _offset, bool _repeat, bool _hold) {
 		patternLength = _length;
 		stepSize = _size;
 		stepScale = _scale;
 		patternOffset = _offset;
 		repeatLast = _repeat;
+		hold = _hold;
 	};
 
 	virtual void advance() {
@@ -52,6 +54,18 @@ struct Pattern2 {
 		return sign * ((i / 7) * 12 + MINOR[i % 7]);
 	}
 
+	void randomize() {
+		int length = nNotes - patternOffset;
+		int p1 = (rand() % length) + patternOffset;
+		int p2 = (rand() % length) + patternOffset;
+
+		// std::cout << "RND " << length << " " << p1 << " " << p2 << std::endl; 
+
+		int t = notes[p1];
+		notes[p1] = notes[p2];
+		notes[p2] = t;
+	}
+
 };
 
 struct DivergePattern2 : Pattern2 {
@@ -62,34 +76,37 @@ struct DivergePattern2 : Pattern2 {
 		return name;
 	};
 
-	void initialise(int _length, int _scale, int _size, int _offset, bool _repeat) override {
+	void initialise(int _length, int _scale, int _size, int _offset, bool _repeat, bool _hold) override {
 
-		Pattern2::initialise(_length, _scale, _size, _offset, _repeat);
+		Pattern2::initialise(_length, _scale, _size, _offset, _repeat, _hold);
 
-		// std::cout << name;
+		std::cout << name;
 
-		notes.clear();
-		// std::cout << " DEF ";
+		if (!hold) {
+			// std::cout << " DEF ";
+			notes.clear();
 
-		for (int i = 0; i < patternLength; i++) {
-			
-			int n;
-			switch(stepScale) {
-				case 0: n = i * stepSize; break;
-				case 1: n = getMajor(i * stepSize); break;
-				case 2: n = getMinor(i * stepSize); break;
-				default:
-					n = i * stepSize; break;
+			for (int i = 0; i < patternLength; i++) {
+				
+				int n;
+				switch(stepScale) {
+					case 0: n = i * stepSize; break;
+					case 1: n = getMajor(i * stepSize); break;
+					case 2: n = getMinor(i * stepSize); break;
+					default:
+						n = i * stepSize; break;
+				}
+
+				notes.push_back(n);
+				// std::cout << n << " ";
+
 			}
 
-			notes.push_back(n);
-			// std::cout << n << " ";
-
+			nNotes = notes.size();
+			patternOffset = patternOffset % nNotes;
 		}
 
-		index = patternOffset % notes.size();
-		nNotes = notes.size();
-
+		index = patternOffset;
 		// std::cout << " NP=" << nNotes << " -> " << index << std::endl;
 
 	}
@@ -114,34 +131,37 @@ struct ConvergePattern2 : Pattern2 {
 		return name;
 	};
 
-	void initialise(int _length, int _scale, int _size, int _offset, bool _repeat) override {
+	void initialise(int _length, int _scale, int _size, int _offset, bool _repeat, bool _hold) override {
 
-		Pattern2::initialise(_length, _scale, _size, _offset, _repeat);
+		Pattern2::initialise(_length, _scale, _size, _offset, _repeat, _hold);
 
 		// std::cout << name;
 
-		notes.clear();
-		// std::cout << " DEF ";
+		if (!hold) {
+			// std::cout << " DEF ";
+			notes.clear();
 
-		for (int i = patternLength - 1; i >= 0; i--) {
-			
-			int n;
-			switch(stepScale) {
-				case 0: n = i * stepSize; break;
-				case 1: n = getMajor(i * stepSize); break;
-				case 2: n = getMinor(i * stepSize); break;
-				default:
-					n = i * stepSize; break;
+			for (int i = patternLength - 1; i >= 0; i--) {
+				
+				int n;
+				switch(stepScale) {
+					case 0: n = i * stepSize; break;
+					case 1: n = getMajor(i * stepSize); break;
+					case 2: n = getMinor(i * stepSize); break;
+					default:
+						n = i * stepSize; break;
+				}
+
+				notes.push_back(n);
+				// std::cout << n << " ";
+
 			}
 
-			notes.push_back(n);
-			// std::cout << n << " ";
-
+			nNotes = notes.size();
+			patternOffset = patternOffset % nNotes;
 		}
 
-		index = patternOffset % notes.size();
-		nNotes = notes.size();
-
+		index = patternOffset;
 		// std::cout << " NP=" << nNotes << " -> " << index << std::endl;
 
 	}
@@ -166,52 +186,55 @@ struct ReturnPattern2 : Pattern2 {
 		return name;
 	};
 
-	void initialise(int _length, int _scale, int _size, int _offset, bool _repeat) override {
+	void initialise(int _length, int _scale, int _size, int _offset, bool _repeat, bool _hold) override {
 
-		Pattern2::initialise(_length, _scale, _size, _offset, _repeat);
+		Pattern2::initialise(_length, _scale, _size, _offset, _repeat, _hold);
 
 		// std::cout << name;
 
-		notes.clear();
-		// std::cout << " DEF ";
+		if (!hold) {
+			// std::cout << " DEF ";
+			notes.clear();
 
-		for (int i = 0; i < patternLength; i++) {
-			
-			int n;
-			switch(stepScale) {
-				case 0: n = i * stepSize; break;
-				case 1: n = getMajor(i * stepSize); break;
-				case 2: n = getMinor(i * stepSize); break;
-				default:
-					n = i * stepSize; break;
+			for (int i = 0; i < patternLength; i++) {
+				
+				int n;
+				switch(stepScale) {
+					case 0: n = i * stepSize; break;
+					case 1: n = getMajor(i * stepSize); break;
+					case 2: n = getMinor(i * stepSize); break;
+					default:
+						n = i * stepSize; break;
+				}
+
+				notes.push_back(n);
+				// std::cout << n << " ";
+
 			}
 
-			notes.push_back(n);
-			// std::cout << n << " ";
+			int end = repeatLast ? 0 : 1;
+
+			for (int i = patternLength - 2; i >= end; i--) {
+				
+				int n;
+				switch(stepScale) {
+					case 0: n = i * stepSize; break;
+					case 1: n = getMajor(i * stepSize); break;
+					case 2: n = getMinor(i * stepSize); break;
+					default:
+						n = i * stepSize; break;
+				}
+
+				notes.push_back(n);
+				// std::cout << n << " ";
+			}
+
+			nNotes = notes.size();
+			patternOffset = patternOffset % nNotes;
 
 		}
 
-		int end = repeatLast ? 0 : 1;
-
-		for (int i = patternLength - 2; i >= end; i--) {
-			
-			int n;
-			switch(stepScale) {
-				case 0: n = i * stepSize; break;
-				case 1: n = getMajor(i * stepSize); break;
-				case 2: n = getMinor(i * stepSize); break;
-				default:
-					n = i * stepSize; break;
-			}
-
-			notes.push_back(n);
-			// std::cout << n << " ";
-
-		}
-
-		index = patternOffset % notes.size();
-		nNotes = notes.size();
-
+		index = patternOffset;
 		// std::cout << " NP=" << nNotes << " -> " << index << std::endl;
 
 	}
@@ -236,52 +259,55 @@ struct BouncePattern2 : Pattern2 {
 		return name;
 	};
 
-	void initialise(int _length, int _scale, int _size, int _offset, bool _repeat) override {
+	void initialise(int _length, int _scale, int _size, int _offset, bool _repeat, bool _hold) override {
 
-		Pattern2::initialise(_length, _scale, _size, _offset, _repeat);
+		Pattern2::initialise(_length, _scale, _size, _offset, _repeat, _hold);
 
 		// std::cout << name;
 
-		notes.clear();
-		// std::cout << " DEF ";
+		if (!hold) {
+			// std::cout << " DEF ";
+			notes.clear();
 
-		for (int i = patternLength - 1; i >= 0; i--) {
-			
-			int n;
-			switch(stepScale) {
-				case 0: n = i * stepSize; break;
-				case 1: n = getMajor(i * stepSize); break;
-				case 2: n = getMinor(i * stepSize); break;
-				default:
-					n = i * stepSize; break;
+			for (int i = patternLength - 1; i >= 0; i--) {
+				
+				int n;
+				switch(stepScale) {
+					case 0: n = i * stepSize; break;
+					case 1: n = getMajor(i * stepSize); break;
+					case 2: n = getMinor(i * stepSize); break;
+					default:
+						n = i * stepSize; break;
+				}
+
+				notes.push_back(n);
+				// std::cout << n << " ";
+
 			}
 
-			notes.push_back(n);
-			// std::cout << n << " ";
+			int end = repeatLast ? 0 : 1;
 
-		}
+			for (int i = 1; i < patternLength - end; i++) {
+				
+				int n;
+				switch(stepScale) {
+					case 0: n = i * stepSize; break;
+					case 1: n = getMajor(i * stepSize); break;
+					case 2: n = getMinor(i * stepSize); break;
+					default:
+						n = i * stepSize; break;
+				}
 
-		int end = repeatLast ? 0 : 1;
+				notes.push_back(n);
+				// std::cout << n << " ";
 
-		for (int i = 1; i < patternLength - end; i++) {
-			
-			int n;
-			switch(stepScale) {
-				case 0: n = i * stepSize; break;
-				case 1: n = getMajor(i * stepSize); break;
-				case 2: n = getMinor(i * stepSize); break;
-				default:
-					n = i * stepSize; break;
 			}
 
-			notes.push_back(n);
-			// std::cout << n << " ";
-
+			nNotes = notes.size();
+			patternOffset = patternOffset % nNotes;
 		}
 
-		index = patternOffset % notes.size();
-		nNotes = notes.size();
-
+		index = patternOffset;
 		// std::cout << " NP=" << nNotes << " -> " << index << std::endl;
 
 	}
@@ -300,12 +326,13 @@ struct BouncePattern2 : Pattern2 {
 
 struct NotePattern2 : Pattern2 {
 
-	void initialise(int _length, int _scale, int _size, int _offset, bool _repeat) override {
+	void initialise(int _length, int _scale, int _size, int _offset, bool _repeat, bool _hold) override {
 
-		Pattern2::initialise(_length, _scale, _size, _offset, _repeat);
+		Pattern2::initialise(_length, _scale, _size, _offset, _repeat, _hold);
 
 		nNotes = notes.size();
-		index = patternOffset % notes.size();
+		patternOffset = patternOffset % nNotes;
+		index = patternOffset;
 
 	}
 
@@ -643,7 +670,7 @@ void Arp32::process(const ProcessArgs &args) {
 			" Length: " << inputLen << std::endl; 
 		}
 
-		currPatt->initialise(length, scale, size, offset, repeatEnd);
+		currPatt->initialise(length, scale, size, offset, repeatEnd, false);
 
 		// Start
 		isRunning = true;

@@ -6,18 +6,35 @@
 struct Arpeggio2 {
 
 	std::vector<int> indexes;
-	std::size_t index = 0;
-	std::size_t nPitches = 0;
+	int index = 0;
+	int offset = 0;	
+	int nPitches = 0;
+	bool repeatEnds = false;
+	bool hold = false;
 
 	virtual const std::string & getName() = 0;
 
-	virtual void initialise(int nPitches, int offset, bool repeatEnds) = 0;
+	virtual void initialise(int _nPitches, int _offset, bool _repeatEnds, bool _hold) {
+		nPitches = _nPitches;
+		offset = _offset;
+		repeatEnds = _repeatEnds;
+		hold = _hold;
+	};
 	
-	virtual void advance() = 0;
+	void advance() {
+		// std::cout << "ADV" << std::endl;
+		index++;
+	}
 	
-	virtual std::size_t getPitch() = 0;
+	size_t getPitch() {
+		// std::cout << "OUT " << index << " " << indexes[index] << std::endl;
+		return indexes[index];
+	}
 	
-	virtual bool isArpeggioFinished() = 0;
+	bool isArpeggioFinished() {
+		// std::cout << "FIN " << index << " " << nPitches << std::endl;
+		return (index >= nPitches - 1);
+	}
 
 	// For RL and LR arps we have the following logic
 	// Convert from npitch (1-6) to index (0 -> 9), but do no repeat first note
@@ -43,41 +60,30 @@ struct RightArp2 : Arpeggio2 {
 		return name;
 	};
 
-	void initialise(int np, int offset, bool repeatEnds) override {
+	void initialise(int _np, int _offset, bool _repeatEnds, bool _hold) override {
+
+		Arpeggio2::initialise(_np, _offset, _repeatEnds, _hold);
 
 		// std::cout << name;
 
-		indexes.clear();
+		if (!hold) {
+			// std::cout << " DEF ";
+			indexes.clear();
 
-		// std::cout << " DEF ";
+			for (int i = 0; i < nPitches; i++) {
+				// std::cout << i;
+				indexes.push_back(i);
+			}
 
-		for (int i = 0; i < np; i++) {
-			// std::cout << i;
-			indexes.push_back(i);
+			nPitches = indexes.size();
+			offset = offset % nPitches;
 		}
 
-		index = offset % np;
-		nPitches = indexes.size();
-
+		index = offset;
 		// std::cout << " NP=" << nPitches << " -> " << index << std::endl;
 
 	}
-	
-	void advance() override {
-		// std::cout << "ADV" << std::endl;
-		index++;
-	}
-	
-	size_t getPitch() override {
-		// std::cout << "OUT " << index << " " << indexes[index] << std::endl;
-		return indexes[index];
-	}
-	
-	bool isArpeggioFinished() override {
-		// std::cout << "FIN " << index << " " << nPitches << std::endl;
-		return (index >= nPitches - 1);
-	}
-	
+		
 };
 
 struct LeftArp2 : Arpeggio2 {
@@ -88,40 +94,31 @@ struct LeftArp2 : Arpeggio2 {
 		return name;
 	};
 	
-	void initialise(int np, int offset, bool repeatEnds) override {
+	void initialise(int _np, int _offset, bool _repeatEnds, bool _hold) override {
+
+		Arpeggio2::initialise(_np, _offset, _repeatEnds, _hold);
 
 		// std::cout << name;
 
-		indexes.clear();
+		if (!hold) {
+			// std::cout << " DEF ";
+			indexes.clear();
 
-		// std::cout << " DEF ";
+			for (int i = nPitches - 1; i >= 0; i--) {
+				// std::cout << i;
+				indexes.push_back(i);
+			}
 
-		for (int i = np - 1; i >= 0; i--) {
-			// std::cout << i;
-			indexes.push_back(i);
+			nPitches = indexes.size();
+			offset = offset % nPitches;
+
 		}
 
-		index = offset % np;
-		nPitches = indexes.size();
-
+		index = offset;
 		// std::cout << " NP=" << nPitches << " -> " << index << std::endl;
 
 	}
-	
-	void advance() override {
-		index++;
-	}
-	
-	size_t getPitch() override {
-		// std::cout << "OUT " << index << " " << indexes[index] << std::endl;
-		return indexes[index];
-	}
-	
-	bool isArpeggioFinished() override {
-		// std::cout << "FIN " << index << " " << nPitches << std::endl;
-		return (index >= nPitches - 1);
-	}
-	
+		
 };
 
 struct RightLeftArp2 : Arpeggio2 {
@@ -132,47 +129,36 @@ struct RightLeftArp2 : Arpeggio2 {
 		return name;
 	};
 
-	void initialise(int np, int offset, bool repeatEnds) override {
+	void initialise(int _np, int _offset, bool _repeatEnds, bool _hold) override {
 
+		Arpeggio2::initialise(_np, _offset, _repeatEnds, _hold);
 		// std::cout << name;
 
-		indexes.clear();
+		if (!hold) {
+			// std::cout << " DEF ";
+			indexes.clear();
 
-		// std::cout << " DEF ";
+			for (int i = 0; i < nPitches; i++) {
+				// std::cout << i;
+				indexes.push_back(i);
+			}
 
-		for (int i = 0; i < np; i++) {
-			// std::cout << i;
-			indexes.push_back(i);
+			int end = repeatEnds ? 0 : 1;
+
+			for (int i = nPitches - 2; i >= end; i--) {
+				// std::cout << i;
+				indexes.push_back(i);
+			}
+
+			nPitches = indexes.size();
+			offset = offset % nPitches;
 		}
 
-		int end = repeatEnds ? 0 : 1;
-
-		for (int i = np - 2; i >= end; i--) {
-			// std::cout << i;
-			indexes.push_back(i);
-		}
-
-		index = offset % indexes.size();
-		nPitches = indexes.size();
-
+		index = offset;
 		// std::cout << " NP=" << nPitches << " -> " << index << std::endl;
 
 	}
-	
-	void advance() override {
-		index++;
-	}
-	
-	size_t getPitch() override {
-		// std::cout << "OUT " << index << " " << indexes[index] << std::endl;
-		return indexes[index];
-	}
-
-	bool isArpeggioFinished() override {
-		// std::cout << "FIN " << index << " " << nPitches << std::endl;
-		return (index >= nPitches - 1); 
-	}
-	
+		
 };
 
 struct LeftRightArp2 : Arpeggio2 {
@@ -183,47 +169,37 @@ struct LeftRightArp2 : Arpeggio2 {
 		return name;
 	};
 
-	void initialise(int np, int offset, bool repeatEnds) override {
+	void initialise(int _np, int _offset, bool _repeatEnds, bool _hold) override {
+
+		Arpeggio2::initialise(_np, _offset, _repeatEnds, _hold);
 
 		// std::cout << name;
 
-		indexes.clear();
+		if (!hold) {
+			// std::cout << " DEF ";
+			indexes.clear();
 
-		// std::cout << " DEF ";
+			for (int i = nPitches - 1; i >= 0; i--) {
+				// std::cout << i;
+				indexes.push_back(i);
+			}
 
-		for (int i = np - 1; i >= 0; i--) {
-			// std::cout << i;
-			indexes.push_back(i);
+			int end = repeatEnds ? 0 : 1;
+
+			for (int i = 1; i < nPitches - end; i++) {
+				// std::cout << i;
+				indexes.push_back(i);
+			}
+
+			nPitches = indexes.size();
+			offset = offset % nPitches;
 		}
 
-		int end = repeatEnds ? 0 : 1;
-
-		for (int i = 1; i < np - end; i++) {
-			// std::cout << i;
-			indexes.push_back(i);
-		}
-
-		index = offset % indexes.size();
-		nPitches = indexes.size();
-
+		index = offset;
 		// std::cout << " NP=" << nPitches << " -> " << index << std::endl;
 
 	}
-	
-	void advance() override {
-		index++;
-	}
-	
-	size_t getPitch() override {
-		// std::cout << "OUT " << index << " " << indexes[index] << std::endl;
-		return indexes[index];
-	}
-
-	bool isArpeggioFinished() override {
-		// std::cout << "FIN " << index << " " << nPitches << std::endl;
-		return (index >= nPitches - 1); 
-	}
-	
+		
 };
 
 using namespace ah;
@@ -457,7 +433,7 @@ void Arp31::process(const ProcessArgs &args) {
 
 		if (debugEnabled()) { std::cout << stepX << " " << id  << " Initiatise new Cycle: Pattern: " << currArp->getName() << " nPitches: " << pitches.size() << std::endl; }
 		
-		currArp->initialise(pitches.size(), offset, repeatEnd);
+		currArp->initialise(pitches.size(), offset, repeatEnd, false);
 
 		// Start
 		isRunning = true;
