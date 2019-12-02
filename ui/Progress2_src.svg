@@ -14,7 +14,7 @@
    height="380"
    id="svg11791"
    version="1.1"
-   inkscape:version="0.92.3 (2405546, 2018-03-11)"
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
    sodipodi:docname="Progress2_src.svg"
    inkscape:export-filename="/home/vortico/src/cpp/VCV/Rack/plugins/Befaco/res/Rampage.png"
    inkscape:export-xdpi="80.124367"
@@ -954,17 +954,17 @@
      borderopacity="1.0"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.3894737"
+     inkscape:zoom="2.6684211"
      inkscape:cx="172.5"
      inkscape:cy="190"
      inkscape:current-layer="layer2"
      showgrid="false"
      units="mm"
-     inkscape:window-width="1187"
-     inkscape:window-height="697"
-     inkscape:window-x="85"
-     inkscape:window-y="-8"
-     inkscape:window-maximized="1"
+     inkscape:window-width="1679"
+     inkscape:window-height="1237"
+     inkscape:window-x="1048"
+     inkscape:window-y="269"
+     inkscape:window-maximized="0"
      showguides="false"
      inkscape:guide-bbox="true"
      inkscape:showpageshadow="false"
@@ -1588,15 +1588,15 @@
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:39.76836014px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;display:inline;fill:#d4af37;fill-opacity:1;stroke:none;stroke-width:0.99420899"
-       x="20.223976"
-       y="403.97076"
+       x="20.415379"
+       y="393.03494"
        id="text53884"
        transform="scale(0.99420903,1.0058247)"><tspan
          sodipodi:role="line"
-         x="20.223976"
-         y="403.97076"
+         x="20.415379"
+         y="393.03494"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.60489655px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1;stroke-width:0.99420899"
-         id="tspan53882">GATE</tspan></text>
+         id="tspan53882">STEP</tspan></text>
     <rect
        style="display:inline;fill:#d7af37;fill-opacity:1;stroke-width:2.38691187"
        id="rect53886"
@@ -1727,14 +1727,14 @@
        transform="scale(0.99420903,1.0058247)"
        id="text47864"
        y="117.63905"
-       x="304.38962"
+       x="298.34409"
        style="font-style:normal;font-weight:normal;font-size:39.76836014px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.99420899"
        xml:space="preserve"><tspan
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.60489655px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke-width:0.99420899"
          y="117.63905"
-         x="304.38962"
+         x="298.34409"
          id="tspan47862"
-         sodipodi:role="line">OUT</tspan></text>
+         sodipodi:role="line">V/OCT</tspan></text>
     <g
        id="g1172"
        transform="translate(5.9999966)">

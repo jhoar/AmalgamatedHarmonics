@@ -33,6 +33,7 @@ struct Progress2 : core::AHModule {
 		RESET_INPUT,
 		STEPS_INPUT,
 		PART_INPUT,
+		STEP_INPUT,
 		NUM_INPUTS
 	};
 	enum OutputIds {
@@ -179,21 +180,26 @@ void Progress2::process(const ProcessArgs &args) {
 		pState.copyPartFrom(params[COPYSRC_PARAM].getValue());
 	}
 
-	pState.nSteps = (int) clamp(roundf(params[STEPS_PARAM].getValue() + inputs[STEPS_INPUT].getVoltage()), 1.0f, 8.0f);
+	pState.nSteps = static_cast<int>(clamp(roundf(params[STEPS_PARAM].getValue() + inputs[STEPS_INPUT].getVoltage()), 1.0f, 8.0f));
 
 	if (running) {
-		if (inputs[EXT_CLOCK_INPUT].isConnected()) {
-			// External clock
-			if (clockTrigger.process(inputs[EXT_CLOCK_INPUT].getVoltage())) {
-				setIndex(index + 1, pState.nSteps);
+		if (inputs[STEP_INPUT].isConnected()) {
+			int stepI = fabs(roundf(inputs[STEP_INPUT].getVoltage()));
+			setIndex(stepI % pState.nSteps, pState.nSteps);
+		} else {
+			if (inputs[EXT_CLOCK_INPUT].isConnected()) {
+				// External clock
+				if (clockTrigger.process(inputs[EXT_CLOCK_INPUT].getVoltage())) {
+					setIndex(index + 1, pState.nSteps);
+				}
 			}
-		}
-		else {
-			// Internal clock
-			float clockTime = powf(2.0f, params[CLOCK_PARAM].getValue() + inputs[CLOCK_INPUT].getVoltage());
-			phase += clockTime * args.sampleTime;
-			if (phase >= 1.0f) {
-				setIndex(index + 1, pState.nSteps);
+			else {
+				// Internal clock
+				float clockTime = powf(2.0f, params[CLOCK_PARAM].getValue() + inputs[CLOCK_INPUT].getVoltage());
+				phase += clockTime * args.sampleTime;
+				if (phase >= 1.0f) {
+					setIndex(index + 1, pState.nSteps);
+				}
 			}
 		}
 	}
@@ -332,9 +338,15 @@ struct Progress2Widget : ModuleWidget {
 		addParam(createParam<gui::AHButton>(gui::getPosition(gui::BUTTON, 8, 1, true, false), module, Progress2::COPYBTN_PARAM));
 		addChild(createLight<MediumLight<GreenLight>>(gui::getPosition(gui::LIGHT, 8, 1, true, false), module, Progress2::COPYBTN_LIGHT));
 
-		addChild(createLight<MediumLight<GreenLight>>(gui::getPosition(gui::LIGHT, 0, 5, true, false), module, Progress2::GATES_LIGHT));
+		Vec XLightPos;
+		XLightPos.x = 261;
+		XLightPos.y = 70;
+
+		addChild(createLight<SmallLight<GreenLight>>(XLightPos, module, Progress2::GATES_LIGHT));
 		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 7, 0, true, false), module, Progress2::GATES_OUTPUT));
 		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 8, 0, true, false), module, Progress2::PITCH_OUTPUT));
+
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 5, true, false), module, Progress2::STEP_INPUT));
 
 		for (int i = 0; i < 8; i++) {
 			addParam(createParam<gui::AHButton>(gui::getPosition(gui::BUTTON, i + 1, 8, true, true, 0.0f, -4.0f), module, Progress2::GATE_PARAM + i));
