@@ -218,6 +218,114 @@ struct LeftRightArp2 : Arpeggio2 {
 		
 };
 
+struct CrabRightArp2 : Arpeggio2 {
+
+	const std::string name = "CrabRight";
+	
+	const std::string & getName() override {
+		return name;
+	};
+
+	void initialise(int _np, int _offset, bool _repeatEnds) override {
+
+		Arpeggio2::initialise(_np, _offset, _repeatEnds);
+
+		// std::cout << name;
+		// std::cout << " DEF ";
+		indexes.clear();
+
+		int steps[2] = {2, -1};
+
+		// 1 = 1: 0 
+		// 2 = 1: 0
+		// 3 = 2: 0, 2
+		// 4 = 4: 0, 2, 1, 3
+		// 5 = 6: 0, 2, 1, 3, 2, 4 
+		// 6 = 8: 0, 2, 1, 3, 2, 4, 3, 5
+
+		if (nPitches < 2) {
+			indexes.push_back(0);
+		} else {
+			int p = 0;
+			int i = 0;
+
+			while (true) {
+				// std::cout << p;
+				indexes.push_back(p);
+				p = p + steps[i % 2];
+				i++;
+				if (p == nPitches - 1) {
+					// std::cout << p;
+					indexes.push_back(p);
+					break;
+				}
+			} 
+		}
+
+		nPitches = indexes.size();
+		offset = offset % nPitches;
+		index = offset;
+		// std::cout << " NP=" << nPitches << " -> " << index << std::endl;
+
+	}
+		
+};
+
+struct CrabLeftArp2 : Arpeggio2 {
+
+	const std::string name = "CrabLeft";
+	
+	const std::string & getName() override {
+		return name;
+	};
+
+	void initialise(int _np, int _offset, bool _repeatEnds) override {
+
+		Arpeggio2::initialise(_np, _offset, _repeatEnds);
+
+		std::cout << name;
+		std::cout << " DEF ";
+		indexes.clear();
+
+		int steps[2] = {-2, 1};
+
+		// 1 = 1: 0 
+		// 2 = 1: 0
+		// 3 = 2: 0, 2
+		// 4 = 4: 0, 2, 1, 3
+		// 5 = 6: 0, 2, 1, 3, 2, 4 
+		// 6 = 8: 0, 2, 1, 3, 2, 4, 3, 5
+
+		if (nPitches < 2) {
+			indexes.push_back(nPitches - 1);
+		} else {
+			int p = nPitches - 1;
+			int i = 0;
+
+			while (true) {
+				std::cout << p;
+				indexes.push_back(p);
+				p = p + steps[i % 2];
+				i++;
+				if (p == 0) {
+					std::cout << p;
+					indexes.push_back(0);
+					break;
+				}
+			} 
+		}
+
+		nPitches = indexes.size();
+		offset = offset % nPitches;
+		index = offset;
+		std::cout << " NP=" << nPitches << " -> " << index << std::endl;
+
+	}
+		
+};
+
+
+
 using namespace ah;
 
 struct Arp31 : core::AHModule {
@@ -253,12 +361,14 @@ struct Arp31 : core::AHModule {
 		configParam(OFFSET_PARAM, 0.0, 10.0, 0.0, "Start offset");
 		paramQuantities[OFFSET_PARAM]->description = "Number of steps into the arpeggio to start";
 
-		configParam(ARP_PARAM, 0.0, 3.0, 0.0, "Arpeggio type"); 
+		configParam(ARP_PARAM, 0.0, 5.0, 0.0, "Arpeggio type"); 
 
 		arps.push_back(&arp_right);
 		arps.push_back(&arp_left);
 		arps.push_back(&arp_rightleft);
 		arps.push_back(&arp_leftright);
+		arps.push_back(&arp_crabright);
+		arps.push_back(&arp_crableft);
 		nextArp = arps[0]->getName();
 
 		onReset();
@@ -324,6 +434,8 @@ struct Arp31 : core::AHModule {
 	LeftArp2 		arp_left;
 	RightLeftArp2 	arp_rightleft;
 	LeftRightArp2 	arp_leftright;
+	CrabRightArp2 	arp_crabright;
+	CrabLeftArp2 	arp_crableft;
 
 	Arpeggio2 *currArp = &arp_right;
 	
