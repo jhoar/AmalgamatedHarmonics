@@ -740,6 +740,8 @@ struct Arp32Widget : ModuleWidget {
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Arp32p.svg")));
 
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 0, true, false), module, Arp32::PITCH_INPUT));
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 1, 0, true, false), module, Arp32::HOLD_INPUT));
+		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 2, 0, true, false), module, Arp32::RANDOM_INPUT));
 
 		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 0, 2, true, false), module, Arp32::PATT_PARAM));
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 3, true, false), module, Arp32::PATT_INPUT));
@@ -748,8 +750,6 @@ struct Arp32Widget : ModuleWidget {
 		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 2, 2, true, false), module, Arp32::LENGTH_PARAM));
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 2, 3, true, false), module, Arp32::LENGTH_INPUT));
 
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 1, 0, true, false), module, Arp32::HOLD_INPUT));
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 2, 0, true, false), module, Arp32::RANDOM_INPUT));
 
 		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 4, true, false), module, Arp32::CLOCK_INPUT));
 		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 1, 4, true, false), module, Arp32::OFFSET_PARAM));

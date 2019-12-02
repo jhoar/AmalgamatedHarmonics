@@ -14,7 +14,7 @@
    height="380"
    id="svg11791"
    version="1.1"
-   inkscape:version="0.92.3 (2405546, 2018-03-11)"
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
    sodipodi:docname="Arp31c_src.svg"
    inkscape:export-filename="/home/vortico/src/cpp/VCV/Rack/plugins/Befaco/res/Rampage.png"
    inkscape:export-xdpi="80.124367"
@@ -954,17 +954,17 @@
      borderopacity="1.0"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.1657895"
-     inkscape:cx="-20.458687"
-     inkscape:cy="190"
+     inkscape:zoom="9.1392216"
+     inkscape:cx="60.750205"
+     inkscape:cy="214.36527"
      inkscape:current-layer="layer2"
      showgrid="false"
      units="mm"
-     inkscape:window-width="1780"
-     inkscape:window-height="1046"
-     inkscape:window-x="129"
-     inkscape:window-y="-11"
-     inkscape:window-maximized="1"
+     inkscape:window-width="1748"
+     inkscape:window-height="1444"
+     inkscape:window-x="1749"
+     inkscape:window-y="305"
+     inkscape:window-maximized="0"
      showguides="false"
      inkscape:guide-bbox="true"
      inkscape:showpageshadow="false"
@@ -1340,15 +1340,15 @@
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:39.76836014px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none;stroke-width:0.99420899"
-       x="26.072256"
+       x="16.852522"
        y="116.14774"
        id="text2688"
        transform="scale(0.99420903,1.0058247)"><tspan
          sodipodi:role="line"
          id="tspan2686"
-         x="26.072256"
+         x="16.852522"
          y="116.14774"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.60489655px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1;stroke-width:0.99420899">CV</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.60489655px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1;stroke-width:0.99420899">V/OCT</tspan></text>
     <text
        id="text7961"
        y="93.702049"
@@ -1547,10 +1547,11 @@
        inkscape:transform-center-y="-1.7704976"
        transform="matrix(1.0806724,0.57665211,-0.55278499,1.1273317,95.349065,-175.35103)" />
     <rect
+       rx="4.2187495"
        transform="scale(1,-1)"
        ry="4.2187495"
-       y="-152.38666"
-       x="50.244671"
+       y="-206.88676"
+       x="14.988246"
        height="45"
        width="35"
        id="rect6419"
@@ -1558,17 +1559,17 @@
     <text
        transform="scale(0.99420903,1.0058247)"
        id="text5166"
-       y="116.14774"
-       x="55.685753"
+       y="170.33224"
+       x="20.22397"
        style="font-style:normal;font-weight:normal;font-size:39.76836014px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none;stroke-width:0.99420899"
        xml:space="preserve"><tspan
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.60489655px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1;stroke-width:0.99420899"
-         y="116.14774"
-         x="55.685753"
+         y="170.33224"
+         x="20.22397"
          id="tspan5164"
          sodipodi:role="line">GATE</tspan></text>
     <path
-       transform="matrix(1.0806724,0.57665211,-0.55278499,1.1273317,130.46695,-175.35103)"
+       transform="matrix(1.0806724,0.57665211,-0.55278499,1.1273317,95.210525,-120.85093)"
        inkscape:transform-center-y="-1.7704976"
        inkscape:transform-center-x="-0.0087335528"
        d="m 76.627278,232.54102 -3.137955,9.25351 5.843863,7.83093 -9.77029,-0.12489 -5.641802,7.97774 -2.900417,-9.33069 -9.330689,-2.90042 7.977735,-5.6418 -0.124881,-9.77029 7.830927,5.84386 z"
@@ -1585,5 +1586,29 @@
        id="path5168"
        style="opacity:0.97000002;fill:#d4af42;fill-opacity:1;stroke:#d4af37;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        sodipodi:type="star" />
+    <text
+       transform="scale(0.99420903,1.0058247)"
+       id="text5106"
+       y="116.14774"
+       x="54.454342"
+       style="font-style:normal;font-weight:normal;font-size:39.76836014px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none;stroke-width:0.99420899"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.60489655px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1;stroke-width:0.99420899"
+         y="116.14774"
+         x="54.454342"
+         id="tspan5104"
+         sodipodi:role="line">HOLD</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:39.76836014px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none;stroke-width:0.99420899"
+       x="92.071228"
+       y="116.14774"
+       id="text5110"
+       transform="scale(0.99420903,1.0058247)"><tspan
+         sodipodi:role="line"
+         id="tspan5108"
+         x="92.071228"
+         y="116.14774"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:10.60489655px;font-family:Eurostile;-inkscape-font-specification:'Eurostile, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1;stroke-width:0.99420899">RND</tspan></text>
   </g>
 </svg>
