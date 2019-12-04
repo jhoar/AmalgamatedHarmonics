@@ -87,7 +87,7 @@ struct Arpeggio2 {
 
 struct RightArp2 : Arpeggio2 {
 
-	const std::string name = "Right";
+	const std::string name = "Straight-R";
 
 	const std::string & getName() override {
 		return name;
@@ -117,7 +117,7 @@ struct RightArp2 : Arpeggio2 {
 
 struct LeftArp2 : Arpeggio2 {
 
-	const std::string name = "Left";
+	const std::string name = "Straight-L";
 
 	const std::string & getName() override {
 		return name;
@@ -147,7 +147,7 @@ struct LeftArp2 : Arpeggio2 {
 
 struct RightLeftArp2 : Arpeggio2 {
 
-	const std::string name = "RightLeft";
+	const std::string name = "Straight-RL";
 	
 	const std::string & getName() override {
 		return name;
@@ -183,7 +183,7 @@ struct RightLeftArp2 : Arpeggio2 {
 
 struct LeftRightArp2 : Arpeggio2 {
 
-	const std::string name = "LeftRight";
+	const std::string name = "Straight-LR";
 	
 	const std::string & getName() override {
 		return name;
@@ -220,7 +220,7 @@ struct LeftRightArp2 : Arpeggio2 {
 
 struct CrabRightArp2 : Arpeggio2 {
 
-	const std::string name = "CrabRight";
+	const std::string name = "Crab-R";
 	
 	const std::string & getName() override {
 		return name;
@@ -237,13 +237,16 @@ struct CrabRightArp2 : Arpeggio2 {
 		int steps[2] = {2, -1};
 
 		// 1 = 1: 0 
-		// 2 = 1: 0
+		// 2 = 2: 0, 0
 		// 3 = 2: 0, 2
 		// 4 = 4: 0, 2, 1, 3
 		// 5 = 6: 0, 2, 1, 3, 2, 4 
 		// 6 = 8: 0, 2, 1, 3, 2, 4, 3, 5
 
-		if (nPitches < 2) {
+		if (nPitches == 1) {
+			indexes.push_back(0);
+		} else if (nPitches == 2) {
+			indexes.push_back(0);
 			indexes.push_back(0);
 		} else {
 			int p = 0;
@@ -273,7 +276,7 @@ struct CrabRightArp2 : Arpeggio2 {
 
 struct CrabLeftArp2 : Arpeggio2 {
 
-	const std::string name = "CrabLeft";
+	const std::string name = "Crab-L";
 	
 	const std::string & getName() override {
 		return name;
@@ -283,32 +286,35 @@ struct CrabLeftArp2 : Arpeggio2 {
 
 		Arpeggio2::initialise(_np, _offset, _repeatEnds);
 
-		std::cout << name;
-		std::cout << " DEF ";
+		// std::cout << name;
+		// std::cout << " DEF ";
 		indexes.clear();
 
 		int steps[2] = {-2, 1};
 
 		// 1 = 1: 0 
-		// 2 = 1: 0
-		// 3 = 2: 0, 2
-		// 4 = 4: 0, 2, 1, 3
-		// 5 = 6: 0, 2, 1, 3, 2, 4 
-		// 6 = 8: 0, 2, 1, 3, 2, 4, 3, 5
+		// 2 = 2: 1, 1
+		// 3 = 2: 2, 0
+		// 4 = 4: 3, 1, 2, 0
+		// 5 = 6: 4, 2, 3, 1, 2, 0 
+		// 6 = 8: 5, 3, 4, 2, 3, 1, 2, 0
 
-		if (nPitches < 2) {
+		if (nPitches == 1) {
+			indexes.push_back(nPitches - 1);
+		} else if (nPitches == 2) {
+			indexes.push_back(nPitches - 1);
 			indexes.push_back(nPitches - 1);
 		} else {
 			int p = nPitches - 1;
 			int i = 0;
 
 			while (true) {
-				std::cout << p;
+				// std::cout << p;
 				indexes.push_back(p);
 				p = p + steps[i % 2];
 				i++;
 				if (p == 0) {
-					std::cout << p;
+					// std::cout << p;
 					indexes.push_back(0);
 					break;
 				}
@@ -318,13 +324,165 @@ struct CrabLeftArp2 : Arpeggio2 {
 		nPitches = indexes.size();
 		offset = offset % nPitches;
 		index = offset;
-		std::cout << " NP=" << nPitches << " -> " << index << std::endl;
+		// std::cout << " NP=" << nPitches << " -> " << index << std::endl;
 
 	}
 		
 };
 
+struct CrabRightLeftArp2 : Arpeggio2 {
 
+	const std::string name = "Crab-RL";
+	
+	const std::string & getName() override {
+		return name;
+	};
+
+	void initialise(int _np, int _offset, bool _repeatEnds) override {
+
+		Arpeggio2::initialise(_np, _offset, _repeatEnds);
+
+		// std::cout << name;
+		// std::cout << " DEF ";
+		indexes.clear();
+
+		int stepsR[2] = {2, -1};
+		int stepsL[2] = {-2, 1};
+
+		// 1 = 1:  0 
+		// 2 = 2:  0, 0
+		// 3 = 5:  0, 2, 1, 2, 0
+		// 4 = 7:  0, 2, 1, 3, 1, 2, 0
+		// 5 = 11: 0, 2, 1, 3, 2, 4, 2, 3, 1, 2, 0 
+		// 6 = 15: 0, 2, 1, 3, 2, 4, 3, 5, 3, 4, 2, 3, 1, 2, 0
+
+		// 021324353423120
+		// 0213243534231
+
+		if (nPitches == 1) {
+			indexes.push_back(0);
+		} else if (nPitches == 2) {
+			indexes.push_back(0);
+			indexes.push_back(0);
+		} else {
+
+			int p = 0;
+			int i = 0;
+
+			while (true) {
+				// std::cout << p;
+				indexes.push_back(p);
+				p = p + stepsR[i % 2];
+				i++;
+				if (p == nPitches - 1) {
+					// std::cout << p;
+					indexes.push_back(p);
+					break;
+				}
+			} 
+
+			p = nPitches - 3;
+			i = 1;
+			int end = repeatEnds ? 0 : 1;
+
+			while (true) {
+				// std::cout << p;
+				indexes.push_back(p);
+				p = p + stepsL[i % 2];
+				i++;
+				if (p == end) {
+					// std::cout << end;
+					indexes.push_back(end);
+					break;
+				}
+			} 
+		}
+
+		nPitches = indexes.size();
+		offset = offset % nPitches;
+		index = offset;
+		// std::cout << " NP=" << nPitches << " -> " << index << std::endl;
+
+	}
+		
+};
+
+struct CrabLeftRightArp2 : Arpeggio2 {
+
+	const std::string name = "Crab-LR";
+	
+	const std::string & getName() override {
+		return name;
+	};
+
+	void initialise(int _np, int _offset, bool _repeatEnds) override {
+
+		Arpeggio2::initialise(_np, _offset, _repeatEnds);
+
+		// std::cout << name;
+		// std::cout << " DEF ";
+		indexes.clear();
+
+		int stepsR[2] = {2, -1};
+		int stepsL[2] = {-2, 1};
+
+		// 1 = 1:  0 
+		// 2 = 2:  1, 1
+		// 3 = 2:  2, 0, 1, 0, 2
+		// 4 = 7:  3, 1, 2, 0, 2, 1, 3
+		// 5 = 11: 4, 2, 3, 1, 2, 0, 2, 1, 3, 2, 4 
+		// 6 = 15: 5, 3, 4, 2, 3, 1, 2, 0, 2, 1, 3, 2, 4, 3, 5
+
+		// 534231202132435
+		// 534231202132435
+
+		if (nPitches == 1) {
+			indexes.push_back(nPitches - 1);
+		} else if (nPitches == 2) {
+			indexes.push_back(nPitches - 1);
+			indexes.push_back(nPitches - 1);
+		} else {
+
+			int p = nPitches - 1;
+			int i = 0;
+
+			while (true) {
+				// std::cout << p;
+				indexes.push_back(p);
+				p = p + stepsL[i % 2];
+				i++;
+				if (p == 0) {
+					// std::cout << p;
+					indexes.push_back(0);
+					break;
+				}
+			} 
+
+			p = 2;
+			i = 1;
+			int end = repeatEnds ? 0 : 1;
+
+			while (true) {
+				// std::cout << p;
+				indexes.push_back(p);
+				p = p + stepsR[i % 2];
+				i++;
+				if (p == nPitches - 1 - end) {
+					// std::cout << p;
+					indexes.push_back(p);
+					break;
+				}
+			} 
+		}
+
+		nPitches = indexes.size();
+		offset = offset % nPitches;
+		index = offset;
+		// std::cout << " NP=" << nPitches << " -> " << index << std::endl;
+
+	}
+		
+};
 
 using namespace ah;
 
@@ -361,7 +519,7 @@ struct Arp31 : core::AHModule {
 		configParam(OFFSET_PARAM, 0.0, 10.0, 0.0, "Start offset");
 		paramQuantities[OFFSET_PARAM]->description = "Number of steps into the arpeggio to start";
 
-		configParam(ARP_PARAM, 0.0, 5.0, 0.0, "Arpeggio type"); 
+		configParam(ARP_PARAM, 0.0, 7.0, 0.0, "Arpeggio type"); 
 
 		arps.push_back(&arp_right);
 		arps.push_back(&arp_left);
@@ -369,6 +527,8 @@ struct Arp31 : core::AHModule {
 		arps.push_back(&arp_leftright);
 		arps.push_back(&arp_crabright);
 		arps.push_back(&arp_crableft);
+		arps.push_back(&arp_crabrightleft);
+		arps.push_back(&arp_crableftright);
 		nextArp = arps[0]->getName();
 
 		onReset();
@@ -428,14 +588,16 @@ struct Arp31 : core::AHModule {
 	bool eoc = false;
 	bool repeatEnd = false;
 
-	std::vector<Arpeggio2 *>arps;
+	std::vector<Arpeggio2 *> arps;
 
-	RightArp2 		arp_right;
-	LeftArp2 		arp_left;
-	RightLeftArp2 	arp_rightleft;
-	LeftRightArp2 	arp_leftright;
-	CrabRightArp2 	arp_crabright;
-	CrabLeftArp2 	arp_crableft;
+	RightArp2 			arp_right;
+	LeftArp2 			arp_left;
+	RightLeftArp2 		arp_rightleft;
+	LeftRightArp2 		arp_leftright;
+	CrabRightArp2 		arp_crabright;
+	CrabLeftArp2 		arp_crableft;
+	CrabRightLeftArp2	arp_crabrightleft;
+	CrabLeftRightArp2	arp_crableftright;
 
 	Arpeggio2 *currArp = &arp_right;
 	
