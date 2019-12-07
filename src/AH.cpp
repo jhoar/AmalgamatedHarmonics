@@ -24,6 +24,7 @@ void init(rack::Plugin *p) {
 	p->addModel(modelMuxDeMux);
 	p->addModel(modelPolyProbe);
 	p->addModel(modelPolyScope);
+	p->addModel(modelPolyUtils);
 
 	p->addModel(modelScaleQuantizer);
 	p->addModel(modelArpeggiator2);

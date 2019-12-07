@@ -49,3 +49,5 @@ extern Model *modelGalaxy;
 extern Model *modelChord;
 
 extern Model *modelBombe;
+
+extern Model *modelPolyUtils;

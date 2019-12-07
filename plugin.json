@@ -9,7 +9,7 @@
 	"authorUrl": "https://github.com/jhoar/AmalgamatedHarmonics/wiki",
 	"sourceUrl": "https://github.com/jhoar/AmalgamatedHarmonics",
 	"changelogUrl": "https://github.com/jhoar/AmalgamatedHarmonics/releases",
-	"version": "1.0.3",
+	"version": "1.0.4",
 	"modules": [
 		{
 			"slug": "Arp31" ,
@@ -106,6 +106,12 @@
 			"name": "PolyScope",
 			"description": "Polyphonic 'Scope",
 			"tags": ["Visual","Polyphonic"]
+		},
+		{
+			"slug": "PolyUtils",
+			"name": "PolyScope",
+			"description": "Utilities for Polyphony",
+			"tags": ["Utility","Polyphonic"]
 		},
         {
 			"slug": "Arpeggiator2",
