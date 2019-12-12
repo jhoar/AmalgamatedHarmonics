@@ -44,30 +44,42 @@ struct PolyUtils : core::AHModule {
 		AHModule::step();
 		
 		// Mask
-		int maskChans = params[MASK_PARAM].getValue();
-		int j = 0;
-		for (; j < maskChans; j++) {
-			float inV = inputs[MASK_INPUT].getVoltage(j);
-			outputs[MASK_OUTPUT].setVoltage(inV, j);
+		if (inputs[MASK_INPUT].isConnected()) {
+			int maskChans = params[MASK_PARAM].getValue();
+			int j = 0;
+			for (; j < maskChans; j++) {
+				float inV = inputs[MASK_INPUT].getVoltage(j);
+				outputs[MASK_OUTPUT].setVoltage(inV, j);
+			}
+			for (; j < 16; j++) {
+				outputs[MASK_OUTPUT].setVoltage(0.0f, j);
+			}
+			outputs[MASK_OUTPUT].setChannels(maskChans);
+		} else {
+			outputs[MASK_OUTPUT].setVoltage(0.0f);
+			outputs[MASK_OUTPUT].setChannels(1);
 		}
-		for (; j < 16; j++) {
-			outputs[MASK_OUTPUT].setVoltage(0.0f, j);
-		}
-		outputs[MASK_OUTPUT].setChannels(maskChans);
 
 		// Split
-		int count[2] = {0, 0};
-		int groups = params[SPLIT_PARAM].getValue();
-		for (int inChan = 0; inChan < inputs[SPLIT_INPUT].getChannels(); inChan++) {
-			int side = map[groups][inChan];
-			int outChan = count[side];
+		if (inputs[SPLIT_INPUT].isConnected()) {
+			int count[2] = {0, 0};
+			int groups = params[SPLIT_PARAM].getValue();
+			for (int inChan = 0; inChan < inputs[SPLIT_INPUT].getChannels(); inChan++) {
+				int side = map[groups][inChan];
+				int outChan = count[side];
 
-			outputs[SPLIT_OUTPUT + side].setVoltage(inputs[SPLIT_PARAM].getVoltage(inChan), outChan);
-			count[side]++;
+				outputs[SPLIT_OUTPUT + side].setVoltage(inputs[SPLIT_PARAM].getVoltage(inChan), outChan);
+				count[side]++;
+			}
+			outputs[SPLIT_OUTPUT].setChannels(count[0]);
+			outputs[SPLIT_OUTPUT + 1].setChannels(count[1]);
+		} else {
+			outputs[SPLIT_OUTPUT].setVoltage(0.0f);
+			outputs[SPLIT_OUTPUT].setChannels(1);
+			outputs[SPLIT_OUTPUT + 1].setVoltage(0.0f);
+			outputs[SPLIT_OUTPUT + 1].setChannels(1);
 		}
-		outputs[SPLIT_OUTPUT].setChannels(count[0]);
-		outputs[SPLIT_OUTPUT + 1].setChannels(count[1]);
-		
+
 	}
 };
 
