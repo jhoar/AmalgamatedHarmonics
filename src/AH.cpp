@@ -25,6 +25,7 @@ void init(rack::Plugin *p) {
 	p->addModel(modelPolyProbe);
 	p->addModel(modelPolyScope);
 	p->addModel(modelPolyUtils);
+	p->addModel(modelPolyVolt);
 
 	p->addModel(modelScaleQuantizer);
 	p->addModel(modelArpeggiator2);

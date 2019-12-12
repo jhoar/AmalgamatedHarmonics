@@ -109,8 +109,14 @@
 		},
 		{
 			"slug": "PolyUtils",
-			"name": "PolyScope",
+			"name": "PolyUtils",
 			"description": "Utilities for Polyphony",
+			"tags": ["Utility","Polyphonic"]
+		},
+		{
+			"slug": "PolyVolt",
+			"name": "PolyVolt",
+			"description": "Set voltages in Poly cable",
 			"tags": ["Utility","Polyphonic"]
 		},
         {

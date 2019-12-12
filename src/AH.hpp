@@ -51,3 +51,5 @@ extern Model *modelChord;
 extern Model *modelBombe;
 
 extern Model *modelPolyUtils;
+
+extern Model *modelPolyVolt;
