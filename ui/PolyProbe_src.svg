@@ -10,7 +10,7 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="355"
+   width="345"
    height="380"
    id="svg11791"
    version="1.1"
@@ -1302,7 +1302,7 @@
     <rect
        style="fill:#000000;fill-opacity:1;stroke-width:16.2095356"
        id="rect7953"
-       width="355"
+       width="345"
        height="380"
        x="-0.01175524"
        y="74.386765"
@@ -1331,12 +1331,12 @@
     <text
        id="text7961"
        y="93.702049"
-       x="128.97131"
+       x="123.97132"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d4af37;fill-opacity:1;stroke:none"
        xml:space="preserve"><tspan
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:18.66666603px;font-family:'Cooper Black';-inkscape-font-specification:'Cooper Black, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1"
          y="93.702049"
-         x="128.97131"
+         x="123.97132"
          id="tspan7959"
          sodipodi:role="line">PolyProbe</tspan></text>
     <text
@@ -1351,7 +1351,7 @@
          y="477.59503" /></text>
     <g
        id="g6059"
-       transform="translate(56.616674,1.5004978)">
+       transform="translate(51.616674,1.5004978)">
       <text
          id="text6049"
          y="444.72498"
