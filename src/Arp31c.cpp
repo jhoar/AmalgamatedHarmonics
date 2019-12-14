@@ -5,7 +5,7 @@
 
 struct Arpeggio2 {
 
-	std::vector<int> indexes;
+	std::vector<unsigned int> indexes;
 	unsigned int index = 0;
 	unsigned int offset = 0;	
 	unsigned int nPitches = 0;
@@ -59,7 +59,7 @@ struct Arpeggio2 {
 
 	}
 
-	size_t getPitch() {
+	unsigned int getPitch() {
 		// std::cout << "OUT " << index << " " << indexes[index] << std::endl;
 		return indexes[index];
 	}

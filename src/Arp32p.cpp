@@ -41,7 +41,7 @@ struct Pattern2 {
 		index = patternOffset;
 	}
 
-	unsigned int getOffset() {
+	int getOffset() {
 		// std::cout << "OUT " << index << " " << notes[index] << std::endl;
 		return notes[index];
 	}
