@@ -6,9 +6,9 @@
 struct Arpeggio2 {
 
 	std::vector<int> indexes;
-	int index = 0;
-	int offset = 0;	
-	int nPitches = 0;
+	unsigned int index = 0;
+	unsigned int offset = 0;	
+	unsigned int nPitches = 0;
 	bool repeatEnds = false;
 
 	Arpeggio2() {
@@ -18,7 +18,7 @@ struct Arpeggio2 {
 
 	virtual const std::string & getName() = 0;
 
-	virtual void initialise(int _nPitches, int _offset, bool _repeatEnds) {
+	virtual void initialise(unsigned int _nPitches, unsigned int _offset, bool _repeatEnds) {
 		nPitches = _nPitches;
 		offset = _offset;
 		repeatEnds = _repeatEnds;
@@ -93,7 +93,7 @@ struct RightArp2 : Arpeggio2 {
 		return name;
 	};
 
-	void initialise(int _np, int _offset, bool _repeatEnds) override {
+	void initialise(unsigned int _np, unsigned int _offset, bool _repeatEnds) override {
 
 		Arpeggio2::initialise(_np, _offset, _repeatEnds);
 
@@ -101,7 +101,7 @@ struct RightArp2 : Arpeggio2 {
 		// std::cout << " DEF ";
 		indexes.clear();
 
-		for (int i = 0; i < nPitches; i++) {
+		for (unsigned int i = 0; i < nPitches; i++) {
 			// std::cout << i;
 			indexes.push_back(i);
 		}
@@ -123,7 +123,7 @@ struct LeftArp2 : Arpeggio2 {
 		return name;
 	};
 	
-	void initialise(int _np, int _offset, bool _repeatEnds) override {
+	void initialise(unsigned int _np, unsigned int _offset, bool _repeatEnds) override {
 
 		Arpeggio2::initialise(_np, _offset, _repeatEnds);
 
@@ -153,14 +153,14 @@ struct RightLeftArp2 : Arpeggio2 {
 		return name;
 	};
 
-	void initialise(int _np, int _offset, bool _repeatEnds) override {
+	void initialise(unsigned int _np, unsigned int _offset, bool _repeatEnds) override {
 
 		Arpeggio2::initialise(_np, _offset, _repeatEnds);
 		// std::cout << name;
 		// std::cout << " DEF ";
 		indexes.clear();
 
-		for (int i = 0; i < nPitches; i++) {
+		for (unsigned int i = 0; i < nPitches; i++) {
 			// std::cout << i;
 			indexes.push_back(i);
 		}
@@ -189,7 +189,7 @@ struct LeftRightArp2 : Arpeggio2 {
 		return name;
 	};
 
-	void initialise(int _np, int _offset, bool _repeatEnds) override {
+	void initialise(unsigned int _np, unsigned int _offset, bool _repeatEnds) override {
 
 		Arpeggio2::initialise(_np, _offset, _repeatEnds);
 
@@ -204,7 +204,7 @@ struct LeftRightArp2 : Arpeggio2 {
 
 		int end = repeatEnds ? 0 : 1;
 
-		for (int i = 1; i < nPitches - end; i++) {
+		for (unsigned int i = 1; i < nPitches - end; i++) {
 			// std::cout << i;
 			indexes.push_back(i);
 		}
@@ -226,7 +226,7 @@ struct CrabRightArp2 : Arpeggio2 {
 		return name;
 	};
 
-	void initialise(int _np, int _offset, bool _repeatEnds) override {
+	void initialise(unsigned int _np, unsigned int _offset, bool _repeatEnds) override {
 
 		Arpeggio2::initialise(_np, _offset, _repeatEnds);
 
@@ -249,8 +249,8 @@ struct CrabRightArp2 : Arpeggio2 {
 			indexes.push_back(0);
 			indexes.push_back(0);
 		} else {
-			int p = 0;
-			int i = 0;
+			unsigned int p = 0;
+			unsigned int i = 0;
 
 			while (true) {
 				// std::cout << p;
@@ -282,7 +282,7 @@ struct CrabLeftArp2 : Arpeggio2 {
 		return name;
 	};
 
-	void initialise(int _np, int _offset, bool _repeatEnds) override {
+	void initialise(unsigned int _np, unsigned int _offset, bool _repeatEnds) override {
 
 		Arpeggio2::initialise(_np, _offset, _repeatEnds);
 
@@ -305,8 +305,8 @@ struct CrabLeftArp2 : Arpeggio2 {
 			indexes.push_back(nPitches - 1);
 			indexes.push_back(nPitches - 1);
 		} else {
-			int p = nPitches - 1;
-			int i = 0;
+			unsigned int p = nPitches - 1;
+			unsigned int i = 0;
 
 			while (true) {
 				// std::cout << p;
@@ -338,7 +338,7 @@ struct CrabRightLeftArp2 : Arpeggio2 {
 		return name;
 	};
 
-	void initialise(int _np, int _offset, bool _repeatEnds) override {
+	void initialise(unsigned int _np, unsigned int _offset, bool _repeatEnds) override {
 
 		Arpeggio2::initialise(_np, _offset, _repeatEnds);
 
@@ -366,8 +366,8 @@ struct CrabRightLeftArp2 : Arpeggio2 {
 			indexes.push_back(0);
 		} else {
 
-			int p = 0;
-			int i = 0;
+			unsigned int p = 0;
+			unsigned int i = 0;
 
 			while (true) {
 				// std::cout << p;
@@ -383,7 +383,7 @@ struct CrabRightLeftArp2 : Arpeggio2 {
 
 			p = nPitches - 3;
 			i = 1;
-			int end = repeatEnds ? 0 : 1;
+			unsigned int end = repeatEnds ? 0 : 1;
 
 			while (true) {
 				// std::cout << p;
@@ -415,7 +415,7 @@ struct CrabLeftRightArp2 : Arpeggio2 {
 		return name;
 	};
 
-	void initialise(int _np, int _offset, bool _repeatEnds) override {
+	void initialise(unsigned int _np, unsigned int _offset, bool _repeatEnds) override {
 
 		Arpeggio2::initialise(_np, _offset, _repeatEnds);
 
@@ -443,8 +443,8 @@ struct CrabLeftRightArp2 : Arpeggio2 {
 			indexes.push_back(nPitches - 1);
 		} else {
 
-			int p = nPitches - 1;
-			int i = 0;
+			unsigned int p = nPitches - 1;
+			unsigned int i = 0;
 
 			while (true) {
 				// std::cout << p;
@@ -460,7 +460,7 @@ struct CrabLeftRightArp2 : Arpeggio2 {
 
 			p = 2;
 			i = 1;
-			int end = repeatEnds ? 0 : 1;
+			unsigned int end = repeatEnds ? 0 : 1;
 
 			while (true) {
 				// std::cout << p;
@@ -584,7 +584,7 @@ struct Arp31 : core::AHModule {
 	int currLight = 0;
 	float outVolts = 0;
 	bool isRunning = false;
-	size_t inputArp = 0;
+	unsigned int inputArp = 0;
 	bool eoc = false;
 	bool repeatEnd = false;
 
@@ -621,12 +621,12 @@ void Arp31::process(const ProcessArgs &args) {
 	float randomInput	= inputs[RANDOM_INPUT].getVoltage();
 
 	if (inputs[ARP_INPUT].isConnected()) {
-		inputArp = inputs[ARP_INPUT].getVoltage();
+		inputArp = clamp(static_cast<unsigned int>(inputs[ARP_INPUT].getVoltage()), 0, 7);
 	} else {
 		inputArp = params[ARP_PARAM].getValue();
 	}	
 
-	int offset = params[OFFSET_PARAM].getValue();
+	size_t offset = params[OFFSET_PARAM].getValue();
 	int hold = digital::sgn(inputs[HOLD_INPUT].getVoltage(), 0.001);
 
 	// Process inputs

@@ -8,22 +8,22 @@ using namespace ah;
 struct Pattern2 {
 	
 	std::vector<int> notes;
-	int nNotes = 0;
+	unsigned int nNotes = 0;
 
-	int patternLength = 0;
+	unsigned int patternLength = 0;
 	int stepSize = 0;
-	int stepScale = 0;
-	int patternOffset = 0;
+	unsigned int stepScale = 0;
+	unsigned int patternOffset = 0;
 	bool repeatLast = false;
 
-	int index = 0;
+	unsigned int index = 0;
 
-	int MAJOR[7] = {0,2,4,5,7,9,11};
-	int MINOR[7] = {0,2,3,5,7,8,10};
+	unsigned int MAJOR[7] = {0,2,4,5,7,9,11};
+	unsigned int MINOR[7] = {0,2,3,5,7,8,10};
 		
 	virtual const std::string & getName() = 0;
 
-	virtual void initialise(int _length, int _scale, int _size, int _offset, bool _repeat) {
+	virtual void initialise(unsigned int _length, unsigned int _scale, int _size, unsigned int _offset, bool _repeat) {
 		patternLength = _length;
 		stepSize = _size;
 		stepScale = _scale;
@@ -41,7 +41,7 @@ struct Pattern2 {
 		index = patternOffset;
 	}
 
-	int getOffset() {
+	unsigned int getOffset() {
 		// std::cout << "OUT " << index << " " << notes[index] << std::endl;
 		return notes[index];
 	}
@@ -76,7 +76,7 @@ struct Pattern2 {
 
 		// std::cout << "RND " << length << " " << p1 << " " << p2 << " "; 
 
-		int t = notes[p1];
+		unsigned int t = notes[p1];
 		notes[p1] = notes[p2];
 		notes[p2] = t;
 
@@ -98,7 +98,7 @@ struct DivergePattern2 : Pattern2 {
 		return name;
 	};
 
-	void initialise(int _length, int _scale, int _size, int _offset, bool _repeat) override {
+	void initialise(unsigned int _length, unsigned int _scale, int _size, unsigned int _offset, bool _repeat) override {
 
 		Pattern2::initialise(_length, _scale, _size, _offset, _repeat);
 
@@ -106,7 +106,7 @@ struct DivergePattern2 : Pattern2 {
 		// std::cout << " DEF ";
 		notes.clear();
 
-		for (int i = 0; i < patternLength; i++) {
+		for (unsigned int i = 0; i < patternLength; i++) {
 			
 			int n;
 			switch(stepScale) {
@@ -139,7 +139,7 @@ struct ConvergePattern2 : Pattern2 {
 		return name;
 	};
 
-	void initialise(int _length, int _scale, int _size, int _offset, bool _repeat) override {
+	void initialise(unsigned int _length, unsigned int _scale, int _size, unsigned int _offset, bool _repeat) override {
 
 		Pattern2::initialise(_length, _scale, _size, _offset, _repeat);
 
@@ -180,7 +180,7 @@ struct ReturnPattern2 : Pattern2 {
 		return name;
 	};
 
-	void initialise(int _length, int _scale, int _size, int _offset, bool _repeat) override {
+	void initialise(unsigned int _length, unsigned int _scale, int _size, unsigned int _offset, bool _repeat) override {
 
 		Pattern2::initialise(_length, _scale, _size, _offset, _repeat);
 
@@ -188,7 +188,7 @@ struct ReturnPattern2 : Pattern2 {
 		// std::cout << " DEF ";
 		notes.clear();
 
-		for (int i = 0; i < patternLength; i++) {
+		for (unsigned int i = 0; i < patternLength; i++) {
 			
 			int n;
 			switch(stepScale) {
@@ -238,7 +238,7 @@ struct BouncePattern2 : Pattern2 {
 		return name;
 	};
 
-	void initialise(int _length, int _scale, int _size, int _offset, bool _repeat) override {
+	void initialise(unsigned int _length, unsigned int _scale, int _size, unsigned int _offset, bool _repeat) override {
 
 		Pattern2::initialise(_length, _scale, _size, _offset, _repeat);
 
@@ -264,7 +264,7 @@ struct BouncePattern2 : Pattern2 {
 
 		int end = repeatLast ? 0 : 1;
 
-		for (int i = 1; i < patternLength - end; i++) {
+		for (unsigned int i = 1; i < patternLength - end; i++) {
 			
 			int n;
 			switch(stepScale) {
@@ -291,7 +291,7 @@ struct BouncePattern2 : Pattern2 {
 
 struct NotePattern2 : Pattern2 {
 
-	void initialise(int _length, int _scale, int _size, int _offset, bool _repeat) override {
+	void initialise(unsigned int _length, unsigned int _scale, int _size, unsigned int _offset, bool _repeat) override {
 
 		Pattern2::initialise(_length, _scale, _size, _offset, _repeat);
 
@@ -481,10 +481,10 @@ struct Arp32 : core::AHModule {
 	bool eoc = false;
 	bool repeatEnd = false;
 
-	int inputPat = 0;
-	int inputLen = 0;
+	unsigned int inputPat = 0;
+	unsigned int inputLen = 0;
 	int inputSize = 0;
-	int inputScale = 0;
+	unsigned int inputScale = 0;
 
 	int pattern = 0;
 	int length = 0;
@@ -521,26 +521,25 @@ void Arp32::process(const ProcessArgs &args) {
 
 	// Read param section	
 	if (inputs[PATT_INPUT].isConnected()) {
-		inputPat = inputs[PATT_INPUT].getVoltage();
+		inputPat = clamp(static_cast<unsigned int>(inputs[PATT_INPUT].getVoltage()), 0, 5);
 	} else {
 		inputPat = params[PATT_PARAM].getValue();
 	}	
 
 	if (inputs[LENGTH_INPUT].isConnected()) {
-		inputLen = inputs[LENGTH_INPUT].getVoltage();
+		inputLen = clamp(static_cast<unsigned int>(inputs[LENGTH_INPUT].getVoltage()), 1, 16);
 	} else {
 		inputLen = params[LENGTH_PARAM].getValue();
 	}	
 
 	if (inputs[SIZE_INPUT].isConnected()) {
-		inputSize = inputs[SIZE_INPUT].getVoltage();
+		inputSize = clamp(static_cast<int>(inputs[SIZE_INPUT].getVoltage()), -24, 24);
 	} else {
 		inputSize = params[SIZE_PARAM].getValue();
 	}	
 
-	inputScale = params[SCALE_PARAM].getValue();
-
-	int offset = params[OFFSET_PARAM].getValue();
+	inputScale = static_cast<int>(params[SCALE_PARAM].getValue());
+	unsigned int offset = static_cast<unsigned int>(params[OFFSET_PARAM].getValue());
 	int hold = digital::sgn(inputs[HOLD_INPUT].getVoltage(), 0.001);
 
 	// Process inputs
