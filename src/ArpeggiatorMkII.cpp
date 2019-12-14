@@ -7,17 +7,17 @@ using namespace ah;
 
 struct Pattern {
 
-	int length = 0;
+	unsigned int length = 0;
 	int trans = 0;
-	int scale = 0;
-	int count = 0;
+	unsigned int scale = 0;
+	unsigned int count = 0;
 
-	int MAJOR[7] = {0,2,4,5,7,9,11};
-	int MINOR[7] = {0,2,3,5,7,8,10};
+	unsigned int MAJOR[7] = {0,2,4,5,7,9,11};
+	unsigned int MINOR[7] = {0,2,3,5,7,8,10};
 
 	virtual std::string getName() = 0;
 
-	virtual void initialise(int l, int sc, int tr, bool freeRun) {
+	virtual void initialise(unsigned int l, unsigned int sc, int tr, bool freeRun) {
 		length = l;
 		trans = tr;
 		scale = sc;
@@ -52,7 +52,7 @@ struct UpPattern : Pattern {
 		return "Up";
 	};
 
-	void initialise(int l, int sc, int tr, bool fr) override {
+	void initialise(unsigned int l, unsigned int sc, int tr, bool fr) override {
 		Pattern::initialise(l,sc,tr,fr);
 	}
 
@@ -82,7 +82,7 @@ struct DownPattern : Pattern {
 		return "Down";
 	};
 
-	void initialise(int l, int sc, int tr, bool fr) override {
+	void initialise(unsigned int l, unsigned int sc, int tr, bool fr) override {
 		Pattern::initialise(l,sc,tr,fr);
 		currSt = length - 1;
 	}
@@ -110,14 +110,14 @@ struct DownPattern : Pattern {
 
 struct UpDownPattern : Pattern {
 
-	int mag = 0;
-	int end = 0;
+	unsigned int mag = 0;
+	unsigned int end = 0;
 
 	std::string getName() override {
 		return "UpDown";
 	};	
 
-	void initialise(int l, int sc, int tr, bool fr) override {
+	void initialise(unsigned int l, unsigned int sc, int tr, bool fr) override {
 		Pattern::initialise(l,sc,tr,fr);
 		mag = l - 1;
 		if (fr) {
@@ -132,7 +132,7 @@ struct UpDownPattern : Pattern {
 
 	int getOffset() override {
 		
-		int note = (mag - abs(mag - count));
+		int note = (mag - abs(static_cast<int>(mag - count)));
 		
 		switch(scale) {
 			case 0: return note * trans; break;
@@ -152,14 +152,14 @@ struct UpDownPattern : Pattern {
 
 struct DownUpPattern : Pattern {
 
-	int mag = 0;
-	int end = 0;
+	unsigned int mag = 0;
+	unsigned int end = 0;
 	
 	std::string getName() override {
 		return "DownUp";
 	};	
 
-	void initialise(int l, int sc, int tr, bool fr) override {
+	void initialise(unsigned int l, unsigned int sc, int tr, bool fr) override {
 		Pattern::initialise(l,sc,tr,fr);
 		mag = l - 1;
 		if (fr) {
@@ -174,7 +174,7 @@ struct DownUpPattern : Pattern {
 
 	int getOffset() override {
 
-		int note = -(mag - abs(mag - count));
+		int note = -(mag - abs(static_cast<int>(mag - count)));
 
 		switch(scale) {
 			case 0: return note * trans; break;
@@ -196,7 +196,7 @@ struct NotePattern : Pattern {
 
 	std::vector<int> notes;
 
-	void initialise(int l, int sc, int tr, bool fr) override {
+	void initialise(unsigned int l, unsigned int sc, int tr, bool fr) override {
 		Pattern::initialise(l,sc,tr,fr);
 	}
 
@@ -205,7 +205,7 @@ struct NotePattern : Pattern {
 	}
 
 	bool isPatternFinished() override {
-		return (count == (int)notes.size());
+		return (count == static_cast<unsigned int>(notes.size()));
 	}
 
 	int getNote(int i) {
@@ -266,11 +266,11 @@ struct Arpeggio {
 
 	virtual std::string getName() = 0;
 
-	virtual void initialise(int nPitches, bool fr) = 0;
+	virtual void initialise(unsigned int nPitches, bool fr) = 0;
 
 	virtual void advance() = 0;
 
-	virtual int getPitch() = 0;
+	virtual unsigned int getPitch() = 0;
 
 	virtual bool isArpeggioFinished() = 0;
 
@@ -278,14 +278,14 @@ struct Arpeggio {
 
 struct RightArp : Arpeggio {
 
-	int index = 0;
-	int nPitches = 0;
+	unsigned int index = 0;
+	unsigned int nPitches = 0;
 
 	std::string getName() override {
 		return "Right";
 	};
 
-	void initialise(int np, bool fr) override {
+	void initialise(unsigned int np, bool fr) override {
 		index = 0;
 		nPitches = np;
 	}
@@ -294,7 +294,7 @@ struct RightArp : Arpeggio {
 		index++;
 	}
 
-	int getPitch() override {
+	unsigned int getPitch() override {
 		return index;
 	}
 
@@ -307,13 +307,13 @@ struct RightArp : Arpeggio {
 struct LeftArp : Arpeggio {
 
 	int index = 0;
-	int nPitches = 0;
+	unsigned int nPitches = 0;
 
 	std::string getName() override {
 		return "Left";
 	};
 
-	void initialise(int np, bool fr) override {
+	void initialise(unsigned int np, bool fr) override {
 		nPitches = np;
 		index = nPitches - 1;
 	}
@@ -322,7 +322,7 @@ struct LeftArp : Arpeggio {
 		index--;
 	}
 
-	int getPitch() override {
+	unsigned int getPitch() override {
 		return index;
 	}
 
@@ -334,15 +334,15 @@ struct LeftArp : Arpeggio {
 
 struct RightLeftArp : Arpeggio {
 
-	int currSt = 0;
-	int mag = 0;
-	int end = 0;
+	unsigned int currSt = 0;
+	unsigned int mag = 0;
+	unsigned int end = 0;
 
 	std::string getName() override {
 		return "RightLeft";
 	};	
 
-	void initialise(int l, bool fr) override {
+	void initialise(unsigned int l, bool fr) override {
 		mag = l - 1;
 		if (fr) {
 			end = 2 * l - 2;
@@ -359,8 +359,8 @@ struct RightLeftArp : Arpeggio {
 		currSt++;
 	}
 
-	int getPitch() override {
-		return mag - abs(mag - currSt);
+	unsigned int getPitch() override {
+		return mag - abs(static_cast<int>(mag - currSt));
 	}
 
 	bool isArpeggioFinished() override {
@@ -371,15 +371,15 @@ struct RightLeftArp : Arpeggio {
 
 struct LeftRightArp : Arpeggio {
 
-	int currSt = 0;
-	int mag = 0;
-	int end = 0;
+	unsigned int currSt = 0;
+	unsigned int mag = 0;
+	unsigned int end = 0;
 
 	std::string getName() override {
 		return "LeftRight";
 	};
 
-	void initialise(int l, bool fr) override {
+	void initialise(unsigned int l, bool fr) override {
 		mag = l - 1;
 		if (fr) {
 			end = 2 * l - 2;
@@ -396,8 +396,8 @@ struct LeftRightArp : Arpeggio {
 		currSt++;
 	}
 
-	int getPitch() override {
-		return abs(mag - currSt);
+	unsigned int getPitch() override {
+		return abs(static_cast<int>(mag - currSt));
 	}
 
 	bool isArpeggioFinished() override {
@@ -408,9 +408,9 @@ struct LeftRightArp : Arpeggio {
 
 struct Arpeggiator2 : core::AHModule {
 
-	const static int MAX_STEPS = 16;
-	const static int MAX_DIST = 12; //Octave
-	const static int NUM_PITCHES = 6;
+	const static unsigned int MAX_STEPS = 16;
+	const static unsigned int MAX_DIST = 12; //Octave
+	const static unsigned int NUM_PITCHES = 6;
 
 	enum ParamIds {
 		LOCK_PARAM,
@@ -526,19 +526,19 @@ struct Arpeggiator2 : core::AHModule {
 	const static int LAUNCH = 1;
 	const static int COUNTDOWN = 3;
 
-	int inputPat = 0;
-	int inputArp = 0;
-	int inputLen = 0;
+	unsigned int inputPat = 0;
+	unsigned int inputArp = 0;
+	unsigned int inputLen = 0;
 	int inputTrans = 0;
-	int inputScale = 0;
+	unsigned int inputScale = 0;
 
 	int poll = 5000;
 
-	int pattern = 0;
-	int arp = 0;
-	int length = 0;
+	unsigned int pattern = 0;
+	unsigned int arp = 0;
+	unsigned int length = 0;
 	float trans = 0;
-	float scale = 0;
+	unsigned int scale = 0;
 
 	UpPattern		patt_up; 
 	DownPattern		patt_down; 
@@ -571,7 +571,7 @@ struct Arpeggiator2 : core::AHModule {
 	Arpeggio *uiArp = &arp_right;
 
 	float pitches[6];
-	int nPitches = 0;
+	unsigned int nPitches = 0;
 	int id = 0;
 
 };
@@ -595,25 +595,25 @@ void Arpeggiator2::process(const ProcessArgs &args) {
 	
 	// Read param section	
 	if (inputs[PATT_INPUT].isConnected()) {
-		inputPat = inputs[PATT_INPUT].getVoltage();
+		inputPat = clamp(static_cast<unsigned int>(inputs[PATT_INPUT].getVoltage()), 0, 5);
 	} else {
 		inputPat = params[PATT_PARAM].getValue();
 	}
 
 	if (inputs[ARP_INPUT].isConnected()) {
-		inputArp = inputs[ARP_INPUT].getVoltage();
+		inputArp = clamp(static_cast<unsigned int>(inputs[ARP_INPUT].getVoltage()), 0, 3);
 	} else {
 		inputArp = params[ARP_PARAM].getValue();
 	}	
 
 	if (inputs[LENGTH_INPUT].isConnected()) {
-		inputLen = inputs[LENGTH_INPUT].getVoltage();
+		inputLen = clamp(static_cast<unsigned int>(inputs[LENGTH_INPUT].getVoltage()), 1, 16);
 	} else {
 		inputLen = params[LENGTH_PARAM].getValue();
 	}	
 
 	if (inputs[TRANS_INPUT].isConnected()) {
-		inputTrans = inputs[TRANS_INPUT].getVoltage();
+		inputTrans = clamp(static_cast<int>(inputs[TRANS_INPUT].getVoltage()), -24, 24);
 	} else {
 		inputTrans = params[TRANS_PARAM].getValue();
 	}
@@ -627,10 +627,10 @@ void Arpeggiator2::process(const ProcessArgs &args) {
 	bool buttonStatus	= buttonTrigger.process(buttonInput);
 
 	// Read input pitches and assign to pitch array
-	int nValidPitches = 0;
+	unsigned int nValidPitches = 0;
 	float inputPitches[NUM_PITCHES];
-	for (int p = 0; p < NUM_PITCHES; p++) {
-		int index = PITCH_INPUT + p;
+	for (unsigned int p = 0; p < NUM_PITCHES; p++) {
+		unsigned int index = PITCH_INPUT + p;
 		if (inputs[index].isConnected()) {
 			inputPitches[nValidPitches] = inputs[index].getVoltage();
 			nValidPitches++;
@@ -820,7 +820,7 @@ void Arpeggiator2::process(const ProcessArgs &args) {
 			};
 
 			// Copy pitches
-			for (int p = 0; p < nValidPitches; p++) {
+			for (unsigned int p = 0; p < nValidPitches; p++) {
 				pitches[p] = inputPitches[p];
 			}
 			nPitches = nValidPitches;
@@ -964,7 +964,7 @@ struct Arpeggiator2Widget : ModuleWidget {
 
 		addParam(createParam<BefacoPush>(Vec(195, 148), module, Arpeggiator2::TRIGGER_PARAM));
 
-		for (int i = 0; i < Arpeggiator2::NUM_PITCHES; i++) {
+		for (unsigned int i = 0; i < Arpeggiator2::NUM_PITCHES; i++) {
 			addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, i, 5, true, false), module, Arpeggiator2::PITCH_INPUT + i));
 		}
 
