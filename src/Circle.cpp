@@ -95,8 +95,8 @@ void Circle::process(const ProcessArgs &args) {
 		if (inVoltScale == music::RootScaling::CIRCLE) {
 			newKeyIndex = music::getKeyFromVolts(fRoot);
 		} else {
-			int deg;
-			music::getPitchFromVolts(fRoot, music::Notes::NOTE_C, music::Scales::SCALE_CHROMATIC, &newKeyIndex, &deg);
+			int intv;
+			music::getPitchFromVolts(fRoot, music::Notes::NOTE_C, music::Scales::SCALE_CHROMATIC, &newKeyIndex, &intv);
 		}
 	} else {
 		newKeyIndex = params[KEY_PARAM].getValue();

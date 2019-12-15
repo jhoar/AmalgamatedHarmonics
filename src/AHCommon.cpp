@@ -674,7 +674,11 @@ int getKeyFromVolts(float volts) {
 	return round(rack::math::rescale(v, 0.0f, 10.0f, 0.0f, NUM_NOTES - 1));
 }
 
-float getPitchFromVolts(float inVolts, int currRoot, int currScale, int *outNote, int *outDegree) {
+float getPitchFromVolts(float inVolts, int currRoot, int currScale, int *outNote, int *outInterval) {
+
+	// static bool debug = true;
+	// static int poll = 5000;
+	// static int stepX = 0;
 	
 	int *curScaleArr;
 	int notesInScale = 0;
@@ -754,7 +758,7 @@ float getPitchFromVolts(float inVolts, int currRoot, int currScale, int *outNote
 
 	} while (true);
 
-	if (outNote != NULL && outDegree != NULL) {
+	if (outNote != NULL && outInterval != NULL) {
 
 		if(scaleIndex == 0) {
 			noteFound = notesInScale - 2; // NIS is a count, not index
@@ -770,7 +774,7 @@ float getPitchFromVolts(float inVolts, int currRoot, int currScale, int *outNote
 		// case in point, V=0, Scale = F#m returns the 6th note, which should be C#
 
 		// if (debug && stepX % poll == 0) {
-		// 	// Dump the note and degree, mod the size in case where we have wrapped round
+		// 	// Dump the note and interval, mod the size in case where we have wrapped round
 
 		// 	std::cout << "QUANT Found index in scale: " << noteFound << ", currNote: "  << currNote;
 		// 	std::cout << " This is scale note: "  << curScaleArr[noteFound] << " (Interval: " << intervalNames[curScaleArr[noteFound]] << ")";
@@ -779,14 +783,16 @@ float getPitchFromVolts(float inVolts, int currRoot, int currScale, int *outNote
 		// }
 
 		*outNote = currNote;
-		*outDegree = curScaleArr[noteFound];
+		*outInterval = curScaleArr[noteFound];
 	}
+
+	// stepX++;
 
 	return closestVal;
 
 }
 
-float getPitchFromVolts(float inVolts, float inRoot, float inScale, int *outRoot, int *outScale, int *outNote, int *outDegree) {
+float getPitchFromVolts(float inVolts, float inRoot, float inScale, int *outRoot, int *outScale, int *outNote, int *outInterval) {
 	
 	// get the root note and scale
 	int currRoot = getKeyFromVolts(inRoot);
@@ -796,7 +802,7 @@ float getPitchFromVolts(float inVolts, float inRoot, float inScale, int *outRoot
 	// 	std::cout << stepX << " Root in: " << inRoot << " Root out: " << currRoot<< " Scale in: " << inScale << " Scale out: " << currScale << std::endl;
 	// }	
 	
-	float outVolts = getPitchFromVolts(inVolts, currRoot, currScale, outNote, outDegree);
+	float outVolts = getPitchFromVolts(inVolts, currRoot, currScale, outNote, outInterval);
 	
 	*outRoot = currRoot;
 	*outScale = currScale;

@@ -42,7 +42,7 @@ struct ScaleQuantizer : core::AHModule {
 	int currScale = 0;
 	int currRoot = 0;
 	int currNote = 0;
-	int currDegree = 0;
+	int currInterval = 0;
 	float currPitch = 0.0;
 
 };
@@ -59,7 +59,7 @@ void ScaleQuantizer::process(const ProcessArgs &args) {
 	float scale = inputs[SCALE_INPUT].value;
 
 	// Calculate output pitch from raw voltage
-	currPitch =  music::getPitchFromVolts(volts, root, scale, &currRoot, &currScale, &currNote, &currDegree);
+	currPitch =  music::getPitchFromVolts(volts, root, scale, &currRoot, &currScale, &currNote, &currInterval);
 
 	// Set the value
 	outputs[OUT_OUTPUT].value = currPitch;
@@ -75,8 +75,8 @@ void ScaleQuantizer::process(const ProcessArgs &args) {
 		lights[DEGREE_LIGHT + i].value = 0.0;
 		outputs[GATE_OUTPUT + i].value = 0.0;
 	}
-	lights[DEGREE_LIGHT + currDegree].value = 1.0;
-	outputs[GATE_OUTPUT + currDegree].value = 10.0;
+	lights[DEGREE_LIGHT + currInterval].value = 1.0;
+	outputs[GATE_OUTPUT + currInterval].value = 10.0;
 
 	if (lastScale != currScale || firstStep) {
 		for (int i = 0; i <music::Notes::NUM_NOTES; i++) {

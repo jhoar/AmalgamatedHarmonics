@@ -452,9 +452,9 @@ enum RootScaling {
 * Convert a V/OCT voltage to a quantized pitch, key and scale, and calculate various information about the quantised note.
 */
 
-float getPitchFromVolts(float inVolts, int inRoot, int inScale, int *outNote = NULL, int *outDegree = NULL);
+float getPitchFromVolts(float inVolts, int inRoot, int inScale, int *outNote = NULL, int *outInterval = NULL);
 
-float getPitchFromVolts(float inVolts, float inRoot, float inScale, int *outRoot, int *outScale, int *outNote, int *outDegree);
+float getPitchFromVolts(float inVolts, float inRoot, float inScale, int *outRoot, int *outScale, int *outNote, int *outInterval);
 
 /*
 * Convert a root note (relative to C, C=0) and positive semi-tone offset from that root to a voltage (1V/OCT, 0V = C4 (or 3??))

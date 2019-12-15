@@ -204,8 +204,8 @@ void Galaxy::process(const ProcessArgs &args) {
 		if (voltScale == music::RootScaling::CIRCLE) {
 			currRoot = music::getKeyFromVolts(v);
 		} else {
-			int deg;
-			music::getPitchFromVolts(v, music::Notes::NOTE_C, music::Scales::SCALE_CHROMATIC, &currRoot, &deg);
+			int intv;
+			music::getPitchFromVolts(v, music::Notes::NOTE_C, music::Scales::SCALE_CHROMATIC, &currRoot, &intv);
 		}
 	} else {
 		currRoot = params[KEY_PARAM].getValue();
