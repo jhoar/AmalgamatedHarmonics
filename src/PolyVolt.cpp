@@ -8,7 +8,6 @@ using namespace ah;
 struct Quantiser {
 
 	float inVolts;
-	float outVolts;
 
 	int octave = 0;
 	int semitone = 0;
@@ -24,9 +23,16 @@ struct Quantiser {
 		}
 	}
 
-	void calculate(float v, bool quantise) {
+	void setNull() {
+		octave = 0;
+		semitone = 0;
+		cents = 0;
+	}
+
+	float calculate(float v, bool quantise) {
 
 		inVolts = v;
+		float outVolts = 0.0f;
 
 		if (quantise) {
 
@@ -91,6 +97,8 @@ struct Quantiser {
 
 		}
 
+		return outVolts;
+
 	}
 
 };
@@ -115,8 +123,11 @@ struct PolyVolt : core::AHModule {
 	};
 
 	bool quantise = false;
+	bool modeChange = false;
 	int nChans = 1;
 	std::array<Quantiser,16> quantisers;
+	std::array<float,16> inVolts;
+	std::array<float,16> outVolts;
 
 	PolyVolt() : core::AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
 		configParam(CHAN_PARAM, 1.0, 16.0, 16.0, "Output channels");
@@ -148,15 +159,20 @@ struct PolyVolt : core::AHModule {
 		nChans = params[CHAN_PARAM].getValue();
 		int i = 0;
 		for (; i < nChans; i++) {
-			quantisers[i].calculate(params[VOLT_PARAM + i].getValue(), quantise);
-			outputs[POLY_OUTPUT].setVoltage(quantisers[i].outVolts, i);
+			float v = params[VOLT_PARAM + i].getValue();
+			if (v != inVolts[i] || modeChange) {
+				inVolts[i] = v;
+				outVolts[i] = quantisers[i].calculate(v, quantise);
+			}
+			outputs[POLY_OUTPUT].setVoltage(outVolts[i] , i);
 		}
 		for (; i < 16; i++) {
-			quantisers[i].calculate(0.0f, false);
+			quantisers[i].setNull();
+			outVolts[i] = 0.0f;
 			outputs[POLY_OUTPUT].setVoltage(0.0f, i);
 		}
 		outputs[POLY_OUTPUT].setChannels(nChans);
-		
+		modeChange = false;
 	}
 };
 
@@ -186,7 +202,7 @@ struct PolyVoltDisplay : TransparentWidget {
 				nvgText(ctx.vg, box.pos.x + 5, box.pos.y + i * 16 + j * 16, text, NULL);		
 			} else {
 				nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
-				snprintf(text, sizeof(text), "%02d %f", i + 1, module->quantisers[i].outVolts);
+				snprintf(text, sizeof(text), "%02d %f", i + 1, module->inVolts[i]);
 				nvgText(ctx.vg, box.pos.x + 5, box.pos.y + i * 16 + j * 16, text, NULL);
 				snprintf(text, sizeof(text), "%s", module->quantisers[i].asString().c_str());
 				nvgText(ctx.vg, box.pos.x + 110, box.pos.y + i * 16 + j * 16, text, NULL);		
@@ -242,6 +258,7 @@ struct PolyVoltWidget : ModuleWidget {
 			bool mode;
 			void onAction(const rack::event::Action &e) override {
 				module->quantise = mode;
+				module->modeChange = true;
 			}
 		};
 
