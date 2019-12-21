@@ -7,8 +7,6 @@ using namespace ah;
 
 struct Quantiser {
 
-	float inVolts;
-
 	int octave = 0;
 	int semitone = 0;
 	int cents = 0;
@@ -29,9 +27,8 @@ struct Quantiser {
 		cents = 0;
 	}
 
-	float calculate(float v, bool quantise) {
+	float calculate(float inVolts, bool quantise) {
 
-		inVolts = v;
 		float outVolts = 0.0f;
 
 		if (quantise) {
