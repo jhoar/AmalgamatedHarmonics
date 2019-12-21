@@ -16,7 +16,9 @@ Welcome to the Amalgamated Harmonics; your one-stop shop for barely usable modul
 * [Imp](https://github.com/jhoar/AmalgamatedHarmonics/wiki/Imp), A single channel version of Imperfect, with multiple output gates.
 * [PolyProbe](https://github.com/jhoar/AmalgamatedHarmonics/wiki/PolyProbe), Show polyphonic cable values.
 * [PolyScope](https://github.com/jhoar/AmalgamatedHarmonics/wiki/PolyScope), Plot polyphonic cable values.
+* [PolyVolt](https://github.com/jhoar/AmalgamatedHarmonics/wiki/PolyVolt), Set polyphonic cable values optionally quantised.
+* [PolyUtils](https://github.com/jhoar/AmalgamatedHarmonics/wiki/PolyUtils), A couple of utilities for manipulating polyphonic cabling, maybe more useful for development.
 * [MuxDeMux](https://github.com/jhoar/AmalgamatedHarmonics/wiki/MuxDeMux), a polyphonic cable multiplexer/de-multiplexer.
 
-The latest release is [1.0.2](https://github.com/jhoar/AmalgamatedHarmonics/releases/tag/v1.0.2). It is available through the [Plugin Manager](https://vcvrack.com/plugins.html). You can contact us at amalgamatedharmonics@outlook.com. We do not post on Facebook.
+The latest release is [1.0.4](https://github.com/jhoar/AmalgamatedHarmonics/releases/tag/v1.0.4). It is available through the [Plugin Manager](https://vcvrack.com/plugins.html). You can contact us at amalgamatedharmonics@outlook.com. We do not post on Facebook.
 
