@@ -140,8 +140,8 @@ struct Ruckus : core::AHModule {
 	std::array<digital::AHPulseGenerator,4> xGate;
 	std::array<digital::AHPulseGenerator,4> yGate;
 
-	std::array<bool,4> xMute = {true, true, true, true};
-	std::array<bool,4> yMute = {true, true, true, true};
+	std::array<bool,4> xMute {{true, true, true, true}};
+	std::array<bool,4> yMute {{true, true, true, true}};
 
 	std::array<rack::dsp::SchmittTrigger,4> xLockTrigger;
 	std::array<rack::dsp::SchmittTrigger,4> yLockTrigger;
