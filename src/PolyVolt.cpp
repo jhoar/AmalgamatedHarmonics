@@ -120,7 +120,7 @@ struct PolyVolt : core::AHModule {
 	};
 
 	bool quantise = false;
-	bool modeChange = false;
+	bool updateUI = false;
 	int nChans = 1;
 	std::array<Quantiser,16> quantisers;
 	std::array<float,16> inVolts;
@@ -153,11 +153,16 @@ struct PolyVolt : core::AHModule {
 
 		AHModule::step();
 
-		nChans = params[CHAN_PARAM].getValue();
+		int c = params[CHAN_PARAM].getValue();
+		if (c != nChans) {
+			nChans = c;
+			updateUI = true;
+		}
+
 		int i = 0;
 		for (; i < nChans; i++) {
 			float v = params[VOLT_PARAM + i].getValue();
-			if (v != inVolts[i] || modeChange) {
+			if (v != inVolts[i] || updateUI) {
 				inVolts[i] = v;
 				outVolts[i] = quantisers[i].calculate(v, quantise);
 			}
@@ -169,7 +174,7 @@ struct PolyVolt : core::AHModule {
 			outputs[POLY_OUTPUT].setVoltage(0.0f, i);
 		}
 		outputs[POLY_OUTPUT].setChannels(nChans);
-		modeChange = false;
+		updateUI = false;
 	}
 };
 
@@ -255,7 +260,7 @@ struct PolyVoltWidget : ModuleWidget {
 			bool mode;
 			void onAction(const rack::event::Action &e) override {
 				module->quantise = mode;
-				module->modeChange = true;
+				module->updateUI = true;
 			}
 		};
 
