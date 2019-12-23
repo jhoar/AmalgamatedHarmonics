@@ -2,6 +2,7 @@
 #include "AHCommon.hpp"
 
 #include <iostream>
+#include <array>
 
 using namespace ah;
 
