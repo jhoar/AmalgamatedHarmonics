@@ -18,7 +18,6 @@ namespace gui {
 
 AHChoice::AHChoice() {
 	box.size = mm2px(math::Vec(0, 28.0 / 3)); // FIX
-	font = APP->window->loadFont(asset::plugin(pluginInstance, "res/EurostileBold.ttf")); // FIX
 	color = nvgRGB(0x00, 0xFF, 0xFF);
 	bgColor = nvgRGBAf(30, 30, 30, 0); 
 	textOffset = math::Vec(10, 18);	// FIX?
@@ -28,7 +27,9 @@ AHChoice::AHChoice() {
 void AHChoice::draw(const DrawArgs& args) {
 	nvgScissor(args.vg, 0, 0, box.size.x, box.size.y);
 
-	if (font->handle >= 0) {
+	std::shared_ptr<Font> font = APP->window->loadFont(asset::plugin(pluginInstance, "res/EurostileBold.ttf"));
+
+	if (font) {
 		nvgFillColor(args.vg, color);
 		nvgFontFaceId(args.vg, font->handle);
 		nvgTextLetterSpacing(args.vg, 0.0);

@@ -331,8 +331,8 @@ static void loadCMap(PolyScope *module) {
 	std::string dir;
 	std::string filename;
 	if (module->path != "") {
-		dir = string::directory(module->path);
-		filename = string::filename(module->path);
+		dir = system::getDirectory(module->path);
+		filename = system::getFilename(module->path);
 	}
 	else {
 		dir = asset::user("");
