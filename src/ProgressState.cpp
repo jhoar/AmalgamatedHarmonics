@@ -418,7 +418,7 @@ void ChordChoice::step() {
 		color = nvgRGBA(0x00, 0xFF, 0xFF, 0x6F);
 	}
 
-	text = std::to_string(pStep) + std::string(": ◊ ");
+	text = std::to_string(pStep + 1) + std::string(": ◊ ");
 
 	if (pState->chordMode) {
 		text += inv.getName(pState->mode, pState->key, pC->modeDegree, pC->rootNote);
