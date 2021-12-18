@@ -69,7 +69,11 @@ struct PolyScope : core::AHModule {
 		json_t *rootJ = json_loadf(file, 0, &error);
 		if (!rootJ) {
 			std::string message = string::f("File is not a valid colour scheme file. JSON parsing error at %s %d:%d %s", error.source, error.line, error.column, error.text);
+#ifdef USING_CARDINAL_NOT_RACK
+			async_dialog_message(message.c_str());
+#else
 			osdialog_message(OSDIALOG_WARNING, OSDIALOG_OK, message.c_str());
+#endif
 			return;
 		}
 		DEFER({
@@ -326,6 +330,13 @@ struct PolyScopeDisplay : TransparentWidget {
 	}
 };
 
+static void cmapPathSelected(PolyScope *module, char* path) {
+	if (path) {
+		module->loadCMap(path);
+		free(path);
+	}
+}
+
 static void loadCMap(PolyScope *module) {
 
 	std::string dir;
@@ -339,11 +350,14 @@ static void loadCMap(PolyScope *module) {
 		filename = "colourmap.json";
 	}
 
+#ifdef USING_CARDINAL_NOT_RACK
+	async_dialog_filebrowser(false, dir.c_str(), "Load colour scheme", [module](char* path) {
+		cmapPathSelected(module, path);
+	});
+#else
 	char *path = osdialog_file(OSDIALOG_OPEN, dir.c_str(), filename.c_str(), NULL);
-	if (path) {
-		module->loadCMap(path);
-		free(path);
-	}
+	cmapPathSelected(module, path);
+#endif
 }
 
 struct PolyScopeWidget : ModuleWidget {
