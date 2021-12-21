@@ -1471,6 +1471,12 @@
      inkscape:label="Graficos"
      style="display:inline"
      transform="translate(0.01175524,-74.386765)">
+    <path
+       style="display:inline;fill:none;stroke:url(#linearGradient52053);stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       d="M 63.728414,63.817758 C 76.092293,68.358522 90.020036,71.956064 89.999718,83 89.963257,102.81872 45,99.790628 45,119 c 0,19.20937 45,16.79063 45,36 0,19.20937 -45,16.79063 -45,36 0,19.20937 45,16.79063 45,36 0,19.20937 -45,16.79063 -45,36 0,19.20937 45.025719,16.22042 45,36 -0.0086,6.63655 -5.075405,10.62285 -11.805768,13.74502"
+       id="path52047"
+       sodipodi:nodetypes="cszszszsc"
+       transform="translate(-0.01175524,74.386765)" />
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.53334px;line-height:1.25;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;display:inline;fill:url(#linearGradient52012);fill-opacity:1;stroke:none;stroke-width:0.999999"
@@ -1658,12 +1664,6 @@
         </g>
       </g>
     </g>
-    <path
-       style="display:inline;fill:none;stroke:url(#linearGradient52053);stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-       d="m 67.415458,62.811827 c 0,0 22.641018,4.996356 22.584542,20.188173 -0.05648,15.191817 -45,16.790627 -45,36 0,19.20937 45,16.79063 45,36 0,19.20937 -45,16.79063 -45,36 0,19.20937 45,16.79063 45,36 0,19.20937 -45,16.79063 -45,36 0,19.20937 44.920589,19.85765 45,36 0.07941,16.14235 -21.744593,21.16701 -21.744593,21.16701"
-       id="path52047"
-       sodipodi:nodetypes="czzzzzzzc"
-       transform="translate(-0.01175524,74.386765)" />
   </g>
   <g
      inkscape:groupmode="layer"
