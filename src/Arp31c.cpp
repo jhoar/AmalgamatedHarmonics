@@ -823,20 +823,19 @@ struct Arp31Widget : ModuleWidget {
 		setModule(module);
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Arp31c.svg")));
 		
-		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 5, true, false), module, Arp31::OUT_OUTPUT));
-		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 1, 5, true, false), module, Arp31::GATE_OUTPUT));
-		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 2, 5, true, false), module, Arp31::EOC_OUTPUT));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(21.69, 46.093), module, Arp31::ARP_PARAM));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(109.147, 172.019), module, Arp31::OFFSET_PARAM));
 
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 0, true, false), module, Arp31::PITCH_INPUT));
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 1, 0, true, false), module, Arp31::HOLD_INPUT));
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 2, 0, true, false), module, Arp31::RANDOM_INPUT));
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 1, true, false), module, Arp31::GATE_INPUT));
+		addInput(createInputCentered<PJ301MPort>(Vec(113.31, 46.093), module, Arp31::ARP_INPUT));
+		addInput(createInputCentered<PJ301MPort>(Vec(33.394, 96.646), module, Arp31::HOLD_INPUT));
+		addInput(createInputCentered<PJ301MPort>(Vec(102.335, 97.701), module, Arp31::RANDOM_INPUT));
+		addInput(createInputCentered<PJ301MPort>(Vec(68.403, 139.48), module, Arp31::GATE_INPUT));
+		addInput(createInputCentered<PJ301MPort>(Vec(36.028, 327.111), module, Arp31::PITCH_INPUT));
+		addInput(createInputCentered<PJ301MPort>(Vec(103.309, 327.111), module, Arp31::CLOCK_INPUT));
 
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 4, true, false), module, Arp31::CLOCK_INPUT));
-		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 1, 4, true, false), module, Arp31::OFFSET_PARAM)); 
-
-		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 0, 2, true, false), module, Arp31::ARP_PARAM)); 
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 3, true, false), module, Arp31::ARP_INPUT));
+		addOutput(createOutputCentered<PJ301MPort>(Vec(36.028, 228.311), module, Arp31::GATE_OUTPUT));
+		addOutput(createOutputCentered<PJ301MPort>(Vec(103.309, 228.311), module, Arp31::EOC_OUTPUT));
+		addOutput(createOutputCentered<PJ301MPort>(Vec(69.745, 278.811), module, Arp31::OUT_OUTPUT));
 
 		if (module != NULL) {
 			Arp31Display *displayW = createWidget<Arp31Display>(Vec(40, 100));

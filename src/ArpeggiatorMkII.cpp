@@ -955,32 +955,34 @@ struct Arpeggiator2Widget : ModuleWidget {
 		setModule(module);
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Arpeggiator2.svg")));
 
-		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 0, false, false), module, Arpeggiator2::OUT_OUTPUT));
-		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 1, 0, false, false), module, Arpeggiator2::GATE_OUTPUT));
-		addParam(createParam<gui::AHButton>(gui::getPosition(gui::BUTTON, 2, 0, false, false), module, Arpeggiator2::LOCK_PARAM));
-		addChild(createLight<MediumLight<GreenLight>>(gui::getPosition(gui::LIGHT, 2, 0, false, false), module, Arpeggiator2::LOCK_LIGHT));
-		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 3, 0, false, false), module, Arpeggiator2::EOC_OUTPUT));
-		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 4, 0, false, false), module, Arpeggiator2::EOS_OUTPUT));
+		addParam(createParamCentered<gui::AHButton>(Vec(120.0, 65.085), module, Arpeggiator2::LOCK_PARAM));
+		addParam(createParamCentered<BefacoPush>(Vec(213.104, 158.235), module, Arpeggiator2::TRIGGER_PARAM));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(66.955, 229.808), module, Arpeggiator2::PATT_PARAM));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(221.792, 229.808), module, Arpeggiator2::LENGTH_PARAM));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(143.654, 229.891), module, Arpeggiator2::TRANS_PARAM));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(221.792, 281.223), module, Arpeggiator2::ARP_PARAM));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(102.248, 279.733), module, Arpeggiator2::SCALE_PARAM));
 
-		addParam(createParam<BefacoPush>(Vec(195, 148), module, Arpeggiator2::TRIGGER_PARAM));
+		addInput(createInputCentered<PJ301MPort>(Vec(25.55, 228.913), module, Arpeggiator2::PATT_INPUT));
+		addInput(createInputCentered<PJ301MPort>(Vec(180.386, 228.913), module, Arpeggiator2::LENGTH_INPUT));
+		addInput(createInputCentered<PJ301MPort>(Vec(102.248, 228.997), module, Arpeggiator2::TRANS_INPUT));
+		addInput(createInputCentered<PJ301MPort>(Vec(25.55, 279.733), module, Arpeggiator2::TRIG_INPUT));
+		addInput(createInputCentered<PJ301MPort>(Vec(66.955, 279.733), module, Arpeggiator2::CLOCK_INPUT));
+		addInput(createInputCentered<PJ301MPort>(Vec(180.386, 280.328), module, Arpeggiator2::ARP_INPUT));
 
-		for (unsigned int i = 0; i < Arpeggiator2::NUM_PITCHES; i++) {
-			addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, i, 5, true, false), module, Arpeggiator2::PITCH_INPUT + i));
-		}
+		addInput(createInputCentered<PJ301MPort>(Vec(35.0, 335.938), module, Arpeggiator2::PITCH_INPUT + 0));
+		addInput(createInputCentered<PJ301MPort>(Vec(69.0, 335.938), module, Arpeggiator2::PITCH_INPUT + 1));
+		addInput(createInputCentered<PJ301MPort>(Vec(103.0, 335.938), module, Arpeggiator2::PITCH_INPUT + 2));
+		addInput(createInputCentered<PJ301MPort>(Vec(137.0, 335.938), module, Arpeggiator2::PITCH_INPUT + 3));
+		addInput(createInputCentered<PJ301MPort>(Vec(171.0, 335.938), module, Arpeggiator2::PITCH_INPUT + 4));
+		addInput(createInputCentered<PJ301MPort>(Vec(205.0, 335.938), module, Arpeggiator2::PITCH_INPUT + 5));
 
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 4, 4, true, false), module, Arpeggiator2::ARP_INPUT));
-		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 5, 4, true, false), module, Arpeggiator2::ARP_PARAM)); 
+		addOutput(createOutputCentered<PJ301MPort>(Vec(24.0, 65.085), module, Arpeggiator2::OUT_OUTPUT));
+		addOutput(createOutputCentered<PJ301MPort>(Vec(71.997, 65.085), module, Arpeggiator2::GATE_OUTPUT));
+		addOutput(createOutputCentered<PJ301MPort>(Vec(168.143, 65.085), module, Arpeggiator2::EOC_OUTPUT));
+		addOutput(createOutputCentered<PJ301MPort>(Vec(215.995, 65.085), module, Arpeggiator2::EOS_OUTPUT));
 
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 4, true, false), module, Arpeggiator2::TRIG_INPUT));
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 1, 4, true, false), module, Arpeggiator2::CLOCK_INPUT));
-		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 3, 4, true, false), module, Arpeggiator2::SCALE_PARAM)); 
-
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 3, true, false), module, Arpeggiator2::PATT_INPUT));
-		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 1, 3, true, false), module, Arpeggiator2::PATT_PARAM)); 
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 2, 3, true, false), module, Arpeggiator2::TRANS_INPUT)); 
-		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 3, 3, true, false), module, Arpeggiator2::TRANS_PARAM)); 
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 4, 3, true, false), module, Arpeggiator2::LENGTH_INPUT));
-		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 5, 3, true, false), module, Arpeggiator2::LENGTH_PARAM)); 
+		addChild(createLightCentered<MediumLight<GreenLight>>(Vec(120.0, 65.085), module, Arpeggiator2::LOCK_LIGHT));
 
 		if (module != NULL) {
 			Arpeggiator2Display *display = createWidget<Arpeggiator2Display>(Vec(10, 95));

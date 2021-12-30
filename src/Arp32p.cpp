@@ -738,25 +738,24 @@ struct Arp32Widget : ModuleWidget {
 		setModule(module);
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Arp32p.svg")));
 
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 0, true, false), module, Arp32::PITCH_INPUT));
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 1, 0, true, false), module, Arp32::HOLD_INPUT));
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 2, 0, true, false), module, Arp32::RANDOM_INPUT));
 
-		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 0, 2, true, false), module, Arp32::PATT_PARAM));
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 3, true, false), module, Arp32::PATT_INPUT));
-		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 1, 2, true, false), module, Arp32::SIZE_PARAM));
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 1, 3, true, false), module, Arp32::SIZE_INPUT)); 
-		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 2, 2, true, false), module, Arp32::LENGTH_PARAM));
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 2, 3, true, false), module, Arp32::LENGTH_INPUT));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(28.302, 52.157), module, Arp32::PATT_PARAM));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(66.865, 52.157), module, Arp32::LENGTH_PARAM));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(105.07, 52.24), module, Arp32::SIZE_PARAM));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(22.637, 173.705), module, Arp32::OFFSET_PARAM));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(53.816, 173.705), module, Arp32::SCALE_PARAM));
 
+		addInput(createInputCentered<PJ301MPort>(Vec(28.302, 90.94), module, Arp32::PATT_INPUT));
+		addInput(createInputCentered<PJ301MPort>(Vec(66.865, 90.94), module, Arp32::LENGTH_INPUT));
+		addInput(createInputCentered<PJ301MPort>(Vec(105.07, 90.94), module, Arp32::SIZE_INPUT));
+		addInput(createInputCentered<PJ301MPort>(Vec(116.173, 173.561), module, Arp32::HOLD_INPUT));
+		addInput(createInputCentered<PJ301MPort>(Vec(84.995, 173.705), module, Arp32::RANDOM_INPUT));
+		addInput(createInputCentered<PJ301MPort>(Vec(36.028, 327.111), module, Arp32::PITCH_INPUT));
+		addInput(createInputCentered<PJ301MPort>(Vec(103.309, 327.111), module, Arp32::CLOCK_INPUT));
 
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 4, true, false), module, Arp32::CLOCK_INPUT));
-		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 1, 4, true, false), module, Arp32::OFFSET_PARAM));
-		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 2, 4, true, false), module, Arp32::SCALE_PARAM));
-
-		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 5, true, false), module, Arp32::OUT_OUTPUT));
-		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 1, 5, true, false), module, Arp32::GATE_OUTPUT));
-		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 2, 5, true, false), module, Arp32::EOC_OUTPUT));
+		addOutput(createOutputCentered<PJ301MPort>(Vec(36.028, 228.311), module, Arp32::GATE_OUTPUT));
+		addOutput(createOutputCentered<PJ301MPort>(Vec(103.309, 228.311), module, Arp32::EOC_OUTPUT));
+		addOutput(createOutputCentered<PJ301MPort>(Vec(69.745, 278.811), module, Arp32::OUT_OUTPUT));
 
 		if (module != NULL) {
 			Arp32Display *displayW = createWidget<Arp32Display>(Vec(10, 90));
