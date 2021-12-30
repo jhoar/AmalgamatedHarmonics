@@ -200,20 +200,58 @@ struct ScaleQuantizer2Widget : ModuleWidget {
 		setModule(module);
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/ScaleQuantizerMkII.svg")));
 
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 5, true, false), module, ScaleQuantizer2::KEY_INPUT));
-		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 1, 5, true, false), module, ScaleQuantizer2::KEY_PARAM)); 
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 3, 5, true, false), module, ScaleQuantizer2::SCALE_INPUT));
-		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::PORT, 4, 5, true, false), module, ScaleQuantizer2::SCALE_PARAM));
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 6, 5, true, false), module, ScaleQuantizer2::TRANS_INPUT));
-		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::PORT, 7, 5, true, false), module, ScaleQuantizer2::TRANS_PARAM));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(16.308, 107.756), module, ScaleQuantizer2::SHIFT_PARAM + 0));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(50.308, 107.756), module, ScaleQuantizer2::SHIFT_PARAM + 1));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(84.308, 107.756), module, ScaleQuantizer2::SHIFT_PARAM + 2));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(118.308, 107.756), module, ScaleQuantizer2::SHIFT_PARAM + 3));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(152.308, 107.756), module, ScaleQuantizer2::SHIFT_PARAM + 4));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(186.308, 107.756), module, ScaleQuantizer2::SHIFT_PARAM + 5));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(220.308, 107.756), module, ScaleQuantizer2::SHIFT_PARAM + 6));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(254.308, 107.756), module, ScaleQuantizer2::SHIFT_PARAM + 7));
 
-		for (int i = 0; i < 8; i++) {
-			addInput(createInput<PJ301MPort>(Vec(6 + i * 29, 41), module, ScaleQuantizer2::IN_INPUT + i));
-			addParam(createParam<gui::AHTrimpotSnap>(Vec(9 + i * 29.1, 101), module, ScaleQuantizer2::SHIFT_PARAM + i));
-			addOutput(createOutput<PJ301MPort>(Vec(6 + i * 29, 125), module, ScaleQuantizer2::OUT_OUTPUT + i));
-			addInput(createInput<PJ301MPort>(Vec(6 + i * 29, 71), module, ScaleQuantizer2::HOLD_INPUT + i));
-			addOutput(createOutput<PJ301MPort>(Vec(6 + i * 29, 155), module, ScaleQuantizer2::TRIG_OUTPUT + i));
-		}
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(77.041, 340.23), module, ScaleQuantizer2::KEY_PARAM));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(172.041, 340.23), module, ScaleQuantizer2::SCALE_PARAM));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(267.041, 340.23), module, ScaleQuantizer2::TRANS_PARAM));
+
+		addInput(createInputCentered<gui::AHPort>(Vec(16.308, 41.04), module, ScaleQuantizer2::IN_INPUT + 0));
+		addInput(createInputCentered<gui::AHPort>(Vec(50.308, 41.04), module, ScaleQuantizer2::IN_INPUT + 1));
+		addInput(createInputCentered<gui::AHPort>(Vec(84.308, 41.04), module, ScaleQuantizer2::IN_INPUT + 2));
+		addInput(createInputCentered<gui::AHPort>(Vec(118.308, 41.04), module, ScaleQuantizer2::IN_INPUT + 3));
+		addInput(createInputCentered<gui::AHPort>(Vec(152.308, 41.04), module, ScaleQuantizer2::IN_INPUT + 4));
+		addInput(createInputCentered<gui::AHPort>(Vec(186.308, 41.04), module, ScaleQuantizer2::IN_INPUT + 5));
+		addInput(createInputCentered<gui::AHPort>(Vec(220.308, 41.04), module, ScaleQuantizer2::IN_INPUT + 6));
+		addInput(createInputCentered<gui::AHPort>(Vec(254.308, 41.04), module, ScaleQuantizer2::IN_INPUT + 7));
+
+		addInput(createInputCentered<gui::AHPort>(Vec(16.308, 74.436), module, ScaleQuantizer2::HOLD_INPUT + 0));
+		addInput(createInputCentered<gui::AHPort>(Vec(50.308, 74.436), module, ScaleQuantizer2::HOLD_INPUT + 1));
+		addInput(createInputCentered<gui::AHPort>(Vec(84.308, 74.436), module, ScaleQuantizer2::HOLD_INPUT + 2));
+		addInput(createInputCentered<gui::AHPort>(Vec(118.308, 74.436), module, ScaleQuantizer2::HOLD_INPUT + 3));
+		addInput(createInputCentered<gui::AHPort>(Vec(152.308, 74.436), module, ScaleQuantizer2::HOLD_INPUT + 4));
+		addInput(createInputCentered<gui::AHPort>(Vec(186.308, 74.436), module, ScaleQuantizer2::HOLD_INPUT + 5));
+		addInput(createInputCentered<gui::AHPort>(Vec(220.308, 74.436), module, ScaleQuantizer2::HOLD_INPUT + 6));
+		addInput(createInputCentered<gui::AHPort>(Vec(254.308, 74.436), module, ScaleQuantizer2::HOLD_INPUT + 7));
+
+		addInput(createInputCentered<gui::AHPort>(Vec(35.635, 339.336), module, ScaleQuantizer2::KEY_INPUT));
+		addInput(createInputCentered<gui::AHPort>(Vec(130.635, 339.336), module, ScaleQuantizer2::SCALE_INPUT));
+		addInput(createInputCentered<gui::AHPort>(Vec(225.635, 339.336), module, ScaleQuantizer2::TRANS_INPUT));
+
+		addOutput(createOutputCentered<gui::AHPort>(Vec(16.308, 141.076), module, ScaleQuantizer2::OUT_OUTPUT + 0));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(50.308, 141.076), module, ScaleQuantizer2::OUT_OUTPUT + 1));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(84.308, 141.076), module, ScaleQuantizer2::OUT_OUTPUT + 2));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(118.308, 141.076), module, ScaleQuantizer2::OUT_OUTPUT + 3));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(152.308, 141.076), module, ScaleQuantizer2::OUT_OUTPUT + 4));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(186.308, 141.076), module, ScaleQuantizer2::OUT_OUTPUT + 5));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(220.308, 141.076), module, ScaleQuantizer2::OUT_OUTPUT + 6));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(254.308, 141.076), module, ScaleQuantizer2::OUT_OUTPUT + 7));
+
+		addOutput(createOutputCentered<gui::AHPort>(Vec(16.308, 174.471), module, ScaleQuantizer2::TRIG_OUTPUT + 0));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(50.308, 174.471), module, ScaleQuantizer2::TRIG_OUTPUT + 1));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(84.308, 174.471), module, ScaleQuantizer2::TRIG_OUTPUT + 2));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(118.308, 174.471), module, ScaleQuantizer2::TRIG_OUTPUT + 3));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(152.308, 174.471), module, ScaleQuantizer2::TRIG_OUTPUT + 4));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(186.308, 174.471), module, ScaleQuantizer2::TRIG_OUTPUT + 5));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(220.308, 174.471), module, ScaleQuantizer2::TRIG_OUTPUT + 6));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(254.308, 174.471), module, ScaleQuantizer2::TRIG_OUTPUT + 7));
 
 		float xOffset = 18.0;
 		float xSpace = 21.0;
