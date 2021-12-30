@@ -1142,15 +1142,15 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="2.2973685"
-     inkscape:cx="99.461625"
-     inkscape:cy="190"
-     inkscape:current-layer="layer2"
+     inkscape:cx="99.461623"
+     inkscape:cy="211.32874"
+     inkscape:current-layer="layer4"
      showgrid="false"
      units="mm"
      inkscape:window-width="1931"
      inkscape:window-height="1081"
-     inkscape:window-x="413"
-     inkscape:window-y="83"
+     inkscape:window-x="83"
+     inkscape:window-y="105"
      inkscape:window-maximized="0"
      showguides="false"
      inkscape:guide-bbox="true"
@@ -1535,7 +1535,8 @@
      id="layer2"
      inkscape:label="Graficos"
      style="display:inline"
-     transform="translate(0.01175524,-74.386765)">
+     transform="translate(0.01175524,-74.386765)"
+     sodipodi:insensitive="true">
     <g
        style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:condensed;font-size:24px;line-height:125%;font-family:Miso;-inkscape-font-specification:'Miso Bold Condensed';letter-spacing:-0.06px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
        id="text4395"
@@ -2491,5 +2492,67 @@
         </g>
       </g>
     </g>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer4"
+     inkscape:label="components"
+     style="display:inline">
+    <circle
+       fill="#bababa"
+       cx="24.498955"
+       cy="61.50676"
+       r="10.75"
+       id="ROTL_INPUT"
+       style="display:inline;fill:#00ff00;fill-opacity:1;stroke:none" />
+    <circle
+       fill="#bababa"
+       cx="213.98338"
+       cy="61.50676"
+       r="10.75"
+       id="ROTR_INPUT"
+       style="display:inline;fill:#00ff00;fill-opacity:1;stroke:none" />
+    <circle
+       fill="#bababa"
+       cx="24.498957"
+       cy="343.79672"
+       r="10.75"
+       id="KEY_INPUT"
+       style="display:inline;fill:#00ff00;fill-opacity:1;stroke:none" />
+    <circle
+       fill="#bababa"
+       cx="100.63504"
+       cy="343.79669"
+       r="10.75"
+       id="MODE_INPUT"
+       style="display:inline;fill:#00ff00;fill-opacity:1;stroke:none" />
+    <circle
+       fill="#bababa"
+       cx="65.904839"
+       cy="344.69113"
+       id="KEY_PARAM"
+       style="display:inline;fill:#ff0000;fill-opacity:1"
+       r="10.75" />
+    <circle
+       fill="#bababa"
+       cx="142.04092"
+       cy="344.69113"
+       id="MODE_PARAM"
+       style="display:inline;fill:#ff0000;fill-opacity:1"
+       r="10.75" />
+    <circle
+       fill="#bababa"
+       cx="174.99394"
+       cy="343.6268"
+       r="10.75"
+       id="KEY_OUTPUT"
+       style="display:inline;fill:#0000ff;fill-opacity:1" />
+    <circle
+       fill="#bababa"
+       cx="213.98338"
+       cy="343.6268"
+       r="10.75"
+       id="MODE_OUTPUT"
+       style="display:inline;fill:#0000ff;fill-opacity:1" />
   </g>
 </svg>

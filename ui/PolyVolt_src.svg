@@ -1036,13 +1036,13 @@
      inkscape:zoom="2"
      inkscape:cx="115.25"
      inkscape:cy="163"
-     inkscape:current-layer="layer1"
+     inkscape:current-layer="layer4"
      showgrid="false"
      units="mm"
      inkscape:window-width="2389"
      inkscape:window-height="1280"
-     inkscape:window-x="1035"
-     inkscape:window-y="81"
+     inkscape:window-x="419"
+     inkscape:window-y="31"
      inkscape:window-maximized="0"
      showguides="false"
      inkscape:guide-bbox="true"
@@ -1428,7 +1428,8 @@
      id="layer2"
      inkscape:label="Graficos"
      style="display:inline"
-     transform="translate(0.01175524,-74.386765)">
+     transform="translate(0.01175524,-74.386765)"
+     sodipodi:insensitive="true">
     <g
        style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:condensed;font-size:24px;line-height:125%;font-family:Miso;-inkscape-font-specification:'Miso Bold Condensed';letter-spacing:-0.06px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
        id="text4395"
@@ -1677,5 +1678,25 @@
            id="circle99388" />
       </g>
     </g>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer4"
+     inkscape:label="components"
+     style="display:inline">
+    <circle
+       fill="#bababa"
+       cx="278.06464"
+       cy="132.6528"
+       id="CHAN_PARAM"
+       style="display:inline;fill:#ff0000;fill-opacity:1"
+       r="10.75" />
+    <circle
+       fill="#bababa"
+       cx="276.38004"
+       cy="315.45044"
+       r="10.75"
+       id="POLY_OUTPUT"
+       style="display:inline;fill:#0000ff;fill-opacity:1" />
   </g>
 </svg>

@@ -422,43 +422,26 @@ struct BombeWidget : ModuleWidget {
 		setModule(module);
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Bombe.svg")));
 
-		for (int i = 0; i < 6; i++) {
-			addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, i, 5, true, false), module, Bombe::PITCH_OUTPUT + i));
-		}	
+		addParam(createParamCentered<gui::AHHugeKnobNoSnap>(Vec(67.451, 192.829), module, Bombe::X_PARAM));
+		addParam(createParamCentered<gui::AHHugeKnobNoSnap>(Vec(172.402, 192.829), module, Bombe::Y_PARAM));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(62.082, 288.735), module, Bombe::KEY_PARAM));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(142.041, 288.735), module, Bombe::MODE_PARAM));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(222.0, 288.735), module, Bombe::LENGTH_PARAM));
 
-		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 0, 4, true, false), module, Bombe::KEY_PARAM)); 
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 1, 4, true, false), module, Bombe::KEY_INPUT));
+		addInput(createInputCentered<gui::AHPort>(Vec(18.776, 166.853), module, Bombe::FREEZE_INPUT));
+		addInput(createInputCentered<gui::AHPort>(Vec(123.726, 166.853), module, Bombe::Y_INPUT));
+		addInput(createInputCentered<gui::AHPort>(Vec(20.676, 288.735), module, Bombe::KEY_INPUT));
+		addInput(createInputCentered<gui::AHPort>(Vec(100.635, 288.735), module, Bombe::MODE_INPUT));
+		addInput(createInputCentered<gui::AHPort>(Vec(180.594, 288.735), module, Bombe::CLOCK_INPUT));
 
-		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 2, 4, true, false), module, Bombe::MODE_PARAM)); 
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 3, 4, true, false), module, Bombe::MODE_INPUT));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(30.838, 341.02), module, Bombe::PITCH_OUTPUT + 0));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(67.373, 340.787), module, Bombe::PITCH_OUTPUT + 1));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(103.909, 340.787), module, Bombe::PITCH_OUTPUT + 2));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(140.444, 341.028), module, Bombe::PITCH_OUTPUT + 3));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(176.979, 341.028), module, Bombe::PITCH_OUTPUT + 4));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(213.515, 341.028), module, Bombe::PITCH_OUTPUT + 5));
 
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 4, 4, true, false), module, Bombe::CLOCK_INPUT));
-		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 5, 4, true, false), module, Bombe::LENGTH_PARAM)); 
-
-		Vec XParamPos;
-		XParamPos.x = 33;
-		XParamPos.y = 160;
-		addParam(createParam<gui::AHBigKnobNoSnap>(XParamPos, module, Bombe::X_PARAM)); 
-
-		Vec XFreezePos;
-		XFreezePos.x = XParamPos.x - 12;
-		XFreezePos.y = XParamPos.y + 60;
-		addInput(createInput<PJ301MPort>(XFreezePos, module, Bombe::FREEZE_INPUT));
-
-		Vec XLightPos;
-		XLightPos.x = XParamPos.x + 63;
-		XLightPos.y = XParamPos.y + 68;
-		addChild(createLight<MediumLight<GreenRedLight>>(XLightPos, module, Bombe::LOCK_LIGHT));
-
-		Vec YParamPos;
-		YParamPos.x = 137;
-		YParamPos.y = 160;
-		addParam(createParam<gui::AHBigKnobNoSnap>(YParamPos, module, Bombe::Y_PARAM)); 
-
-		Vec YInputPos;
-		YInputPos.x = YParamPos.x - 12;
-		YInputPos.y = YParamPos.y + 60;
-		addInput(createInput<PJ301MPort>(YInputPos, module, Bombe::Y_INPUT));
+		addChild(createLightCentered<MediumLight<RedLight>>(Vec(99.104, 224.482), module, Bombe::LOCK_LIGHT));
 
 		if (module != NULL) {
 			BombeDisplay *displayW = createWidget<BombeDisplay>(Vec(0, 20));

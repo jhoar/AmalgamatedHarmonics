@@ -1058,14 +1058,14 @@
      inkscape:pageshadow="2"
      inkscape:zoom="2.0246816"
      inkscape:cx="117.7963"
-     inkscape:cy="263.74517"
-     inkscape:current-layer="layer3"
+     inkscape:cy="184.7204"
+     inkscape:current-layer="layer4"
      showgrid="false"
      units="mm"
      inkscape:window-width="1755"
      inkscape:window-height="1298"
-     inkscape:window-x="1202"
-     inkscape:window-y="-10"
+     inkscape:window-x="2"
+     inkscape:window-y="16"
      inkscape:window-maximized="0"
      showguides="false"
      inkscape:guide-bbox="true"
@@ -1453,7 +1453,8 @@
      id="layer2"
      inkscape:label="Graficos"
      style="display:inline"
-     transform="translate(0.01175524,-74.386765)">
+     transform="translate(0.01175524,-74.386765)"
+     sodipodi:insensitive="true">
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.53334px;line-height:1.25;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;display:inline;fill:url(#linearGradient38999);fill-opacity:1;stroke:none;stroke-width:0.999999"
@@ -1585,7 +1586,8 @@
      inkscape:groupmode="layer"
      id="layer3"
      inkscape:label="Knobs"
-     style="display:inline">
+     style="display:none"
+     sodipodi:insensitive="true">
     <g
        id="g25"
        transform="translate(26.414327,329.65778)"
@@ -1725,5 +1727,46 @@
          id="path18948"
          d="m 24.414202,193.10628 h -0.0447 c -0.80907,0 -1.46495,-0.65588 -1.46495,-1.46495 v -4.91961 c 0,-0.80907 0.65588,-1.46495 1.46495,-1.46495 h 0.0447 c 0.80907,0 1.46495,0.65588 1.46495,1.46495 v 4.91961 c 0,0.80907 -0.65589,1.46495 -1.46495,1.46495 z" />
     </g>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer4"
+     inkscape:label="components"
+     style="display:inline">
+    <circle
+       fill="#bababa"
+       cx="37.414322"
+       cy="340.65775"
+       r="10.75"
+       id="POLY_INPUT"
+       style="display:inline;fill:#00ff00;fill-opacity:1;stroke:none" />
+    <circle
+       fill="#bababa"
+       cx="111.55225"
+       cy="340.16202"
+       id="SCALE_PARAM"
+       style="display:inline;fill:#ff0000;fill-opacity:1"
+       r="10.75" />
+    <circle
+       fill="#bababa"
+       cx="152.1841"
+       cy="340.16205"
+       id="SPREAD_PARAM"
+       style="display:inline;fill:#ff0000;fill-opacity:1"
+       r="10.75" />
+    <circle
+       fill="#bababa"
+       cx="192.81593"
+       cy="340.16202"
+       id="SHIFT_PARAM"
+       style="display:inline;fill:#ff0000;fill-opacity:1"
+       r="10.75" />
+    <circle
+       fill="#bababa"
+       cx="233.44775"
+       cy="340.0787"
+       id="TIME_PARAM"
+       style="display:inline;fill:#ff0000;fill-opacity:1"
+       r="10.75" />
   </g>
 </svg>

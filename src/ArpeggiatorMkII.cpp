@@ -963,24 +963,24 @@ struct Arpeggiator2Widget : ModuleWidget {
 		addParam(createParamCentered<gui::AHKnobSnap>(Vec(221.792, 281.223), module, Arpeggiator2::ARP_PARAM));
 		addParam(createParamCentered<gui::AHKnobSnap>(Vec(102.248, 279.733), module, Arpeggiator2::SCALE_PARAM));
 
-		addInput(createInputCentered<PJ301MPort>(Vec(25.55, 228.913), module, Arpeggiator2::PATT_INPUT));
-		addInput(createInputCentered<PJ301MPort>(Vec(180.386, 228.913), module, Arpeggiator2::LENGTH_INPUT));
-		addInput(createInputCentered<PJ301MPort>(Vec(102.248, 228.997), module, Arpeggiator2::TRANS_INPUT));
-		addInput(createInputCentered<PJ301MPort>(Vec(25.55, 279.733), module, Arpeggiator2::TRIG_INPUT));
-		addInput(createInputCentered<PJ301MPort>(Vec(66.955, 279.733), module, Arpeggiator2::CLOCK_INPUT));
-		addInput(createInputCentered<PJ301MPort>(Vec(180.386, 280.328), module, Arpeggiator2::ARP_INPUT));
+		addInput(createInputCentered<gui::AHPort>(Vec(25.55, 228.913), module, Arpeggiator2::PATT_INPUT));
+		addInput(createInputCentered<gui::AHPort>(Vec(180.386, 228.913), module, Arpeggiator2::LENGTH_INPUT));
+		addInput(createInputCentered<gui::AHPort>(Vec(102.248, 228.997), module, Arpeggiator2::TRANS_INPUT));
+		addInput(createInputCentered<gui::AHPort>(Vec(25.55, 279.733), module, Arpeggiator2::TRIG_INPUT));
+		addInput(createInputCentered<gui::AHPort>(Vec(66.955, 279.733), module, Arpeggiator2::CLOCK_INPUT));
+		addInput(createInputCentered<gui::AHPort>(Vec(180.386, 280.328), module, Arpeggiator2::ARP_INPUT));
 
-		addInput(createInputCentered<PJ301MPort>(Vec(35.0, 335.938), module, Arpeggiator2::PITCH_INPUT + 0));
-		addInput(createInputCentered<PJ301MPort>(Vec(69.0, 335.938), module, Arpeggiator2::PITCH_INPUT + 1));
-		addInput(createInputCentered<PJ301MPort>(Vec(103.0, 335.938), module, Arpeggiator2::PITCH_INPUT + 2));
-		addInput(createInputCentered<PJ301MPort>(Vec(137.0, 335.938), module, Arpeggiator2::PITCH_INPUT + 3));
-		addInput(createInputCentered<PJ301MPort>(Vec(171.0, 335.938), module, Arpeggiator2::PITCH_INPUT + 4));
-		addInput(createInputCentered<PJ301MPort>(Vec(205.0, 335.938), module, Arpeggiator2::PITCH_INPUT + 5));
+		addInput(createInputCentered<gui::AHPort>(Vec(35.0, 335.938), module, Arpeggiator2::PITCH_INPUT + 0));
+		addInput(createInputCentered<gui::AHPort>(Vec(69.0, 335.938), module, Arpeggiator2::PITCH_INPUT + 1));
+		addInput(createInputCentered<gui::AHPort>(Vec(103.0, 335.938), module, Arpeggiator2::PITCH_INPUT + 2));
+		addInput(createInputCentered<gui::AHPort>(Vec(137.0, 335.938), module, Arpeggiator2::PITCH_INPUT + 3));
+		addInput(createInputCentered<gui::AHPort>(Vec(171.0, 335.938), module, Arpeggiator2::PITCH_INPUT + 4));
+		addInput(createInputCentered<gui::AHPort>(Vec(205.0, 335.938), module, Arpeggiator2::PITCH_INPUT + 5));
 
-		addOutput(createOutputCentered<PJ301MPort>(Vec(24.0, 65.085), module, Arpeggiator2::OUT_OUTPUT));
-		addOutput(createOutputCentered<PJ301MPort>(Vec(71.997, 65.085), module, Arpeggiator2::GATE_OUTPUT));
-		addOutput(createOutputCentered<PJ301MPort>(Vec(168.143, 65.085), module, Arpeggiator2::EOC_OUTPUT));
-		addOutput(createOutputCentered<PJ301MPort>(Vec(215.995, 65.085), module, Arpeggiator2::EOS_OUTPUT));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(24.0, 65.085), module, Arpeggiator2::OUT_OUTPUT));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(71.997, 65.085), module, Arpeggiator2::GATE_OUTPUT));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(168.143, 65.085), module, Arpeggiator2::EOC_OUTPUT));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(215.995, 65.085), module, Arpeggiator2::EOS_OUTPUT));
 
 		addChild(createLightCentered<MediumLight<GreenLight>>(Vec(120.0, 65.085), module, Arpeggiator2::LOCK_LIGHT));
 

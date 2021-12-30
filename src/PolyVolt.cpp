@@ -233,8 +233,9 @@ struct PolyVoltWidget : ModuleWidget {
 			addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::PORT, 1, 1 + i - 8, true, true), module, PolyVolt::VOLT_PARAM + i));
 		}
 
-		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 7, 6, true, true), module, PolyVolt::CHAN_PARAM));
-		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 7, 8, true, true), module, PolyVolt::POLY_OUTPUT));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(278.065, 132.653), module, PolyVolt::CHAN_PARAM));
+
+		addOutput(createOutputCentered<gui::AHPort>(Vec(276.38, 315.45), module, PolyVolt::POLY_OUTPUT));
 
 		if (module != NULL) {
 			PolyVoltDisplay *displayW = createWidget<PolyVoltDisplay>(Vec(45, 30));

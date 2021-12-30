@@ -96,26 +96,29 @@ struct MuxDeMuxWidget : ModuleWidget {
 		setModule(module);
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/MuxDeMux.svg")));
 
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 1, true, true), module, MuxDeMux::POLYCV_INPUT));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(213.464, 132.652), module, MuxDeMux::BIAS_PARAM));
+
+		addInput(createInputCentered<gui::AHPort>(Vec(27.526, 70.611), module, MuxDeMux::POLYCV_INPUT));
+		addInput(createInputCentered<gui::AHPort>(Vec(213.464, 172.845), module, MuxDeMux::BIAS_INPUT));
+
+		addOutput(createOutputCentered<gui::AHPort>(Vec(212.983, 242.867), module, MuxDeMux::POLYCV_OUTPUT));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(211.78, 315.45), module, MuxDeMux::POLYGATE_OUTPUT));
+
 		for (int i = 0; i < 8; i++) {
-			addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 1, 1 + i, true, true),  module, MuxDeMux::MONO_OUTPUT + i));
+			addOutput(createOutput<gui::AHPort>(gui::getPosition(gui::PORT, 1, 1 + i, true, true),  module, MuxDeMux::MONO_OUTPUT + i));
 		}
 
 		for (int i = 8; i < 16; i++) {
-			addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 2, 1 + i - 8, true, true),  module, MuxDeMux::MONO_OUTPUT + i));
+			addOutput(createOutput<gui::AHPort>(gui::getPosition(gui::PORT, 2, 1 + i - 8, true, true),  module, MuxDeMux::MONO_OUTPUT + i));
 		}
 
-		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 5, 3, true, true), module, MuxDeMux::BIAS_PARAM)); 
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 5, 4, true, true), module, MuxDeMux::BIAS_INPUT));
 
-		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 5, 6, true, true),  module, MuxDeMux::POLYCV_OUTPUT));
-		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 5, 8, true, true),  module, MuxDeMux::POLYGATE_OUTPUT));
 		for (int i = 0; i < 8; i++) {
-			addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 3, 1 + i, true, true), module, MuxDeMux::MONO_INPUT + i));
+			addInput(createInput<gui::AHPort>(gui::getPosition(gui::PORT, 3, 1 + i, true, true), module, MuxDeMux::MONO_INPUT + i));
 		}
 
 		for (int i = 8; i < 16; i++) {
-			addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 4, 1 + i - 8, true, true), module, MuxDeMux::MONO_INPUT + i));
+			addInput(createInput<gui::AHPort>(gui::getPosition(gui::PORT, 4, 1 + i - 8, true, true), module, MuxDeMux::MONO_INPUT + i));
 		}
 
 	}

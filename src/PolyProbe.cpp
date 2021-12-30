@@ -311,9 +311,10 @@ struct PolyProbeWidget : ModuleWidget {
 		setModule(module);
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/PolyProbe.svg")));
 
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 8, 4, true, true), module, PolyProbe::POLYCVA_INPUT));
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 8, 6, true, true), module, PolyProbe::POLYCVB_INPUT));
-		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 8, 8, true, true), module, PolyProbe::POLYALGO_OUTPUT));
+		addInput(createInputCentered<gui::AHPort>(Vec(315.82, 80.446), module, PolyProbe::POLYCVA_INPUT));
+		addInput(createInputCentered<gui::AHPort>(Vec(315.82, 138.162), module, PolyProbe::POLYCVB_INPUT));
+
+		addOutput(createOutputCentered<gui::AHPort>(Vec(315.82, 312.592), module, PolyProbe::POLYALGO_OUTPUT));
 
 		if (module != NULL) {
 			PolyProbeDisplay *displayW = createWidget<PolyProbeDisplay>(Vec(0, 20));

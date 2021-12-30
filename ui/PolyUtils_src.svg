@@ -1186,16 +1186,16 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="2.0153513"
-     inkscape:cx="-20.840039"
-     inkscape:cy="122.80737"
-     inkscape:current-layer="layer3"
+     inkscape:cx="-21.088135"
+     inkscape:cy="202.198"
+     inkscape:current-layer="layer2"
      showgrid="false"
      units="mm"
-     inkscape:window-width="3440"
-     inkscape:window-height="1377"
-     inkscape:window-x="-8"
-     inkscape:window-y="-8"
-     inkscape:window-maximized="1"
+     inkscape:window-width="1307"
+     inkscape:window-height="1081"
+     inkscape:window-x="52"
+     inkscape:window-y="255"
+     inkscape:window-maximized="0"
      showguides="false"
      inkscape:guide-bbox="true"
      inkscape:showpageshadow="false"
@@ -1528,7 +1528,8 @@
      inkscape:groupmode="layer"
      id="layer1"
      inkscape:label="Background"
-     style="display:inline">
+     style="display:inline"
+     sodipodi:insensitive="true">
     <rect
        style="display:inline;opacity:0.94;fill:#000000;fill-opacity:1;stroke-width:7.01894"
        id="rect7953"
@@ -1578,7 +1579,8 @@
      id="layer2"
      inkscape:label="Graficos"
      style="display:inline"
-     transform="translate(0.01175524,-74.386765)">
+     transform="translate(0.01175524,-74.386765)"
+     sodipodi:insensitive="true">
     <g
        style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:condensed;font-size:24px;line-height:125%;font-family:Miso;-inkscape-font-specification:'Miso Bold Condensed';letter-spacing:-0.06px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
        id="text4395"
@@ -2200,5 +2202,60 @@
         </g>
       </g>
     </g>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer4"
+     inkscape:label="components"
+     style="display:inline">
+    <circle
+       fill="#bababa"
+       cx="29.999998"
+       cy="70.823494"
+       r="10.75"
+       id="MASK_INPUT"
+       style="display:inline;fill:#00ff00;fill-opacity:1;stroke:none" />
+    <circle
+       fill="#bababa"
+       cx="30"
+       cy="224.17664"
+       r="10.75"
+       id="SPLIT_INPUT"
+       style="display:inline;fill:#00ff00;fill-opacity:1;stroke:none" />
+    <circle
+       fill="#bababa"
+       cx="43.60833"
+       cy="110.98615"
+       id="MASK_PARAM"
+       style="display:inline;fill:#ff0000;fill-opacity:1"
+       r="10.75" />
+    <circle
+       fill="#bababa"
+       cx="43.60833"
+       cy="254.98615"
+       id="SPLIT_PARAM"
+       style="display:inline;fill:#ff0000;fill-opacity:1"
+       r="10.75" />
+    <circle
+       fill="#bababa"
+       cx="29.999998"
+       cy="147.59218"
+       r="10.75"
+       id="MASK_OUTPUT"
+       style="display:inline;fill:#0000ff;fill-opacity:1" />
+    <circle
+       fill="#bababa"
+       cx="19.564745"
+       cy="289.4877"
+       r="10.75"
+       id="SPLIT_OUTPUT0"
+       style="display:inline;fill:#0000ff;fill-opacity:1" />
+    <circle
+       fill="#bababa"
+       cx="40.331024"
+       cy="331.18301"
+       r="10.75"
+       id="SPLIT_OUTPUT1"
+       style="display:inline;fill:#0000ff;fill-opacity:1" />
   </g>
 </svg>

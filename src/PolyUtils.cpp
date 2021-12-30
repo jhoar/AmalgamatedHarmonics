@@ -90,38 +90,15 @@ struct PolyUtilsWidget : ModuleWidget {
 		setModule(module);
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/PolyUtils.svg")));
 
-		float lX = 7.0f;
-		float rX = 35.0f;
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(43.608, 110.986), module, PolyUtils::MASK_PARAM));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(43.608, 254.986), module, PolyUtils::SPLIT_PARAM));
 
-		// Mask
-		Vec p1 = gui::getPosition(gui::PORT, 0, 1, true, true);
-		p1.x = lX;
-		addInput(createInput<PJ301MPort>(p1, module, PolyUtils::MASK_INPUT));
-	
-		Vec p2 = gui::getPosition(gui::PORT, 0, 2, true, true);
-		p2.x = rX;
-		addParam(createParam<gui::AHKnobSnap>(p2, module, PolyUtils::MASK_PARAM)); 
+		addInput(createInputCentered<gui::AHPort>(Vec(30.0, 70.823), module, PolyUtils::MASK_INPUT));
+		addInput(createInputCentered<gui::AHPort>(Vec(30.0, 224.177), module, PolyUtils::SPLIT_INPUT));
 
-		Vec p3 = gui::getPosition(gui::PORT, 0, 3, true, true);
-		p3.x = lX;
-		addOutput(createOutput<PJ301MPort>(p3, module, PolyUtils::MASK_OUTPUT));
-
-		// Split
-		Vec p4 = gui::getPosition(gui::PORT, 0, 5, true, true);
-		p4.x = lX;
-		addInput(createInput<PJ301MPort>(p4, module, PolyUtils::SPLIT_INPUT));
-
-		Vec p5 = gui::getPosition(gui::PORT, 0, 6, true, true);
-		p5.x = rX;
-		addParam(createParam<gui::AHKnobSnap>(p5, module, PolyUtils::SPLIT_PARAM)); 
-
-		Vec p6 = gui::getPosition(gui::PORT, 0, 7, true, true);
-		p6.x = lX;
-		addOutput(createOutput<PJ301MPort>(p6,  module, PolyUtils::SPLIT_OUTPUT));
-
-		Vec p7 = gui::getPosition(gui::PORT, 0, 8, true, true);
-		p7.x = 28.0;
-		addOutput(createOutput<PJ301MPort>(p7,  module, PolyUtils::SPLIT_OUTPUT + 1));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(30.0, 147.592), module, PolyUtils::MASK_OUTPUT));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(19.565, 289.488), module, PolyUtils::SPLIT_OUTPUT + 0));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(40.331, 331.183), module, PolyUtils::SPLIT_OUTPUT + 1));
 
 	}
 

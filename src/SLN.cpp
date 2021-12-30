@@ -138,37 +138,15 @@ struct SLNWidget : ModuleWidget {
 		setModule(module);
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/SLN.svg")));
 
-		float panelwidth = 45.0;
-		float portwidth = 25.0;
-		float portX = (panelwidth - portwidth) / 2.0;
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(26.104, 110.898), module, SLN::SPEED_PARAM));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(15.119, 146.814), module, SLN::SLOPE_PARAM));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(26.104, 180.814), module, SLN::NOISE_PARAM));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(15.119, 216.898), module, SLN::ATTN_PARAM));
 
-		Vec p1 = gui::getPosition(gui::PORT, 0, 0, false, false);
-		p1.x = portX;
-		addInput(createInput<PJ301MPort>(p1, module, SLN::TRIG_INPUT));
+		addInput(createInputCentered<gui::AHPort>(Vec(22.5, 59.301), module, SLN::TRIG_INPUT));
 
-		Vec k1 = gui::getPosition(gui::PORT, 0, 2, false, true);
-		k1.x = 20;
-		addParam(createParam<gui::AHKnobNoSnap>(k1, module, SLN::SPEED_PARAM));
-
-		Vec k2 = gui::getPosition(gui::PORT, 0, 3, false, true);
-		k2.x = 3;
-		addParam(createParam<gui::AHKnobNoSnap>(k2, module, SLN::SLOPE_PARAM));
-
-		Vec k3 = gui::getPosition(gui::PORT, 0, 4, false, true);
-		k3.x = 20;
-		addParam(createParam<gui::AHKnobSnap>(k3, module, SLN::NOISE_PARAM));
-
-		Vec k4 = gui::getPosition(gui::PORT, 0, 5, false, true);
-		k4.x = 3;
-		addParam(createParam<gui::AHKnobNoSnap>(k4, module, SLN::ATTN_PARAM)); 	
-
-		Vec p2 = gui::getPosition(gui::PORT, 0, 4, false, false);
-		p2.x = portX;	
-		addOutput(createOutput<PJ301MPort>(p2, module, SLN::OUT_OUTPUT));
-
-		Vec p3 = gui::getPosition(gui::PORT, 0, 5, false, false);
-		p3.x = portX;		
-		addOutput(createOutput<PJ301MPort>(p3, module, SLN::NOISE_OUTPUT));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(22.5, 284.85), module, SLN::OUT_OUTPUT));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(22.5, 334.716), module, SLN::NOISE_OUTPUT));
 
 	}
 

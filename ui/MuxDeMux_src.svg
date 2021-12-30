@@ -1147,15 +1147,15 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="2.2299488"
-     inkscape:cx="119.95791"
+     inkscape:cx="119.73369"
      inkscape:cy="199.78037"
-     inkscape:current-layer="layer2"
+     inkscape:current-layer="layer4"
      showgrid="false"
      units="mm"
-     inkscape:window-width="1919"
+     inkscape:window-width="1530"
      inkscape:window-height="1315"
-     inkscape:window-x="-5"
-     inkscape:window-y="65"
+     inkscape:window-x="0"
+     inkscape:window-y="46"
      inkscape:window-maximized="0"
      showguides="false"
      inkscape:guide-bbox="true"
@@ -1541,7 +1541,8 @@
      id="layer2"
      inkscape:label="Graficos"
      style="display:inline"
-     transform="translate(0.01175524,-74.386765)">
+     transform="translate(0.01175524,-74.386765)"
+     sodipodi:insensitive="true">
     <rect
        transform="scale(1,-1)"
        ry="5.7985158"
@@ -1868,7 +1869,8 @@
      inkscape:groupmode="layer"
      id="layer3"
      inkscape:label="Knobs"
-     style="display:inline">
+     style="display:inline"
+     sodipodi:insensitive="true">
     <g
        id="g5944"
        transform="translate(201.98291,231.86704)"
@@ -2131,5 +2133,45 @@
            id="circle22" />
       </g>
     </g>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer4"
+     inkscape:label="components">
+    <circle
+       fill="#bababa"
+       cx="27.526281"
+       cy="70.610695"
+       r="10.75"
+       id="POLYCV_INPUT"
+       style="display:inline;fill:#00ff00;fill-opacity:1;stroke:none" />
+    <circle
+       fill="#bababa"
+       cx="213.46422"
+       cy="172.84547"
+       r="10.75"
+       id="BIAS_INPUT"
+       style="display:inline;fill:#00ff00;fill-opacity:1;stroke:none" />
+    <circle
+       fill="#bababa"
+       cx="213.46422"
+       cy="132.65231"
+       id="BIAS_PARAM"
+       style="display:inline;fill:#ff0000;fill-opacity:1"
+       r="10.75" />
+    <circle
+       fill="#bababa"
+       cx="212.98291"
+       cy="242.867"
+       r="10.75"
+       id="POLYCV_OUTPUT"
+       style="display:inline;fill:#0000ff;fill-opacity:1" />
+    <circle
+       fill="#bababa"
+       cx="211.7796"
+       cy="315.44998"
+       r="10.75"
+       id="POLYGATE_OUTPUT"
+       style="display:inline;fill:#0000ff;fill-opacity:1" />
   </g>
 </svg>

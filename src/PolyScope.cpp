@@ -370,11 +370,12 @@ struct PolyScopeWidget : ModuleWidget {
 			addChild(patch);
 		}
 
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 5, false, false), module, PolyScope::POLY_INPUT));
-		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 2, 5, false, false), module, PolyScope::SCALE_PARAM));
-		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 3, 5, false, false), module, PolyScope::SPREAD_PARAM));
-		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 4, 5, false, false), module, PolyScope::SHIFT_PARAM));
-		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 6, 5, false, false), module, PolyScope::TIME_PARAM));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(233.448, 340.079), module, PolyScope::TIME_PARAM));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(111.552, 340.162), module, PolyScope::SCALE_PARAM));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(152.184, 340.162), module, PolyScope::SPREAD_PARAM));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(192.816, 340.162), module, PolyScope::SHIFT_PARAM));
+
+		addInput(createInputCentered<gui::AHPort>(Vec(37.414, 340.658), module, PolyScope::POLY_INPUT));
 
 		cmapOptions.emplace_back("Classic", 0);
 		cmapOptions.emplace_back("Constant V", 1);

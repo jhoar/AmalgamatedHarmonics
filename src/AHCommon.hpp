@@ -173,6 +173,21 @@ struct AHBigKnobSnap : AHKnob {
 	}
 };
 
+struct AHHugeKnobNoSnap : AHKnob {
+	AHHugeKnobNoSnap() {
+		snap = false;
+		setSvg(APP->window->loadSvg(asset::plugin(pluginInstance,"res/ComponentLibrary/AHHugeKnob.svg")));
+	}
+};
+
+struct AHHugeKnobSnap : AHKnob {
+	AHHugeKnobSnap() {
+		snap = true;
+		setSvg(APP->window->loadSvg(asset::plugin(pluginInstance,"res/ComponentLibrary/AHHugeKnob.svg")));
+	}
+};
+
+
 struct AHTrimpotSnap : AHKnob {
 	AHTrimpotSnap() {
 		snap = true;
@@ -186,6 +201,13 @@ struct AHTrimpotNoSnap : AHKnob {
 		setSvg(APP->window->loadSvg(asset::plugin(pluginInstance,"res/ComponentLibrary/AHTrimpot.svg")));
 	}
 };
+
+struct AHPort : app::SvgPort {
+        AHPort() {
+                setSvg(APP->window->loadSvg(asset::plugin(pluginInstance,"res/ComponentLibrary/AHJack.svg")));
+        }
+};
+
 
 struct KeyParamQuantity : engine::ParamQuantity {
 	std::string getDisplayValueString() override;

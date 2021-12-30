@@ -201,22 +201,73 @@ struct ChordWidget : ModuleWidget {
 		setModule(module);
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Chord.svg")));
 
-		for (int n = 0; n < 6; n++) {
-			addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, n, 0, true, true), module, Chord::PITCH_INPUT + n));
-			addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, n, 1, true, true), module, Chord::WAVE_PARAM + n));
-			addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, n, 2, true, true), module, Chord::OCTAVE_PARAM + n));
-			addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, n, 3, true, true), module, Chord::DETUNE_PARAM + n));
-			addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, n, 4, true, true), module, Chord::PW_PARAM + n));
-			addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, n, 5, true, true), module, Chord::PW_INPUT + n));
-			addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, n, 6, true, true), module, Chord::PWM_PARAM + n));
-			addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, n, 7, true, true), module, Chord::ATTN_PARAM + n));
-			addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, n, 8, true, true), module, Chord::PAN_PARAM + n));
-		}
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(30.044, 88.542), module, Chord::WAVE_PARAM + 0));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(68.395, 88.542), module, Chord::WAVE_PARAM + 1));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(106.746, 88.542), module, Chord::WAVE_PARAM + 2));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(145.097, 88.542), module, Chord::WAVE_PARAM + 3));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(183.447, 88.542), module, Chord::WAVE_PARAM + 4));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(221.798, 88.542), module, Chord::WAVE_PARAM + 5));
 
-		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 0, 9, true, true), module, Chord::SPREAD_PARAM));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(30.044, 120.883), module, Chord::OCTAVE_PARAM + 0));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(68.395, 120.883), module, Chord::OCTAVE_PARAM + 1));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(106.746, 120.883), module, Chord::OCTAVE_PARAM + 2));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(145.097, 120.883), module, Chord::OCTAVE_PARAM + 3));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(183.447, 120.883), module, Chord::OCTAVE_PARAM + 4));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(221.798, 120.883), module, Chord::OCTAVE_PARAM + 5));
 
-		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 4, 9, true, true), module, Chord::OUT_OUTPUT));
-		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 5, 9, true, true), module, Chord::OUT_OUTPUT + 1));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(30.044, 153.223), module, Chord::DETUNE_PARAM + 0));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(68.395, 153.223), module, Chord::DETUNE_PARAM + 1));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(106.746, 153.223), module, Chord::DETUNE_PARAM + 2));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(145.097, 153.223), module, Chord::DETUNE_PARAM + 3));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(183.447, 153.223), module, Chord::DETUNE_PARAM + 4));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(221.798, 153.223), module, Chord::DETUNE_PARAM + 5));
+
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(30.044, 224.163), module, Chord::PW_PARAM + 0));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(68.395, 224.163), module, Chord::PW_PARAM + 1));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(106.746, 224.163), module, Chord::PW_PARAM + 2));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(145.097, 224.163), module, Chord::PW_PARAM + 3));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(183.447, 224.163), module, Chord::PW_PARAM + 4));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(221.798, 224.163), module, Chord::PW_PARAM + 5));
+
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(30.044, 253.852), module, Chord::PWM_PARAM + 0));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(68.395, 253.852), module, Chord::PWM_PARAM + 1));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(106.746, 253.852), module, Chord::PWM_PARAM + 2));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(145.097, 253.852), module, Chord::PWM_PARAM + 3));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(183.447, 253.852), module, Chord::PWM_PARAM + 4));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(221.798, 253.852), module, Chord::PWM_PARAM + 5));
+
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(30.044, 291.541), module, Chord::ATTN_PARAM + 0));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(68.395, 291.541), module, Chord::ATTN_PARAM + 1));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(106.746, 291.541), module, Chord::ATTN_PARAM + 2));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(145.097, 291.541), module, Chord::ATTN_PARAM + 3));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(183.447, 291.541), module, Chord::ATTN_PARAM + 4));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(221.798, 291.541), module, Chord::ATTN_PARAM + 5));
+
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(30.044, 321.23), module, Chord::PAN_PARAM + 0));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(68.395, 321.23), module, Chord::PAN_PARAM + 1));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(106.746, 321.23), module, Chord::PAN_PARAM + 2));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(145.097, 321.23), module, Chord::PAN_PARAM + 3));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(183.447, 321.23), module, Chord::PAN_PARAM + 4));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(221.798, 321.23), module, Chord::PAN_PARAM + 5));
+
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(29.746, 356.339), module, Chord::SPREAD_PARAM));
+
+		addInput(createInputCentered<gui::AHPort>(Vec(29.746, 46.859), module, Chord::PITCH_INPUT + 0));
+		addInput(createInputCentered<gui::AHPort>(Vec(68.097, 46.859), module, Chord::PITCH_INPUT + 1));
+		addInput(createInputCentered<gui::AHPort>(Vec(106.447, 46.859), module, Chord::PITCH_INPUT + 2));
+		addInput(createInputCentered<gui::AHPort>(Vec(144.798, 46.859), module, Chord::PITCH_INPUT + 3));
+		addInput(createInputCentered<gui::AHPort>(Vec(183.149, 46.859), module, Chord::PITCH_INPUT + 4));
+		addInput(createInputCentered<gui::AHPort>(Vec(221.5, 46.859), module, Chord::PITCH_INPUT + 5));
+
+		addInput(createInputCentered<gui::AHPort>(Vec(29.746, 191.916), module, Chord::PW_INPUT + 0));
+		addInput(createInputCentered<gui::AHPort>(Vec(68.097, 191.916), module, Chord::PW_INPUT + 1));
+		addInput(createInputCentered<gui::AHPort>(Vec(106.447, 191.916), module, Chord::PW_INPUT + 2));
+		addInput(createInputCentered<gui::AHPort>(Vec(144.798, 191.916), module, Chord::PW_INPUT + 3));
+		addInput(createInputCentered<gui::AHPort>(Vec(183.149, 191.916), module, Chord::PW_INPUT + 4));
+		addInput(createInputCentered<gui::AHPort>(Vec(221.5, 191.916), module, Chord::PW_INPUT + 5));
+
+		addOutput(createOutputCentered<gui::AHPort>(Vec(183.149, 363.566), module, Chord::OUT_OUTPUT + 0));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(221.5, 363.566), module, Chord::OUT_OUTPUT + 1));
 
 	}
 

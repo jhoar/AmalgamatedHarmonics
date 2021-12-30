@@ -202,12 +202,16 @@ struct CircleWidget : ModuleWidget {
 		setModule(module);
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Circle.svg")));
 
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 0, true, false), module, Circle::ROTL_INPUT));
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 5, 0, true, false), module, Circle::ROTR_INPUT));
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 5, true, false), module, Circle::KEY_INPUT));
-		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 1, 5, true, false), module, Circle::KEY_PARAM)); 
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 2, 5, true, false), module, Circle::MODE_INPUT));
-		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 3, 5, true, false), module, Circle::MODE_PARAM)); 
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(65.905, 344.691), module, Circle::KEY_PARAM));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(142.041, 344.691), module, Circle::MODE_PARAM));
+
+		addInput(createInputCentered<gui::AHPort>(Vec(24.499, 61.507), module, Circle::ROTL_INPUT));
+		addInput(createInputCentered<gui::AHPort>(Vec(213.983, 61.507), module, Circle::ROTR_INPUT));
+		addInput(createInputCentered<gui::AHPort>(Vec(24.499, 343.797), module, Circle::KEY_INPUT));
+		addInput(createInputCentered<gui::AHPort>(Vec(100.635, 343.797), module, Circle::MODE_INPUT));
+
+		addOutput(createOutputCentered<gui::AHPort>(Vec(174.994, 343.627), module, Circle::KEY_OUTPUT));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(213.983, 343.627), module, Circle::MODE_OUTPUT));
 
 		float div = (core::PI * 2) / 12.0;
 
@@ -229,9 +233,6 @@ struct CircleWidget : ModuleWidget {
 			float xPos = 36.0 + i * 18.2;
 			addChild(createLight<SmallLight<GreenLight>>(Vec(xPos, 280.0), module, Circle::MODE_LIGHT + i));
 		}
-
-		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 4, 5, true, false), module, Circle::KEY_OUTPUT));
-		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 5, 5, true, false), module, Circle::MODE_OUTPUT));
 
 		inScalingOptions.emplace_back(std::string("V/Oct"), music::RootScaling::VOCT);
 		inScalingOptions.emplace_back(std::string("Classic"), music::RootScaling::CIRCLE);
