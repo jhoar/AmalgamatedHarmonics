@@ -269,15 +269,18 @@ struct ImpWidget : ModuleWidget {
 		setModule(module);
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Imp.svg")));
 
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 1, 0, true, true), module, Imp::TRIG_INPUT));
-		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 1, 1, true, true), module, Imp::PROB_PARAM));
-		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 1, 2, true, true), module, Imp::DELAY_PARAM));
-		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 1, 3, true, true), module, Imp::DELAYSPREAD_PARAM));
-		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 1, 4, true, true), module, Imp::LENGTH_PARAM)); 
-		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 1, 5, true, true), module, Imp::LENGTHSPREAD_PARAM)); 
-		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 1, 6, true, true), module, Imp::DIVISION_PARAM));
-		addChild(createLight<MediumLight<GreenRedLight>>(gui::getPosition(gui::LIGHT, 1, 7, true, true), module, Imp::OUT_LIGHT * 2));
-		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 1, 8, true, true), module, Imp::OUT_OUTPUT));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(67.5, 101.0), module, Imp::PROB_PARAM));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(67.5, 137.0), module, Imp::DELAY_PARAM));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(67.5, 173.0), module, Imp::DELAYSPREAD_PARAM));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(67.5, 209.0), module, Imp::LENGTH_PARAM));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(67.5, 245.0), module, Imp::LENGTHSPREAD_PARAM));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(67.5, 281.0), module, Imp::DIVISION_PARAM));
+
+		addInput(createInputCentered<gui::AHPort>(Vec(67.412, 57.582), module, Imp::TRIG_INPUT));
+
+		addOutput(createOutputCentered<gui::AHPort>(Vec(67.412, 325.713), module, Imp::OUT_OUTPUT));
+
+		addChild(createLightCentered<MediumLight<GreenRedLight>>(Vec(33.081, 325.713), module, Imp::OUT_LIGHT * 2));
 
 		if (module != NULL) {
 			ImpBox *display = createWidget<ImpBox>(Vec(0, 82));

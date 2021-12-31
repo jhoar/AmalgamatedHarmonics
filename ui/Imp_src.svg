@@ -1078,13 +1078,13 @@
      inkscape:zoom="2.2973684"
      inkscape:cx="67.68614"
      inkscape:cy="190"
-     inkscape:current-layer="layer2"
+     inkscape:current-layer="layer4"
      showgrid="false"
      units="mm"
      inkscape:window-width="1307"
      inkscape:window-height="1081"
-     inkscape:window-x="338"
-     inkscape:window-y="280"
+     inkscape:window-x="375"
+     inkscape:window-y="64"
      inkscape:window-maximized="0"
      showguides="false"
      inkscape:guide-bbox="true"
@@ -1470,7 +1470,8 @@
      id="layer2"
      inkscape:label="Graficos"
      style="display:inline"
-     transform="translate(0.01175524,-74.386765)">
+     transform="translate(0.01175524,-74.386765)"
+     sodipodi:insensitive="true">
     <path
        style="display:inline;fill:none;stroke:url(#linearGradient52053);stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        d="M 63.728414,63.817758 C 76.092293,68.358522 90.020036,71.956064 89.999718,83 89.963257,102.81872 45,99.790628 45,119 c 0,19.20937 45,16.79063 45,36 0,19.20937 -45,16.79063 -45,36 0,19.20937 45,16.79063 45,36 0,19.20937 -45,16.79063 -45,36 0,19.20937 45.025719,16.22042 45,36 -0.0086,6.63655 -5.075405,10.62285 -11.805768,13.74502"
@@ -1910,5 +1911,73 @@
          id="path7989-2"
          d="m 24.414202,193.10628 h -0.0447 c -0.80907,0 -1.46495,-0.65588 -1.46495,-1.46495 v -4.91961 c 0,-0.80907 0.65588,-1.46495 1.46495,-1.46495 h 0.0447 c 0.80907,0 1.46495,0.65588 1.46495,1.46495 v 4.91961 c 0,0.80907 -0.65589,1.46495 -1.46495,1.46495 z" />
     </g>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer4"
+     inkscape:label="components">
+    <circle
+       fill="#bababa"
+       cx="67.5"
+       cy="101"
+       id="PROB_PARAM"
+       style="display:inline;fill:#ff0000;fill-opacity:1"
+       r="10.75" />
+    <circle
+       fill="#bababa"
+       cx="67.5"
+       cy="137"
+       id="DELAY_PARAM"
+       style="display:inline;fill:#ff0000;fill-opacity:1"
+       r="10.75" />
+    <circle
+       fill="#bababa"
+       cx="67.5"
+       cy="173"
+       id="DELAYSPREAD_PARAM"
+       style="display:inline;fill:#ff0000;fill-opacity:1"
+       r="10.75" />
+    <circle
+       fill="#bababa"
+       cx="67.5"
+       cy="209"
+       id="LENGTH_PARAM"
+       style="display:inline;fill:#ff0000;fill-opacity:1"
+       r="10.75" />
+    <circle
+       fill="#bababa"
+       cx="67.5"
+       cy="245"
+       id="LENGTHSPREAD_PARAM"
+       style="display:inline;fill:#ff0000;fill-opacity:1"
+       r="10.75" />
+    <circle
+       fill="#bababa"
+       cx="67.5"
+       cy="281"
+       id="DIVISION_PARAM"
+       style="display:inline;fill:#ff0000;fill-opacity:1"
+       r="10.75" />
+    <circle
+       fill="#bababa"
+       cx="67.411903"
+       cy="325.71301"
+       r="10.75"
+       id="OUT_OUTPUT"
+       style="display:inline;fill:#0000ff;fill-opacity:1;stroke:none" />
+    <circle
+       fill="#bababa"
+       cx="33.081329"
+       cy="325.71301"
+       id="OUT_LIGHT"
+       style="display:inline;fill:#ff00ff;fill-opacity:1;stroke-width:0.264312"
+       r="2.8413517" />
+    <circle
+       fill="#bababa"
+       cx="67.411903"
+       cy="57.581627"
+       r="10.75"
+       id="TRIG_INPUT"
+       style="display:inline;fill:#00ff00;fill-opacity:1;stroke:none" />
   </g>
 </svg>

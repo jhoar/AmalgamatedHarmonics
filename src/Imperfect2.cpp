@@ -256,20 +256,63 @@ struct Imperfect2Widget : ModuleWidget {
 		setModule(module);
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Imperfect2.svg")));
 
-		for (int i = 0; i < 4; i++) {
-			addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, i * 2 + 1, true, true), module, Imperfect2::TRIG_INPUT + i));
-			addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 1, i * 2 + 1, true, true), module, Imperfect2::DELAY_INPUT + i));
-			addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 2, i * 2 + 1, true, true), module, Imperfect2::DELAY_PARAM + i));
-			addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 3, i * 2 + 1, true, true), module, Imperfect2::DELAYSPREAD_INPUT + i));
-			addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 4, i * 2 + 1, true, true), module, Imperfect2::DELAYSPREAD_PARAM + i));
-			addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 5, i * 2 + 1, true, true), module, Imperfect2::LENGTH_INPUT + i));
-			addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 6, i * 2 + 1, true, true), module, Imperfect2::LENGTH_PARAM + i)); 
-			addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 7, i * 2 + 1, true, true), module, Imperfect2::LENGTHSPREAD_INPUT + i));
-			addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 8, i * 2 + 1, true, true), module, Imperfect2::LENGTHSPREAD_PARAM + i)); 
-			addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 9, i * 2 + 1, true, true), module, Imperfect2::DIVISION_PARAM + i));
-			addChild(createLight<MediumLight<GreenRedLight>>(gui::getPosition(gui::LIGHT, 10, i * 2 + 1, true, true), module, Imperfect2::OUT_LIGHT + i * 2));
-			addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 11, i * 2+ 1, true, true), module, Imperfect2::OUT_OUTPUT + i));
-		}
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(102.191, 72.296), module, Imperfect2::DELAY_PARAM + 0));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(171.88, 72.296), module, Imperfect2::DELAYSPREAD_PARAM + 0));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(241.569, 72.296), module, Imperfect2::LENGTH_PARAM + 0));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(311.258, 72.296), module, Imperfect2::LENGTHSPREAD_PARAM + 0));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(346.103, 72.296), module, Imperfect2::DIVISION_PARAM + 0));
+
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(102.191, 146.296), module, Imperfect2::DELAY_PARAM + 1));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(171.88, 146.296), module, Imperfect2::DELAYSPREAD_PARAM + 1));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(241.569, 146.296), module, Imperfect2::LENGTH_PARAM + 1));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(311.258, 146.296), module, Imperfect2::LENGTHSPREAD_PARAM + 1));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(346.103, 146.296), module, Imperfect2::DIVISION_PARAM + 1));
+
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(102.191, 214.296), module, Imperfect2::DELAY_PARAM + 2));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(171.88, 214.296), module, Imperfect2::DELAYSPREAD_PARAM + 2));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(241.569, 214.296), module, Imperfect2::LENGTH_PARAM + 2));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(311.258, 214.296), module, Imperfect2::LENGTHSPREAD_PARAM + 2));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(346.103, 214.296), module, Imperfect2::DIVISION_PARAM + 2));
+
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(102.191, 284.296), module, Imperfect2::DELAY_PARAM + 3));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(171.88, 284.296), module, Imperfect2::DELAYSPREAD_PARAM + 3));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(241.569, 284.296), module, Imperfect2::LENGTH_PARAM + 3));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(311.258, 284.296), module, Imperfect2::LENGTHSPREAD_PARAM + 3));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(346.103, 284.296), module, Imperfect2::DIVISION_PARAM + 3));
+
+		addInput(createInputCentered<gui::AHPort>(Vec(32.503, 72.296), module, Imperfect2::TRIG_INPUT + 0));
+		addInput(createInputCentered<gui::AHPort>(Vec(67.347, 72.296), module, Imperfect2::DELAY_INPUT + 0));
+		addInput(createInputCentered<gui::AHPort>(Vec(137.036, 72.296), module, Imperfect2::DELAYSPREAD_INPUT + 0));
+		addInput(createInputCentered<gui::AHPort>(Vec(206.725, 72.296), module, Imperfect2::LENGTH_INPUT + 0));
+		addInput(createInputCentered<gui::AHPort>(Vec(276.414, 72.296), module, Imperfect2::LENGTHSPREAD_INPUT + 0));
+
+		addInput(createInputCentered<gui::AHPort>(Vec(32.503, 146.296), module, Imperfect2::TRIG_INPUT + 1));
+		addInput(createInputCentered<gui::AHPort>(Vec(67.347, 146.296), module, Imperfect2::DELAY_INPUT + 1));
+		addInput(createInputCentered<gui::AHPort>(Vec(137.036, 146.296), module, Imperfect2::DELAYSPREAD_INPUT + 1));
+		addInput(createInputCentered<gui::AHPort>(Vec(206.725, 146.296), module, Imperfect2::LENGTH_INPUT + 1));
+		addInput(createInputCentered<gui::AHPort>(Vec(276.414, 146.296), module, Imperfect2::LENGTHSPREAD_INPUT + 1));
+
+		addInput(createInputCentered<gui::AHPort>(Vec(32.503, 214.296), module, Imperfect2::TRIG_INPUT + 2));
+		addInput(createInputCentered<gui::AHPort>(Vec(67.347, 214.296), module, Imperfect2::DELAY_INPUT + 2));
+		addInput(createInputCentered<gui::AHPort>(Vec(137.036, 214.296), module, Imperfect2::DELAYSPREAD_INPUT + 2));
+		addInput(createInputCentered<gui::AHPort>(Vec(206.725, 214.296), module, Imperfect2::LENGTH_INPUT + 2));
+		addInput(createInputCentered<gui::AHPort>(Vec(276.414, 214.296), module, Imperfect2::LENGTHSPREAD_INPUT + 2));
+
+		addInput(createInputCentered<gui::AHPort>(Vec(32.503, 284.296), module, Imperfect2::TRIG_INPUT + 3));
+		addInput(createInputCentered<gui::AHPort>(Vec(67.347, 284.296), module, Imperfect2::DELAY_INPUT + 3));
+		addInput(createInputCentered<gui::AHPort>(Vec(137.036, 284.296), module, Imperfect2::DELAYSPREAD_INPUT + 3));
+		addInput(createInputCentered<gui::AHPort>(Vec(206.725, 284.296), module, Imperfect2::LENGTH_INPUT + 3));
+		addInput(createInputCentered<gui::AHPort>(Vec(276.414, 284.296), module, Imperfect2::LENGTHSPREAD_INPUT + 3));
+
+		addOutput(createOutputCentered<gui::AHPort>(Vec(419.275, 72.209), module, Imperfect2::OUT_OUTPUT + 0));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(419.275, 146.296), module, Imperfect2::OUT_OUTPUT + 1));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(419.275, 214.296), module, Imperfect2::OUT_OUTPUT + 2));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(419.275, 284.296), module, Imperfect2::OUT_OUTPUT + 3));
+
+		addChild(createLightCentered<MediumLight<RedLight>>(Vec(383.741, 72.296), module, Imperfect2::OUT_LIGHT + 0));
+		addChild(createLightCentered<MediumLight<RedLight>>(Vec(383.741, 146.296), module, Imperfect2::OUT_LIGHT + 1));
+		addChild(createLightCentered<MediumLight<RedLight>>(Vec(383.741, 214.296), module, Imperfect2::OUT_LIGHT + 2));
+		addChild(createLightCentered<MediumLight<RedLight>>(Vec(383.741, 284.296), module, Imperfect2::OUT_LIGHT + 3));
 
 		if (module != NULL) {
 

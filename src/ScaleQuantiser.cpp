@@ -109,11 +109,13 @@ struct ScaleQuantizerWidget : ModuleWidget {
 		setModule(module);
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/ScaleQuantizer.svg")));
 
-        addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 5, false, false), module, ScaleQuantizer::IN_INPUT));
-        addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 1, 5, false, false), module, ScaleQuantizer::KEY_INPUT));
-        addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 2, 5, false, false), module, ScaleQuantizer::SCALE_INPUT));
-        addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 3, 5, false, false), module, ScaleQuantizer::TRIG_OUTPUT));
-        addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 4, 5, false, false), module, ScaleQuantizer::OUT_OUTPUT));
+
+		addInput(createInputCentered<gui::AHPort>(Vec(31.293, 342.279), module, ScaleQuantizer::IN_INPUT));
+		addInput(createInputCentered<gui::AHPort>(Vec(76.127, 342.279), module, ScaleQuantizer::KEY_INPUT));
+		addInput(createInputCentered<gui::AHPort>(Vec(122.31, 342.279), module, ScaleQuantizer::SCALE_INPUT));
+
+		addOutput(createOutputCentered<gui::AHPort>(Vec(168.493, 342.279), module, ScaleQuantizer::TRIG_OUTPUT));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(214.675, 342.279), module, ScaleQuantizer::OUT_OUTPUT));
 
         float xOffset = 18.0;
         float xSpace = 21.0;
@@ -135,7 +137,7 @@ struct ScaleQuantizerWidget : ModuleWidget {
 
             gui::calculateKeyboard(i, 30.0, xOffset, 85.0, &xPos, &yPos, &scale);
 
-            addOutput(createOutput<PJ301MPort>(Vec(xPos, yPos), module, ScaleQuantizer::GATE_OUTPUT + scale));
+            addOutput(createOutput<gui::AHPort>(Vec(xPos, yPos), module, ScaleQuantizer::GATE_OUTPUT + scale));
         }
     }
 };

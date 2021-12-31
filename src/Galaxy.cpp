@@ -441,6 +441,8 @@ struct GalaxyWidget : ModuleWidget {
 		setModule(module);
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Galaxy.svg")));
 
+        addInput(createInput<gui::AHPort>(Vec(102, 140), module, Galaxy::MOVE_INPUT));
+
 		float div = (core::PI * 2) / (float)Galaxy::N_QUALITIES;
 		float div2 = (core::PI * 2) / (float)(Galaxy::N_QUALITIES * Galaxy::N_QUALITIES);
 
@@ -461,24 +463,22 @@ struct GalaxyWidget : ModuleWidget {
 			}
 
 		}
-		
-		for (int i = 0; i < 6; i++) {
-			addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, i, 5, true, false), module, Galaxy::PITCH_OUTPUT + i));
-		}	
 
-		addInput(createInput<PJ301MPort>(Vec(102, 140), module, Galaxy::MOVE_INPUT));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(219.355, 253.075), module, Galaxy::BAD_PARAM));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(81.659, 292.558), module, Galaxy::KEY_PARAM));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(206.276, 292.558), module, Galaxy::MODE_PARAM));
 
-		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 0, 4, true, false), module, Galaxy::KEY_PARAM)); 
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 1, 4, true, false), module, Galaxy::KEY_INPUT));
+		addInput(createInputCentered<gui::AHPort>(Vec(40.253, 292.558), module, Galaxy::KEY_INPUT));
+		addInput(createInputCentered<gui::AHPort>(Vec(164.87, 292.558), module, Galaxy::MODE_INPUT));
 
-		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 4, 4, true, false), module, Galaxy::MODE_PARAM)); 
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 5, 4, true, false), module, Galaxy::MODE_INPUT));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(30.588, 341.133), module, Galaxy::PITCH_OUTPUT + 0));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(67.123, 340.899), module, Galaxy::PITCH_OUTPUT + 1));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(103.659, 340.899), module, Galaxy::PITCH_OUTPUT + 2));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(140.194, 341.141), module, Galaxy::PITCH_OUTPUT + 3));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(176.729, 341.141), module, Galaxy::PITCH_OUTPUT + 4));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(213.265, 341.141), module, Galaxy::PITCH_OUTPUT + 5));
 
-		Vec p1 = gui::getPosition(gui::TRIMPOT, 5, 3, true, false, 15.0f, 25.0f);
-		addParam(createParam<gui::AHTrimpotNoSnap>(p1, module, Galaxy::BAD_PARAM)); 
-
-		Vec p2 = gui::getPosition(gui::TRIMPOT, 5, 3, true, false, 30.0f, 45.0f);
-		addChild(createLight<SmallLight<GreenRedLight>>(p2, module, Galaxy::BAD_LIGHT));
+        addChild(createLightCentered<SmallLight<GreenRedLight>>(Vec(233.746, 264.651), module, Galaxy::BAD_LIGHT));
 
 		if (module != NULL) {
 			GalaxyDisplay *displayW = createWidget<GalaxyDisplay>(Vec(0, 20));

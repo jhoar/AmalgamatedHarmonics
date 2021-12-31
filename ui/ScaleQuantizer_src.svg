@@ -1114,14 +1114,14 @@
      inkscape:pageshadow="2"
      inkscape:zoom="3.0763158"
      inkscape:cx="119.94867"
-     inkscape:cy="216.00513"
-     inkscape:current-layer="layer3"
+     inkscape:cy="242.01026"
+     inkscape:current-layer="layer4"
      showgrid="false"
      units="mm"
      inkscape:window-width="2112"
      inkscape:window-height="1361"
-     inkscape:window-x="1468"
-     inkscape:window-y="156"
+     inkscape:window-x="196"
+     inkscape:window-y="-14"
      inkscape:window-maximized="0"
      showguides="false"
      inkscape:guide-bbox="true"
@@ -1542,7 +1542,8 @@
      id="layer2"
      inkscape:label="Graficos"
      style="display:inline"
-     transform="translate(0.01175524,-74.386765)">
+     transform="translate(0.01175524,-74.386765)"
+     sodipodi:insensitive="true">
     <text
        id="text3165"
        y="325.65485"
@@ -2512,7 +2513,7 @@
     </g>
     <text
        xml:space="preserve"
-       style="display:inline;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.53334px;line-height:1.25;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:url(#linearGradient2986);fill-opacity:1;stroke:none;stroke-width:0.999999"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.53334px;line-height:1.25;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;display:inline;fill:url(#linearGradient2986);fill-opacity:1;stroke:none;stroke-width:0.999999"
        x="20.213505"
        y="323.13144"
        id="text37164"
@@ -2838,5 +2839,45 @@
         </g>
       </g>
     </g>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer4"
+     inkscape:label="components">
+    <circle
+       fill="#bababa"
+       cx="214.67528"
+       cy="342.2793"
+       r="10.75"
+       id="OUT_OUTPUT"
+       style="display:inline;fill:#0000ff;fill-opacity:1" />
+    <circle
+       fill="#bababa"
+       cx="168.49265"
+       cy="342.2793"
+       r="10.75"
+       id="TRIG_OUTPUT"
+       style="display:inline;fill:#0000ff;fill-opacity:1" />
+    <circle
+       fill="#bababa"
+       cx="31.292685"
+       cy="342.2793"
+       r="10.75"
+       id="IN_INPUT"
+       style="display:inline;fill:#00ff00;fill-opacity:1;stroke:none" />
+    <circle
+       fill="#bababa"
+       cx="122.31004"
+       cy="342.2793"
+       r="10.75"
+       id="SCALE_INPUT"
+       style="display:inline;fill:#00ff00;fill-opacity:1;stroke:none" />
+    <circle
+       fill="#bababa"
+       cx="76.12738"
+       cy="342.2793"
+       r="10.75"
+       id="KEY_INPUT"
+       style="display:inline;fill:#00ff00;fill-opacity:1;stroke:none" />
   </g>
 </svg>
