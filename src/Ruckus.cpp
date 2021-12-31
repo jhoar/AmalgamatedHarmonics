@@ -50,7 +50,7 @@ struct Ruckus : core::AHModule {
 
 			for (int x = 0; x < 4; x++) {
 				int i = y * 4 + x;
-				configParam(DIV_PARAM + i, 0, 64, 0, "Clock division");
+				configParam(DIV_PARAM + i, 0, 64, 0, "[" + std::to_string(x) + "," + std::to_string(y) + "] Clock division");
 
 				configParam(PROB_PARAM + i, 0.0f, 1.0f, 1.0f, "Clock-tick probability", "%", 0.0f, 100.0f);
 
@@ -278,62 +278,126 @@ struct RuckusWidget : ModuleWidget {
 		setModule(module);
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Ruckus.svg")));
 
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 10, 2, true, true), module, Ruckus::POLY_DIV_INPUT));
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 10, 4, true, true), module, Ruckus::POLY_PROB_INPUT));
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 10, 6, true, true), module, Ruckus::POLY_SHIFT_INPUT));
+		addParam(createParamCentered<gui::AHBigKnobSnap>(Vec(32.738, 44.488), module, Ruckus::DIV_PARAM + 0));
+		addParam(createParamCentered<gui::AHBigKnobSnap>(Vec(102.738, 44.488), module, Ruckus::DIV_PARAM + 1));
+		addParam(createParamCentered<gui::AHBigKnobSnap>(Vec(172.738, 44.488), module, Ruckus::DIV_PARAM + 2));
+		addParam(createParamCentered<gui::AHBigKnobSnap>(Vec(242.738, 44.488), module, Ruckus::DIV_PARAM + 3));
+		addParam(createParamCentered<gui::AHBigKnobSnap>(Vec(32.738, 113.176), module, Ruckus::DIV_PARAM + 4));
+		addParam(createParamCentered<gui::AHBigKnobSnap>(Vec(102.738, 113.176), module, Ruckus::DIV_PARAM + 5));
+		addParam(createParamCentered<gui::AHBigKnobSnap>(Vec(172.738, 113.176), module, Ruckus::DIV_PARAM + 6));
+		addParam(createParamCentered<gui::AHBigKnobSnap>(Vec(242.738, 113.176), module, Ruckus::DIV_PARAM + 7));
+		addParam(createParamCentered<gui::AHBigKnobSnap>(Vec(32.738, 181.683), module, Ruckus::DIV_PARAM + 8));
+		addParam(createParamCentered<gui::AHBigKnobSnap>(Vec(102.738, 181.683), module, Ruckus::DIV_PARAM + 9));
+		addParam(createParamCentered<gui::AHBigKnobSnap>(Vec(172.738, 181.683), module, Ruckus::DIV_PARAM + 10));
+		addParam(createParamCentered<gui::AHBigKnobSnap>(Vec(242.738, 181.683), module, Ruckus::DIV_PARAM + 11));
+		addParam(createParamCentered<gui::AHBigKnobSnap>(Vec(32.738, 252.313), module, Ruckus::DIV_PARAM + 12));
+		addParam(createParamCentered<gui::AHBigKnobSnap>(Vec(102.738, 252.313), module, Ruckus::DIV_PARAM + 13));
+		addParam(createParamCentered<gui::AHBigKnobSnap>(Vec(172.738, 252.313), module, Ruckus::DIV_PARAM + 14));
+		addParam(createParamCentered<gui::AHBigKnobSnap>(Vec(242.738, 252.313), module, Ruckus::DIV_PARAM + 15));
 
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 8, 8, true, true), module, Ruckus::TRIG_INPUT));
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 10, 8, true, true), module, Ruckus::RESET_INPUT));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(16.607, 72.488), module, Ruckus::SHIFT_PARAM + 0));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(86.607, 72.488), module, Ruckus::SHIFT_PARAM + 1));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(156.607, 72.488), module, Ruckus::SHIFT_PARAM + 2));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(226.607, 72.488), module, Ruckus::SHIFT_PARAM + 3));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(16.607, 141.176), module, Ruckus::SHIFT_PARAM + 4));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(86.607, 141.176), module, Ruckus::SHIFT_PARAM + 5));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(156.607, 141.176), module, Ruckus::SHIFT_PARAM + 6));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(226.607, 141.176), module, Ruckus::SHIFT_PARAM + 7));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(16.607, 209.683), module, Ruckus::SHIFT_PARAM + 8));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(86.607, 209.683), module, Ruckus::SHIFT_PARAM + 9));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(156.607, 209.683), module, Ruckus::SHIFT_PARAM + 10));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(226.607, 209.683), module, Ruckus::SHIFT_PARAM + 11));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(16.607, 280.313), module, Ruckus::SHIFT_PARAM + 12));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(86.607, 280.313), module, Ruckus::SHIFT_PARAM + 13));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(156.607, 280.313), module, Ruckus::SHIFT_PARAM + 14));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(226.607, 280.313), module, Ruckus::SHIFT_PARAM + 15));
 
-		float xd = 18.0f;
-		float yd = 20.0f;
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(48.868, 72.488), module, Ruckus::PROB_PARAM + 0));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(118.869, 72.488), module, Ruckus::PROB_PARAM + 1));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(188.869, 72.488), module, Ruckus::PROB_PARAM + 2));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(258.868, 72.488), module, Ruckus::PROB_PARAM + 3));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(48.868, 141.176), module, Ruckus::PROB_PARAM + 4));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(118.869, 141.176), module, Ruckus::PROB_PARAM + 5));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(188.869, 141.176), module, Ruckus::PROB_PARAM + 6));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(258.868, 141.176), module, Ruckus::PROB_PARAM + 7));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(48.868, 209.683), module, Ruckus::PROB_PARAM + 8));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(118.869, 209.683), module, Ruckus::PROB_PARAM + 9));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(188.869, 209.683), module, Ruckus::PROB_PARAM + 10));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(258.868, 209.683), module, Ruckus::PROB_PARAM + 11));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(48.868, 280.313), module, Ruckus::PROB_PARAM + 12));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(118.869, 280.313), module, Ruckus::PROB_PARAM + 13));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(188.869, 280.313), module, Ruckus::PROB_PARAM + 14));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(258.868, 280.313), module, Ruckus::PROB_PARAM + 15));
 
-		for (int y = 0; y < 4; y++) {
-			for (int x = 0; x < 4; x++) {
-				int i = y * 4 + x;
-				Vec v = gui::getPosition(gui::KNOB, x * 2, y * 2, true, true);
+		addParam(createParamCentered<gui::AHButton>(Vec(32.738, 305.683), module, Ruckus::XMUTE_PARAM + 0));
+		addParam(createParamCentered<gui::AHButton>(Vec(102.738, 305.683), module, Ruckus::XMUTE_PARAM + 1));
+		addParam(createParamCentered<gui::AHButton>(Vec(172.738, 305.683), module, Ruckus::XMUTE_PARAM + 2));
+		addParam(createParamCentered<gui::AHButton>(Vec(242.738, 305.683), module, Ruckus::XMUTE_PARAM + 3));
 
-				gui::AHKnobSnap *divW = createParam<gui::AHKnobSnap>(v, module, Ruckus::DIV_PARAM + i);
-				gui::AHParamWidget::set<gui::AHKnobSnap>(divW, Ruckus::DIV_TYPE, i);
-				addParam(divW);
+		addParam(createParamCentered<gui::AHButton>(Vec(290.804, 44.488), module, Ruckus::YMUTE_PARAM + 0));
+		addParam(createParamCentered<gui::AHButton>(Vec(290.804, 113.176), module, Ruckus::YMUTE_PARAM + 1));
+		addParam(createParamCentered<gui::AHButton>(Vec(290.804, 181.683), module, Ruckus::YMUTE_PARAM + 2));
+		addParam(createParamCentered<gui::AHButton>(Vec(290.804, 251.683), module, Ruckus::YMUTE_PARAM + 3));
 
-				gui::AHTrimpotNoSnap *probW = createParam<gui::AHTrimpotNoSnap>(Vec(v.x + xd, v.y + yd), module, Ruckus::PROB_PARAM + i);
-				gui::AHParamWidget::set<gui::AHTrimpotNoSnap>(probW, Ruckus::PROB_TYPE, i);
-				addParam(probW);
+		addInput(createInputCentered<gui::AHPort>(Vec(382.293, 62.155), module, Ruckus::POLY_DIV_INPUT));
+		addInput(createInputCentered<gui::AHPort>(Vec(382.293, 119.244), module, Ruckus::POLY_PROB_INPUT));
+		addInput(createInputCentered<gui::AHPort>(Vec(382.293, 176.332), module, Ruckus::POLY_SHIFT_INPUT));
+		addInput(createInputCentered<gui::AHPort>(Vec(382.293, 237.318), module, Ruckus::TRIG_INPUT));
+		addInput(createInputCentered<gui::AHPort>(Vec(382.293, 294.407), module, Ruckus::RESET_INPUT));
 
-				gui::AHTrimpotSnap *shiftW = createParam<gui::AHTrimpotSnap>(Vec(v.x - xd + 4, v.y + yd), module, Ruckus::SHIFT_PARAM + i);
-				gui::AHParamWidget::set<gui::AHTrimpotSnap>(shiftW, Ruckus::SHIFT_TYPE, i);
-				addParam(shiftW);
+		addOutput(createOutputCentered<gui::AHPort>(Vec(320.981, 44.579), module, Ruckus::YOUT_OUTPUT + 0));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(320.981, 113.267), module, Ruckus::YOUT_OUTPUT + 1));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(320.981, 181.774), module, Ruckus::YOUT_OUTPUT + 2));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(320.981, 251.774), module, Ruckus::YOUT_OUTPUT + 3));
 
-				addChild(createLight<MediumLight<GreenLight>>(Vec(v.x - xd + 5, v.y - yd + 12), module, Ruckus::ACTIVE_LIGHT + i));
-				addChild(createLight<MediumLight<RedLight>>(Vec(v.x + xd + 7, v.y - yd + 12), module, Ruckus::TRIG_LIGHT + i));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(32.738, 332.826), module, Ruckus::XOUT_OUTPUT + 0));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(102.738, 332.826), module, Ruckus::XOUT_OUTPUT + 1));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(172.738, 332.826), module, Ruckus::XOUT_OUTPUT + 2));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(242.738, 332.826), module, Ruckus::XOUT_OUTPUT + 3));
 
-			}
-		}
+		addChild(createLightCentered<SmallLight<RedLight>>(Vec(52.579, 30.329), module, Ruckus::TRIG_LIGHT + 0));
+		addChild(createLightCentered<SmallLight<RedLight>>(Vec(122.579, 30.329), module, Ruckus::TRIG_LIGHT + 1));
+		addChild(createLightCentered<SmallLight<RedLight>>(Vec(192.579, 30.329), module, Ruckus::TRIG_LIGHT + 2));
+		addChild(createLightCentered<SmallLight<RedLight>>(Vec(262.579, 30.329), module, Ruckus::TRIG_LIGHT + 3));
+		addChild(createLightCentered<SmallLight<RedLight>>(Vec(52.579, 99.017), module, Ruckus::TRIG_LIGHT + 4));
+		addChild(createLightCentered<SmallLight<RedLight>>(Vec(122.579, 99.017), module, Ruckus::TRIG_LIGHT + 5));
+		addChild(createLightCentered<SmallLight<RedLight>>(Vec(192.579, 99.017), module, Ruckus::TRIG_LIGHT + 6));
+		addChild(createLightCentered<SmallLight<RedLight>>(Vec(262.579, 99.017), module, Ruckus::TRIG_LIGHT + 7));
+		addChild(createLightCentered<SmallLight<RedLight>>(Vec(52.579, 167.524), module, Ruckus::TRIG_LIGHT + 8));
+		addChild(createLightCentered<SmallLight<RedLight>>(Vec(122.579, 167.524), module, Ruckus::TRIG_LIGHT + 9));
+		addChild(createLightCentered<SmallLight<RedLight>>(Vec(192.579, 167.524), module, Ruckus::TRIG_LIGHT + 10));
+		addChild(createLightCentered<SmallLight<RedLight>>(Vec(262.579, 167.524), module, Ruckus::TRIG_LIGHT + 11));
+		addChild(createLightCentered<SmallLight<RedLight>>(Vec(52.579, 238.155), module, Ruckus::TRIG_LIGHT + 12));
+		addChild(createLightCentered<SmallLight<RedLight>>(Vec(122.579, 238.155), module, Ruckus::TRIG_LIGHT + 13));
+		addChild(createLightCentered<SmallLight<RedLight>>(Vec(192.579, 238.155), module, Ruckus::TRIG_LIGHT + 14));
+		addChild(createLightCentered<SmallLight<RedLight>>(Vec(262.579, 238.155), module, Ruckus::TRIG_LIGHT + 15));
 
-		float d = 12.0f;
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(12.896, 30.329), module, Ruckus::ACTIVE_LIGHT + 0));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(82.897, 30.329), module, Ruckus::ACTIVE_LIGHT + 1));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(152.897, 30.329), module, Ruckus::ACTIVE_LIGHT + 2));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(222.896, 30.329), module, Ruckus::ACTIVE_LIGHT + 3));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(12.896, 99.017), module, Ruckus::ACTIVE_LIGHT + 4));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(82.897, 99.017), module, Ruckus::ACTIVE_LIGHT + 5));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(152.897, 99.017), module, Ruckus::ACTIVE_LIGHT + 6));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(222.896, 99.017), module, Ruckus::ACTIVE_LIGHT + 7));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(12.896, 167.524), module, Ruckus::ACTIVE_LIGHT + 8));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(82.897, 167.524), module, Ruckus::ACTIVE_LIGHT + 9));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(152.897, 167.524), module, Ruckus::ACTIVE_LIGHT + 10));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(222.896, 167.524), module, Ruckus::ACTIVE_LIGHT + 11));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(12.896, 238.155), module, Ruckus::ACTIVE_LIGHT + 12));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(82.897, 238.155), module, Ruckus::ACTIVE_LIGHT + 13));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(152.897, 238.155), module, Ruckus::ACTIVE_LIGHT + 14));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(222.896, 238.155), module, Ruckus::ACTIVE_LIGHT + 15));
 
-		for (int x = 0; x < 4; x++) {
-			addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, x * 2, 8, true, true), module, Ruckus::XOUT_OUTPUT + x));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(32.738, 305.683), module, Ruckus::XMUTE_LIGHT + 0));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(102.738, 305.683), module, Ruckus::XMUTE_LIGHT + 1));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(172.738, 305.683), module, Ruckus::XMUTE_LIGHT + 2));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(242.738, 305.683), module, Ruckus::XMUTE_LIGHT + 3));
 
-			Vec bVec = gui::getPosition(gui::BUTTON, x * 2, 7, true, true, 0.0, d);
-			addParam(createParam<gui::AHButton>(bVec, module, Ruckus::XMUTE_PARAM + x));
-
-			Vec lVec = gui::getPosition(gui::LIGHT, x * 2, 7, true, true, 0.0, d);
-			addChild(createLight<MediumLight<GreenLight>>(lVec, module, Ruckus::XMUTE_LIGHT + x));
-
-		}
-
-		for (int y = 0; y < 4; y++) {
-			addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT,8, y * 2, true, true), module, Ruckus::YOUT_OUTPUT + y));
-
-			Vec bVec = gui::getPosition(gui::BUTTON, 7, y * 2, true, true, d, 0.0f);
-			addParam(createParam<gui::AHButton>(bVec, module, Ruckus::YMUTE_PARAM + y));
-
-			Vec lVec = gui::getPosition(gui::LIGHT, 7, y * 2, true, true, d, 0.0f);
-			addChild(createLight<MediumLight<GreenLight>>(lVec, module, Ruckus::YMUTE_LIGHT + y));
-
-		}
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(290.804, 44.488), module, Ruckus::YMUTE_LIGHT + 0));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(290.804, 113.176), module, Ruckus::YMUTE_LIGHT + 1));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(290.804, 181.683), module, Ruckus::YMUTE_LIGHT + 2));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(290.804, 251.683), module, Ruckus::YMUTE_LIGHT + 3));
 
 		if (module != NULL) {
 			gui::StateDisplay *display = createWidget<gui::StateDisplay>(Vec(30, 335));

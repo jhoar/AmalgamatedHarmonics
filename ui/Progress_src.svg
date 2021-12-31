@@ -1697,14 +1697,14 @@
      inkscape:pageshadow="2"
      inkscape:zoom="2.5487179"
      inkscape:cx="195"
-     inkscape:cy="190.09557"
-     inkscape:current-layer="layer3"
+     inkscape:cy="190.09558"
+     inkscape:current-layer="layer4"
      showgrid="false"
      units="mm"
      inkscape:window-width="1692"
      inkscape:window-height="1247"
-     inkscape:window-x="1125"
-     inkscape:window-y="-5"
+     inkscape:window-x="-16"
+     inkscape:window-y="32"
      inkscape:window-maximized="0"
      showguides="false"
      inkscape:guide-bbox="true"
@@ -2090,7 +2090,8 @@
      id="layer2"
      inkscape:label="Graficos"
      style="display:inline"
-     transform="translate(0.01175524,-74.386765)">
+     transform="translate(0.01175524,-74.386765)"
+     sodipodi:insensitive="true">
     <path
        style="display:inline;fill:none;stroke:url(#linearGradient98769);stroke-width:1.03834;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:3.3;stroke-dasharray:1.03834, 1.03834;stroke-dashoffset:0;stroke-opacity:1"
        d="m 72.973802,170.15341 c -0.97825,-0.78903 8.333191,-9.69653 8.333191,-9.69653 l 0.240659,-13.92973 -9.17676,-9.67326"
@@ -2900,7 +2901,8 @@
      inkscape:groupmode="layer"
      id="layer3"
      inkscape:label="Knobs"
-     style="display:inline">
+     style="display:inline"
+     sodipodi:insensitive="true">
     <g
        id="g32961"
        transform="translate(57.66114,87.014525)"
@@ -4869,5 +4871,547 @@
          id="path17538"
          d="m 24.414202,193.10628 h -0.0447 c -0.80907,0 -1.46495,-0.65588 -1.46495,-1.46495 v -4.91961 c 0,-0.80907 0.65588,-1.46495 1.46495,-1.46495 h 0.0447 c 0.80907,0 1.46495,0.65588 1.46495,1.46495 v 4.91961 c 0,0.80907 -0.65589,1.46495 -1.46495,1.46495 z" />
     </g>
+    <g
+       id="g1934"
+       transform="translate(44.26942,88.864125)"
+       style="display:inline">
+      <path
+         style="fill:#161616"
+         inkscape:connector-curvature="0"
+         d="m 35.391702,193.10818 c 0,6.0751 -4.92294,10.99811 -10.99808,10.99811 -6.07515,0 -11.00192,-4.92299 -11.00192,-10.99811 0,-6.0789 4.92677,-11.00189 11.00192,-11.00189 6.0751,-1e-5 10.99808,4.92299 10.99808,11.00189"
+         id="path1928" />
+      <path
+         style="fill:#5a5a5a;fill-opacity:1"
+         inkscape:connector-curvature="0"
+         d="m 33.387262,193.10784 c 0,4.96809 -4.02588,8.99402 -8.99399,8.99402 -4.96812,0 -8.99713,-4.02592 -8.99713,-8.99402 0,-4.97119 4.02901,-8.99711 8.99713,-8.99711 4.96808,-1e-5 8.99399,4.02591 8.99399,8.99711"
+         id="path1930" />
+      <path
+         style="clip-rule:evenodd;fill:#dfdfdf;fill-rule:evenodd"
+         inkscape:connector-curvature="0"
+         id="path1932"
+         d="m 24.414202,193.10628 h -0.0447 c -0.80907,0 -1.46495,-0.65588 -1.46495,-1.46495 v -4.91961 c 0,-0.80907 0.65588,-1.46495 1.46495,-1.46495 h 0.0447 c 0.80907,0 1.46495,0.65588 1.46495,1.46495 v 4.91961 c 0,0.80907 -0.65589,1.46495 -1.46495,1.46495 z" />
+    </g>
+    <g
+       id="g1958"
+       transform="translate(44.26942,124.18062)"
+       style="display:inline">
+      <path
+         style="fill:#161616"
+         inkscape:connector-curvature="0"
+         d="m 35.391702,193.10818 c 0,6.0751 -4.92294,10.99811 -10.99808,10.99811 -6.07515,0 -11.00192,-4.92299 -11.00192,-10.99811 0,-6.0789 4.92677,-11.00189 11.00192,-11.00189 6.0751,-1e-5 10.99808,4.92299 10.99808,11.00189"
+         id="path1952" />
+      <path
+         style="fill:#5a5a5a;fill-opacity:1"
+         inkscape:connector-curvature="0"
+         d="m 33.387262,193.10784 c 0,4.96809 -4.02588,8.99402 -8.99399,8.99402 -4.96812,0 -8.99713,-4.02592 -8.99713,-8.99402 0,-4.97119 4.02901,-8.99711 8.99713,-8.99711 4.96808,-1e-5 8.99399,4.02591 8.99399,8.99711"
+         id="path1954" />
+      <path
+         style="clip-rule:evenodd;fill:#dfdfdf;fill-rule:evenodd"
+         inkscape:connector-curvature="0"
+         id="path1956"
+         d="m 24.414202,193.10628 h -0.0447 c -0.80907,0 -1.46495,-0.65588 -1.46495,-1.46495 v -4.91961 c 0,-0.80907 0.65588,-1.46495 1.46495,-1.46495 h 0.0447 c 0.80907,0 1.46495,0.65588 1.46495,1.46495 v 4.91961 c 0,0.80907 -0.65589,1.46495 -1.46495,1.46495 z" />
+    </g>
+    <g
+       id="g1966"
+       transform="translate(44.26942,124.18062)"
+       style="display:inline">
+      <path
+         style="fill:#161616"
+         inkscape:connector-curvature="0"
+         d="m 35.391702,193.10818 c 0,6.0751 -4.92294,10.99811 -10.99808,10.99811 -6.07515,0 -11.00192,-4.92299 -11.00192,-10.99811 0,-6.0789 4.92677,-11.00189 11.00192,-11.00189 6.0751,-1e-5 10.99808,4.92299 10.99808,11.00189"
+         id="path1960" />
+      <path
+         style="fill:#5a5a5a;fill-opacity:1"
+         inkscape:connector-curvature="0"
+         d="m 33.387262,193.10784 c 0,4.96809 -4.02588,8.99402 -8.99399,8.99402 -4.96812,0 -8.99713,-4.02592 -8.99713,-8.99402 0,-4.97119 4.02901,-8.99711 8.99713,-8.99711 4.96808,-1e-5 8.99399,4.02591 8.99399,8.99711"
+         id="path1962" />
+      <path
+         style="clip-rule:evenodd;fill:#dfdfdf;fill-rule:evenodd"
+         inkscape:connector-curvature="0"
+         id="path1964"
+         d="m 24.414202,193.10628 h -0.0447 c -0.80907,0 -1.46495,-0.65588 -1.46495,-1.46495 v -4.91961 c 0,-0.80907 0.65588,-1.46495 1.46495,-1.46495 h 0.0447 c 0.80907,0 1.46495,0.65588 1.46495,1.46495 v 4.91961 c 0,0.80907 -0.65589,1.46495 -1.46495,1.46495 z" />
+    </g>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer4"
+     inkscape:label="components"
+     style="display:inline">
+    <circle
+       fill="#bababa"
+       cx="68.661133"
+       cy="57.726799"
+       id="CLOCK_PARAM"
+       style="display:inline;fill:#ff0000;fill-opacity:1"
+       r="10.75" />
+    <circle
+       fill="#bababa"
+       cx="104.77357"
+       cy="57.726791"
+       id="RUN_PARAM"
+       style="display:inline;fill:#ff0000;fill-opacity:1"
+       r="10.75" />
+    <circle
+       fill="#bababa"
+       cx="139.56883"
+       cy="57.726791"
+       id="RESET_PARAM"
+       style="display:inline;fill:#ff0000;fill-opacity:1"
+       r="10.75" />
+    <circle
+       fill="#bababa"
+       cx="68.661125"
+       cy="211.33742"
+       id="ROOT_PARAM0"
+       style="display:inline;fill:#ff0000;fill-opacity:1"
+       r="10.75" />
+    <circle
+       fill="#bababa"
+       cx="104.77352"
+       cy="211.33742"
+       id="ROOT_PARAM1"
+       style="display:inline;fill:#ff0000;fill-opacity:1"
+       r="10.75" />
+    <circle
+       fill="#bababa"
+       cx="139.56882"
+       cy="211.33742"
+       id="ROOT_PARAM2"
+       style="display:inline;fill:#ff0000;fill-opacity:1"
+       r="10.75" />
+    <circle
+       fill="#bababa"
+       cx="174.86606"
+       cy="211.33742"
+       id="ROOT_PARAM3"
+       style="display:inline;fill:#ff0000;fill-opacity:1"
+       r="10.75" />
+    <circle
+       fill="#bababa"
+       cx="209.6817"
+       cy="211.33742"
+       id="ROOT_PARAM4"
+       style="display:inline;fill:#ff0000;fill-opacity:1"
+       r="10.75" />
+    <circle
+       fill="#bababa"
+       cx="244.66331"
+       cy="211.33742"
+       id="ROOT_PARAM5"
+       style="display:inline;fill:#ff0000;fill-opacity:1"
+       r="10.75" />
+    <circle
+       fill="#bababa"
+       cx="279.88239"
+       cy="211.33742"
+       id="ROOT_PARAM6"
+       style="display:inline;fill:#ff0000;fill-opacity:1"
+       r="10.75" />
+    <circle
+       fill="#bababa"
+       cx="314.66113"
+       cy="211.33742"
+       id="ROOT_PARAM7"
+       style="display:inline;fill:#ff0000;fill-opacity:1"
+       r="10.75" />
+    <circle
+       fill="#bababa"
+       cx="244.66333"
+       cy="57.632256"
+       r="10.75"
+       id="PITCH_OUTPUT0"
+       style="display:inline;fill:#0000ff;fill-opacity:1;stroke:none" />
+    <circle
+       fill="#bababa"
+       cx="68.661133"
+       cy="98.014496"
+       r="10.75"
+       id="CLOCK_INPUT"
+       style="display:inline;fill:#00ff00;fill-opacity:1;stroke:none" />
+    <circle
+       fill="#bababa"
+       cx="104.77351"
+       cy="98.014496"
+       r="10.75"
+       id="EXT_CLOCK_INPUT"
+       style="display:inline;fill:#00ff00;fill-opacity:1;stroke:none" />
+    <circle
+       fill="#bababa"
+       cx="139.5688"
+       cy="98.014496"
+       r="10.75"
+       id="RESET_INPUT"
+       style="display:inline;fill:#00ff00;fill-opacity:1;stroke:none" />
+    <circle
+       fill="#bababa"
+       cx="174.86607"
+       cy="98.014496"
+       r="10.75"
+       id="STEPS_INPUT"
+       style="display:inline;fill:#00ff00;fill-opacity:1;stroke:none" />
+    <circle
+       fill="#bababa"
+       cx="209.6817"
+       cy="98.014488"
+       r="10.75"
+       id="MODE_INPUT"
+       style="display:inline;fill:#00ff00;fill-opacity:1;stroke:none" />
+    <circle
+       fill="#bababa"
+       cx="209.6817"
+       cy="57.726795"
+       r="10.75"
+       id="KEY_INPUT"
+       style="display:inline;fill:#00ff00;fill-opacity:1;stroke:none" />
+    <circle
+       fill="#bababa"
+       cx="279.88239"
+       cy="57.632256"
+       r="10.75"
+       id="PITCH_OUTPUT1"
+       style="display:inline;fill:#0000ff;fill-opacity:1;stroke:none" />
+    <circle
+       fill="#bababa"
+       cx="314.08551"
+       cy="57.632256"
+       r="10.75"
+       id="PITCH_OUTPUT2"
+       style="display:inline;fill:#0000ff;fill-opacity:1;stroke:none" />
+    <circle
+       fill="#bababa"
+       cx="244.66333"
+       cy="97.919945"
+       r="10.75"
+       id="PITCH_OUTPUT3"
+       style="display:inline;fill:#0000ff;fill-opacity:1;stroke:none" />
+    <circle
+       fill="#bababa"
+       cx="279.88239"
+       cy="97.919945"
+       r="10.75"
+       id="PITCH_OUTPUT4"
+       style="display:inline;fill:#0000ff;fill-opacity:1;stroke:none" />
+    <circle
+       fill="#bababa"
+       cx="314.6022"
+       cy="97.919945"
+       r="10.75"
+       id="PITCH_OUTPUT5"
+       style="display:inline;fill:#0000ff;fill-opacity:1;stroke:none" />
+    <circle
+       fill="#bababa"
+       cx="68.661125"
+       cy="343.50089"
+       r="10.75"
+       id="GATE_OUTPUT0"
+       style="display:inline;fill:#0000ff;fill-opacity:1;stroke:none" />
+    <circle
+       fill="#bababa"
+       cx="104.77352"
+       cy="343.50089"
+       r="10.75"
+       id="GATE_OUTPUT1"
+       style="display:inline;fill:#0000ff;fill-opacity:1;stroke:none" />
+    <circle
+       fill="#bababa"
+       cx="139.56886"
+       cy="343.50089"
+       r="10.75"
+       id="GATE_OUTPUT2"
+       style="display:inline;fill:#0000ff;fill-opacity:1;stroke:none" />
+    <circle
+       fill="#bababa"
+       cx="174.8661"
+       cy="343.50089"
+       r="10.75"
+       id="GATE_OUTPUT3"
+       style="display:inline;fill:#0000ff;fill-opacity:1;stroke:none" />
+    <circle
+       fill="#bababa"
+       cx="209.68176"
+       cy="343.50089"
+       r="10.75"
+       id="GATE_OUTPUT4"
+       style="display:inline;fill:#0000ff;fill-opacity:1;stroke:none" />
+    <circle
+       fill="#bababa"
+       cx="244.66336"
+       cy="343.50089"
+       r="10.75"
+       id="GATE_OUTPUT5"
+       style="display:inline;fill:#0000ff;fill-opacity:1;stroke:none" />
+    <circle
+       fill="#bababa"
+       cx="279.88245"
+       cy="343.50089"
+       r="10.75"
+       id="GATE_OUTPUT6"
+       style="display:inline;fill:#0000ff;fill-opacity:1;stroke:none" />
+    <circle
+       fill="#bababa"
+       cx="314.60223"
+       cy="343.50089"
+       r="10.75"
+       id="GATE_OUTPUT7"
+       style="display:inline;fill:#0000ff;fill-opacity:1;stroke:none" />
+    <circle
+       fill="#bababa"
+       cx="358.66113"
+       cy="343.50089"
+       r="10.75"
+       id="GATES_OUTPUT"
+       style="display:inline;fill:#0000ff;fill-opacity:1;stroke:none" />
+    <circle
+       fill="#bababa"
+       cx="174.86606"
+       cy="57.726791"
+       id="STEPS_PARAM"
+       style="display:inline;fill:#ff0000;fill-opacity:1"
+       r="10.75" />
+    <circle
+       fill="#bababa"
+       cx="68.661125"
+       cy="246.65392"
+       id="CHORD_PARAM0"
+       style="display:inline;fill:#ff0000;fill-opacity:1"
+       r="10.75" />
+    <circle
+       fill="#bababa"
+       cx="104.77352"
+       cy="246.65392"
+       id="CHORD_PARAM1"
+       style="display:inline;fill:#ff0000;fill-opacity:1"
+       r="10.75" />
+    <circle
+       fill="#bababa"
+       cx="139.56882"
+       cy="246.65392"
+       id="CHORD_PARAM2"
+       style="display:inline;fill:#ff0000;fill-opacity:1"
+       r="10.75" />
+    <circle
+       fill="#bababa"
+       cx="174.86606"
+       cy="246.65392"
+       id="CHORD_PARAM3"
+       style="display:inline;fill:#ff0000;fill-opacity:1"
+       r="10.75" />
+    <circle
+       fill="#bababa"
+       cx="209.6817"
+       cy="246.65392"
+       id="CHORD_PARAM4"
+       style="display:inline;fill:#ff0000;fill-opacity:1"
+       r="10.75" />
+    <circle
+       fill="#bababa"
+       cx="244.66331"
+       cy="246.65392"
+       id="CHORD_PARAM5"
+       style="display:inline;fill:#ff0000;fill-opacity:1"
+       r="10.75" />
+    <circle
+       fill="#bababa"
+       cx="279.88239"
+       cy="246.65392"
+       id="CHORD_PARAM6"
+       style="display:inline;fill:#ff0000;fill-opacity:1"
+       r="10.75" />
+    <circle
+       fill="#bababa"
+       cx="314.66113"
+       cy="246.65392"
+       id="CHORD_PARAM7"
+       style="display:inline;fill:#ff0000;fill-opacity:1"
+       r="10.75" />
+    <circle
+       fill="#bababa"
+       cx="68.661125"
+       cy="281.97043"
+       id="INV_PARAM0"
+       style="display:inline;fill:#ff0000;fill-opacity:1"
+       r="10.75" />
+    <circle
+       fill="#bababa"
+       cx="104.77352"
+       cy="281.97043"
+       id="INV_PARAM1"
+       style="display:inline;fill:#ff0000;fill-opacity:1"
+       r="10.75" />
+    <circle
+       fill="#bababa"
+       cx="139.56882"
+       cy="281.97043"
+       id="INV_PARAM2"
+       style="display:inline;fill:#ff0000;fill-opacity:1"
+       r="10.75" />
+    <circle
+       fill="#bababa"
+       cx="174.86606"
+       cy="281.97043"
+       id="INV_PARAM3"
+       style="display:inline;fill:#ff0000;fill-opacity:1"
+       r="10.75" />
+    <circle
+       fill="#bababa"
+       cx="209.6817"
+       cy="281.97043"
+       id="INV_PARAM4"
+       style="display:inline;fill:#ff0000;fill-opacity:1"
+       r="10.75" />
+    <circle
+       fill="#bababa"
+       cx="244.66331"
+       cy="281.97043"
+       id="INV_PARAM5"
+       style="display:inline;fill:#ff0000;fill-opacity:1"
+       r="10.75" />
+    <circle
+       fill="#bababa"
+       cx="279.88239"
+       cy="281.97043"
+       id="INV_PARAM6"
+       style="display:inline;fill:#ff0000;fill-opacity:1"
+       r="10.75" />
+    <circle
+       fill="#bababa"
+       cx="314.66113"
+       cy="281.97043"
+       id="INV_PARAM7"
+       style="display:inline;fill:#ff0000;fill-opacity:1"
+       r="10.75" />
+    <circle
+       fill="#bababa"
+       cx="68.661125"
+       cy="317.28693"
+       id="GATE_PARAM0"
+       style="display:inline;fill:#ff0000;fill-opacity:1"
+       r="10.75" />
+    <circle
+       fill="#bababa"
+       cx="104.77352"
+       cy="317.28693"
+       id="GATE_PARAM1"
+       style="display:inline;fill:#ff0000;fill-opacity:1"
+       r="10.75" />
+    <circle
+       fill="#bababa"
+       cx="139.56882"
+       cy="317.28693"
+       id="GATE_PARAM2"
+       style="display:inline;fill:#ff0000;fill-opacity:1"
+       r="10.75" />
+    <circle
+       fill="#bababa"
+       cx="174.86606"
+       cy="317.28693"
+       id="GATE_PARAM3"
+       style="display:inline;fill:#ff0000;fill-opacity:1"
+       r="10.75" />
+    <circle
+       fill="#bababa"
+       cx="209.6817"
+       cy="317.28693"
+       id="GATE_PARAM4"
+       style="display:inline;fill:#ff0000;fill-opacity:1"
+       r="10.75" />
+    <circle
+       fill="#bababa"
+       cx="244.66331"
+       cy="317.28693"
+       id="GATE_PARAM5"
+       style="display:inline;fill:#ff0000;fill-opacity:1"
+       r="10.75" />
+    <circle
+       fill="#bababa"
+       cx="279.88239"
+       cy="317.28693"
+       id="GATE_PARAM6"
+       style="display:inline;fill:#ff0000;fill-opacity:1"
+       r="10.75" />
+    <circle
+       fill="#bababa"
+       cx="314.66113"
+       cy="317.28693"
+       id="GATE_PARAM7"
+       style="display:inline;fill:#ff0000;fill-opacity:1"
+       r="10.75" />
+    <circle
+       fill="#bababa"
+       cx="104.77352"
+       cy="317.28693"
+       id="GATE_LIGHTS1"
+       style="display:inline;fill:#ff00ff;fill-opacity:1;stroke-width:0.264312"
+       r="2.8413517" />
+    <circle
+       fill="#bababa"
+       cx="139.56882"
+       cy="317.28693"
+       id="GATE_LIGHTS2"
+       style="display:inline;fill:#ff00ff;fill-opacity:1;stroke-width:0.264312"
+       r="2.8413517" />
+    <circle
+       fill="#bababa"
+       cx="209.6817"
+       cy="317.28693"
+       id="GATE_LIGHTS4"
+       style="display:inline;fill:#ff00ff;fill-opacity:1;stroke-width:0.264312"
+       r="2.8413517" />
+    <circle
+       fill="#bababa"
+       cx="174.86606"
+       cy="317.28693"
+       id="GATE_LIGHTS3"
+       style="display:inline;fill:#ff00ff;fill-opacity:1;stroke-width:0.264312"
+       r="2.8413517" />
+    <circle
+       fill="#bababa"
+       cx="244.66331"
+       cy="317.28693"
+       id="GATE_LIGHTS5"
+       style="display:inline;fill:#ff00ff;fill-opacity:1;stroke-width:0.264312"
+       r="2.8413517" />
+    <circle
+       fill="#bababa"
+       cx="279.88239"
+       cy="317.28693"
+       id="GATE_LIGHTS6"
+       style="display:inline;fill:#ff00ff;fill-opacity:1;stroke-width:0.264312"
+       r="2.8413517" />
+    <circle
+       fill="#bababa"
+       cx="314.66113"
+       cy="317.28693"
+       id="GATE_LIGHTS7"
+       style="display:inline;fill:#ff00ff;fill-opacity:1;stroke-width:0.264312"
+       r="2.8413517" />
+    <circle
+       fill="#bababa"
+       cx="68.661125"
+       cy="317.28693"
+       id="GATE_LIGHTS0"
+       style="display:inline;fill:#ff00ff;fill-opacity:1;stroke-width:0.264312"
+       r="2.8413517" />
+    <circle
+       fill="#bababa"
+       cx="30.070522"
+       cy="343.50089"
+       id="GATES_LIGHT"
+       style="display:inline;fill:#ff00ff;fill-opacity:1;stroke-width:0.264312"
+       r="2.8413517" />
+    <circle
+       fill="#bababa"
+       cx="104.77357"
+       cy="57.726791"
+       id="RUNNING_LIGHT"
+       style="display:inline;fill:#ff00ff;fill-opacity:1;stroke-width:0.264312"
+       r="2.8413517" />
+    <circle
+       fill="#bababa"
+       cx="139.56883"
+       cy="57.726791"
+       id="RESET_LIGHT"
+       style="display:inline;fill:#ff00ff;fill-opacity:1;stroke-width:0.264312"
+       r="2.8413517" />
   </g>
 </svg>

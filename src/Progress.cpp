@@ -468,50 +468,85 @@ struct ProgressWidget : ModuleWidget {
 		setModule(module);
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Progress.svg")));
 
-		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 0, 0, true, false), module, Progress::CLOCK_PARAM));
-		addParam(createParam<gui::AHButton>(gui::getPosition(gui::BUTTON, 1, 0, true, false), module, Progress::RUN_PARAM));
-		addChild(createLight<MediumLight<GreenLight>>(gui::getPosition(gui::LIGHT, 1, 0, true, false), module, Progress::RUNNING_LIGHT));
-		addParam(createParam<gui::AHButton>(gui::getPosition(gui::BUTTON, 2, 0, true, false), module, Progress::RESET_PARAM));
-		addChild(createLight<MediumLight<GreenLight>>(gui::getPosition(gui::LIGHT, 2, 0, true, false), module, Progress::RESET_LIGHT));
-		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 3, 0, true, false), module, Progress::STEPS_PARAM));
-		addChild(createLight<MediumLight<GreenLight>>(gui::getPosition(gui::LIGHT, 4, 0, true, false), module, Progress::GATES_LIGHT));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(68.661, 57.727), module, Progress::CLOCK_PARAM));
+		addParam(createParamCentered<gui::AHButton>(Vec(104.774, 57.727), module, Progress::RUN_PARAM));
+		addParam(createParamCentered<gui::AHButton>(Vec(139.569, 57.727), module, Progress::RESET_PARAM));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(174.866, 57.727), module, Progress::STEPS_PARAM));
 
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 1, true, false), module, Progress::CLOCK_INPUT));
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 1, 1, true, false), module, Progress::EXT_CLOCK_INPUT));
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 2, 1, true, false), module, Progress::RESET_INPUT));
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 3, 1, true, false), module, Progress::STEPS_INPUT));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(68.661, 211.337), module, Progress::ROOT_PARAM + 0));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(104.774, 211.337), module, Progress::ROOT_PARAM + 1));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(139.569, 211.337), module, Progress::ROOT_PARAM + 2));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(174.866, 211.337), module, Progress::ROOT_PARAM + 3));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(209.682, 211.337), module, Progress::ROOT_PARAM + 4));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(244.663, 211.337), module, Progress::ROOT_PARAM + 5));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(279.882, 211.337), module, Progress::ROOT_PARAM + 6));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(314.661, 211.337), module, Progress::ROOT_PARAM + 7));
 
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 4, 1, true, false), module, Progress::KEY_INPUT));
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 5, 1, true, false), module, Progress::MODE_INPUT));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(68.661, 246.654), module, Progress::CHORD_PARAM + 0));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(104.774, 246.654), module, Progress::CHORD_PARAM + 1));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(139.569, 246.654), module, Progress::CHORD_PARAM + 2));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(174.866, 246.654), module, Progress::CHORD_PARAM + 3));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(209.682, 246.654), module, Progress::CHORD_PARAM + 4));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(244.663, 246.654), module, Progress::CHORD_PARAM + 5));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(279.882, 246.654), module, Progress::CHORD_PARAM + 6));
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(314.661, 246.654), module, Progress::CHORD_PARAM + 7));
 
-		for (int i = 0; i < 3; i++) {
-			addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 7 + i, 0, true, false), module, Progress::PITCH_OUTPUT + i));
-		}	
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(68.661, 281.97), module, Progress::INV_PARAM + 0));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(104.774, 281.97), module, Progress::INV_PARAM + 1));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(139.569, 281.97), module, Progress::INV_PARAM + 2));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(174.866, 281.97), module, Progress::INV_PARAM + 3));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(209.682, 281.97), module, Progress::INV_PARAM + 4));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(244.663, 281.97), module, Progress::INV_PARAM + 5));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(279.882, 281.97), module, Progress::INV_PARAM + 6));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(314.661, 281.97), module, Progress::INV_PARAM + 7));
 
-		for (int i = 0; i < 3; i++) {
-			addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 7 + i, 1, true, false), module, Progress::PITCH_OUTPUT + 3 + i));
-		}
+		addParam(createParamCentered<gui::AHButton>(Vec(68.661, 317.287), module, Progress::GATE_PARAM + 0));
+		addParam(createParamCentered<gui::AHButton>(Vec(104.774, 317.287), module, Progress::GATE_PARAM + 1));
+		addParam(createParamCentered<gui::AHButton>(Vec(139.569, 317.287), module, Progress::GATE_PARAM + 2));
+		addParam(createParamCentered<gui::AHButton>(Vec(174.866, 317.287), module, Progress::GATE_PARAM + 3));
+		addParam(createParamCentered<gui::AHButton>(Vec(209.682, 317.287), module, Progress::GATE_PARAM + 4));
+		addParam(createParamCentered<gui::AHButton>(Vec(244.663, 317.287), module, Progress::GATE_PARAM + 5));
+		addParam(createParamCentered<gui::AHButton>(Vec(279.882, 317.287), module, Progress::GATE_PARAM + 6));
+		addParam(createParamCentered<gui::AHButton>(Vec(314.661, 317.287), module, Progress::GATE_PARAM + 7));
 
-		for (int i = 0; i < 8; i++) {
-			gui::AHKnobNoSnap *rootW = createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, i + 1, 4, true, true), module, Progress::ROOT_PARAM + i);
-			gui::AHParamWidget::set<gui::AHKnobNoSnap>(rootW, Progress::ROOT_TYPE, i);
-			addParam(rootW);
+		addInput(createInputCentered<gui::AHPort>(Vec(209.682, 57.727), module, Progress::KEY_INPUT));
+		addInput(createInputCentered<gui::AHPort>(Vec(68.661, 98.014), module, Progress::CLOCK_INPUT));
+		addInput(createInputCentered<gui::AHPort>(Vec(104.774, 98.014), module, Progress::EXT_CLOCK_INPUT));
+		addInput(createInputCentered<gui::AHPort>(Vec(139.569, 98.014), module, Progress::RESET_INPUT));
+		addInput(createInputCentered<gui::AHPort>(Vec(174.866, 98.014), module, Progress::STEPS_INPUT));
+		addInput(createInputCentered<gui::AHPort>(Vec(209.682, 98.014), module, Progress::MODE_INPUT));
 
-			gui::AHKnobNoSnap *chordW = createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, i + 1, 5, true, true), module, Progress::CHORD_PARAM + i);
-			gui::AHParamWidget::set<gui::AHKnobNoSnap>(chordW, Progress::CHORD_TYPE, i);
-			addParam(chordW);
+		addOutput(createOutputCentered<gui::AHPort>(Vec(244.663, 57.632), module, Progress::PITCH_OUTPUT + 0));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(279.882, 57.632), module, Progress::PITCH_OUTPUT + 1));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(314.086, 57.632), module, Progress::PITCH_OUTPUT + 2));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(244.663, 97.92), module, Progress::PITCH_OUTPUT + 3));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(279.882, 97.92), module, Progress::PITCH_OUTPUT + 4));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(314.602, 97.92), module, Progress::PITCH_OUTPUT + 5));
 
-			gui::AHKnobSnap *invW = createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, i + 1, 6, true, true), module, Progress::INV_PARAM + i);
-			gui::AHParamWidget::set<gui::AHKnobSnap>(invW, Progress::INV_TYPE, i);
-			addParam(invW);
+		addOutput(createOutputCentered<gui::AHPort>(Vec(68.661, 343.501), module, Progress::GATE_OUTPUT + 0));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(104.774, 343.501), module, Progress::GATE_OUTPUT + 1));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(139.569, 343.501), module, Progress::GATE_OUTPUT + 2));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(174.866, 343.501), module, Progress::GATE_OUTPUT + 3));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(209.682, 343.501), module, Progress::GATE_OUTPUT + 4));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(244.663, 343.501), module, Progress::GATE_OUTPUT + 5));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(279.882, 343.501), module, Progress::GATE_OUTPUT + 6));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(314.602, 343.501), module, Progress::GATE_OUTPUT + 7));
 
-			addParam(createParam<gui::AHButton>(gui::getPosition(gui::BUTTON, i + 1, 7, true, true), module, Progress::GATE_PARAM + i));
-			addChild(createLight<MediumLight<GreenRedLight>>(gui::getPosition(gui::LIGHT, i + 1, 7, true, true), module, Progress::GATE_LIGHTS + i * 2));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(358.661, 343.501), module, Progress::GATES_OUTPUT));
 
-			addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, i + 1, 5, true, false), module, Progress::GATE_OUTPUT + i));
-		}
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(104.774, 57.727), module, Progress::RUNNING_LIGHT));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(139.569, 57.727), module, Progress::RESET_LIGHT));
 
-		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 9, 5, true, false), module, Progress::GATES_OUTPUT));
+		addChild(createLightCentered<SmallLight<GreenRedLight>>(Vec(68.661, 317.287), module, Progress::GATE_LIGHTS + 0));
+		addChild(createLightCentered<SmallLight<GreenRedLight>>(Vec(104.774, 317.287), module, Progress::GATE_LIGHTS + 2));
+		addChild(createLightCentered<SmallLight<GreenRedLight>>(Vec(139.569, 317.287), module, Progress::GATE_LIGHTS + 4));
+		addChild(createLightCentered<SmallLight<GreenRedLight>>(Vec(174.866, 317.287), module, Progress::GATE_LIGHTS + 6));
+		addChild(createLightCentered<SmallLight<GreenRedLight>>(Vec(209.682, 317.287), module, Progress::GATE_LIGHTS + 8));
+		addChild(createLightCentered<SmallLight<GreenRedLight>>(Vec(244.663, 317.287), module, Progress::GATE_LIGHTS + 10));
+		addChild(createLightCentered<SmallLight<GreenRedLight>>(Vec(279.882, 317.287), module, Progress::GATE_LIGHTS + 12));
+		addChild(createLightCentered<SmallLight<GreenRedLight>>(Vec(314.661, 317.287), module, Progress::GATE_LIGHTS + 14));
+
+		addChild(createLightCentered<MediumLight<RedLight>>(Vec(30.071, 343.501), module, Progress::GATES_LIGHT));
 
 		if (module != NULL) {
 			gui::StateDisplay *display = createWidget<gui::StateDisplay>(Vec(0, 135));

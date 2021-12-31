@@ -315,44 +315,99 @@ struct Progress2Widget : ModuleWidget {
 		setModule(module);
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Progress2.svg")));
 
-		addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 0, 0, true, false), module, Progress2::CLOCK_PARAM));
-		addParam(createParam<gui::AHButton>(gui::getPosition(gui::BUTTON, 1, 0, true, false), module, Progress2::RUN_PARAM));
-		addChild(createLight<MediumLight<GreenLight>>(gui::getPosition(gui::LIGHT, 1, 0, true, false), module, Progress2::RUNNING_LIGHT));
-		addParam(createParam<gui::AHButton>(gui::getPosition(gui::BUTTON, 2, 0, true, false), module, Progress2::RESET_PARAM));
-		addChild(createLight<MediumLight<GreenLight>>(gui::getPosition(gui::LIGHT, 2, 0, true, false), module, Progress2::RESET_LIGHT));
-		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 3, 0, true, false), module, Progress2::STEPS_PARAM));
+		
+		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(31.755, 57.727), module, Progress2::CLOCK_PARAM));
+		addParam(createParamCentered<gui::AHButton>(Vec(67.49, 57.727), module, Progress2::RUN_PARAM));
+		addParam(createParamCentered<gui::AHButton>(Vec(101.583, 57.727), module, Progress2::RESET_PARAM));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(136.583, 57.727), module, Progress2::STEPS_PARAM));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(171.696, 57.727), module, Progress2::KEY_PARAM));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(206.696, 57.727), module, Progress2::MODE_PARAM));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(241.696, 57.644), module, Progress2::PART_PARAM));
+		addParam(createParamCentered<gui::AHKnobSnap>(Vec(277.492, 97.931), module, Progress2::COPYSRC_PARAM));
+		addParam(createParamCentered<gui::AHButton>(Vec(312.495, 97.931), module, Progress2::COPYBTN_PARAM));
 
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 1, true, false), module, Progress2::CLOCK_INPUT));
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 1, 1, true, false), module, Progress2::EXT_CLOCK_INPUT));
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 2, 1, true, false), module, Progress2::RESET_INPUT));
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 3, 1, true, false), module, Progress2::STEPS_INPUT));
+		addParam(createParamCentered<gui::AHButton>(Vec(68.661, 319.431), module, Progress2::GATE_PARAM + 0));
+		addParam(createParamCentered<gui::AHButton>(Vec(104.774, 319.431), module, Progress2::GATE_PARAM + 1));
+		addParam(createParamCentered<gui::AHButton>(Vec(139.569, 319.431), module, Progress2::GATE_PARAM + 2));
+		addParam(createParamCentered<gui::AHButton>(Vec(174.866, 319.431), module, Progress2::GATE_PARAM + 3));
+		addParam(createParamCentered<gui::AHButton>(Vec(209.682, 319.431), module, Progress2::GATE_PARAM + 4));
+		addParam(createParamCentered<gui::AHButton>(Vec(244.664, 319.431), module, Progress2::GATE_PARAM + 5));
+		addParam(createParamCentered<gui::AHButton>(Vec(279.883, 319.431), module, Progress2::GATE_PARAM + 6));
+		addParam(createParamCentered<gui::AHButton>(Vec(314.603, 319.431), module, Progress2::GATE_PARAM + 7));
 
-		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 4, 0, true, false), module, Progress2::KEY_PARAM));
-		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 5, 0, true, false), module, Progress2::MODE_PARAM));
-		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 6, 0, true, false), module, Progress2::PART_PARAM));
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 4, 1, true, false), module, Progress2::KEY_INPUT));
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 5, 1, true, false), module, Progress2::MODE_INPUT));
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 6, 1, true, false), module, Progress2::PART_INPUT));
+		addInput(createInputCentered<gui::AHPort>(Vec(241.696, 97.931), module, Progress2::PART_INPUT));
+		addInput(createInputCentered<gui::AHPort>(Vec(31.755, 98.015), module, Progress2::CLOCK_INPUT));
+		addInput(createInputCentered<gui::AHPort>(Vec(67.49, 98.015), module, Progress2::EXT_CLOCK_INPUT));
+		addInput(createInputCentered<gui::AHPort>(Vec(101.583, 98.015), module, Progress2::RESET_INPUT));
+		addInput(createInputCentered<gui::AHPort>(Vec(136.583, 98.015), module, Progress2::STEPS_INPUT));
+		addInput(createInputCentered<gui::AHPort>(Vec(171.696, 98.015), module, Progress2::KEY_INPUT));
+		addInput(createInputCentered<gui::AHPort>(Vec(206.696, 98.015), module, Progress2::MODE_INPUT));
+		addInput(createInputCentered<gui::AHPort>(Vec(29.184, 345.74), module, Progress2::STEP_INPUT));
 
-		addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 7, 1, true, false), module, Progress2::COPYSRC_PARAM));
-		addParam(createParam<gui::AHButton>(gui::getPosition(gui::BUTTON, 8, 1, true, false), module, Progress2::COPYBTN_PARAM));
-		addChild(createLight<MediumLight<GreenLight>>(gui::getPosition(gui::LIGHT, 8, 1, true, false), module, Progress2::COPYBTN_LIGHT));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(277.492, 64.126), module, Progress2::GATES_OUTPUT));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(312.495, 65.18), module, Progress2::PITCH_OUTPUT));
 
-		Vec XLightPos;
-		XLightPos.x = 261;
-		XLightPos.y = 70;
+		addOutput(createOutputCentered<gui::AHPort>(Vec(68.411, 345.645), module, Progress2::GATE_OUTPUT + 0));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(104.524, 345.645), module, Progress2::GATE_OUTPUT + 1));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(139.319, 345.645), module, Progress2::GATE_OUTPUT + 2));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(174.616, 345.645), module, Progress2::GATE_OUTPUT + 3));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(209.432, 345.645), module, Progress2::GATE_OUTPUT + 4));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(244.414, 345.645), module, Progress2::GATE_OUTPUT + 5));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(279.633, 345.645), module, Progress2::GATE_OUTPUT + 6));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(314.353, 345.645), module, Progress2::GATE_OUTPUT + 7));
 
-		addChild(createLight<SmallLight<GreenLight>>(XLightPos, module, Progress2::GATES_LIGHT));
-		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 7, 0, true, false), module, Progress2::GATES_OUTPUT));
-		addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, 8, 0, true, false), module, Progress2::PITCH_OUTPUT));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(265.124, 51.94), module, Progress2::GATES_LIGHT));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(67.49, 57.727), module, Progress2::RUNNING_LIGHT));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(101.583, 57.727), module, Progress2::RESET_LIGHT));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(312.495, 97.931), module, Progress2::COPYBTN_LIGHT));
 
-		addInput(createInput<PJ301MPort>(gui::getPosition(gui::PORT, 0, 5, true, false), module, Progress2::STEP_INPUT));
+		addChild(createLightCentered<SmallLight<GreenRedLight>>(Vec(68.661, 319.431), module, Progress2::GATE_LIGHTS + 0));
+		addChild(createLightCentered<SmallLight<GreenRedLight>>(Vec(104.774, 319.431), module, Progress2::GATE_LIGHTS + 2));
+		addChild(createLightCentered<SmallLight<GreenRedLight>>(Vec(139.569, 319.431), module, Progress2::GATE_LIGHTS + 4));
+		addChild(createLightCentered<SmallLight<GreenRedLight>>(Vec(174.866, 319.431), module, Progress2::GATE_LIGHTS + 6));
+		addChild(createLightCentered<SmallLight<GreenRedLight>>(Vec(209.682, 319.431), module, Progress2::GATE_LIGHTS + 8));
+		addChild(createLightCentered<SmallLight<GreenRedLight>>(Vec(244.664, 319.431), module, Progress2::GATE_LIGHTS + 10));
+		addChild(createLightCentered<SmallLight<GreenRedLight>>(Vec(279.883, 319.431), module, Progress2::GATE_LIGHTS + 12));
+		addChild(createLightCentered<SmallLight<GreenRedLight>>(Vec(314.603, 319.431), module, Progress2::GATE_LIGHTS + 14));
 
-		for (int i = 0; i < 8; i++) {
-			addParam(createParam<gui::AHButton>(gui::getPosition(gui::BUTTON, i + 1, 8, true, true, 0.0f, -4.0f), module, Progress2::GATE_PARAM + i));
-			addChild(createLight<MediumLight<GreenRedLight>>(gui::getPosition(gui::LIGHT, i + 1, 8, true, true, 0.0f, -4.0f), module, Progress2::GATE_LIGHTS + i * 2));
-			addOutput(createOutput<PJ301MPort>(gui::getPosition(gui::PORT, i + 1, 5, true, false), module, Progress2::GATE_OUTPUT + i));
-		}
+		// addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 0, 0, true, false), module, Progress2::CLOCK_PARAM));
+		// addParam(createParam<gui::AHButton>(gui::getPosition(gui::BUTTON, 1, 0, true, false), module, Progress2::RUN_PARAM));
+		// addChild(createLight<MediumLight<GreenLight>>(gui::getPosition(gui::LIGHT, 1, 0, true, false), module, Progress2::RUNNING_LIGHT));
+		// addParam(createParam<gui::AHButton>(gui::getPosition(gui::BUTTON, 2, 0, true, false), module, Progress2::RESET_PARAM));
+		// addChild(createLight<MediumLight<GreenLight>>(gui::getPosition(gui::LIGHT, 2, 0, true, false), module, Progress2::RESET_LIGHT));
+		// addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 3, 0, true, false), module, Progress2::STEPS_PARAM));
+
+		// addInput(createInput<gui::AHPort>(gui::getPosition(gui::PORT, 0, 1, true, false), module, Progress2::CLOCK_INPUT));
+		// addInput(createInput<gui::AHPort>(gui::getPosition(gui::PORT, 1, 1, true, false), module, Progress2::EXT_CLOCK_INPUT));
+		// addInput(createInput<gui::AHPort>(gui::getPosition(gui::PORT, 2, 1, true, false), module, Progress2::RESET_INPUT));
+		// addInput(createInput<gui::AHPort>(gui::getPosition(gui::PORT, 3, 1, true, false), module, Progress2::STEPS_INPUT));
+
+		// addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 4, 0, true, false), module, Progress2::KEY_PARAM));
+		// addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 5, 0, true, false), module, Progress2::MODE_PARAM));
+		// addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 6, 0, true, false), module, Progress2::PART_PARAM));
+		// addInput(createInput<gui::AHPort>(gui::getPosition(gui::PORT, 4, 1, true, false), module, Progress2::KEY_INPUT));
+		// addInput(createInput<gui::AHPort>(gui::getPosition(gui::PORT, 5, 1, true, false), module, Progress2::MODE_INPUT));
+		// addInput(createInput<gui::AHPort>(gui::getPosition(gui::PORT, 6, 1, true, false), module, Progress2::PART_INPUT));
+
+		// addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 7, 1, true, false), module, Progress2::COPYSRC_PARAM));
+		// addParam(createParam<gui::AHButton>(gui::getPosition(gui::BUTTON, 8, 1, true, false), module, Progress2::COPYBTN_PARAM));
+		// addChild(createLight<MediumLight<GreenLight>>(gui::getPosition(gui::LIGHT, 8, 1, true, false), module, Progress2::COPYBTN_LIGHT));
+
+		// Vec XLightPos;
+		// XLightPos.x = 261;
+		// XLightPos.y = 70;
+
+		// addChild(createLight<SmallLight<GreenLight>>(XLightPos, module, Progress2::GATES_LIGHT));
+		// addOutput(createOutput<gui::AHPort>(gui::getPosition(gui::PORT, 7, 0, true, false), module, Progress2::GATES_OUTPUT));
+		// addOutput(createOutput<gui::AHPort>(gui::getPosition(gui::PORT, 8, 0, true, false), module, Progress2::PITCH_OUTPUT));
+
+		// addInput(createInput<gui::AHPort>(gui::getPosition(gui::PORT, 0, 5, true, false), module, Progress2::STEP_INPUT));
+
+		// for (int i = 0; i < 8; i++) {
+		// 	addParam(createParam<gui::AHButton>(gui::getPosition(gui::BUTTON, i + 1, 8, true, true, 0.0f, -4.0f), module, Progress2::GATE_PARAM + i));
+		// 	addChild(createLight<MediumLight<GreenRedLight>>(gui::getPosition(gui::LIGHT, i + 1, 8, true, true, 0.0f, -4.0f), module, Progress2::GATE_LIGHTS + i * 2));
+		// 	addOutput(createOutput<gui::AHPort>(gui::getPosition(gui::PORT, i + 1, 5, true, false), module, Progress2::GATE_OUTPUT + i));
+		// }
 
 		ProgressStateWidget *stateWidget = createWidget<ProgressStateWidget>(Vec(5.0, 130.0));
 		stateWidget->box.size = Vec(300, 165);
