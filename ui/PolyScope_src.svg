@@ -972,7 +972,7 @@
        y1="71.596909"
        x2="42.145447"
        y2="71.596909"
-       gradientTransform="matrix(3.7795276,0,0,3.7795276,-113.72689,124.09101)" />
+       gradientTransform="matrix(3.7795276,0,0,3.7795276,-115.3961,124.09101)" />
     <linearGradient
        id="linearGradient37613">
       <stop
@@ -1010,9 +1010,9 @@
     <linearGradient
        inkscape:collect="always"
        xlink:href="#linearGradient37613-3"
-       id="linearGradient24400"
+       id="linearGradient1234"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(3.7795276,0,0,3.7795276,-41.17563,63.983307)"
+       gradientTransform="matrix(3.7795276,0,0,3.7795276,-43.183954,63.983307)"
        x1="37.495663"
        y1="88.048927"
        x2="42.080673"
@@ -1020,9 +1020,9 @@
     <linearGradient
        inkscape:collect="always"
        xlink:href="#linearGradient37613-3"
-       id="linearGradient24412"
+       id="linearGradient1238"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(3.7795276,0,0,3.7795276,83.376113,63.899982)"
+       gradientTransform="matrix(3.7795276,0,0,3.7795276,-5.6017023,63.983322)"
        x1="37.495663"
        y1="88.048927"
        x2="42.080673"
@@ -1030,9 +1030,9 @@
     <linearGradient
        inkscape:collect="always"
        xlink:href="#linearGradient37613-3"
-       id="linearGradient24424"
+       id="linearGradient1242"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(3.7795276,0,0,3.7795276,-3.056281,63.983322)"
+       gradientTransform="matrix(3.7795276,0,0,3.7795276,39.185387,63.98331)"
        x1="37.495663"
        y1="88.048927"
        x2="42.080673"
@@ -1040,9 +1040,9 @@
     <linearGradient
        inkscape:collect="always"
        xlink:href="#linearGradient37613-3"
-       id="linearGradient24440"
+       id="linearGradient1246"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(3.7795276,0,0,3.7795276,41.046376,63.98331)"
+       gradientTransform="matrix(3.7795276,0,0,3.7795276,81.797281,63.899982)"
        x1="37.495663"
        y1="88.048927"
        x2="42.080673"
@@ -1456,15 +1456,15 @@
      transform="translate(0.01175524,-74.386765)">
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.53334px;line-height:1.25;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;display:inline;fill:url(#linearGradient38999);fill-opacity:1;stroke:none;stroke-width:0.999999"
-       x="27.983816"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:9.86667px;line-height:1.25;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;display:inline;fill:url(#linearGradient38999);fill-opacity:1;stroke:none;stroke-width:0.999999"
+       x="26.314611"
        y="397.72684"
        id="text38698"><tspan
          sodipodi:role="line"
          id="tspan38696"
-         x="27.983816"
+         x="26.314611"
          y="397.72684"
-         style="fill:url(#linearGradient38999);fill-opacity:1;stroke-width:0.999999">CV IN</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:9.86667px;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:url(#linearGradient38999);fill-opacity:1;stroke-width:0.999999">CV IN</tspan></text>
     <g
        id="g5674"
        transform="translate(-278.40584,260.21142)"
@@ -1527,48 +1527,48 @@
        id="text5449-8" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.53334px;line-height:1.25;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;display:inline;fill:url(#linearGradient24400);fill-opacity:1;stroke:none;stroke-width:0.999999"
-       x="100.29049"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:9.86667px;line-height:1.25;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;display:inline;fill:url(#linearGradient1234);fill-opacity:1;stroke:none;stroke-width:0.999999"
+       x="98.282166"
        y="399.80002"
        id="text65039"><tspan
          sodipodi:role="line"
          id="tspan65037"
-         x="100.29049"
+         x="98.282166"
          y="399.80002"
-         style="fill:url(#linearGradient24400);fill-opacity:1;stroke-width:0.999999">SCALE</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:9.86667px;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:url(#linearGradient1234);fill-opacity:1;stroke-width:0.999999">SCALE</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.53334px;line-height:1.25;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;display:inline;fill:url(#linearGradient24424);fill-opacity:1;stroke:none;stroke-width:0.999999"
-       x="138.40982"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:9.86667px;line-height:1.25;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;display:inline;fill:url(#linearGradient1238);fill-opacity:1;stroke:none;stroke-width:0.999999"
+       x="135.8644"
        y="399.80002"
        id="text11424"><tspan
          sodipodi:role="line"
          id="tspan11422"
-         x="138.40982"
+         x="135.8644"
          y="399.80002"
-         style="fill:url(#linearGradient24424);fill-opacity:1;stroke-width:0.999999">SPREAD</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:9.86667px;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:url(#linearGradient1238);fill-opacity:1;stroke-width:0.999999">SPREAD</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.53334px;line-height:1.25;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;display:inline;fill:url(#linearGradient24440);fill-opacity:1;stroke:none;stroke-width:0.999999"
-       x="182.5125"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:9.86667px;line-height:1.25;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;display:inline;fill:url(#linearGradient1242);fill-opacity:1;stroke:none;stroke-width:0.999999"
+       x="180.6515"
        y="399.80002"
        id="text18926"><tspan
          sodipodi:role="line"
          id="tspan18924"
-         x="182.5125"
+         x="180.6515"
          y="399.80002"
-         style="fill:url(#linearGradient24440);fill-opacity:1;stroke-width:0.999999">SHIFT</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:9.86667px;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:url(#linearGradient1242);fill-opacity:1;stroke-width:0.999999">SHIFT</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.53334px;line-height:1.25;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;display:inline;fill:url(#linearGradient24412);fill-opacity:1;stroke:none;stroke-width:0.999999"
-       x="224.84224"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:9.86667px;line-height:1.25;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;display:inline;fill:url(#linearGradient1246);fill-opacity:1;stroke:none;stroke-width:0.999999"
+       x="223.26341"
        y="399.71667"
        id="text18942"><tspan
          sodipodi:role="line"
          id="tspan18940"
-         x="224.84224"
+         x="223.26341"
          y="399.71667"
-         style="fill:url(#linearGradient24412);fill-opacity:1;stroke-width:0.999999">TIME</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:9.86667px;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:url(#linearGradient1246);fill-opacity:1;stroke-width:0.999999">TIME</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.53334px;line-height:1.25;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;display:inline;fill:url(#linearGradient22562);fill-opacity:1;stroke:none;stroke-width:0.999999"
@@ -1730,7 +1730,7 @@
      inkscape:groupmode="layer"
      id="layer4"
      inkscape:label="components"
-     style="display:inline">
+     style="display:none">
     <circle
        fill="#bababa"
        cx="37.414322"
