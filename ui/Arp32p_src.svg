@@ -1418,7 +1418,7 @@
      inkscape:zoom="2.7657895"
      inkscape:cx="67.611798"
      inkscape:cy="190"
-     inkscape:current-layer="g3474"
+     inkscape:current-layer="layer3"
      showgrid="false"
      units="mm"
      inkscape:window-width="1660"
@@ -1818,8 +1818,7 @@
      id="layer2"
      inkscape:label="Graphics"
      style="display:inline"
-     transform="translate(0.01175524,-74.386765)"
-     sodipodi:insensitive="true">
+     transform="translate(0.01175524,-74.386765)">
     <g
        id="g88750"
        transform="translate(5.05991,273.00418)">

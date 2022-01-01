@@ -1470,8 +1470,7 @@
      id="layer2"
      inkscape:label="Graficos"
      style="display:inline"
-     transform="translate(0.01175524,-74.386765)"
-     sodipodi:insensitive="true">
+     transform="translate(0.01175524,-74.386765)">
     <path
        style="display:inline;fill:none;stroke:url(#linearGradient52053);stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        d="M 63.728414,63.817758 C 76.092293,68.358522 90.020036,71.956064 89.999718,83 89.963257,102.81872 45,99.790628 45,119 c 0,19.20937 45,16.79063 45,36 0,19.20937 -45,16.79063 -45,36 0,19.20937 45,16.79063 45,36 0,19.20937 -45,16.79063 -45,36 0,19.20937 45.025719,16.22042 45,36 -0.0086,6.63655 -5.075405,10.62285 -11.805768,13.74502"

@@ -1853,8 +1853,7 @@
      id="layer2"
      inkscape:label="Graficos"
      style="display:inline"
-     transform="translate(0.01175524,-74.386765)"
-     sodipodi:insensitive="true">
+     transform="translate(0.01175524,-74.386765)">
     <g
        id="g54763"
        transform="matrix(1,0,0,-1,30.006074,833.51973)"
@@ -2309,8 +2308,7 @@
      inkscape:groupmode="layer"
      id="layer3"
      inkscape:label="Knobs"
-     style="display:inline"
-     sodipodi:insensitive="true">
+     style="display:inline">
     <g
        id="g5354"
        style="display:inline">

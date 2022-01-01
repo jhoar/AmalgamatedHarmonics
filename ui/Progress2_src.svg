@@ -1700,10 +1700,10 @@
      borderopacity="1.0"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:zoom="15.258401"
-     inkscape:cx="264.01849"
-     inkscape:cy="50.955536"
-     inkscape:current-layer="layer4"
+     inkscape:zoom="2.7078947"
+     inkscape:cx="172.64334"
+     inkscape:cy="190"
+     inkscape:current-layer="layer2"
      showgrid="false"
      units="mm"
      inkscape:window-width="1679"
@@ -2095,8 +2095,7 @@
      id="layer2"
      inkscape:label="Graficos"
      style="display:inline"
-     transform="translate(0.01175524,-74.386765)"
-     sodipodi:insensitive="true">
+     transform="translate(0.01175524,-74.386765)">
     <path
        style="display:inline;fill:none;stroke:url(#linearGradient33026);stroke-width:1.03834;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:3.3;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        d="m 310.90042,169.27837 c -0.78903,0.97825 -9.69653,-8.33319 -9.69653,-8.33319 l -13.92973,-0.24066 -9.67326,9.17676"
@@ -2702,8 +2701,7 @@
      inkscape:groupmode="layer"
      id="layer3"
      inkscape:label="Knobs"
-     style="display:inline"
-     sodipodi:insensitive="true">
+     style="display:inline">
     <g
        id="g32961"
        transform="translate(20.754662,87.014645)"

@@ -1033,9 +1033,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2"
-     inkscape:cx="115.25"
-     inkscape:cy="163"
+     inkscape:zoom="2.8210526"
+     inkscape:cx="157.5653"
+     inkscape:cy="190"
      inkscape:current-layer="layer4"
      showgrid="false"
      units="mm"
@@ -1428,8 +1428,7 @@
      id="layer2"
      inkscape:label="Graficos"
      style="display:inline"
-     transform="translate(0.01175524,-74.386765)"
-     sodipodi:insensitive="true">
+     transform="translate(0.01175524,-74.386765)">
     <g
        style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:condensed;font-size:24px;line-height:125%;font-family:Miso;-inkscape-font-specification:'Miso Bold Condensed';letter-spacing:-0.06px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
        id="text4395"

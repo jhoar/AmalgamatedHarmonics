@@ -1347,10 +1347,10 @@
      borderopacity="1.0"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:zoom="5.9590605"
-     inkscape:cx="65.61437"
-     inkscape:cy="109.41322"
-     inkscape:current-layer="g1656"
+     inkscape:zoom="2.7789474"
+     inkscape:cx="67.651515"
+     inkscape:cy="190"
+     inkscape:current-layer="layer3"
      showgrid="false"
      units="mm"
      inkscape:window-width="1910"
@@ -1768,8 +1768,7 @@
        height="157.59966"
        x="11.395483"
        y="267.3905"
-       ry="9.7393045"
-       sodipodi:insensitive="true" />
+       ry="9.7393045" />
     <g
        id="g88750"
        transform="translate(5.05991,273.00418)">
@@ -2043,8 +2042,7 @@
      inkscape:groupmode="layer"
      id="layer4"
      inkscape:label="Knobs"
-     style="display:none"
-     sodipodi:insensitive="true">
+     style="display:inline">
     <g
        id="JACKS"
        transform="translate(25.028238,316.11103)"

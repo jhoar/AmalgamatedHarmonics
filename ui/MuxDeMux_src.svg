@@ -1541,8 +1541,7 @@
      id="layer2"
      inkscape:label="Graficos"
      style="display:inline"
-     transform="translate(0.01175524,-74.386765)"
-     sodipodi:insensitive="true">
+     transform="translate(0.01175524,-74.386765)">
     <rect
        transform="scale(1,-1)"
        ry="5.7985158"
@@ -1869,8 +1868,7 @@
      inkscape:groupmode="layer"
      id="layer3"
      inkscape:label="Knobs"
-     style="display:inline"
-     sodipodi:insensitive="true">
+     style="display:inline">
     <g
        id="g5944"
        transform="translate(201.98291,231.86704)"

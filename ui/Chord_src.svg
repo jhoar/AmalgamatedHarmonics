@@ -1784,7 +1784,7 @@
      units="mm"
      inkscape:window-width="1700"
      inkscape:window-height="1317"
-     inkscape:window-x="-22"
+     inkscape:window-x="0"
      inkscape:window-y="13"
      inkscape:window-maximized="0"
      showguides="false"
@@ -2171,8 +2171,7 @@
      id="layer2"
      inkscape:label="Graficos"
      style="display:inline"
-     transform="translate(0.01175524,-74.386765)"
-     sodipodi:insensitive="true">
+     transform="translate(0.01175524,-74.386765)">
     <rect
        y="-223.09805"
        x="116.10676"
@@ -2858,8 +2857,7 @@
      inkscape:groupmode="layer"
      id="layer3"
      inkscape:label="Knobs"
-     style="display:inline"
-     sodipodi:insensitive="true">
+     style="display:inline">
     <g
        id="g99208"
        transform="translate(5.3541152,163.23221)"

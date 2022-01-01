@@ -1032,8 +1032,8 @@
      borderopacity="1.0"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.1657895"
-     inkscape:cx="-27.703523"
+     inkscape:zoom="2.2973684"
+     inkscape:cx="22.634593"
      inkscape:cy="190"
      inkscape:current-layer="layer4"
      showgrid="false"
@@ -1427,8 +1427,7 @@
      id="layer2"
      inkscape:label="Graphics"
      style="display:inline"
-     transform="translate(0.01175524,-74.386765)"
-     sodipodi:insensitive="true">
+     transform="translate(0.01175524,-74.386765)">
     <g
        style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:condensed;font-size:24px;line-height:125%;font-family:Miso;-inkscape-font-specification:'Miso Bold Condensed';letter-spacing:-0.06px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
        id="text4395"
@@ -1597,8 +1596,7 @@
      inkscape:groupmode="layer"
      id="layer3"
      inkscape:label="Knobs"
-     style="display:inline"
-     sodipodi:insensitive="true">
+     style="display:inline">
     <g
        id="g90567"
        transform="translate(11.500004,273.84965)"

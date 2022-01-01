@@ -1703,7 +1703,7 @@
      units="mm"
      inkscape:window-width="1692"
      inkscape:window-height="1247"
-     inkscape:window-x="-16"
+     inkscape:window-x="0"
      inkscape:window-y="32"
      inkscape:window-maximized="0"
      showguides="false"
@@ -2090,8 +2090,7 @@
      id="layer2"
      inkscape:label="Graficos"
      style="display:inline"
-     transform="translate(0.01175524,-74.386765)"
-     sodipodi:insensitive="true">
+     transform="translate(0.01175524,-74.386765)">
     <path
        style="display:inline;fill:none;stroke:url(#linearGradient98769);stroke-width:1.03834;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:3.3;stroke-dasharray:1.03834, 1.03834;stroke-dashoffset:0;stroke-opacity:1"
        d="m 72.973802,170.15341 c -0.97825,-0.78903 8.333191,-9.69653 8.333191,-9.69653 l 0.240659,-13.92973 -9.17676,-9.67326"
@@ -2901,8 +2900,7 @@
      inkscape:groupmode="layer"
      id="layer3"
      inkscape:label="Knobs"
-     style="display:inline"
-     sodipodi:insensitive="true">
+     style="display:inline">
     <g
        id="g32961"
        transform="translate(57.66114,87.014525)"
