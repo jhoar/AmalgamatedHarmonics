@@ -429,7 +429,7 @@ struct BombeWidget : ModuleWidget {
 		addParam(createParamCentered<gui::AHKnobSnap>(Vec(222.0, 288.735), module, Bombe::LENGTH_PARAM));
 
 		addInput(createInputCentered<gui::AHPort>(Vec(18.776, 166.853), module, Bombe::FREEZE_INPUT));
-		addInput(createInputCentered<gui::AHPort>(Vec(123.726, 166.853), module, Bombe::Y_INPUT));
+        addInput(createInputCentered<gui::AHPort>(Vec(221.078, 166.853), module, Bombe::Y_INPUT));
 		addInput(createInputCentered<gui::AHPort>(Vec(20.676, 288.735), module, Bombe::KEY_INPUT));
 		addInput(createInputCentered<gui::AHPort>(Vec(100.635, 288.735), module, Bombe::MODE_INPUT));
 		addInput(createInputCentered<gui::AHPort>(Vec(180.594, 288.735), module, Bombe::CLOCK_INPUT));
