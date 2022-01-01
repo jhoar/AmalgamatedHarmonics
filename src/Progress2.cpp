@@ -315,7 +315,6 @@ struct Progress2Widget : ModuleWidget {
 		setModule(module);
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Progress2.svg")));
 
-		
 		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(31.755, 57.727), module, Progress2::CLOCK_PARAM));
 		addParam(createParamCentered<gui::AHButton>(Vec(67.49, 57.727), module, Progress2::RUN_PARAM));
 		addParam(createParamCentered<gui::AHButton>(Vec(101.583, 57.727), module, Progress2::RESET_PARAM));
@@ -370,47 +369,8 @@ struct Progress2Widget : ModuleWidget {
 		addChild(createLightCentered<SmallLight<GreenRedLight>>(Vec(279.883, 319.431), module, Progress2::GATE_LIGHTS + 12));
 		addChild(createLightCentered<SmallLight<GreenRedLight>>(Vec(314.603, 319.431), module, Progress2::GATE_LIGHTS + 14));
 
-		// addParam(createParam<gui::AHKnobNoSnap>(gui::getPosition(gui::KNOB, 0, 0, true, false), module, Progress2::CLOCK_PARAM));
-		// addParam(createParam<gui::AHButton>(gui::getPosition(gui::BUTTON, 1, 0, true, false), module, Progress2::RUN_PARAM));
-		// addChild(createLight<MediumLight<GreenLight>>(gui::getPosition(gui::LIGHT, 1, 0, true, false), module, Progress2::RUNNING_LIGHT));
-		// addParam(createParam<gui::AHButton>(gui::getPosition(gui::BUTTON, 2, 0, true, false), module, Progress2::RESET_PARAM));
-		// addChild(createLight<MediumLight<GreenLight>>(gui::getPosition(gui::LIGHT, 2, 0, true, false), module, Progress2::RESET_LIGHT));
-		// addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 3, 0, true, false), module, Progress2::STEPS_PARAM));
-
-		// addInput(createInput<gui::AHPort>(gui::getPosition(gui::PORT, 0, 1, true, false), module, Progress2::CLOCK_INPUT));
-		// addInput(createInput<gui::AHPort>(gui::getPosition(gui::PORT, 1, 1, true, false), module, Progress2::EXT_CLOCK_INPUT));
-		// addInput(createInput<gui::AHPort>(gui::getPosition(gui::PORT, 2, 1, true, false), module, Progress2::RESET_INPUT));
-		// addInput(createInput<gui::AHPort>(gui::getPosition(gui::PORT, 3, 1, true, false), module, Progress2::STEPS_INPUT));
-
-		// addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 4, 0, true, false), module, Progress2::KEY_PARAM));
-		// addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 5, 0, true, false), module, Progress2::MODE_PARAM));
-		// addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 6, 0, true, false), module, Progress2::PART_PARAM));
-		// addInput(createInput<gui::AHPort>(gui::getPosition(gui::PORT, 4, 1, true, false), module, Progress2::KEY_INPUT));
-		// addInput(createInput<gui::AHPort>(gui::getPosition(gui::PORT, 5, 1, true, false), module, Progress2::MODE_INPUT));
-		// addInput(createInput<gui::AHPort>(gui::getPosition(gui::PORT, 6, 1, true, false), module, Progress2::PART_INPUT));
-
-		// addParam(createParam<gui::AHKnobSnap>(gui::getPosition(gui::KNOB, 7, 1, true, false), module, Progress2::COPYSRC_PARAM));
-		// addParam(createParam<gui::AHButton>(gui::getPosition(gui::BUTTON, 8, 1, true, false), module, Progress2::COPYBTN_PARAM));
-		// addChild(createLight<MediumLight<GreenLight>>(gui::getPosition(gui::LIGHT, 8, 1, true, false), module, Progress2::COPYBTN_LIGHT));
-
-		// Vec XLightPos;
-		// XLightPos.x = 261;
-		// XLightPos.y = 70;
-
-		// addChild(createLight<SmallLight<GreenLight>>(XLightPos, module, Progress2::GATES_LIGHT));
-		// addOutput(createOutput<gui::AHPort>(gui::getPosition(gui::PORT, 7, 0, true, false), module, Progress2::GATES_OUTPUT));
-		// addOutput(createOutput<gui::AHPort>(gui::getPosition(gui::PORT, 8, 0, true, false), module, Progress2::PITCH_OUTPUT));
-
-		// addInput(createInput<gui::AHPort>(gui::getPosition(gui::PORT, 0, 5, true, false), module, Progress2::STEP_INPUT));
-
-		// for (int i = 0; i < 8; i++) {
-		// 	addParam(createParam<gui::AHButton>(gui::getPosition(gui::BUTTON, i + 1, 8, true, true, 0.0f, -4.0f), module, Progress2::GATE_PARAM + i));
-		// 	addChild(createLight<MediumLight<GreenRedLight>>(gui::getPosition(gui::LIGHT, i + 1, 8, true, true, 0.0f, -4.0f), module, Progress2::GATE_LIGHTS + i * 2));
-		// 	addOutput(createOutput<gui::AHPort>(gui::getPosition(gui::PORT, i + 1, 5, true, false), module, Progress2::GATE_OUTPUT + i));
-		// }
-
-		ProgressStateWidget *stateWidget = createWidget<ProgressStateWidget>(Vec(5.0, 130.0));
-		stateWidget->box.size = Vec(300, 165);
+		ProgressStateWidget *stateWidget = createWidget<ProgressStateWidget>(Vec(5.0, 125.0));
+		stateWidget->box.size = Vec(300, 175);
 		stateWidget->setPState(module ? &module->pState : NULL);
 		addChild(stateWidget);
 

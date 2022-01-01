@@ -158,7 +158,7 @@ struct StatusBox : gui::AHChoice {
 	void step() override;
 };
 
-struct ProgressStepWidget : LedDisplay {
+struct ProgressStepWidget : widget::Widget {
 
 	ChordChoice *chordChooser;
 	RootChoice *rootChooser;
@@ -169,7 +169,7 @@ struct ProgressStepWidget : LedDisplay {
 	void setPState(ProgressState *pState, int pStep);
 };
 
-struct ProgressStateWidget : LedDisplay {
+struct ProgressStateWidget : widget::Widget {
 	ProgressStepWidget *stepConfig[8];
 	ProgressState *pState;	
 

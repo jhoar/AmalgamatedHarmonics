@@ -17,28 +17,8 @@ int sgn(double v, double e) {
 namespace gui {
 
 AHChoice::AHChoice() {
-	box.size = mm2px(math::Vec(0, 28.0 / 3)); // FIX
 	color = nvgRGB(0x00, 0xFF, 0xFF);
-	bgColor = nvgRGBAf(30, 30, 30, 0); 
-	textOffset = math::Vec(10, 18);	// FIX?
-	fontSize = 12.0;
-}
-
-void AHChoice::draw(const DrawArgs& args) {
-	nvgScissor(args.vg, 0, 0, box.size.x, box.size.y);
-
-	std::shared_ptr<Font> font = APP->window->loadFont(asset::plugin(pluginInstance, "res/RobotoCondensed-Bold.ttf"));
-
-	if (font) {
-		nvgFillColor(args.vg, color);
-		nvgFontFaceId(args.vg, font->handle);
-		nvgTextLetterSpacing(args.vg, 0.0);
-
-		nvgFontSize(args.vg, fontSize); // FIX
-		nvgText(args.vg, textOffset.x, textOffset.y, text.c_str(), NULL);
-	}
-
-	nvgResetScissor(args.vg);
+	fontPath = asset::plugin(pluginInstance, "res/RobotoCondensed-Bold.ttf");
 }
 
 float Y_KNOB[2] =		{50.8, 56.0}; // w.r.t 22 = 28.8 from bottom

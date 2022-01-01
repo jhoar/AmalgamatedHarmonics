@@ -537,9 +537,11 @@ void ProgressStepWidget::setPState(ProgressState *pState, int pStep) {
 
 	math::Vec pos;
 
+	float textOffset = 13.0;
+
 	ChordChoice *chordChoice = createWidget<ChordChoice>(pos);
 	chordChoice->box.size.x = 155.0;
-	chordChoice->textOffset.y = 10.0;
+	chordChoice->textOffset.y = textOffset;
 	chordChoice->pState = pState;
 	chordChoice->pStep = pStep;
 	addChild(chordChoice);
@@ -548,7 +550,7 @@ void ProgressStepWidget::setPState(ProgressState *pState, int pStep) {
 
 	RootChoice *rootChoice = createWidget<RootChoice>(pos);
 	rootChoice->box.size.x = 35.0;
-	rootChoice->textOffset.y = 10.0;
+	rootChoice->textOffset.y = textOffset;
 	rootChoice->pState = pState;
 	rootChoice->pStep = pStep;
 	addChild(rootChoice);
@@ -557,7 +559,7 @@ void ProgressStepWidget::setPState(ProgressState *pState, int pStep) {
 
 	DegreeChoice *degreeChoice = createWidget<DegreeChoice>(pos);
 	degreeChoice->box.size.x = 30.0;
-	degreeChoice->textOffset.y = 10.0;
+	degreeChoice->textOffset.y = textOffset;
 	degreeChoice->pState = pState;
 	degreeChoice->pStep = pStep;
 	addChild(degreeChoice);
@@ -566,7 +568,7 @@ void ProgressStepWidget::setPState(ProgressState *pState, int pStep) {
 
 	InversionChoice *inversionChoice = createWidget<InversionChoice>(pos);
 	inversionChoice->box.size.x = 35.0;
-	inversionChoice->textOffset.y = 10.0;
+	inversionChoice->textOffset.y = textOffset;
 	inversionChoice->pState = pState;
 	inversionChoice->pStep = pStep;
 	addChild(inversionChoice);
@@ -575,7 +577,7 @@ void ProgressStepWidget::setPState(ProgressState *pState, int pStep) {
 
 	OctaveChoice *octaveChoice = createWidget<OctaveChoice>(pos);
 	octaveChoice->box.size.x = 35.0;
-	octaveChoice->textOffset.y = 10.0;
+	octaveChoice->textOffset.y = textOffset;
 	octaveChoice->pState = pState;
 	octaveChoice->pStep = pStep;
 	addChild(octaveChoice);
@@ -599,7 +601,7 @@ void ProgressStateWidget::setPState(ProgressState *pState) {
 	for (int i = 0; i < 8; i++) {
 		ProgressStepWidget *pWidget = createWidget<ProgressStepWidget>(pos);
 		pWidget->box.size.x = box.size.x - 5;
-		pWidget->box.size.y = box.size.y / 9.0;
+		pWidget->box.size.y = (box.size.y / 9.0) - 2.3;
 		pWidget->setPState(pState, i);
 		addChild(pWidget);
 		pos = pWidget->box.getBottomLeft();

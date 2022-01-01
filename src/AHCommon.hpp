@@ -73,10 +73,6 @@ namespace gui {
 
 struct AHChoice : LedDisplayChoice {
 	AHChoice();
-
-	float fontSize;
-
-	virtual void draw(const DrawArgs& args) override;
 };
 
 struct StateDisplay : TransparentWidget {
