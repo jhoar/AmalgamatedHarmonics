@@ -353,11 +353,6 @@ void Bombe::modeGalaxy(const BombeChord & lastValue, float y) {
 struct BombeDisplay : TransparentWidget {
 	
 	Bombe *module;
-	std::shared_ptr<Font> font;
-
-	BombeDisplay() {
-		font = APP->window->loadFont(asset::plugin(pluginInstance, "res/EurostileBold.ttf"));
-	}
 
 	void draw(const DrawArgs &ctx) override {
 
@@ -365,46 +360,52 @@ struct BombeDisplay : TransparentWidget {
 			return;
 		}
 
-		nvgFontSize(ctx.vg, 14);
-		nvgFontFaceId(ctx.vg, font->handle);
-		nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
-		nvgTextLetterSpacing(ctx.vg, -1);
+		std::shared_ptr<Font> font = APP->window->loadFont("res/RobotoCondensed-Bold.ttf");
 
-		char text[128];
+		if (font) {		
 
-		for (int i = 0; i < 7; i++)  {
+			nvgFontSize(ctx.vg, 16);
+			nvgFontFaceId(ctx.vg, font->handle);
+			nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
+			nvgTextLetterSpacing(ctx.vg, -1);
 
-			std::string chordName = "";
-			std::string chordExtName = "";
+			char text[128];
 
-			BombeChord &bC = module->displayBuffer[i];
+			for (int i = 0; i < 7; i++)  {
 
-			music::InversionDefinition &invDef = module->knownChords.chords[bC.chord].inversions[bC.inversion];
+				std::string chordName = "";
+				std::string chordExtName = "";
 
-			if (bC.key != -1 && bC.mode != -1) {
-				chordName = invDef.getName(bC.mode, bC.key, bC.modeDegree, bC.rootNote);
-			} else {
-				chordName = invDef.getName(bC.rootNote);
+				BombeChord &bC = module->displayBuffer[i];
+
+				music::InversionDefinition &invDef = module->knownChords.chords[bC.chord].inversions[bC.inversion];
+
+				if (bC.key != -1 && bC.mode != -1) {
+					chordName = invDef.getName(bC.mode, bC.key, bC.modeDegree, bC.rootNote);
+				} else {
+					chordName = invDef.getName(bC.rootNote);
+				}
+
+				if (bC.modeDegree != -1 && bC.mode != -1) { 
+					chordExtName = music::DegreeString[bC.mode][bC.modeDegree];
+				}
+
+				snprintf(text, sizeof(text), "%s %s", chordName.c_str(), chordExtName.c_str());
+				nvgText(ctx.vg, box.pos.x + 5, box.pos.y + i * 14, text, NULL);
+				nvgFillColor(ctx.vg, nvgRGBA(0, 255, 255, 223 - i * 32));
+
 			}
 
-			if (bC.modeDegree != -1 && bC.mode != -1) { 
-				chordExtName = music::DegreeString[bC.mode][bC.modeDegree];
-			}
+			nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
 
-			snprintf(text, sizeof(text), "%s %s", chordName.c_str(), chordExtName.c_str());
-			nvgText(ctx.vg, box.pos.x + 5, box.pos.y + i * 14, text, NULL);
-			nvgFillColor(ctx.vg, nvgRGBA(0, 255, 255, 223 - i * 32));
+			nvgTextAlign(ctx.vg, NVG_ALIGN_RIGHT);
+			snprintf(text, sizeof(text), "%s", module->rootName.c_str());
+			nvgText(ctx.vg, box.size.x - 5, box.pos.y, text, NULL);
+
+			snprintf(text, sizeof(text), "%s", module->modeName.c_str());
+			nvgText(ctx.vg, box.size.x - 5, box.pos.y + 11, text, NULL);
 
 		}
-
-		nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
-
-		nvgTextAlign(ctx.vg, NVG_ALIGN_RIGHT);
-		snprintf(text, sizeof(text), "%s", module->rootName.c_str());
-		nvgText(ctx.vg, box.size.x - 5, box.pos.y, text, NULL);
-
-		snprintf(text, sizeof(text), "%s", module->modeName.c_str());
-		nvgText(ctx.vg, box.size.x - 5, box.pos.y + 11, text, NULL);
 
 	}
 	

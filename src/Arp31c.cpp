@@ -785,11 +785,6 @@ void Arp31::process(const ProcessArgs &args) {
 struct Arp31Display : TransparentWidget {
 	
 	Arp31 *module;
-	std::shared_ptr<Font> font;
-
-	Arp31Display() {
-		font = APP->window->loadFont(asset::plugin(pluginInstance, "res/EurostileBold.ttf"));
-	}
 
 	void draw(const DrawArgs &ctx) override {
 
@@ -799,16 +794,19 @@ struct Arp31Display : TransparentWidget {
 
 		Vec pos = Vec(0, 15);
 
-		nvgFontSize(ctx.vg, 16);
-		nvgFontFaceId(ctx.vg, font->handle);
-		nvgTextLetterSpacing(ctx.vg, -1);
+		std::shared_ptr<Font> font = APP->window->loadFont("res/RobotoCondensed-Bold.ttf");
 
-		nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
-	
-		char text[128];
-		snprintf(text, sizeof(text), "%s", module->nextArp.c_str());
-		nvgText(ctx.vg, pos.x + 10, pos.y + 65, text, NULL);
+		if (font) {		
+			nvgFontSize(ctx.vg, 18);
+			nvgFontFaceId(ctx.vg, font->handle);
+			nvgTextLetterSpacing(ctx.vg, -1);
+
+			nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
 		
+			char text[128];
+			snprintf(text, sizeof(text), "%s", module->nextArp.c_str());
+			nvgText(ctx.vg, pos.x + 10, pos.y + 65, text, NULL);
+		}		
 	}
 	
 };

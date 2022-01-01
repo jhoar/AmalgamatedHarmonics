@@ -393,11 +393,6 @@ void Galaxy::getFromKeyMode() {
 struct GalaxyDisplay : TransparentWidget {
 	
 	Galaxy *module;
-	std::shared_ptr<Font> font;
-
-	GalaxyDisplay() {
-		font = APP->window->loadFont(asset::plugin(pluginInstance, "res/EurostileBold.ttf"));
-	}
 
 	void draw(const DrawArgs &ctx) override {
 
@@ -405,25 +400,30 @@ struct GalaxyDisplay : TransparentWidget {
 			return;
 		}
 	
-		nvgFontSize(ctx.vg, 12);
-		nvgFontFaceId(ctx.vg, font->handle);
-		nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
-		nvgTextLetterSpacing(ctx.vg, -1);
+		std::shared_ptr<Font> font = APP->window->loadFont("res/RobotoCondensed-Bold.ttf");
 
-		char text[128];
+		if (font) {		
 
-		snprintf(text, sizeof(text), "%s", module->chordName.c_str());
-		nvgText(ctx.vg, box.pos.x + 5, box.pos.y, text, NULL);
+			nvgFontSize(ctx.vg, 14);
+			nvgFontFaceId(ctx.vg, font->handle);
+			nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
+			nvgTextLetterSpacing(ctx.vg, -1);
 
-		snprintf(text, sizeof(text), "%s", module->chordExtName.c_str());
-		nvgText(ctx.vg, box.pos.x + 5, box.pos.y + 11, text, NULL);
+			char text[128];
 
-		nvgTextAlign(ctx.vg, NVG_ALIGN_RIGHT);
-		snprintf(text, sizeof(text), "%s", module->rootName.c_str());
-		nvgText(ctx.vg, box.size.x - 5, box.pos.y, text, NULL);
+			snprintf(text, sizeof(text), "%s", module->chordName.c_str());
+			nvgText(ctx.vg, box.pos.x + 5, box.pos.y, text, NULL);
 
-		snprintf(text, sizeof(text), "%s", module->modeName.c_str());
-		nvgText(ctx.vg, box.size.x - 5, box.pos.y + 11, text, NULL);
+			snprintf(text, sizeof(text), "%s", module->chordExtName.c_str());
+			nvgText(ctx.vg, box.pos.x + 5, box.pos.y + 11, text, NULL);
+
+			nvgTextAlign(ctx.vg, NVG_ALIGN_RIGHT);
+			snprintf(text, sizeof(text), "%s", module->rootName.c_str());
+			nvgText(ctx.vg, box.size.x - 5, box.pos.y, text, NULL);
+
+			snprintf(text, sizeof(text), "%s", module->modeName.c_str());
+			nvgText(ctx.vg, box.size.x - 5, box.pos.y + 11, text, NULL);
+		}
 
 	}
 

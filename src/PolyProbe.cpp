@@ -232,71 +232,71 @@ struct PolyProbe : core::AHModule {
 struct PolyProbeDisplay : TransparentWidget {
 
 	PolyProbe *module;
-	std::shared_ptr<Font> font;
 	int refresh = 0;
-
-	PolyProbeDisplay() {
-		font = APP->window->loadFont(asset::plugin(pluginInstance, "res/EurostileBold.ttf"));
-	}
 
 	void draw(const DrawArgs &ctx) override {
 
-		nvgFontSize(ctx.vg, 14);
-		nvgFontFaceId(ctx.vg, font->handle);
-		nvgTextLetterSpacing(ctx.vg, -1);
+		std::shared_ptr<Font> font = APP->window->loadFont("res/RobotoCondensed-Bold.ttf");
 
-		char text[128];
+		if (font) {		
 
-		int j = 0;
+			nvgFontSize(ctx.vg, 16);
+			nvgFontFaceId(ctx.vg, font->handle);
+			nvgTextLetterSpacing(ctx.vg, -1);
 
-		nvgTextAlign(ctx.vg, NVG_ALIGN_LEFT);
-		if (module->hasCVAIn) {
-			nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
-			snprintf(text, sizeof(text), "CV A In: %d", module->nCVAChannels);
-		} else {
-			nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0x6F));
-			snprintf(text, sizeof(text), "No CV A in");
-		}
-		nvgText(ctx.vg, box.pos.x + 5, box.pos.y + j * 16, text, NULL);
-		j++;
+			char text[128];
 
-		if (module->hasCVBIn) {
-			nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
-			snprintf(text, sizeof(text), "CV B in: %d", module->nCVBChannels);
-		} else {
-			nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0x6F));
-			snprintf(text, sizeof(text), "No CV B in");
-		}
-		nvgText(ctx.vg, box.pos.x + 5, box.pos.y + j * 16, text, NULL);
-		j = j + 2;
+			int j = 0;
 
-		for (int i = 0; i < 16; i++)  {
-			if (i >= module->nCVAChannels) {
-				nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0x6F));
-				snprintf(text, sizeof(text), "%02d --", i + 1);
-			} else {
+			nvgTextAlign(ctx.vg, NVG_ALIGN_LEFT);
+			if (module->hasCVAIn) {
 				nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
-				snprintf(text, sizeof(text), "%02d %f", i + 1, module->cvA[i]);
-			}
-			nvgText(ctx.vg, box.pos.x + 5, box.pos.y + i * 16 + j * 16, text, NULL);		
-
-			if (i >= module->nCVBChannels) {
-				nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0x6F));
-				snprintf(text, sizeof(text), "%02d --", i + 1);
-			} else {
-				nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
-				snprintf(text, sizeof(text), "%02d %f", i + 1, module->cvB[i]);
-			}
-			nvgText(ctx.vg, box.pos.x + 110, box.pos.y + i * 16 + j * 16, text, NULL);		
-
-			if (module->oper[module->currAlgo][i]->isValid()) {
-				nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
-				snprintf(text, sizeof(text), "%s", module->oper[module->currAlgo][i]->asString().c_str());
+				snprintf(text, sizeof(text), "CV A In: %d", module->nCVAChannels);
 			} else {
 				nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0x6F));
-				snprintf(text, sizeof(text), "--");
+				snprintf(text, sizeof(text), "No CV A in");
 			}
-			nvgText(ctx.vg, box.pos.x + 215, box.pos.y + i * 16 + j * 16, text, NULL);
+			nvgText(ctx.vg, box.pos.x + 5, box.pos.y + j * 16, text, NULL);
+			j++;
+
+			if (module->hasCVBIn) {
+				nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
+				snprintf(text, sizeof(text), "CV B in: %d", module->nCVBChannels);
+			} else {
+				nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0x6F));
+				snprintf(text, sizeof(text), "No CV B in");
+			}
+			nvgText(ctx.vg, box.pos.x + 5, box.pos.y + j * 16, text, NULL);
+			j = j + 2;
+
+			for (int i = 0; i < 16; i++)  {
+				if (i >= module->nCVAChannels) {
+					nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0x6F));
+					snprintf(text, sizeof(text), "%02d --", i + 1);
+				} else {
+					nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
+					snprintf(text, sizeof(text), "%02d %f", i + 1, module->cvA[i]);
+				}
+				nvgText(ctx.vg, box.pos.x + 5, box.pos.y + i * 16 + j * 16, text, NULL);		
+
+				if (i >= module->nCVBChannels) {
+					nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0x6F));
+					snprintf(text, sizeof(text), "%02d --", i + 1);
+				} else {
+					nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
+					snprintf(text, sizeof(text), "%02d %f", i + 1, module->cvB[i]);
+				}
+				nvgText(ctx.vg, box.pos.x + 110, box.pos.y + i * 16 + j * 16, text, NULL);		
+
+				if (module->oper[module->currAlgo][i]->isValid()) {
+					nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
+					snprintf(text, sizeof(text), "%s", module->oper[module->currAlgo][i]->asString().c_str());
+				} else {
+					nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0x6F));
+					snprintf(text, sizeof(text), "--");
+				}
+				nvgText(ctx.vg, box.pos.x + 215, box.pos.y + i * 16 + j * 16, text, NULL);
+			}
 		}
 	}
 

@@ -185,30 +185,31 @@ struct PolyVoltDisplay : TransparentWidget {
 	std::shared_ptr<Font> font;
 	int refresh = 0;
 
-	PolyVoltDisplay() {
-		font = APP->window->loadFont(asset::plugin(pluginInstance, "res/EurostileBold.ttf"));
-	}
-
 	void draw(const DrawArgs &ctx) override {
 
-		nvgFontSize(ctx.vg, 14);
-		nvgFontFaceId(ctx.vg, font->handle);
-		nvgTextLetterSpacing(ctx.vg, -1);
+		std::shared_ptr<Font> font = APP->window->loadFont("res/RobotoCondensed-Bold.ttf");
 
-		char text[128];
+		if (font) {		
 
-		int j = 1;
-		for (int i = 0; i < 16; i++)  {
-			if (i >= module->nChans) {
-				nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0x6F));
-				snprintf(text, sizeof(text), "%02d --", i + 1);
-				nvgText(ctx.vg, box.pos.x + 5, box.pos.y + i * 16 + j * 16, text, NULL);		
-			} else {
-				nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
-				snprintf(text, sizeof(text), "%02d %f", i + 1, module->inVolts[i]);
-				nvgText(ctx.vg, box.pos.x + 5, box.pos.y + i * 16 + j * 16, text, NULL);
-				snprintf(text, sizeof(text), "%s", module->quantisers[i].asString().c_str());
-				nvgText(ctx.vg, box.pos.x + 110, box.pos.y + i * 16 + j * 16, text, NULL);		
+			nvgFontSize(ctx.vg, 16);
+			nvgFontFaceId(ctx.vg, font->handle);
+			nvgTextLetterSpacing(ctx.vg, -1);
+
+			char text[128];
+
+			int j = 1;
+			for (int i = 0; i < 16; i++)  {
+				if (i >= module->nChans) {
+					nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0x6F));
+					snprintf(text, sizeof(text), "%02d --", i + 1);
+					nvgText(ctx.vg, box.pos.x + 5, box.pos.y + i * 16 + j * 16, text, NULL);		
+				} else {
+					nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
+					snprintf(text, sizeof(text), "%02d %f", i + 1, module->inVolts[i]);
+					nvgText(ctx.vg, box.pos.x + 5, box.pos.y + i * 16 + j * 16, text, NULL);
+					snprintf(text, sizeof(text), "%s", module->quantisers[i].asString().c_str());
+					nvgText(ctx.vg, box.pos.x + 110, box.pos.y + i * 16 + j * 16, text, NULL);		
+				}
 			}
 		}
 	}

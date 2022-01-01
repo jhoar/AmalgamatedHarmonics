@@ -27,7 +27,7 @@ AHChoice::AHChoice() {
 void AHChoice::draw(const DrawArgs& args) {
 	nvgScissor(args.vg, 0, 0, box.size.x, box.size.y);
 
-	std::shared_ptr<Font> font = APP->window->loadFont(asset::plugin(pluginInstance, "res/EurostileBold.ttf"));
+	std::shared_ptr<Font> font = APP->window->loadFont(asset::plugin(pluginInstance, "res/RobotoCondensed-Bold.ttf"));
 
 	if (font) {
 		nvgFillColor(args.vg, color);

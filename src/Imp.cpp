@@ -201,14 +201,9 @@ void Imp::process(const ProcessArgs &args) {
 struct ImpBox : TransparentWidget {
 	
 	Imp *module;
-	std::shared_ptr<Font> font;
 
 	ImperfectSetting *setting;
 	ImperfectState *coreState;
-
-	ImpBox() {
-		font = APP->window->loadFont(asset::plugin(pluginInstance, "res/DSEG14ClassicMini-BoldItalic.ttf"));
-	}
 
 	void draw(const DrawArgs &ctx) override {
 	
@@ -220,42 +215,47 @@ struct ImpBox : TransparentWidget {
 
 		float n = 35.0;
 
-		nvgFontSize(ctx.vg, 10);
-		nvgFontFaceId(ctx.vg, font->handle);
-		nvgTextLetterSpacing(ctx.vg, -1);
-		nvgTextAlign(ctx.vg, NVGalign::NVG_ALIGN_LEFT);
-		nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
-	
-		char text[10];
-		if (coreState->bpm == 0.0f) {
-			snprintf(text, sizeof(text), "-");
-		} else {
-			snprintf(text, sizeof(text), "%.1f", coreState->bpm);
-		}
-		nvgText(ctx.vg, pos.x + 75, pos.y + -1 * n, text, NULL);
+		std::shared_ptr<Font> font = APP->window->loadFont("res/DSEG14ClassicMini-BoldItalic.ttf");
 
-		snprintf(text, sizeof(text), "%.1f", setting->prob);
-		nvgText(ctx.vg, pos.x + 75, pos.y, text, NULL);
+		if (font) {		
 
-		snprintf(text, sizeof(text), "%d", static_cast<int>(setting->dlyLen * 1000));
-		nvgText(ctx.vg, pos.x + 75, pos.y + 1 * n, text, NULL);
-
-		if (setting->dlySpr != 0) {
-			snprintf(text, sizeof(text), "%d", static_cast<int>(setting->dlySpr * 2000)); // * 2000 as it is scaled in jitter()
-			nvgText(ctx.vg, pos.x + 75, pos.y + 2 * n, text, NULL);
-		}
-
-		snprintf(text, sizeof(text), "%d", static_cast<int>(setting->gateLen * 1000));
-		nvgText(ctx.vg, pos.x + 75, pos.y + 3 * n, text, NULL);
-
-		if (setting->gateSpr != 0) {
-			snprintf(text, sizeof(text), "%d", static_cast<int>(setting->gateSpr * 2000)); // * 2000 as it is scaled in jitter()
-			nvgText(ctx.vg, pos.x + 75, pos.y + 4 * n, text, NULL);
-		}
-
-		snprintf(text, sizeof(text), "%d", setting->division);
-		nvgText(ctx.vg, pos.x + 75, pos.y + 5 * n, text, NULL);
+			nvgFontSize(ctx.vg, 10);
+			nvgFontFaceId(ctx.vg, font->handle);
+			nvgTextLetterSpacing(ctx.vg, -1);
+			nvgTextAlign(ctx.vg, NVGalign::NVG_ALIGN_LEFT);
+			nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
 		
+			char text[10];
+			if (coreState->bpm == 0.0f) {
+				snprintf(text, sizeof(text), "-");
+			} else {
+				snprintf(text, sizeof(text), "%.1f", coreState->bpm);
+			}
+			nvgText(ctx.vg, pos.x + 75, pos.y + -1 * n, text, NULL);
+
+			snprintf(text, sizeof(text), "%.1f", setting->prob);
+			nvgText(ctx.vg, pos.x + 75, pos.y, text, NULL);
+
+			snprintf(text, sizeof(text), "%d", static_cast<int>(setting->dlyLen * 1000));
+			nvgText(ctx.vg, pos.x + 75, pos.y + 1 * n, text, NULL);
+
+			if (setting->dlySpr != 0) {
+				snprintf(text, sizeof(text), "%d", static_cast<int>(setting->dlySpr * 2000)); // * 2000 as it is scaled in jitter()
+				nvgText(ctx.vg, pos.x + 75, pos.y + 2 * n, text, NULL);
+			}
+
+			snprintf(text, sizeof(text), "%d", static_cast<int>(setting->gateLen * 1000));
+			nvgText(ctx.vg, pos.x + 75, pos.y + 3 * n, text, NULL);
+
+			if (setting->gateSpr != 0) {
+				snprintf(text, sizeof(text), "%d", static_cast<int>(setting->gateSpr * 2000)); // * 2000 as it is scaled in jitter()
+				nvgText(ctx.vg, pos.x + 75, pos.y + 4 * n, text, NULL);
+			}
+
+			snprintf(text, sizeof(text), "%d", setting->division);
+			nvgText(ctx.vg, pos.x + 75, pos.y + 5 * n, text, NULL);
+
+		}		
 	}
 
 };

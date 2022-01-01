@@ -188,14 +188,9 @@ void Imperfect2::process(const ProcessArgs &args) {
 struct Imperfect2Box : TransparentWidget {
 
 	Imperfect2 *module;
-	std::shared_ptr<Font> font;
 
 	ImperfectSetting *setting;
 	ImperfectState *state;
-
-	Imperfect2Box() {
-		font = APP->window->loadFont(asset::plugin(pluginInstance, "res/DSEG14ClassicMini-BoldItalic.ttf"));
-	}
 
 	void draw(const DrawArgs &ctx) override {
 
@@ -205,45 +200,51 @@ struct Imperfect2Box : TransparentWidget {
 
 		Vec pos = Vec(0, 15);
 
-		nvgFontSize(ctx.vg, 10);
-		nvgFontFaceId(ctx.vg, font->handle);
-		nvgTextLetterSpacing(ctx.vg, -1);
-		nvgTextAlign(ctx.vg, NVGalign::NVG_ALIGN_CENTER);
-		nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
+		std::shared_ptr<Font> font = APP->window->loadFont("res/DSEG14ClassicMini-BoldItalic.ttf");
 
-		char text[10];
-		if (state->bpm == 0.0f) {
-			snprintf(text, sizeof(text), "-");
-		} else {
-			snprintf(text, sizeof(text), "%.1f", state->bpm);
+		if (font) {		
+
+			nvgFontSize(ctx.vg, 10);
+			nvgFontFaceId(ctx.vg, font->handle);
+			nvgTextLetterSpacing(ctx.vg, -1);
+			nvgTextAlign(ctx.vg, NVGalign::NVG_ALIGN_CENTER);
+			nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
+
+			char text[10];
+			if (state->bpm == 0.0f) {
+				snprintf(text, sizeof(text), "-");
+			} else {
+				snprintf(text, sizeof(text), "%.1f", state->bpm);
+			}
+			nvgText(ctx.vg, pos.x + 20, pos.y, text, NULL);
+
+			snprintf(text, sizeof(text), "%d", static_cast<int>(setting->dlyLen * 1000));
+			nvgText(ctx.vg, pos.x + 74, pos.y, text, NULL);
+
+			if (setting->dlySpr != 0) {
+				snprintf(text, sizeof(text), "%d", static_cast<int>(setting->dlySpr * 2000));
+				nvgText(ctx.vg, pos.x + 144, pos.y, text, NULL);
+			}
+
+			snprintf(text, sizeof(text), "%d", static_cast<int>(setting->gateLen * 1000));
+			nvgText(ctx.vg, pos.x + 214, pos.y, text, NULL);
+
+			if (setting->gateSpr != 0) {
+				snprintf(text, sizeof(text), "%d", static_cast<int>(setting->gateSpr * 2000));
+				nvgText(ctx.vg, pos.x + 284, pos.y, text, NULL);
+			}
+
+			snprintf(text, sizeof(text), "%d", setting->division);
+			nvgText(ctx.vg, pos.x + 334, pos.y, text, NULL);
+
+			nvgFillColor(ctx.vg, nvgRGBA(0, 0, 0, 0xff));
+			snprintf(text, sizeof(text), "%d", static_cast<int>(state->delayTime * 1000));
+			nvgText(ctx.vg, pos.x + 372, pos.y, text, NULL);
+
+			snprintf(text, sizeof(text), "%d", static_cast<int>(state->gateTime * 1000));
+			nvgText(ctx.vg, pos.x + 408, pos.y, text, NULL);
+
 		}
-		nvgText(ctx.vg, pos.x + 20, pos.y, text, NULL);
-
-		snprintf(text, sizeof(text), "%d", static_cast<int>(setting->dlyLen * 1000));
-		nvgText(ctx.vg, pos.x + 74, pos.y, text, NULL);
-
-		if (setting->dlySpr != 0) {
-			snprintf(text, sizeof(text), "%d", static_cast<int>(setting->dlySpr * 2000));
-			nvgText(ctx.vg, pos.x + 144, pos.y, text, NULL);
-		}
-
-		snprintf(text, sizeof(text), "%d", static_cast<int>(setting->gateLen * 1000));
-		nvgText(ctx.vg, pos.x + 214, pos.y, text, NULL);
-
-		if (setting->gateSpr != 0) {
-			snprintf(text, sizeof(text), "%d", static_cast<int>(setting->gateSpr * 2000));
-			nvgText(ctx.vg, pos.x + 284, pos.y, text, NULL);
-		}
-
-		snprintf(text, sizeof(text), "%d", setting->division);
-		nvgText(ctx.vg, pos.x + 334, pos.y, text, NULL);
-
-		nvgFillColor(ctx.vg, nvgRGBA(0, 0, 0, 0xff));
-		snprintf(text, sizeof(text), "%d", static_cast<int>(state->delayTime * 1000));
-		nvgText(ctx.vg, pos.x + 372, pos.y, text, NULL);
-
-		snprintf(text, sizeof(text), "%d", static_cast<int>(state->gateTime * 1000));
-		nvgText(ctx.vg, pos.x + 408, pos.y, text, NULL);
 
 	}
 

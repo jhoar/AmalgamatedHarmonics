@@ -903,11 +903,6 @@ struct Arpeggiator2Display : TransparentWidget {
 	
 	Arpeggiator2 *module;
 	int frame = 0;
-	std::shared_ptr<Font> font;
-
-	Arpeggiator2Display() {
-		font = APP->window->loadFont(asset::plugin(pluginInstance, "res/EurostileBold.ttf"));
-	}
 
 	void draw(const DrawArgs &ctx) override {
 
@@ -917,32 +912,37 @@ struct Arpeggiator2Display : TransparentWidget {
 
 		Vec pos = Vec(0, 15);
 
-		nvgFontSize(ctx.vg, 16);
-		nvgFontFaceId(ctx.vg, font->handle);
-		nvgTextLetterSpacing(ctx.vg, -1);
-		nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
+		std::shared_ptr<Font> font = APP->window->loadFont("res/RobotoCondensed-Bold.ttf");
 
-		char text[128];
-		if (module->inputLen == 0) {
-			snprintf(text, sizeof(text), "Error: inputLen == 0");
-			nvgText(ctx.vg, pos.x + 10, pos.y + 5, text, NULL);			
-		} else {
-			snprintf(text, sizeof(text), "Pattern: %s", module->uiPatt->getName().c_str());
-			nvgText(ctx.vg, pos.x + 10, pos.y + 5, text, NULL);
+		if (font) {		
 
-			snprintf(text, sizeof(text), "Length: %d", module->uiPatt->length);
-			nvgText(ctx.vg, pos.x + 10, pos.y + 25, text, NULL);
+			nvgFontSize(ctx.vg, 18);
+			nvgFontFaceId(ctx.vg, font->handle);
+			nvgTextLetterSpacing(ctx.vg, -1);
+			nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
 
-			switch(module->uiPatt->scale) {
-				case 0: snprintf(text, sizeof(text), "Transpose: %d s.t.", module->uiPatt->trans); break;
-				case 1: snprintf(text, sizeof(text), "Transpose: %d Maj. int.", module->uiPatt->trans); break;
-				case 2: snprintf(text, sizeof(text), "Transpose: %d Min. int.", module->uiPatt->trans); break;
-				default: snprintf(text, sizeof(text), "Error..."); break;
+			char text[128];
+			if (module->inputLen == 0) {
+				snprintf(text, sizeof(text), "Error: inputLen == 0");
+				nvgText(ctx.vg, pos.x + 10, pos.y + 5, text, NULL);			
+			} else {
+				snprintf(text, sizeof(text), "Pattern: %s", module->uiPatt->getName().c_str());
+				nvgText(ctx.vg, pos.x + 10, pos.y + 5, text, NULL);
+
+				snprintf(text, sizeof(text), "Length: %d", module->uiPatt->length);
+				nvgText(ctx.vg, pos.x + 10, pos.y + 25, text, NULL);
+
+				switch(module->uiPatt->scale) {
+					case 0: snprintf(text, sizeof(text), "Transpose: %d s.t.", module->uiPatt->trans); break;
+					case 1: snprintf(text, sizeof(text), "Transpose: %d Maj. int.", module->uiPatt->trans); break;
+					case 2: snprintf(text, sizeof(text), "Transpose: %d Min. int.", module->uiPatt->trans); break;
+					default: snprintf(text, sizeof(text), "Error..."); break;
+				}
+				nvgText(ctx.vg, pos.x + 10, pos.y + 45, text, NULL);
+
+				snprintf(text, sizeof(text), "Arpeggio: %s", module->uiArp->getName().c_str());
+				nvgText(ctx.vg, pos.x + 10, pos.y + 65, text, NULL);
 			}
-			nvgText(ctx.vg, pos.x + 10, pos.y + 45, text, NULL);
-
-			snprintf(text, sizeof(text), "Arpeggio: %s", module->uiArp->getName().c_str());
-			nvgText(ctx.vg, pos.x + 10, pos.y + 65, text, NULL);
 		}
 	}
 

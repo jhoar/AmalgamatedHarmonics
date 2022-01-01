@@ -680,11 +680,6 @@ void Arp32::process(const ProcessArgs &args) {
 struct Arp32Display : TransparentWidget {
 
 	Arp32 *module;
-	std::shared_ptr<Font> font;
-
-	Arp32Display() {
-		font = APP->window->loadFont(asset::plugin(pluginInstance, "res/EurostileBold.ttf"));
-	}
 
 	void draw(const DrawArgs &ctx) override {
 
@@ -694,35 +689,41 @@ struct Arp32Display : TransparentWidget {
 
 		Vec pos = Vec(0, 15);
 
-		nvgFontSize(ctx.vg, 14);
-		nvgFontFaceId(ctx.vg, font->handle);
-		nvgTextLetterSpacing(ctx.vg, -1);
+		std::shared_ptr<Font> font = APP->window->loadFont("res/RobotoCondensed-Bold.ttf");
 
-		nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
-	
-		char text[128];
-		if (module->inputLen == 0) {
-			snprintf(text, sizeof(text), "Error: inputLen == 0");
-			nvgText(ctx.vg, pos.x + 10, pos.y, text, NULL);
-		} else {
-			snprintf(text, sizeof(text), "%s", module->nextPattern.c_str());
-			nvgText(ctx.vg, pos.x + 10, pos.y, text, NULL);
-			snprintf(text, sizeof(text), "L : %d", module->inputLen);
-			nvgText(ctx.vg, pos.x + 10, pos.y + 15, text, NULL);
-			switch(module->inputScale) {
-				case 0: 
-					snprintf(text, sizeof(text), "S : %dst", module->inputSize);
-					break;
-				case 1: 
-					snprintf(text, sizeof(text), "S : %dM", module->inputSize);
-					break;
-				case 2: 
-					snprintf(text, sizeof(text), "S : %dm", module->inputSize);
-					break;
-				default: snprintf(text, sizeof(text), "Error..."); break;
+		if (font) {		
+
+
+			nvgFontSize(ctx.vg, 16);
+			nvgFontFaceId(ctx.vg, font->handle);
+			nvgTextLetterSpacing(ctx.vg, -1);
+
+			nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
+		
+			char text[128];
+			if (module->inputLen == 0) {
+				snprintf(text, sizeof(text), "Error: inputLen == 0");
+				nvgText(ctx.vg, pos.x + 10, pos.y, text, NULL);
+			} else {
+				snprintf(text, sizeof(text), "%s", module->nextPattern.c_str());
+				nvgText(ctx.vg, pos.x + 10, pos.y, text, NULL);
+				snprintf(text, sizeof(text), "L : %d", module->inputLen);
+				nvgText(ctx.vg, pos.x + 10, pos.y + 15, text, NULL);
+				switch(module->inputScale) {
+					case 0: 
+						snprintf(text, sizeof(text), "S : %dst", module->inputSize);
+						break;
+					case 1: 
+						snprintf(text, sizeof(text), "S : %dM", module->inputSize);
+						break;
+					case 2: 
+						snprintf(text, sizeof(text), "S : %dm", module->inputSize);
+						break;
+					default: snprintf(text, sizeof(text), "Error..."); break;
+				}
+				nvgText(ctx.vg, pos.x + 60, pos.y + 15, text, NULL);
+
 			}
-			nvgText(ctx.vg, pos.x + 60, pos.y + 15, text, NULL);
-
 		}
 	}
 
