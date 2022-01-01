@@ -197,7 +197,7 @@ struct PolyVoltDisplay : TransparentWidget {
 
 			char text[128];
 
-			int j = 1;
+			int j = 3;
 			for (int i = 0; i < 16; i++)  {
 				if (i >= module->nChans) {
 					nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0x6F));
@@ -205,7 +205,7 @@ struct PolyVoltDisplay : TransparentWidget {
 					nvgText(ctx.vg, box.pos.x + 5, box.pos.y + i * 16 + j * 16, text, NULL);		
 				} else {
 					nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
-					snprintf(text, sizeof(text), "%02d %f", i + 1, module->inVolts[i]);
+					snprintf(text, sizeof(text), "%02d   %f", i + 1, module->inVolts[i]);
 					nvgText(ctx.vg, box.pos.x + 5, box.pos.y + i * 16 + j * 16, text, NULL);
 					snprintf(text, sizeof(text), "%s", module->quantisers[i].asString().c_str());
 					nvgText(ctx.vg, box.pos.x + 110, box.pos.y + i * 16 + j * 16, text, NULL);		
@@ -239,7 +239,7 @@ struct PolyVoltWidget : ModuleWidget {
 		addOutput(createOutputCentered<gui::AHPort>(Vec(276.38, 315.45), module, PolyVolt::POLY_OUTPUT));
 
 		if (module != NULL) {
-			PolyVoltDisplay *displayW = createWidget<PolyVoltDisplay>(Vec(45, 30));
+			PolyVoltDisplay *displayW = createWidget<PolyVoltDisplay>(Vec(45, 20));
 			displayW->box.size = Vec(240, 230);
 			displayW->module = module;
 			addChild(displayW);

@@ -275,7 +275,7 @@ struct PolyProbeDisplay : TransparentWidget {
 					snprintf(text, sizeof(text), "%02d --", i + 1);
 				} else {
 					nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
-					snprintf(text, sizeof(text), "%02d %f", i + 1, module->cvA[i]);
+					snprintf(text, sizeof(text), "%02d    %f", i + 1, module->cvA[i]);
 				}
 				nvgText(ctx.vg, box.pos.x + 5, box.pos.y + i * 16 + j * 16, text, NULL);		
 
@@ -284,7 +284,7 @@ struct PolyProbeDisplay : TransparentWidget {
 					snprintf(text, sizeof(text), "%02d --", i + 1);
 				} else {
 					nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
-					snprintf(text, sizeof(text), "%02d %f", i + 1, module->cvB[i]);
+					snprintf(text, sizeof(text), "%02d    %f", i + 1, module->cvB[i]);
 				}
 				nvgText(ctx.vg, box.pos.x + 110, box.pos.y + i * 16 + j * 16, text, NULL);		
 
