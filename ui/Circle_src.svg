@@ -2,8 +2,8 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="594mm"
-   height="841mm"
+   width="240"
+   height="380.005"
    id="svg11791"
    version="1.1"
    inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20)"
@@ -539,10 +539,10 @@
        lpeversion="0" />
     <inkscape:perspective
        id="perspective288"
-       inkscape:persp3d-origin="197.0634 : 2928.7582 : 1"
-       inkscape:vp_z="394.1268 : 2993.846 : 1"
+       inkscape:persp3d-origin="197.0634 : 130.18054 : 1"
+       inkscape:vp_z="394.1268 : 195.26834 : 1"
        inkscape:vp_y="0 : 1000 : 0"
-       inkscape:vp_x="0 : 2993.846 : 1"
+       inkscape:vp_x="0 : 195.26834 : 1"
        sodipodi:type="inkscape:persp3d" />
     <linearGradient
        id="linearGradient8170"
@@ -831,10 +831,10 @@
        lpeversion="0" />
     <inkscape:perspective
        id="perspective288-2"
-       inkscape:persp3d-origin="197.0634 : 2928.7582 : 1"
-       inkscape:vp_z="394.1268 : 2993.846 : 1"
+       inkscape:persp3d-origin="197.0634 : 130.18054 : 1"
+       inkscape:vp_z="394.1268 : 195.26834 : 1"
        inkscape:vp_y="0 : 1000 : 0"
-       inkscape:vp_x="0 : 2993.846 : 1"
+       inkscape:vp_x="0 : 195.26834 : 1"
        sodipodi:type="inkscape:persp3d" />
     <linearGradient
        id="linearGradient8170-5"
@@ -1141,12 +1141,12 @@
      borderopacity="1.0"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.2973685"
-     inkscape:cx="99.461623"
-     inkscape:cy="176.50629"
+     inkscape:zoom="2.2973382"
+     inkscape:cx="120.13904"
+     inkscape:cy="190.0025"
      inkscape:current-layer="layer1"
      showgrid="false"
-     units="mm"
+     units="px"
      inkscape:window-width="1931"
      inkscape:window-height="1081"
      inkscape:window-x="83"
@@ -1565,7 +1565,7 @@
        id="text6045" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:9.86666667px;line-height:1.25;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;letter-spacing:0px;word-spacing:0px;display:inline;fill:#d4af37;fill-opacity:1;stroke:none"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:9.86667px;line-height:1.25;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;letter-spacing:0px;word-spacing:0px;display:inline;fill:#d4af37;fill-opacity:1;stroke:none"
        x="35.960938"
        y="375.65485"
        id="text2281"><tspan
@@ -1573,10 +1573,10 @@
          id="tspan2279"
          x="35.960938"
          y="375.65485"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:9.86666667px;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">Io</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:9.86667px;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">Io</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:9.86666667px;line-height:1.25;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;letter-spacing:0px;word-spacing:0px;display:inline;fill:#d4af37;fill-opacity:1;stroke:none"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:9.86667px;line-height:1.25;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;letter-spacing:0px;word-spacing:0px;display:inline;fill:#d4af37;fill-opacity:1;stroke:none"
        x="51.554688"
        y="375.65485"
        id="text2285"><tspan
@@ -1584,21 +1584,21 @@
          id="tspan2283"
          x="51.554688"
          y="375.65485"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:9.86666667px;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">Do</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:9.86667px;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">Do</tspan></text>
     <text
        id="text2289"
        y="375.65485"
        x="69.947914"
-       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:9.86666667px;line-height:1.25;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;letter-spacing:0px;word-spacing:0px;display:inline;fill:#d4af37;fill-opacity:1;stroke:none"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:9.86667px;line-height:1.25;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;letter-spacing:0px;word-spacing:0px;display:inline;fill:#d4af37;fill-opacity:1;stroke:none"
        xml:space="preserve"><tspan
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:9.86666667px;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:9.86667px;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1"
          y="375.65485"
          x="69.947914"
          id="tspan2287"
          sodipodi:role="line">Ph</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:9.86666667px;line-height:1.25;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;letter-spacing:0px;word-spacing:0px;display:inline;fill:#d4af37;fill-opacity:1;stroke:none"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:9.86667px;line-height:1.25;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;letter-spacing:0px;word-spacing:0px;display:inline;fill:#d4af37;fill-opacity:1;stroke:none"
        x="88.822914"
        y="375.65485"
        id="text2293"><tspan
@@ -1606,21 +1606,21 @@
          id="tspan2291"
          x="88.822914"
          y="375.65485"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:9.86666667px;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">Ly</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:9.86667px;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">Ly</tspan></text>
     <text
        id="text2297"
        y="375.65485"
        x="106.23698"
-       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:9.86666667px;line-height:1.25;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;letter-spacing:0px;word-spacing:0px;display:inline;fill:#d4af37;fill-opacity:1;stroke:none"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:9.86667px;line-height:1.25;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;letter-spacing:0px;word-spacing:0px;display:inline;fill:#d4af37;fill-opacity:1;stroke:none"
        xml:space="preserve"><tspan
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:9.86666667px;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:9.86667px;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1"
          y="375.65485"
          x="106.23698"
          id="tspan2295"
          sodipodi:role="line">Mi</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:9.86666667px;line-height:1.25;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;letter-spacing:0px;word-spacing:0px;display:inline;fill:#d4af37;fill-opacity:1;stroke:none"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:9.86667px;line-height:1.25;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;letter-spacing:0px;word-spacing:0px;display:inline;fill:#d4af37;fill-opacity:1;stroke:none"
        x="124.13021"
        y="375.65485"
        id="text2301"><tspan
@@ -1628,14 +1628,14 @@
          id="tspan2299"
          x="124.13021"
          y="375.65485"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:9.86666667px;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">Ae</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:9.86667px;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">Ae</tspan></text>
     <text
        id="text2305"
        y="375.65485"
        x="142.46094"
-       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:9.86666667px;line-height:1.25;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;letter-spacing:0px;word-spacing:0px;display:inline;fill:#d4af37;fill-opacity:1;stroke:none"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:9.86667px;line-height:1.25;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;letter-spacing:0px;word-spacing:0px;display:inline;fill:#d4af37;fill-opacity:1;stroke:none"
        xml:space="preserve"><tspan
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:9.86666667px;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:9.86667px;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1"
          y="375.65485"
          x="142.46094"
          id="tspan2303"
@@ -1644,16 +1644,16 @@
        id="text2325"
        y="345.75473"
        x="35.255207"
-       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:9.86666667px;line-height:1.25;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;letter-spacing:0px;word-spacing:0px;display:inline;fill:#d4af37;fill-opacity:1;stroke:none"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:9.86667px;line-height:1.25;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;letter-spacing:0px;word-spacing:0px;display:inline;fill:#d4af37;fill-opacity:1;stroke:none"
        xml:space="preserve"><tspan
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:9.86666667px;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:9.86667px;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1"
          y="345.75473"
          x="35.255207"
          id="tspan2323"
          sodipodi:role="line">M</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:9.86666667px;line-height:1.25;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;letter-spacing:0px;word-spacing:0px;display:inline;fill:#d4af37;fill-opacity:1;stroke:none"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:9.86667px;line-height:1.25;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;letter-spacing:0px;word-spacing:0px;display:inline;fill:#d4af37;fill-opacity:1;stroke:none"
        x="125.5"
        y="345.75473"
        id="text2329"><tspan
@@ -1661,7 +1661,7 @@
          id="tspan2327"
          x="125.5"
          y="345.75473"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:9.86666667px;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">m</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:9.86667px;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#d4af37;fill-opacity:1">m</tspan></text>
     <rect
        y="349.29578"
        x="-0.01175524"
@@ -1673,9 +1673,9 @@
        id="text2335"
        y="360.56369"
        x="208.98746"
-       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:9.86666667px;line-height:1.25;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;letter-spacing:0px;word-spacing:0px;display:inline;fill:#000000;fill-opacity:1;stroke:none"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:9.86667px;line-height:1.25;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;letter-spacing:0px;word-spacing:0px;display:inline;fill:#000000;fill-opacity:1;stroke:none"
        xml:space="preserve"><tspan
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:9.86666667px;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:9.86667px;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1"
          y="360.56369"
          x="208.98746"
          id="tspan2333"
