@@ -109,36 +109,78 @@ struct ScaleQuantizerWidget : ModuleWidget {
 		setModule(module);
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/ScaleQuantizer.svg")));
 
-
 		addInput(createInputCentered<gui::AHPort>(Vec(31.293, 342.279), module, ScaleQuantizer::IN_INPUT));
 		addInput(createInputCentered<gui::AHPort>(Vec(76.127, 342.279), module, ScaleQuantizer::KEY_INPUT));
 		addInput(createInputCentered<gui::AHPort>(Vec(122.31, 342.279), module, ScaleQuantizer::SCALE_INPUT));
 
+		addOutput(createOutputCentered<gui::AHPort>(Vec(30.955, 101.557), module, ScaleQuantizer::GATE_OUTPUT + 0));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(46.295, 74.987), module, ScaleQuantizer::GATE_OUTPUT + 1));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(61.635, 101.557), module, ScaleQuantizer::GATE_OUTPUT + 2));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(76.975, 74.987), module, ScaleQuantizer::GATE_OUTPUT + 3));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(92.315, 101.557), module, ScaleQuantizer::GATE_OUTPUT + 4));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(122.994, 101.557), module, ScaleQuantizer::GATE_OUTPUT + 5));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(138.334, 74.987), module, ScaleQuantizer::GATE_OUTPUT + 6));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(153.674, 101.557), module, ScaleQuantizer::GATE_OUTPUT + 7));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(169.014, 74.987), module, ScaleQuantizer::GATE_OUTPUT + 8));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(184.354, 101.557), module, ScaleQuantizer::GATE_OUTPUT + 9));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(199.694, 74.987), module, ScaleQuantizer::GATE_OUTPUT + 10));
+		addOutput(createOutputCentered<gui::AHPort>(Vec(215.034, 101.557), module, ScaleQuantizer::GATE_OUTPUT + 11));
+
 		addOutput(createOutputCentered<gui::AHPort>(Vec(168.493, 342.279), module, ScaleQuantizer::TRIG_OUTPUT));
 		addOutput(createOutputCentered<gui::AHPort>(Vec(214.675, 342.279), module, ScaleQuantizer::OUT_OUTPUT));
 
-        float xOffset = 18.0;
-        float xSpace = 21.0;
-        float xPos = 0.0;
-        float yPos = 0.0;
-        int scale = 0;
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(30.955, 115.398), module, ScaleQuantizer::DEGREE_LIGHT + 0));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(46.295, 88.828), module, ScaleQuantizer::DEGREE_LIGHT + 1));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(61.635, 115.398), module, ScaleQuantizer::DEGREE_LIGHT + 2));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(76.975, 88.828), module, ScaleQuantizer::DEGREE_LIGHT + 3));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(92.315, 115.398), module, ScaleQuantizer::DEGREE_LIGHT + 4));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(122.994, 115.398), module, ScaleQuantizer::DEGREE_LIGHT + 5));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(138.334, 88.828), module, ScaleQuantizer::DEGREE_LIGHT + 6));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(153.674, 115.398), module, ScaleQuantizer::DEGREE_LIGHT + 7));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(169.014, 88.828), module, ScaleQuantizer::DEGREE_LIGHT + 8));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(184.354, 115.398), module, ScaleQuantizer::DEGREE_LIGHT + 9));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(199.694, 88.828), module, ScaleQuantizer::DEGREE_LIGHT + 10));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(215.034, 115.398), module, ScaleQuantizer::DEGREE_LIGHT + 11));
 
-        for (int i = 0; i < 12; i++) {
-            addChild(createLight<SmallLight<GreenLight>>(Vec(xOffset + i * 18.0, 280.0), module, ScaleQuantizer::SCALE_LIGHT + i));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(103.072, 148.645), module, ScaleQuantizer::NOTE_LIGHT + 1));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(123.889, 148.645), module, ScaleQuantizer::NOTE_LIGHT + 3));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(165.523, 148.645), module, ScaleQuantizer::NOTE_LIGHT + 6));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(186.34, 148.645), module, ScaleQuantizer::NOTE_LIGHT + 8));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(207.156, 148.645), module, ScaleQuantizer::NOTE_LIGHT + 10));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(92.664, 166.673), module, ScaleQuantizer::NOTE_LIGHT + 0));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(113.481, 166.673), module, ScaleQuantizer::NOTE_LIGHT + 2));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(134.297, 166.673), module, ScaleQuantizer::NOTE_LIGHT + 4));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(155.114, 166.673), module, ScaleQuantizer::NOTE_LIGHT + 5));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(175.931, 166.673), module, ScaleQuantizer::NOTE_LIGHT + 7));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(196.748, 166.673), module, ScaleQuantizer::NOTE_LIGHT + 9));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(217.565, 166.673), module, ScaleQuantizer::NOTE_LIGHT + 11));
 
-            gui::calculateKeyboard(i, xSpace, xOffset, 230.0, &xPos, &yPos, &scale);
-            addChild(createLight<SmallLight<GreenLight>>(Vec(xPos, yPos), module, ScaleQuantizer::KEY_LIGHT + scale));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(21.616, 232.673), module, ScaleQuantizer::KEY_LIGHT + 0));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(32.024, 214.645), module, ScaleQuantizer::KEY_LIGHT + 1));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(42.432, 232.673), module, ScaleQuantizer::KEY_LIGHT + 2));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(52.841, 214.645), module, ScaleQuantizer::KEY_LIGHT + 3));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(63.249, 232.673), module, ScaleQuantizer::KEY_LIGHT + 4));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(84.066, 232.673), module, ScaleQuantizer::KEY_LIGHT + 5));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(94.475, 214.645), module, ScaleQuantizer::KEY_LIGHT + 6));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(104.883, 232.673), module, ScaleQuantizer::KEY_LIGHT + 7));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(115.291, 214.645), module, ScaleQuantizer::KEY_LIGHT + 8));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(125.7, 232.673), module, ScaleQuantizer::KEY_LIGHT + 9));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(136.108, 214.645), module, ScaleQuantizer::KEY_LIGHT + 10));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(146.517, 232.673), module, ScaleQuantizer::KEY_LIGHT + 11));
 
-            gui::calculateKeyboard(i, xSpace, xOffset + 72.0, 165.0, &xPos, &yPos, &scale);
-            addChild(createLight<SmallLight<GreenLight>>(Vec(xPos, yPos), module, ScaleQuantizer::NOTE_LIGHT + scale));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(29.355, 282.658), module, ScaleQuantizer::SCALE_LIGHT + 0));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(45.834, 282.658), module, ScaleQuantizer::SCALE_LIGHT + 1));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(62.313, 282.658), module, ScaleQuantizer::SCALE_LIGHT + 2));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(78.791, 282.658), module, ScaleQuantizer::SCALE_LIGHT + 3));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(95.27, 282.658), module, ScaleQuantizer::SCALE_LIGHT + 4));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(111.749, 282.658), module, ScaleQuantizer::SCALE_LIGHT + 5));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(128.228, 282.658), module, ScaleQuantizer::SCALE_LIGHT + 6));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(144.706, 282.658), module, ScaleQuantizer::SCALE_LIGHT + 7));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(161.185, 282.658), module, ScaleQuantizer::SCALE_LIGHT + 8));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(177.664, 282.658), module, ScaleQuantizer::SCALE_LIGHT + 9));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(194.143, 282.658), module, ScaleQuantizer::SCALE_LIGHT + 10));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(210.621, 282.658), module, ScaleQuantizer::SCALE_LIGHT + 11));
 
-            gui::calculateKeyboard(i, 30.0, xOffset + 9.5, 110.0, &xPos, &yPos, &scale);
-            addChild(createLight<SmallLight<GreenLight>>(Vec(xPos, yPos), module, ScaleQuantizer::DEGREE_LIGHT + scale));
-
-            gui::calculateKeyboard(i, 30.0, xOffset, 85.0, &xPos, &yPos, &scale);
-
-            addOutput(createOutput<gui::AHPort>(Vec(xPos, yPos), module, ScaleQuantizer::GATE_OUTPUT + scale));
-        }
     }
 };
 

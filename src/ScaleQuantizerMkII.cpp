@@ -253,17 +253,31 @@ struct ScaleQuantizer2Widget : ModuleWidget {
 		addOutput(createOutputCentered<gui::AHPort>(Vec(220.308, 174.471), module, ScaleQuantizer2::TRIG_OUTPUT + 6));
 		addOutput(createOutputCentered<gui::AHPort>(Vec(254.308, 174.471), module, ScaleQuantizer2::TRIG_OUTPUT + 7));
 
-		float xOffset = 18.0;
-		float xSpace = 21.0;
-		float xPos = 0.0;
-		float yPos = 0.0;
-		int scale = 0;
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(21.616, 232.673), module, ScaleQuantizer2::KEY_LIGHT + 0));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(32.024, 214.645), module, ScaleQuantizer2::KEY_LIGHT + 1));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(42.432, 232.673), module, ScaleQuantizer2::KEY_LIGHT + 2));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(52.841, 214.645), module, ScaleQuantizer2::KEY_LIGHT + 3));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(63.249, 232.673), module, ScaleQuantizer2::KEY_LIGHT + 4));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(84.066, 232.673), module, ScaleQuantizer2::KEY_LIGHT + 5));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(94.475, 214.645), module, ScaleQuantizer2::KEY_LIGHT + 6));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(104.883, 232.673), module, ScaleQuantizer2::KEY_LIGHT + 7));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(115.291, 214.645), module, ScaleQuantizer2::KEY_LIGHT + 8));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(125.7, 232.673), module, ScaleQuantizer2::KEY_LIGHT + 9));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(136.108, 214.645), module, ScaleQuantizer2::KEY_LIGHT + 10));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(146.517, 232.673), module, ScaleQuantizer2::KEY_LIGHT + 11));
 
-		for (int i = 0; i < 12; i++) {
-			gui::calculateKeyboard(i, xSpace, xOffset, 230.0f, &xPos, &yPos, &scale);
-			addChild(createLight<SmallLight<GreenLight>>(Vec(xOffset + i * 18.0f, 280.0f), module, ScaleQuantizer2::SCALE_LIGHT + i));
-			addChild(createLight<SmallLight<GreenLight>>(Vec(xPos, yPos), module, ScaleQuantizer2::KEY_LIGHT + scale));
-		}
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(29.355, 282.658), module, ScaleQuantizer2::SCALE_LIGHT + 0));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(45.834, 282.658), module, ScaleQuantizer2::SCALE_LIGHT + 1));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(62.313, 282.658), module, ScaleQuantizer2::SCALE_LIGHT + 2));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(78.791, 282.658), module, ScaleQuantizer2::SCALE_LIGHT + 3));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(95.27, 282.658), module, ScaleQuantizer2::SCALE_LIGHT + 4));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(111.749, 282.658), module, ScaleQuantizer2::SCALE_LIGHT + 5));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(128.228, 282.658), module, ScaleQuantizer2::SCALE_LIGHT + 6));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(144.706, 282.658), module, ScaleQuantizer2::SCALE_LIGHT + 7));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(161.185, 282.658), module, ScaleQuantizer2::SCALE_LIGHT + 8));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(177.664, 282.658), module, ScaleQuantizer2::SCALE_LIGHT + 9));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(194.143, 282.658), module, ScaleQuantizer2::SCALE_LIGHT + 10));
+		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(210.621, 282.658), module, ScaleQuantizer2::SCALE_LIGHT + 11));
 
 		scalingOptions.emplace_back(std::string("V/Oct"), music::RootScaling::VOCT);
 		scalingOptions.emplace_back(std::string("Fourths and Fifths"), music::RootScaling::CIRCLE);
