@@ -3,7 +3,6 @@
 #include <iostream>
 
 #include "AH.hpp"
-#include "componentlibrary.hpp"
 
 namespace ah {
 
@@ -201,9 +200,9 @@ struct AHTrimpotNoSnap : AHKnob {
 };
 
 struct AHPort : app::SvgPort {
-        AHPort() {
-                setSvg(APP->window->loadSvg(asset::plugin(pluginInstance,"res/ComponentLibrary/AHJack.svg")));
-        }
+	AHPort() {
+		setSvg(APP->window->loadSvg(asset::plugin(pluginInstance,"res/ComponentLibrary/AHJack.svg")));
+	}
 };
 
 

@@ -1,5 +1,3 @@
-#include "common.hpp"
-
 #include "AHCommon.hpp"
 
 using namespace ah;
