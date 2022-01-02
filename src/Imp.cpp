@@ -211,9 +211,11 @@ struct ImpBox : TransparentWidget {
 			return;
 	    }
 
-		Vec pos(15.0, 0.0);
+		Vec pos(0.0, 0.0);
 
-		float n = 35.0;
+		float yoff = 8.0;
+		float ydelta = 35.8;
+
 
 		std::shared_ptr<Font> font = APP->window->loadFont("res/DSEG14ClassicMini-BoldItalic.ttf");
 
@@ -231,29 +233,29 @@ struct ImpBox : TransparentWidget {
 			} else {
 				snprintf(text, sizeof(text), "%.1f", coreState->bpm);
 			}
-			nvgText(ctx.vg, pos.x + 75, pos.y + -1 * n, text, NULL);
+			nvgText(ctx.vg, pos.x, pos.y, text, NULL);
 
 			snprintf(text, sizeof(text), "%.1f", setting->prob);
-			nvgText(ctx.vg, pos.x + 75, pos.y, text, NULL);
+			nvgText(ctx.vg, pos.x, pos.y + yoff + (1 * ydelta), text, NULL);
 
 			snprintf(text, sizeof(text), "%d", static_cast<int>(setting->dlyLen * 1000));
-			nvgText(ctx.vg, pos.x + 75, pos.y + 1 * n, text, NULL);
+			nvgText(ctx.vg, pos.x, pos.y + yoff + (2 * ydelta), text, NULL);
 
 			if (setting->dlySpr != 0) {
 				snprintf(text, sizeof(text), "%d", static_cast<int>(setting->dlySpr * 2000)); // * 2000 as it is scaled in jitter()
-				nvgText(ctx.vg, pos.x + 75, pos.y + 2 * n, text, NULL);
+				nvgText(ctx.vg, pos.x, pos.y + yoff + (3 * ydelta), text, NULL);
 			}
 
 			snprintf(text, sizeof(text), "%d", static_cast<int>(setting->gateLen * 1000));
-			nvgText(ctx.vg, pos.x + 75, pos.y + 3 * n, text, NULL);
+			nvgText(ctx.vg, pos.x, pos.y + yoff + (4 * ydelta), text, NULL);
 
 			if (setting->gateSpr != 0) {
 				snprintf(text, sizeof(text), "%d", static_cast<int>(setting->gateSpr * 2000)); // * 2000 as it is scaled in jitter()
-				nvgText(ctx.vg, pos.x + 75, pos.y + 4 * n, text, NULL);
+				nvgText(ctx.vg, pos.x, pos.y + yoff + (5 * ydelta), text, NULL);
 			}
 
 			snprintf(text, sizeof(text), "%d", setting->division);
-			nvgText(ctx.vg, pos.x + 75, pos.y + 5 * n, text, NULL);
+			nvgText(ctx.vg, pos.x, pos.y + yoff + (6 * ydelta), text, NULL);
 
 		}		
 	}
@@ -283,7 +285,7 @@ struct ImpWidget : ModuleWidget {
 		addChild(createLightCentered<MediumLight<GreenRedLight>>(Vec(33.081, 325.713), module, Imp::OUT_LIGHT * 2));
 
 		if (module != NULL) {
-			ImpBox *display = createWidget<ImpBox>(Vec(0, 82));
+			ImpBox *display = createWidget<ImpBox>(Vec(97, 63));
 
 			display->module = module;
 			display->box.size = Vec(20, 200);
