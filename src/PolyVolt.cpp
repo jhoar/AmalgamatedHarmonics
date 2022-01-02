@@ -182,15 +182,19 @@ struct PolyVolt : core::AHModule {
 struct PolyVoltDisplay : TransparentWidget {
 
 	PolyVolt *module;
-	std::shared_ptr<Font> font;
+    std::string fontPath;
 	int refresh = 0;
+
+    PolyVoltDisplay() {
+		fontPath = asset::plugin(pluginInstance, "res/RobotoCondensed-Bold.ttf");
+    }
 
 	void draw(const DrawArgs &ctx) override {
 
-		std::shared_ptr<Font> font = APP->window->loadFont("res/RobotoCondensed-Bold.ttf");
+		std::shared_ptr<Font> font = APP->window->loadFont(fontPath);
 
 		if (font) {		
-
+            nvgGlobalTint(ctx.vg, color::WHITE);
 			nvgFontSize(ctx.vg, 16);
 			nvgFontFaceId(ctx.vg, font->handle);
 			nvgTextLetterSpacing(ctx.vg, -1);
@@ -211,7 +215,7 @@ struct PolyVoltDisplay : TransparentWidget {
 					nvgText(ctx.vg, box.pos.x + 110, box.pos.y + i * 16 + j * 16, text, NULL);		
 				}
 			}
-		}
+		} 
 	}
 
 };

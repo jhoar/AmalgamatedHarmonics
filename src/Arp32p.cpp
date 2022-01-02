@@ -681,6 +681,11 @@ void Arp32::process(const ProcessArgs &args) {
 struct Arp32Display : TransparentWidget {
 
 	Arp32 *module;
+    std::string fontPath;
+
+    Arp32Display() {
+		fontPath = asset::plugin(pluginInstance, "res/RobotoCondensed-Bold.ttf");
+    }
 
 	void draw(const DrawArgs &ctx) override {
 
@@ -690,10 +695,10 @@ struct Arp32Display : TransparentWidget {
 
 		Vec pos = Vec(3,14);
 
-		std::shared_ptr<Font> font = APP->window->loadFont("res/RobotoCondensed-Bold.ttf");
+		std::shared_ptr<Font> font = APP->window->loadFont(fontPath);
 
 		if (font) {		
-
+			nvgGlobalTint(ctx.vg, color::WHITE);
 			nvgFontSize(ctx.vg, 14.5);
 			nvgFontFaceId(ctx.vg, font->handle);
 			nvgTextLetterSpacing(ctx.vg, -1);

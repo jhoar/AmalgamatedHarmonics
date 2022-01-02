@@ -785,6 +785,11 @@ void Arp31::process(const ProcessArgs &args) {
 struct Arp31Display : TransparentWidget {
 	
 	Arp31 *module;
+    std::string fontPath;
+
+    Arp31Display() {
+		fontPath = asset::plugin(pluginInstance, "res/RobotoCondensed-Bold.ttf");
+    }
 
 	void draw(const DrawArgs &ctx) override {
 
@@ -794,7 +799,7 @@ struct Arp31Display : TransparentWidget {
 
 		Vec pos = Vec(3,12.5);
 
-		std::shared_ptr<Font> font = APP->window->loadFont("res/RobotoCondensed-Bold.ttf");
+		std::shared_ptr<Font> font = APP->window->loadFont(fontPath);
 
 		if (font) {		
 			nvgFontSize(ctx.vg, 14);

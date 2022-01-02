@@ -78,14 +78,20 @@ struct AHChoice : LedDisplayChoice {
 struct StateDisplay : TransparentWidget {
 
 	core::AHModule *module;
+    std::string fontPath;
+
+    StateDisplay() {
+		fontPath = asset::plugin(pluginInstance, "res/RobotoCondensed-Bold.ttf");
+    }
 
 	virtual void draw(const DrawArgs& args) override {
 
 		Vec pos = Vec(0, 15);
 
-		std::shared_ptr<Font> font = APP->window->loadFont("res/RobotoCondensed-Bold.ttf");
+		std::shared_ptr<Font> font = APP->window->loadFont(fontPath);
 
-		if (font) {		
+		if (font) {	
+			nvgGlobalTint(args.vg, color::WHITE);			
 			nvgFontSize(args.vg, 16);
 			nvgFontFaceId(args.vg, font->handle);
 			nvgTextLetterSpacing(args.vg, -1);
@@ -97,7 +103,6 @@ struct StateDisplay : TransparentWidget {
 			nvgText(args.vg, pos.x + 10, pos.y + 5, text, NULL);
 		}
 	}
-
 };
 
 struct AHParamWidget { // it's a mix-in

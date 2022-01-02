@@ -393,6 +393,11 @@ void Galaxy::getFromKeyMode() {
 struct GalaxyDisplay : TransparentWidget {
 	
 	Galaxy *module;
+    std::string fontPath;
+
+    GalaxyDisplay() {
+		fontPath = asset::plugin(pluginInstance, "res/RobotoCondensed-Bold.ttf");
+    }
 
 	void draw(const DrawArgs &ctx) override {
 
@@ -400,10 +405,10 @@ struct GalaxyDisplay : TransparentWidget {
 			return;
 		}
 	
-		std::shared_ptr<Font> font = APP->window->loadFont("res/RobotoCondensed-Bold.ttf");
+		std::shared_ptr<Font> font = APP->window->loadFont(fontPath);
 
 		if (font) {		
-
+			nvgGlobalTint(ctx.vg, color::WHITE);
 			nvgFontSize(ctx.vg, 16);
 			nvgFontFaceId(ctx.vg, font->handle);
 			nvgFillColor(ctx.vg, nvgRGBA(0x00, 0xFF, 0xFF, 0xFF));
