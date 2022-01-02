@@ -103,31 +103,6 @@ struct Ruckus : core::AHModule {
 		}
 	}
 
-	enum ParamType {
-		DIV_TYPE,
-		SHIFT_TYPE,
-		PROB_TYPE
-	};
-
-	void receiveEvent(core::ParamEvent e) override {
-		if (receiveEvents) {
-			switch(e.pType) {
-				case ParamType::DIV_TYPE: 
-					paramState = "> Division: " + std::to_string((int)e.value);
-					break;
-				case ParamType::SHIFT_TYPE: 
-					paramState = "> Beat shift: " + std::to_string((int)e.value);
-					break;
-				case ParamType::PROB_TYPE:
-					paramState = "> Probability: " + std::to_string(e.value * 100.0f).substr(0,6) + "%";
-					break;
-				default:
-					paramState = "> UNK:" + std::to_string(e.value).substr(0,6);
-			}
-		}
-		keepStateDisplay = 0;
-	}
-
 	void onReset() override {	
 		for (int i = 0; i < 4; i++) {
 			xMute[i] = true;
@@ -396,13 +371,6 @@ struct RuckusWidget : ModuleWidget {
 		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(290.804, 113.176), module, Ruckus::YMUTE_LIGHT + 1));
 		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(290.804, 181.683), module, Ruckus::YMUTE_LIGHT + 2));
 		addChild(createLightCentered<SmallLight<GreenLight>>(Vec(290.804, 251.683), module, Ruckus::YMUTE_LIGHT + 3));
-
-		if (module != NULL) {
-			gui::StateDisplay *display = createWidget<gui::StateDisplay>(Vec(30, 335));
-			display->module = module;
-			display->box.size = Vec(100, 140);
-			addChild(display);
-		}
 
 	}
 };
