@@ -1416,7 +1416,7 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="2.7657895"
-     inkscape:cx="67.611798"
+     inkscape:cx="67.792578"
      inkscape:cy="190"
      inkscape:current-layer="layer3"
      showgrid="false"
@@ -2013,13 +2013,14 @@
        transform="translate(0.01175524,-74.386765)" />
     <g
        id="rect99539"
-       transform="translate(0.01175524,-74.386765)">
+       transform="matrix(1.4262843,0,0,1,-28.757473,-74.386765)"
+       style="stroke-width:0.83733057;stroke-miterlimit:4;stroke-dasharray:none">
       <path
-         style="color:#000000;fill:#000000;stroke-width:1.28412;stroke-linejoin:round;-inkscape-stroke:none;paint-order:markers fill stroke"
+         style="color:#000000;fill:#000000;stroke-width:0.83733057;stroke-linejoin:round;paint-order:markers fill stroke;stroke-miterlimit:4;stroke-dasharray:none"
          d="m 22.752764,190.20462 h 89.470966 v 18.18336 H 22.752764 Z"
          id="path2043" />
       <path
-         style="color:#000000;fill:url(#linearGradient99567);stroke-linejoin:round;-inkscape-stroke:none;paint-order:markers fill stroke"
+         style="color:#000000;fill:url(#linearGradient99567);stroke-linejoin:round;paint-order:markers fill stroke;stroke-width:0.83733057;stroke-miterlimit:4;stroke-dasharray:none"
          d="m 22.751953,189.5625 a 0.64212419,0.64212419 0 0 0 -0.640625,0.64258 v 18.18359 a 0.64212419,0.64212419 0 0 0 0.640625,0.64063 h 89.472657 a 0.64212419,0.64212419 0 0 0 0.64062,-0.64063 v -18.18359 a 0.64212419,0.64212419 0 0 0 -0.64062,-0.64258 z m 0.642578,1.28516 h 88.187499 v 16.89843 H 23.394531 Z"
          id="path2045" />
     </g>

@@ -792,12 +792,12 @@ struct Arp31Display : TransparentWidget {
 			return;
 		}
 
-		Vec pos = Vec(0, 15);
+		Vec pos = Vec(3,12.5);
 
 		std::shared_ptr<Font> font = APP->window->loadFont("res/RobotoCondensed-Bold.ttf");
 
 		if (font) {		
-			nvgFontSize(ctx.vg, 18);
+			nvgFontSize(ctx.vg, 14);
 			nvgFontFaceId(ctx.vg, font->handle);
 			nvgTextLetterSpacing(ctx.vg, -1);
 
@@ -805,7 +805,7 @@ struct Arp31Display : TransparentWidget {
 		
 			char text[128];
 			snprintf(text, sizeof(text), "%s", module->nextArp.c_str());
-			nvgText(ctx.vg, pos.x + 10, pos.y + 65, text, NULL);
+			nvgText(ctx.vg, pos.x, pos.y, text, NULL);
 		}		
 	}
 	
@@ -836,7 +836,7 @@ struct Arp31Widget : ModuleWidget {
 		addOutput(createOutputCentered<gui::AHPort>(Vec(69.745, 278.811), module, Arp31::OUT_OUTPUT));
 
 		if (module != NULL) {
-			Arp31Display *displayW = createWidget<Arp31Display>(Vec(40, 100));
+			Arp31Display *displayW = createWidget<Arp31Display>(Vec(38, 38));
 			displayW->box.size = Vec(100, 70);
 			displayW->module = module;
 			addChild(displayW);

@@ -490,6 +490,7 @@ struct Arp32 : core::AHModule {
 	int length = 0;
 	float size = 0;
 	float scale = 0;
+	int offset = 0;
 
 	std::vector<Pattern2 *>patterns;
 
@@ -539,7 +540,7 @@ void Arp32::process(const ProcessArgs &args) {
 	}	
 
 	inputScale = static_cast<int>(params[SCALE_PARAM].getValue());
-	unsigned int offset = static_cast<unsigned int>(params[OFFSET_PARAM].getValue());
+	offset = static_cast<unsigned int>(params[OFFSET_PARAM].getValue());
 	int hold = digital::sgn(inputs[HOLD_INPUT].getVoltage(), 0.001);
 
 	// Process inputs
@@ -687,14 +688,13 @@ struct Arp32Display : TransparentWidget {
 			return;
 		}
 
-		Vec pos = Vec(0, 15);
+		Vec pos = Vec(3,14);
 
 		std::shared_ptr<Font> font = APP->window->loadFont("res/RobotoCondensed-Bold.ttf");
 
 		if (font) {		
 
-
-			nvgFontSize(ctx.vg, 16);
+			nvgFontSize(ctx.vg, 14.5);
 			nvgFontFaceId(ctx.vg, font->handle);
 			nvgTextLetterSpacing(ctx.vg, -1);
 
@@ -703,27 +703,33 @@ struct Arp32Display : TransparentWidget {
 			char text[128];
 			if (module->inputLen == 0) {
 				snprintf(text, sizeof(text), "Error: inputLen == 0");
-				nvgText(ctx.vg, pos.x + 10, pos.y, text, NULL);
 			} else {
-				snprintf(text, sizeof(text), "%s", module->nextPattern.c_str());
-				nvgText(ctx.vg, pos.x + 10, pos.y, text, NULL);
-				snprintf(text, sizeof(text), "L : %d", module->inputLen);
-				nvgText(ctx.vg, pos.x + 10, pos.y + 15, text, NULL);
 				switch(module->inputScale) {
 					case 0: 
-						snprintf(text, sizeof(text), "S : %dst", module->inputSize);
+						snprintf(text, sizeof(text), "%s (%d, %dst, %d)", 
+							module->nextPattern.c_str(),
+							module->inputLen,
+							module->inputSize,
+							module->offset);
 						break;
 					case 1: 
-						snprintf(text, sizeof(text), "S : %dM", module->inputSize);
+						snprintf(text, sizeof(text), "%s (%d, %dM, %d)", 
+							module->nextPattern.c_str(),
+							module->inputLen,
+							module->inputSize,
+							module->offset);
 						break;
 					case 2: 
-						snprintf(text, sizeof(text), "S : %dm", module->inputSize);
+						snprintf(text, sizeof(text), "%s (%d, %dm, %d)", 
+							module->nextPattern.c_str(),
+							module->inputLen,
+							module->inputSize,
+							module->offset);
 						break;
 					default: snprintf(text, sizeof(text), "Error..."); break;
 				}
-				nvgText(ctx.vg, pos.x + 60, pos.y + 15, text, NULL);
-
 			}
+			nvgText(ctx.vg, pos.x, pos.y, text, NULL);
 		}
 	}
 
@@ -758,7 +764,7 @@ struct Arp32Widget : ModuleWidget {
 		addOutput(createOutputCentered<gui::AHPort>(Vec(69.745, 278.811), module, Arp32::OUT_OUTPUT));
 
 		if (module != NULL) {
-			Arp32Display *displayW = createWidget<Arp32Display>(Vec(10, 90));
+			Arp32Display *displayW = createWidget<Arp32Display>(Vec(3, 115));
 			displayW->box.size = Vec(100, 140);
 			displayW->module = module;
 			addChild(displayW);
