@@ -188,6 +188,11 @@ void Imperfect2::process(const ProcessArgs &args) {
 struct Imperfect2Box : TransparentWidget {
 
 	Imperfect2 *module;
+	std::string fontPath;
+
+    Imperfect2Box() {
+		fontPath = asset::plugin(pluginInstance, "res/DSEG14ClassicMini-BoldItalic.ttf");
+    }
 
 	ImperfectSetting *setting;
 	ImperfectState *state;
@@ -200,10 +205,10 @@ struct Imperfect2Box : TransparentWidget {
 
 		Vec pos = Vec(0, 15);
 
-		std::shared_ptr<Font> font = APP->window->loadFont("res/DSEG14ClassicMini-BoldItalic.ttf");
+		std::shared_ptr<Font> font = APP->window->loadFont(fontPath);
 
 		if (font) {		
-
+            nvgGlobalTint(ctx.vg, color::WHITE);
 			nvgFontSize(ctx.vg, 10);
 			nvgFontFaceId(ctx.vg, font->handle);
 			nvgTextLetterSpacing(ctx.vg, -1);

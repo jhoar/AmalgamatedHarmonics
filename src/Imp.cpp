@@ -201,6 +201,11 @@ void Imp::process(const ProcessArgs &args) {
 struct ImpBox : TransparentWidget {
 	
 	Imp *module;
+    std::string fontPath;
+
+    ImpBox() {
+		fontPath = asset::plugin(pluginInstance, "res/DSEG14ClassicMini-BoldItalic.ttf");
+    }
 
 	ImperfectSetting *setting;
 	ImperfectState *coreState;
@@ -217,10 +222,10 @@ struct ImpBox : TransparentWidget {
 		float ydelta = 35.8;
 
 
-		std::shared_ptr<Font> font = APP->window->loadFont("res/DSEG14ClassicMini-BoldItalic.ttf");
+		std::shared_ptr<Font> font = APP->window->loadFont(fontPath);
 
 		if (font) {		
-
+            nvgGlobalTint(ctx.vg, color::WHITE);
 			nvgFontSize(ctx.vg, 10);
 			nvgFontFaceId(ctx.vg, font->handle);
 			nvgTextLetterSpacing(ctx.vg, -1);
