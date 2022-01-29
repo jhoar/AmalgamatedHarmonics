@@ -123,19 +123,22 @@
 			"slug": "Arpeggiator2",
 			"name": "Arpeggiator MkII (deprecated)",
 			"description": "A multi-input arpeggiator",
-			"tags": ["Arpeggiator"]
+			"tags": ["Arpeggiator"],
+			"deprecated": true
 		},
 		{
 			"slug": "Progress",
 			"name": "Progress  (deprecated)",
 			"description": "A chord sequencer",
-			"tags": ["Sequencer"]
+			"tags": ["Sequencer"],
+			"deprecated": true
 		},
 		{
 			"slug": "ScaleQuantizer",
 			"name": "Scale Quantizer (legacy)",
 			"description": "Scale-aware quantizer",
-			"tags": ["Quantizer"]
+			"tags": ["Quantizer"],
+			"deprecated": true
 		}
 	]
 }
