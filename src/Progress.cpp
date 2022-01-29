@@ -463,6 +463,27 @@ void Progress::process(const ProcessArgs &args) {
 
 struct ProgressWidget : ModuleWidget {
 
+	template <typename T = gui::AHParamWidget>
+	static ParamWidget *setRoot(float x, float y, int pos, Progress *module) {	
+		T *w = createParamCentered<T>(Vec(x, y), module, Progress::ROOT_PARAM + pos);
+		gui::AHParamWidget::set<T>(w, Progress::ROOT_TYPE, pos);
+		return w;
+	}
+
+	template <typename T = gui::AHParamWidget>
+	static ParamWidget *setChord(float x, float y, int pos, Progress *module) {	
+		T *w = createParamCentered<T>(Vec(x, y), module, Progress::CHORD_PARAM + pos);
+		gui::AHParamWidget::set<T>(w, Progress::CHORD_TYPE, pos);
+		return w;
+	}
+
+	template <typename T = gui::AHParamWidget>
+	static ParamWidget *setInv(float x, float y, int pos, Progress *module) {	
+		T *w = createParamCentered<T>(Vec(x, y), module, Progress::INV_PARAM + pos);
+		gui::AHParamWidget::set<T>(w, Progress::INV_TYPE, pos);
+		return w;
+	}
+
 	ProgressWidget(Progress *module) {
 
 		setModule(module);
@@ -473,32 +494,32 @@ struct ProgressWidget : ModuleWidget {
 		addParam(createParamCentered<gui::AHButton>(Vec(139.569, 57.727), module, Progress::RESET_PARAM));
 		addParam(createParamCentered<gui::AHKnobSnap>(Vec(174.866, 57.727), module, Progress::STEPS_PARAM));
 
-		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(68.661, 211.337), module, Progress::ROOT_PARAM + 0));
-		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(104.774, 211.337), module, Progress::ROOT_PARAM + 1));
-		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(139.569, 211.337), module, Progress::ROOT_PARAM + 2));
-		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(174.866, 211.337), module, Progress::ROOT_PARAM + 3));
-		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(209.682, 211.337), module, Progress::ROOT_PARAM + 4));
-		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(244.663, 211.337), module, Progress::ROOT_PARAM + 5));
-		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(279.882, 211.337), module, Progress::ROOT_PARAM + 6));
-		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(314.661, 211.337), module, Progress::ROOT_PARAM + 7));
+		addParam(ProgressWidget::setRoot<gui::AHKnobNoSnap>(68.661, 211.337, 0, module));
+		addParam(ProgressWidget::setRoot<gui::AHKnobNoSnap>(104.774, 211.337, 1, module));
+		addParam(ProgressWidget::setRoot<gui::AHKnobNoSnap>(139.569, 211.337, 2, module));
+		addParam(ProgressWidget::setRoot<gui::AHKnobNoSnap>(174.866, 211.337, 3, module));
+		addParam(ProgressWidget::setRoot<gui::AHKnobNoSnap>(209.682, 211.337, 4, module));
+		addParam(ProgressWidget::setRoot<gui::AHKnobNoSnap>(244.663, 211.337, 5, module));
+		addParam(ProgressWidget::setRoot<gui::AHKnobNoSnap>(279.882, 211.337, 6, module));
+		addParam(ProgressWidget::setRoot<gui::AHKnobNoSnap>(314.661, 211.337, 7, module));
 
-		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(68.661, 246.654), module, Progress::CHORD_PARAM + 0));
-		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(104.774, 246.654), module, Progress::CHORD_PARAM + 1));
-		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(139.569, 246.654), module, Progress::CHORD_PARAM + 2));
-		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(174.866, 246.654), module, Progress::CHORD_PARAM + 3));
-		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(209.682, 246.654), module, Progress::CHORD_PARAM + 4));
-		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(244.663, 246.654), module, Progress::CHORD_PARAM + 5));
-		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(279.882, 246.654), module, Progress::CHORD_PARAM + 6));
-		addParam(createParamCentered<gui::AHKnobNoSnap>(Vec(314.661, 246.654), module, Progress::CHORD_PARAM + 7));
+		addParam(ProgressWidget::setChord<gui::AHKnobNoSnap>(68.661, 246.654, 0, module));
+		addParam(ProgressWidget::setChord<gui::AHKnobNoSnap>(104.774, 246.654, 1, module));
+		addParam(ProgressWidget::setChord<gui::AHKnobNoSnap>(139.569, 246.654, 2, module));
+		addParam(ProgressWidget::setChord<gui::AHKnobNoSnap>(174.866, 246.654, 3, module));
+		addParam(ProgressWidget::setChord<gui::AHKnobNoSnap>(209.682, 246.654, 4, module));
+		addParam(ProgressWidget::setChord<gui::AHKnobNoSnap>(244.663, 246.654, 5, module));
+		addParam(ProgressWidget::setChord<gui::AHKnobNoSnap>(279.882, 246.654, 6, module));
+		addParam(ProgressWidget::setChord<gui::AHKnobNoSnap>(314.661, 246.654, 7, module));
 
-		addParam(createParamCentered<gui::AHKnobSnap>(Vec(68.661, 281.97), module, Progress::INV_PARAM + 0));
-		addParam(createParamCentered<gui::AHKnobSnap>(Vec(104.774, 281.97), module, Progress::INV_PARAM + 1));
-		addParam(createParamCentered<gui::AHKnobSnap>(Vec(139.569, 281.97), module, Progress::INV_PARAM + 2));
-		addParam(createParamCentered<gui::AHKnobSnap>(Vec(174.866, 281.97), module, Progress::INV_PARAM + 3));
-		addParam(createParamCentered<gui::AHKnobSnap>(Vec(209.682, 281.97), module, Progress::INV_PARAM + 4));
-		addParam(createParamCentered<gui::AHKnobSnap>(Vec(244.663, 281.97), module, Progress::INV_PARAM + 5));
-		addParam(createParamCentered<gui::AHKnobSnap>(Vec(279.882, 281.97), module, Progress::INV_PARAM + 6));
-		addParam(createParamCentered<gui::AHKnobSnap>(Vec(314.661, 281.97), module, Progress::INV_PARAM + 7));
+		addParam(ProgressWidget::setInv<gui::AHKnobSnap>(68.661, 281.97, 0, module));
+		addParam(ProgressWidget::setInv<gui::AHKnobSnap>(104.774, 281.97, 1, module));
+		addParam(ProgressWidget::setInv<gui::AHKnobSnap>(139.569, 281.97, 2, module));
+		addParam(ProgressWidget::setInv<gui::AHKnobSnap>(174.866, 281.97, 3, module));
+		addParam(ProgressWidget::setInv<gui::AHKnobSnap>(209.682, 281.97, 4, module));
+		addParam(ProgressWidget::setInv<gui::AHKnobSnap>(244.663, 281.97, 5, module));
+		addParam(ProgressWidget::setInv<gui::AHKnobSnap>(279.882, 281.97, 6, module));
+		addParam(ProgressWidget::setInv<gui::AHKnobSnap>(314.661, 281.97, 7, module));
 
 		addParam(createParamCentered<gui::AHButton>(Vec(68.661, 317.287), module, Progress::GATE_PARAM + 0));
 		addParam(createParamCentered<gui::AHButton>(Vec(104.774, 317.287), module, Progress::GATE_PARAM + 1));
