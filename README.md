@@ -1,4 +1,4 @@
-Welcome to the Amalgamated Harmonics; your one-stop shop for barely usable modules for [VCVRack](www.vcvrack.com).
+Welcome to the Amalgamated Harmonics.
 
 ![All](./doc/all.jpg)
 
@@ -20,5 +20,5 @@ Welcome to the Amalgamated Harmonics; your one-stop shop for barely usable modul
 * [PolyUtils](https://github.com/jhoar/AmalgamatedHarmonics/wiki/PolyUtils), A couple of utilities for manipulating polyphonic cabling, maybe more useful for development.
 * [MuxDeMux](https://github.com/jhoar/AmalgamatedHarmonics/wiki/MuxDeMux), a polyphonic cable multiplexer/de-multiplexer.
 
-The latest release is [1.0.4](https://github.com/jhoar/AmalgamatedHarmonics/releases/tag/v1.0.4). It is available through the [Plugin Manager](https://vcvrack.com/plugins.html). You can contact us at amalgamatedharmonics@outlook.com. We do not post on Facebook.
+The latest release is [2.0.0](https://github.com/jhoar/AmalgamatedHarmonics/releases/tag/v2.0.0). It is available through the [Plugin Manager](https://vcvrack.com/plugins.html). 
 
