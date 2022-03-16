@@ -39,7 +39,7 @@ struct PolyScope : core::AHModule {
 	float buffer[16][BUFFER_SIZE] = {};
 	int bufferIndex = 0;
 	float frameIndex = 0;
-	int maxChannels;
+	int maxChannels = 0;
 
 	bool toggle = false;
 
@@ -302,6 +302,7 @@ struct PolyScopeDisplay : TransparentWidget {
 	}
 
 	void draw(const DrawArgs &args) override {
+		
 		if (!module)
 			return;
 
@@ -327,6 +328,7 @@ struct PolyScopeDisplay : TransparentWidget {
 			nvgStrokeColor(args.vg, cMaps[module->currCMap][i]);
 			drawWaveform(args, values[i]);
 		}
+
 	}
 };
 
@@ -365,6 +367,7 @@ struct PolyScopeWidget : ModuleWidget {
 	std::vector<MenuOption<int>> cmapOptions;
 
 	PolyScopeWidget(PolyScope *module) {
+
 		setModule(module);
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/PolyScope.svg")));
 
