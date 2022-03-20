@@ -20,5 +20,5 @@ Welcome to the Amalgamated Harmonics.
 * [PolyUtils](https://github.com/jhoar/AmalgamatedHarmonics/wiki/PolyUtils), A couple of utilities for manipulating polyphonic cabling, maybe more useful for development.
 * [MuxDeMux](https://github.com/jhoar/AmalgamatedHarmonics/wiki/MuxDeMux), a polyphonic cable multiplexer/de-multiplexer.
 
-The latest release is [2.0.0](https://github.com/jhoar/AmalgamatedHarmonics/releases/tag/v2.0.0). It is available through the [Plugin Manager](https://vcvrack.com/plugins.html). 
+The latest release is [2.0.0](https://github.com/jhoar/AmalgamatedHarmonics/releases/tag/v2.0.0). It is available through the [Plugin Library](https://library.vcvrack.com/). 
 
