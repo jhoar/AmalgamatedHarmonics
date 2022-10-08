@@ -391,31 +391,29 @@ struct Arp32 : core::AHModule {
 	Arp32() : core::AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
 		configParam(PATT_PARAM, 0.0, 5.0, 0.0, "Pattern"); 
 
-		configParam(SIZE_PARAM, -24, 24, 1, "Step Size"); 
-		paramQuantities[SIZE_PARAM]->description = "Size of each step in the pattern";
+		configParam(SIZE_PARAM, -24, 24, 1, "Step size"); 
+		getParamQuantity(SIZE_PARAM)->description = "Size of each step in the pattern. Positive = increase pitch, negative = decrease pitch";
 
 		configParam(LENGTH_PARAM, 1.0, 16.0, 1.0, "Number of steps in the pattern");
 
 		configParam(OFFSET_PARAM, 0.0, 10.0, 0.0, "Start offset"); 
-		paramQuantities[OFFSET_PARAM]->description = "Number of steps into the arpeggio to start";
+		getParamQuantity(OFFSET_PARAM)->description = "Number of steps into the arpeggio to start";
 
-		struct ScaleParamQuantity : engine::ParamQuantity {
-			std::string getDisplayValueString() override {
-				int v = (int)getValue();
-				if (v == 0) {
-					return "Semitone " + ParamQuantity::getDisplayValueString();
-				}
-				if (v == 1) {
-					return "Major interval " + ParamQuantity::getDisplayValueString();
-				}
-				if (v == 2) {
-					return "Minor interval " + ParamQuantity::getDisplayValueString();
-				}
-				return "Semitone (probably) " + ParamQuantity::getDisplayValueString();
-			}
-		};
-		configParam(SCALE_PARAM, 0, 2, 0, "Step type"); 
-		paramQuantities[SCALE_PARAM]->description = "Type of step: semitones or major or minor intervals"; 
+		configSwitch(PATT_PARAM, 0, 5, 0, "Pattern", {"Diverge", "Converge", "Return", "Bounce", "Rez", "On The Run"});
+
+		configSwitch(SCALE_PARAM, 0, 2, 0, "Scale", {"Semitone", "Major", "Minor"}); 
+		getParamQuantity(SCALE_PARAM)->description = "Scale of step: semitones, major or minor intervals"; 
+
+		configInput(CLOCK_INPUT, "Clock");
+		configInput(PITCH_INPUT, "1V/oct pitch (Poly)");
+		configInput(PATT_INPUT, "Pattern selection");
+		configInput(SIZE_INPUT, "Step size");
+		configInput(HOLD_INPUT, "Trigger: Hold arpeggio");
+		configInput(RANDOM_INPUT, "Trigger: Randomize arpeggio pitch order");
+
+		configOutput(OUT_OUTPUT, "1V/oct pitch");
+		configOutput(GATE_OUTPUT, "Trigger: On pitch change");
+		configOutput(EOC_OUTPUT, "Trigger: On end of pattern");
 
 		patterns.push_back(&patt_diverge);
 		patterns.push_back(&patt_converge);

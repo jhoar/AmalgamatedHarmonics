@@ -517,9 +517,20 @@ struct Arp31 : core::AHModule {
 	
 	Arp31() : core::AHModule(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {
 		configParam(OFFSET_PARAM, 0.0, 10.0, 0.0, "Start offset");
-		paramQuantities[OFFSET_PARAM]->description = "Number of steps into the arpeggio to start";
+		getParamQuantity(OFFSET_PARAM)->description = "Number of steps into the arpeggio to start";
 
-		configParam(ARP_PARAM, 0.0, 7.0, 0.0, "Arpeggio type"); 
+		configSwitch(ARP_PARAM, 0, 7, 0, "Arpeggio", {"Right", "Left", "RightLeft", "LeftRight", "CrabRight", "CrabLeft", "CrabRightLeft", "CrabLeftRight"});
+
+		configInput(CLOCK_INPUT, "Clock");
+		configInput(PITCH_INPUT, "1V/oct pitch (Poly)");
+		configInput(GATE_INPUT, "Active channel mask (Poly)");
+		configInput(ARP_INPUT, "Arpeggio selection");
+		configInput(HOLD_INPUT, "Trigger: Hold arpeggio");
+		configInput(RANDOM_INPUT, "Trigger: Randomize arpeggio pitch order");
+
+		configOutput(OUT_OUTPUT, "1V/oct pitch");
+		configOutput(GATE_OUTPUT, "Trigger: On pitch change");
+		configOutput(EOC_OUTPUT, "Trigger: On end of arpeggio");
 
 		arps.push_back(&arp_right);
 		arps.push_back(&arp_left);
